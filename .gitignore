@@ -1,0 +1,69 @@
+
+# config files
+config.json
+
+# The main FS workspace
+workspace
+
+# Automatically-generated documentation
+# doc
+
+# Clang static analysis output
+analysis
+
+# Build files
+.build
+lib
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# Compiled Dynamic libraries
+*.so
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+
+# Executables
+*.bin
+
+# Temporary files
+*.swp
+*.dblite
+*.log
+*.graph
+*.strips
+
+# Python bytecodes
+*.pyc
+
+# Temporary output files
+*.out
+
+# Binaries
+*.bin
+
+# Codeblocks
+*.cbp
+
+# CMake & make files
+Makefile
+
+# Build temporary files
+experiments/*
+workspace/*
+
+# Singularity images
+*.img
+
+#
+*.pc
+variables.cache
