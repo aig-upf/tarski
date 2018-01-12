@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-
+import sys
+sys.path.append('../')
 import tarsky as tsk
 
 
@@ -70,8 +71,3 @@ if __name__ == "__main__":
                           goal=goal,
                           actions=[move]
                           )
-
-
-
-
-

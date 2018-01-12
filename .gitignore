@@ -67,3 +67,5 @@ workspace/*
 #
 *.pc
 variables.cache
+
+*.pyc
