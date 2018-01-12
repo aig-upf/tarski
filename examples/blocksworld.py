@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import sys
 sys.path.append('../')
-import tarsky as tsk
+import tarski as tsk
 
 
 if __name__ == "__main__":

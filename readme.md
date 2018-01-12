@@ -1,5 +1,5 @@
 
-Tarsky - The Functional STRIPS Problem Definition Module
+Tarski - The Functional STRIPS Problem Definition Module
 =================================
 
 ...
