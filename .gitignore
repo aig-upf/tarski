@@ -69,3 +69,6 @@ workspace/*
 variables.cache
 
 *.pyc
+
+# notebooks
+notebooks/.ipynb_checkpoints/
