@@ -1,3 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import ._language.FOL as language
+from ._language import FOL
+# we rename FOL to be language
+language = FOL
