@@ -90,6 +90,9 @@ class FOL :
 
     def __init__(self) :
         self._sorts = {}
+        # MRJ: let's represent this temporally as pairs of names of sorts,
+        # lhs \sqsubseteq rhs
+        self._sort_hierarchy = set()
         self._functions = {}
         self._predicates = {}
         self._variables = {}
@@ -117,11 +120,14 @@ class FOL :
         the_nats.built_in = True
         self._sorts['Natural'] = the_nats
 
-    def sort( self, name ) :
+    def sort( self, name, super = None ) :
         """
             Creates instance of Sort object, adds it to the table of
             sorts
         """
+        if self._sorts.get(name, None) :
+            # there is a sort already declared with the same names
+            raise LanguageError("FOL.sort() : sort '{}' already declared".format(name))
         sort_obj = Sort(name, self)
         self._sorts[name] = sort_obj
         return sort_obj
