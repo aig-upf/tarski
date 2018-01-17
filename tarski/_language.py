@@ -3,6 +3,8 @@
 import types
 import scipy.constants
 
+from typing import List, Set, Union
+
 class LanguageError(Exception) :
     pass
 
@@ -14,10 +16,19 @@ class Sort :
         self._domain = {}
         self._built_in = False
 
+    def __str__(self) :
+        return 'Sort({})'.format(self.name)
+
+    def __repr__(self) :
+        return self.name
+
     @property
     def name(self) :
         return self._name
 
+    @property
+    def language(self) :
+        return self._language
     @property
     def built_in(self) :
         return self._built_in
@@ -39,6 +50,27 @@ class Sort :
     def dump(self) :
         return dict( name = self._name,\
                      domain = [n for n, _ in self._domain.items()] )
+
+def parents( s : Sort ) -> List[Sort] :
+    """ Returns direct parent sorts in the sort hierarchy associated with
+        the language
+    """
+    parents = []
+    for lhs, rhs in s.language.sort_hierarchy :
+        if lhs == s.name :
+            parents.append( s.language.sort(rhs) )
+    return parents
+
+def children( s : Sort ) -> List[Sort] :
+    """ Return direct child sorts in the sort hierarchy associated with
+        the language
+    """
+    children = []
+    for lhs, rhs in s.language.sort_hierarchy :
+        if rhs == sort :
+            children.append( s.language.sort(lhs))
+    return children
+
 
 
 class Interval(Sort) :
@@ -85,19 +117,43 @@ class Constant :
     def name(self) :
         return self._name
 
+    @property
+    def sort(self) :
+        return self._sort
+
 
 class FOL :
 
     def __init__(self) :
         self._sorts = {}
         # MRJ: let's represent this temporally as pairs of names of sorts,
-        # lhs \sqsubseteq rhs
+        # lhs \sqsubseteq rhs, lhs is a subset of rhs
         self._sort_hierarchy = set()
+        # MRJ: this contains a table where we record possible promotions
+        # between sorts (i.e. bottom up along the hierarchy)
+        self._possible_promotions = {}
         self._functions = {}
         self._predicates = {}
         self._variables = {}
 
         self._build_builtin_sorts()
+
+    def _inclusion_closure( self, s: Sort ) -> Set[Sort] :
+        """
+            Calculates the inclusion closure over given sort s
+        """
+        closure = set()
+        frontier = { s }
+        while len(frontier) > 0 :
+            s = frontier.pop()
+            closure.add(s)
+            for p in parents(s) :
+                frontier.add(p)
+        return closure
+
+    @property
+    def sort_hierarchy(self) :
+        return self._sort_hierarchy
 
     def _build_builtin_sorts(self) :
         self._build_the_reals()
@@ -114,23 +170,38 @@ class FOL :
         the_ints = Interval( -(2**31-1), 2**31-1, lambda x : int(x), 'Integer', self )
         the_ints.built_in = True
         self._sorts['Integer'] = the_ints
+        self.set_parent( the_ints, self.sort('Real'))
 
     def _build_the_naturals(self) :
         the_nats = Interval( 0, 2**32-1, lambda x : int(x), 'Natural', self )
         the_nats.built_in = True
         self._sorts['Natural'] = the_nats
+        self.set_parent( the_nats, self.sort('Integer'))
 
-    def sort( self, name, super = None ) :
+    def sort( self, name : str, super_list : List[Sort] = []) :
         """
             Creates instance of Sort object, adds it to the table of
             sorts
         """
-        if self._sorts.get(name, None) :
-            # there is a sort already declared with the same names
-            raise LanguageError("FOL.sort() : sort '{}' already declared".format(name))
+        other = self._sorts.get(name,None)
+        if other :
+            return other
         sort_obj = Sort(name, self)
         self._sorts[name] = sort_obj
+        if super is None :
+            self._possible_promotions[name] = set() # no possible promotions
+            return sort_obj
+        # MRJ: list of objects or names?
+        for parent in super_list :
+            self.set_parent(sort_obj, parent)
+
         return sort_obj
+
+    def set_parent(self, lhs : Sort, rhs : Sort ) :
+        if rhs.language is not self :
+            raise LanguageError("FOL.sort(): tried to set as parent a sort from a different language")
+        self._sort_hierarchy.add( (lhs.name, rhs.name))
+        self._possible_promotions[lhs.name] = self._inclusion_closure(rhs)
 
     def const( self, namelist, sort ) :
         """
