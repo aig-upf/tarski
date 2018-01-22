@@ -1,126 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import types
-import scipy.constants
-
-from typing import List, Set, Union
-
-class LanguageError(Exception) :
-    pass
-
-class Sort :
-
-    def __init__(self, name, lang) :
-        self._name = name
-        self._language = lang
-        self._domain = {}
-        self._built_in = False
-
-    def __str__(self) :
-        return 'Sort({})'.format(self.name)
-
-    def __repr__(self) :
-        return self.name
-
-    @property
-    def name(self) :
-        return self._name
-
-    @property
-    def language(self) :
-        return self._language
-    @property
-    def built_in(self) :
-        return self._built_in
-    @built_in.setter
-    def built_in(self,v) :
-        self._built_in = v
-        assert self._built_in == True or self._built_in == False
-
-    def contains( self, x ) :
-        try :
-            return self._domain[x] != None # this should always return True
-        except KeyError :
-            return False
-
-    def check_empty(self) :
-        if len(self._domain) == 0 :
-            raise LanguageError("Sort '{}' is empty!".format(self._name))
-
-    def dump(self) :
-        return dict( name = self._name,\
-                     domain = [n for n, _ in self._domain.items()] )
-
-def parents( s : Sort ) -> List[Sort] :
-    """ Returns direct parent sorts in the sort hierarchy associated with
-        the language
-    """
-    parents = []
-    for lhs, rhs in s.language.sort_hierarchy :
-        if lhs == s.name :
-            parents.append( s.language.sort(rhs) )
-    return parents
-
-def children( s : Sort ) -> List[Sort] :
-    """ Return direct child sorts in the sort hierarchy associated with
-        the language
-    """
-    children = []
-    for lhs, rhs in s.language.sort_hierarchy :
-        if rhs == sort :
-            children.append( s.language.sort(lhs))
-    return children
-
-
-
-class Interval(Sort) :
-
-    def __init__(self, lb, ub, encode_fn, name, lang ) :
-        super(Interval, self).__init__(name,lang)
-        self._lb = lb
-        self._ub = ub
-        self._encode = encode_fn
-        self._domain = lambda x : x >= self._lb and x <= self._ub
-
-    def cast( self, x ) :
-        if isinstance(x,str) :
-            try :
-                return getattr(self,x)
-            except AttributeError :
-                pass
-        y = self._encode(x) # can raise ValueError
-        if not self._domain(y) :
-            raise ValueError("Interval.cast() : symbol '{}', encoded as '{}' does not belong to the domain!".format(x,y))
-        return y
-
-    def contains(self, x ) :
-        try :
-            y = self._encode(x)
-        except ValueError :
-            return False
-        return self._domain(y)
-
-    def dump(self) :
-        return dict( name = self.name,\
-                    domain = [ self._lb, self._ub ] )
-
-class Constant :
-
-    def __init__(self, name, sort, lang ) :
-
-        self._name = name
-        self._sort = sort
-        self._sort._domain[name] = self
-        self._lang = lang
-
-    @property
-    def name(self) :
-        return self._name
-
-    @property
-    def sort(self) :
-        return self._sort
-
+from ._sorts import *
+from ._const import Constant
+from ._predicate import Predicate, Equality
 
 class FOL :
 
@@ -135,6 +17,10 @@ class FOL :
         self._functions = {}
         self._predicates = {}
         self._variables = {}
+
+        # MRJ: let's allow default equality predicates to be enabled/disabled
+        # dynamically
+        self._default_equality = True
 
         self._build_builtin_sorts()
 
@@ -155,6 +41,21 @@ class FOL :
     def sort_hierarchy(self) :
         return self._sort_hierarchy
 
+    @property
+    def sorts(self) :
+        for s in self.sorts :
+            yield s
+
+    @property
+    def predicates(self) :
+        for _, p in self._predicates.items() :
+            yield p
+
+    @property
+    def functions(self) :
+        for f in self._functions.items() :
+            yield f
+
     def _build_builtin_sorts(self) :
         self._build_the_reals()
         self._build_the_integers()
@@ -165,18 +66,27 @@ class FOL :
         the_reals.built_in = True
         the_reals.pi = scipy.constants.pi
         self._sorts['Real'] = the_reals
+        sort_eq = Equality(self,the_reals,the_reals)
+        self._predicates[sort_eq.signature] = sort_eq
+
 
     def _build_the_integers(self) :
         the_ints = Interval( -(2**31-1), 2**31-1, lambda x : int(x), 'Integer', self )
         the_ints.built_in = True
         self._sorts['Integer'] = the_ints
         self.set_parent( the_ints, self.sort('Real'))
+        sort_eq = Equality(self,the_ints,the_ints)
+        self._predicates[sort_eq.signature] = sort_eq
+
 
     def _build_the_naturals(self) :
         the_nats = Interval( 0, 2**32-1, lambda x : int(x), 'Natural', self )
         the_nats.built_in = True
         self._sorts['Natural'] = the_nats
         self.set_parent( the_nats, self.sort('Integer'))
+        sort_eq = Equality(self,the_nats,the_nats)
+        self._predicates[sort_eq.signature] = sort_eq
+
 
     def sort( self, name : str, super_list : List[Sort] = []) :
         """
@@ -194,7 +104,10 @@ class FOL :
         # MRJ: list of objects or names?
         for parent in super_list :
             self.set_parent(sort_obj, parent)
-
+        # MRJ: create equality
+        if self._default_equality :
+            sort_eq = Equality(self,sort_obj,sort_obj)
+            self._predicates[sort_eq.signature] = sort_eq
         return sort_obj
 
     def set_parent(self, lhs : Sort, rhs : Sort ) :
@@ -233,9 +146,17 @@ class FOL :
             return tuple(list(sort.cast(n) for n in namelist))
         return sort.cast(namelist)
 
+    def predicate(self, symbol : str, *args ) :
+        pred = Predicate(symbol, self, *args)
+        try :
+            return self._predicates[pred.signature]
+        except KeyError :
+            self._predicates[ pred.signature ] = pred
+
     def dump(self) :
         return dict(\
-                sorts = [s.dump() for _, s in self._sorts.items() ]\
+                sorts = [s.dump() for _, s in self._sorts.items() ],\
+                predicates = [p.dump() for _, p in self._predicates.items()]
                 )
 
 
