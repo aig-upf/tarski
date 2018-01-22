@@ -3,6 +3,7 @@
 from ._sorts import *
 from ._const import Constant
 from ._predicate import Predicate, Equality
+from ._function import Function
 
 class FOL :
 
@@ -152,11 +153,21 @@ class FOL :
             return self._predicates[pred.signature]
         except KeyError :
             self._predicates[ pred.signature ] = pred
+        return pred
+
+    def function(self, symbol : str, *args) :
+        func = Function(symbol, self, *args)
+        try :
+            return self._functions[ func.signature ]
+        except KeyError :
+            self._functions[ func.signature ] = func
+        return func
 
     def dump(self) :
         return dict(\
                 sorts = [s.dump() for _, s in self._sorts.items() ],\
-                predicates = [p.dump() for _, p in self._predicates.items()]
+                predicates = [p.dump() for _, p in self._predicates.items()],\
+                functions = [f.dump() for _, f in self._functions.items()]
                 )
 
 

@@ -9,7 +9,7 @@ class Predicate(object) :
 
         self._symbol = name # name, a string
         self._lang = lang # fol the symbol belongs to
-        self._args = []
+        self._type = []
 
         # we validate the arguments now
         for k, a in enumerate(args) :
@@ -19,7 +19,7 @@ class Predicate(object) :
             if self._lang != a.language  :
                 raise LanguageError("Predicate.__init__(): {}-th argument \
                 belongs to a different language".format(k+1))
-            self._args.append(a)
+            self._type.append(a)
 
     @property
     def symbol(self) :
@@ -27,22 +27,22 @@ class Predicate(object) :
 
     @property
     def signature(self) :
-        return tuple([self.symbol] + [a.name for a in self.arguments] )
+        return tuple([self.symbol] + [a.name for a in self.type] )
 
     @property
     def arity(self) :
-        return len(self._args)
+        return len(self._type)
 
     @property
-    def arguments(self) :
-        for a in self._args :
+    def type(self) :
+        for a in self._type :
             yield a
 
     def __str__(self) :
-        return '{}({})'.format(self.symbol, ','.join([ a.name for a in self._args ]))
+        return '{}({})'.format(self.symbol, ','.join([ a.name for a in self._type ]))
 
     def dump(self) :
-        return dict(symbol=self.symbol, arguments = [a.name for a in self._args])
+        return dict(symbol=self.symbol, type = [a.name for a in self._type])
 
 class Equality(Predicate) :
 
@@ -51,7 +51,3 @@ class Equality(Predicate) :
             raise LanguageError("Equality.__init__() : Equality predicate must \
             have arity of 2, list of arguments has length {}".format(len(args)))
         super(Equality,self).__init__('=', lang, *args)
-
-built_ins = {
-    '=' : lambda x,y : Equality(x,y)
-}
