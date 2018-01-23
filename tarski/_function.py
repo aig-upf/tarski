@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from ._errors import LanguageError
 from ._sorts import Sort
+from ._terms import Term
 
 class Function(object) :
 
@@ -45,7 +46,7 @@ class Function(object) :
 
     @property
     def type(self) :
-        return self._type
+        return self._codomain
 
 
     def __str__(self) :
@@ -55,3 +56,6 @@ class Function(object) :
         return dict(symbol=self.symbol, \
                     domain = [a.name for a in self.domain],\
                     codomain = self.codomain.name)
+
+    def __call__(self, *args) :
+        return Term(self, args)

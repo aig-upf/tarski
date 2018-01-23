@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from ._sorts import *
-from ._const import Constant
+from ._terms import Constant, Variable
 from ._predicate import Predicate, Equality
 from ._function import Function
 
@@ -17,7 +17,7 @@ class FOL :
         self._possible_promotions = {}
         self._functions = {}
         self._predicates = {}
-        self._variables = {}
+        self._variables = set()
 
         # MRJ: let's allow default equality predicates to be enabled/disabled
         # dynamically
@@ -37,6 +37,11 @@ class FOL :
             for p in parents(s) :
                 frontier.add(p)
         return closure
+
+    @property
+    def variables(self) :
+        for x in self._variables :
+            yield x
 
     @property
     def sort_hierarchy(self) :
@@ -110,6 +115,9 @@ class FOL :
             sort_eq = Equality(self,sort_obj,sort_obj)
             self._predicates[sort_eq.signature] = sort_eq
         return sort_obj
+
+    def var( self, name : str, type : Sort ) :
+        return Variable(name, type, self)
 
     def set_parent(self, lhs : Sort, rhs : Sort ) :
         if rhs.language is not self :
