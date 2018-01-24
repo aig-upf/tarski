@@ -48,6 +48,10 @@ class Function(object) :
     def type(self) :
         return self._codomain
 
+    @property
+    def language(self) :
+        return self._lang
+
 
     def __str__(self) :
         return '{}({})'.format(self.symbol, ','.join([ a.name for a in self._domain ]))

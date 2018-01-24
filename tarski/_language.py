@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+from ._errors import LanguageError
 from ._sorts import *
 from ._terms import Constant, Variable
 from ._predicate import Predicate, Equality
@@ -75,6 +75,9 @@ class FOL :
         sort_eq = Equality(self,the_reals,the_reals)
         self._predicates[sort_eq.signature] = sort_eq
 
+    @property
+    def Real(self) :
+        return self._sorts['Real']
 
     def _build_the_integers(self) :
         the_ints = Interval( -(2**31-1), 2**31-1, lambda x : int(x), 'Integer', self )
@@ -84,6 +87,9 @@ class FOL :
         sort_eq = Equality(self,the_ints,the_ints)
         self._predicates[sort_eq.signature] = sort_eq
 
+    @property
+    def Integer(self) :
+        return self._sorts['Integer']
 
     def _build_the_naturals(self) :
         the_nats = Interval( 0, 2**32-1, lambda x : int(x), 'Natural', self )
@@ -93,6 +99,9 @@ class FOL :
         sort_eq = Equality(self,the_nats,the_nats)
         self._predicates[sort_eq.signature] = sort_eq
 
+    @property
+    def Natural(self) :
+        return self._sorts['Natural']
 
     def sort( self, name : str, super_list : List[Sort] = []) :
         """
@@ -182,3 +191,7 @@ class FOL :
     def is_well_formed(self) :
         for _, s in self._sorts.items() :
             s.check_empty()
+
+    def resolve_function_symbol_2( self, sym : str, lhs : Sort, rhs : Sort ) :
+        raise LanguageError("FOL.resolve_function_symbol_2(): function symbol '{}' is not defined for domain ({},{})"\
+            .format(sym,lhs,rhs))
