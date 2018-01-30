@@ -3,16 +3,8 @@ from ._errors import LanguageError
 from ._terms import Term, Variable, Constant
 
 from enum import Enum
-
-class RelationalFormulaSymbol(Enum) :
-    EQ = "="
-    NEQ = "!="
-    LT = "<"
-    LEQ = "<="
-    GT = ">"
-    GEQ = ">="
-
-
+from typing import List
+import copy
 
 class Formula(object) :
 
@@ -36,13 +28,23 @@ class Formula(object) :
       newone.__dict__.update(self.__dict__)
       return newone
 
-   def __deepcopy__(self, memo):
+    def __deepcopy__(self, memo):
         cls = self.__class__
         newone = type(self)()
         memo[id(self)] = newone
         for k, v in self.__dict__.items():
-            setattr(newone, k, deepcopy(v, memo))
+            setattr(newone, k, copy.deepcopy(v, memo))
         return newone
+
+    def __and__(self, rhs) :
+        return Conjunction(self,rhs)
+
+    def __or__(self, rhs) :
+        return Disjunction(self,rhs)
+
+    def __invert__(self) :
+        return Negation(self)
+
 
 
 class AtomicFormula(Formula) :
@@ -133,7 +135,7 @@ class Conjunction(OpenFormula) :
         super(Conjunction,self).__init__(*args)
         self._name = 'and'
 
-def and( *args ) :
+def land( *args ) :
     if len(args) < 2:
         raise LanguageError('Conjunction requires at least two subformulas')
     rhs = args.pop()
@@ -153,7 +155,7 @@ class Disjunction(OpenFormula) :
         super(Disjunction,self).__init__(*args)
         self._name = 'or'
 
-def or( *args ) :
+def lor( *args ) :
     if len(args) < 2:
         raise LanguageError('Conjunction requires at least two subformulas')
     rhs = args.pop()
@@ -170,3 +172,61 @@ class Negation(OpenFormula) :
         if len(args) != 1 :
             raise LanguageError("Formula is not well formed: Negation admits only one subformula")
         super(Negation,self).__init__(*args)
+
+def neg( phi ) :
+    return Negation(phi)
+
+class QuantifiedFormula(Formula) :
+
+    def __init__(self, varset : List[Variable], phi : Formula) :
+        self._vars = varset
+        self._phi = phi
+
+    @property
+    def subformula(self) :
+        return self._phi
+
+    @property
+    def vars(self) :
+        return self._vars
+
+class ExistentiallyQuantifiedFormula(QuantifiedFormula) :
+
+    def __init__(self, varset : List[Variable], phi : Formula ) :
+        super(ExistentiallyQuantifiedFormula,self).__init__(varset,phi)
+
+    def __str__(self) :
+        return 'Exists {} : {}'.format(' '.join([str(x) for x in self.vars]), str(self.subformula))
+
+
+def exists( *args ) :
+    if len(args) < 2 :
+        raise LanguageError('Existential quantification needs at least two arguments')
+    phi = args[-1]
+    if not isinstance(phi, Formula) :
+        raise LanguageError('Last argument to exist(...) needs to be a formula')
+    vars = args[:-1]
+    for x in vars :
+        if not isinstance(x,Variable) :
+            raise LanguageError('Every other argument of exist(...) but the last needs to be a variable')
+    return ExistentialFormula(vars, phi)
+
+class UniversallyQuantifiedFormula(QuantifiedFormula) :
+
+    def __init__(self, varset : List[Variable], phi : Formula ) :
+        super(UniversallyQuantifiedFormula,self).__init__(varset,phi)
+
+    def __str__(self) :
+        return 'Forall {} : {}'.format(' '.join([str(x) for x in self.vars]), str(self.subformula))
+
+def forall( *args ) :
+    if len(args) < 2 :
+        raise LanguageError('Universal quantification needs at least two arguments')
+    phi = args[-1]
+    if not isinstance(phi, Formula) :
+        raise LanguageError('Last argument to forall(...) needs to be a formula')
+    vars = args[:-1]
+    for x in vars :
+        if not isinstance(x,Variable) :
+            raise LanguageError('Every other argument of exist(...) but the last needs to be a variable')
+    return UniversallyQuantifiedFormula(vars, phi)

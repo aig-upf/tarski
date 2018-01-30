@@ -5,7 +5,19 @@ from ._terms import Constant, Variable
 from ._predicate import Predicate, Equality
 from ._function import Function
 
+from ._relational import EQFormula, LTFormula, GTFormula, LEQFormula, GEQFormula, NEQFormula
+
+
 class FOL :
+
+    formula_symbols = {
+        '=' : EQFormula,
+        '!=' : NEQFormula,
+        '<' : LTFormula,
+        '>' : GTFormula,
+        '<=' : LEQFormula,
+        '>=' : GEQFormula
+    }
 
     def __init__(self) :
         self._sorts = {}
@@ -195,3 +207,7 @@ class FOL :
     def resolve_function_symbol_2( self, sym : str, lhs : Sort, rhs : Sort ) :
         raise LanguageError("FOL.resolve_function_symbol_2(): function symbol '{}' is not defined for domain ({},{})"\
             .format(sym,lhs,rhs))
+        return None
+
+    def resolve_formula_symbol(self, symbol) :
+        return FOL.formula_symbols[symbol]

@@ -62,4 +62,4 @@ class Function(object) :
                     codomain = self.codomain.name)
 
     def __call__(self, *args) :
-        return Term(self, args)
+        return Term(self, args, self._lang)

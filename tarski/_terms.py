@@ -6,8 +6,10 @@ import copy
 
 class Term(object) :
 
-    def __init__(self, sym, arguments ) :
+    def __init__(self, sym, arguments, lang ) :
         self._f  = sym
+        self._lang = lang
+
         for a in arguments :
             if not isinstance(a,Term) :
                 raise LanguageError("Syntax error: argument {} is not a term".format(a))
@@ -42,58 +44,93 @@ class Term(object) :
                     arguments = [ t.dump() for t in self.arguments ])
 
     def __add__(self, rhs ) :
-        self.language.resolve_function_symbol_2( '+', self.type, rhs.type )
+        sym = self.language.resolve_function_symbol_2( '+', self.type, rhs.type )
+        return sym(self,rhs)
 
     def __sub__(self, rhs ) :
-        self.language.resolve_function_symbol_2( '-', self.type, rhs.type )
+        sym = self.language.resolve_function_symbol_2( '-', self.type, rhs.type )
+        return sym(self,rhs)
 
     def __mul__(self, rhs ) :
-        self.language.resolve_function_symbol_2( '*', self.type, rhs.type )
+        sym = self.language.resolve_function_symbol_2( '*', self.type, rhs.type )
+        return sym(self,rhs)
 
     def __matmul__(self, rhs ) :
-        self.language.resolve_function_symbol_2( '@', self.type, rhs.type )
+        sym = self.language.resolve_function_symbol_2( '@', self.type, rhs.type )
+        return sym(self,rhs)
 
     def __truediv__(self, rhs ) :
-        self.language.resolve_function_symbol_2( '/', self.type, rhs.type )
+        sym = self.language.resolve_function_symbol_2( '/', self.type, rhs.type )
+        return sym(self,rhs)
 
     def __floordiv__(self, rhs ) :
-        self.language.resolve_function_symbol_2( '//', self.type, rhs.type )
+        sym = self.language.resolve_function_symbol_2( '//', self.type, rhs.type )
+        return sym(self,rhs)
 
     def __mod__(self, rhs ) :
-        self.language.resolve_function_symbol_2( '%', self.type, rhs.type )
+        sym = self.language.resolve_function_symbol_2( '%', self.type, rhs.type )
+        return sym(self,rhs)
 
     def __divmod__(self, rhs ) :
-        self.language.resolve_function_symbol_2( 'divmod', self.type, rhs.type )
+        sym = self.language.resolve_function_symbol_2( 'divmod', self.type, rhs.type )
+        return sym(self,rhs)
 
     def __pow__(self, rhs ) :
-        self.language.resolve_function_symbol_2( '**', self.type, rhs.type )
+        sym = self.language.resolve_function_symbol_2( '**', self.type, rhs.type )
+        return sym(self,rhs)
 
     def __lshift__(self, rhs ) :
-        self.language.resolve_function_symbol_2( '<<', self.type, rhs.type )
+        sym = self.language.resolve_function_symbol_2( '<<', self.type, rhs.type )
+        return sym(self,rhs)
 
     def __rshift__(self, rhs ) :
-        self.language.resolve_function_symbol_2( '>>', self.type, rhs.type )
+        sym = self.language.resolve_function_symbol_2( '>>', self.type, rhs.type )
+        return sym(self,rhs)
 
     def __and__(self, rhs ) :
-        self.language.resolve_function_symbol_2( '&', self.type, rhs.type )
+        sym = self.language.resolve_function_symbol_2( '&', self.type, rhs.type )
+        return sym(self,rhs)
 
     def __xor__(self, rhs ) :
-        self.language.resolve_function_symbol_2( '^', self.type, rhs.type )
+        sym = self.language.resolve_function_symbol_2( '^', self.type, rhs.type )
+        return sym(self,rhs)
 
     def __or__(self, rhs ) :
-        self.language.resolve_function_symbol_2( '|', self.type, rhs.type )
+        sym = self.language.resolve_function_symbol_2( '|', self.type, rhs.type )
+        return sym(self,rhs)
 
+    def __eq__(self, rhs ) :
+        sym = self.language.resolve_formula_symbol('=')
+        return sym(self,rhs)
 
+    def __ne__(self, rhs ) :
+        sym = self.language.resolve_formula_symbol('!=')
+        return sym(self,rhs)
+
+    def __lt_(self, rhs) :
+        sym = self.language.resolve_formula_symbol('<')
+        return sym(self,rhs)
+
+    def __gt__(self,rhs) :
+        sym = self.language.resolve_formula_symbol('>')
+        return sym(self,rhs)
+
+    def __le__(self,rhs) :
+        sym = self.language.resolve_formula_symbol('<=')
+        return sym(self,rhs)
+
+    def __ge__(self,rhs) :
+        sym = self.language.resolve_formula_symbol('>=')
+        return sym(self,rhs)
 
 
 class Constant(Term) :
 
     def __init__(self, name : str , sort : Sort , lang ) :
-        super(Constant, self).__init__(self, [])
+        super(Constant, self).__init__(self, [], lang)
         self._name = name
         self._sort = sort
         self._sort._domain[name] = self
-        self._lang = lang
 
     @property
     def symbol(self) :
@@ -159,16 +196,42 @@ class Constant(Term) :
     def __or__(self, rhs : Term ) :
         return super(Constant,self).__or__(rhs)
 
+    def __eq__(self, rhs ) :
+        return super(Constant,self).__eq__(rhs)
+
+    def __ne__(self, rhs ) :
+        return super(Constant,self).__ne__(rhs)
+
+    def __lt_(self, rhs) :
+        return super(Constant,self).__lt__(rhs)
+
+    def __gt__(self,rhs) :
+        return super(Constant,self).__gt__(rhs)
+
+    def __le__(self,rhs) :
+        return super(Constant,self).__le__(rhs)
+
+    def __ge__(self,rhs) :
+        return super(Constant,self).__ge__(rhs)
+
 
 class Variable(Term) :
 
     def __init__(self, name : str , sort : Sort , lang ) :
-        super(Variable, self).__init__(self, [])
+
+        super(Variable, self).__init__(self, [], lang)
         self._name = name
         self._sort = sort
-        self._lang = lang
         # MRJ: not sure if this is completely necessary yet...
         self._lang._variables.add( self )
+
+    def __deepcopy__(self, memo):
+        cls = self.__class__
+        newone = type(self)(self._name,self._sort,self._lang)
+        memo[id(self)] = newone
+        for k, v in self.__dict__.items():
+            setattr(newone, k, copy.deepcopy(v, memo))
+        return newone
 
     @property
     def symbol(self) :
@@ -185,6 +248,9 @@ class Variable(Term) :
     @property
     def language(self) :
         return self._lang
+
+    def __hash__(self) :
+        return hash((self.symbol,self.sort.name))
 
     def dump(self) :
         return dict( symbol = self.symbol )
@@ -234,6 +300,23 @@ class Variable(Term) :
     def __or__(self, rhs : Term ) :
         return super(Variable,self).__or__(rhs)
 
+    def __eq__(self, rhs ) :
+        return super(Variable,self).__eq__(rhs)
+
+    def __ne__(self, rhs ) :
+        return super(Variable,self).__ne__(rhs)
+
+    def __lt_(self, rhs) :
+        return super(Variable,self).__lt__(rhs)
+
+    def __gt__(self,rhs) :
+        return super(Variable,self).__gt__(rhs)
+
+    def __le__(self,rhs) :
+        return super(Variable,self).__le__(rhs)
+
+    def __ge__(self,rhs) :
+        return super(Variable,self).__ge__(rhs)
 
 
 Var = Variable
