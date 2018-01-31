@@ -62,4 +62,5 @@ class Function(object) :
                     codomain = self.codomain.name)
 
     def __call__(self, *args) :
+        # @TODO: check arity and type of arguments!
         return Term(self, args, self._lang)

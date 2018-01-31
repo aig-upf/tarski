@@ -45,6 +45,9 @@ class Formula(object) :
     def __invert__(self) :
         return Negation(self)
 
+    def __gt__(self, rhs) :
+        return implies(self,rhs)
+
 
 
 class AtomicFormula(Formula) :
@@ -56,6 +59,23 @@ class AtomicFormula(Formula) :
                 raise LanguageError("Atomic formulae can only be defined over Terms, found argument of type '{}' ".format(type(a)))
             self._subterms.append(a)
 
+    @property
+    def subterms(self) :
+        return self._subterms
+
+class RelationalFormula(AtomicFormula) :
+
+    def __init__( self, *args ) :
+        terms = args[1:]
+        super(RelationalFormula,self).__init__(*terms)
+        self._symbol = args[0]
+
+    @property
+    def symbol(self) :
+        return self._symbol
+
+    def __str__(self) :
+        return '{}({})'.format(self.symbol, ','.join([str(t) for t in self.subterms]) )
 
 class AxiomaticFormula(Formula) :
 
@@ -111,8 +131,8 @@ class OpenFormula(Formula) :
     def __init__(self, *args ) :
         self._subformulae = []
         for f in args :
-            if not isinstance(a,Formula):
-                raise LanguageError("Open formulae can only be defined over Formulas, found argument of type '{}' ".format(type(a)))
+            if not isinstance(f,Formula):
+                raise LanguageError("Open formulae can only be defined over Formulas, found argument of type '{}' ".format(type(f)))
             self._subformulae.append(f)
 
     @property
@@ -138,6 +158,7 @@ class Conjunction(OpenFormula) :
 def land( *args ) :
     if len(args) < 2:
         raise LanguageError('Conjunction requires at least two subformulas')
+    args = list(args)
     rhs = args.pop()
     lhs = args.pop()
     rhs = Conjunction(lhs,rhs)
@@ -149,7 +170,7 @@ def land( *args ) :
 
 class Disjunction(OpenFormula) :
 
-    def __init(self, *args) :
+    def __init__(self, *args) :
         if len(args) < 2:
             raise LanguageError('Formula is not well formed: Disjunction requires at least two subformulas')
         super(Disjunction,self).__init__(*args)
@@ -158,6 +179,7 @@ class Disjunction(OpenFormula) :
 def lor( *args ) :
     if len(args) < 2:
         raise LanguageError('Conjunction requires at least two subformulas')
+    args = list(args)
     rhs = args.pop()
     lhs = args.pop()
     rhs = Disjunction(lhs,rhs)
@@ -172,9 +194,13 @@ class Negation(OpenFormula) :
         if len(args) != 1 :
             raise LanguageError("Formula is not well formed: Negation admits only one subformula")
         super(Negation,self).__init__(*args)
+        self._name = 'neg'
 
 def neg( phi ) :
     return Negation(phi)
+
+def implies( phi, psi ) :
+    return Disjunction( Negation(phi), psi)
 
 class QuantifiedFormula(Formula) :
 

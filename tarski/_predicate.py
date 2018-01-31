@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from ._errors import LanguageError
 from ._sorts import Sort
-
+from ._formulas import RelationalFormula
+from ._terms import Term
 
 class Predicate(object) :
 
@@ -44,6 +45,16 @@ class Predicate(object) :
     def dump(self) :
         return dict(symbol=self.symbol, type = [a.name for a in self._type])
 
+    def __call__(self, *args) :
+        if len(args) != self.arity :
+            raise LanguageError('Error binding predicate to terms to construct relational formula: arity of {} is {}, {} arguments given'.format(self.symbol,self.arity,len(args)))
+        for k, arg in enumerate(args) :
+            if not isinstance(arg, Term) :
+                raise LanguageError('Error binding predicate: {}-th argument is not a term'.format(k+1))
+            if arg.type.name != self._type[k].name :
+                raise LanguageError('Error binding predicate: {}-th argument type mismatch, type is {}, was expected to be {}'.format(k+1,arg.type.name,self._type[k].name))
+        return RelationalFormula(self.symbol,*args)
+        
 class Equality(Predicate) :
 
     def __init__(self, lang, *args ) :
