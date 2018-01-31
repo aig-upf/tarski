@@ -39,10 +39,7 @@ class EQFormula(ArithmeticFormula) :
     def __init__(self,lhs,rhs) :
 
         super(EQFormula,self).__init__(ArithmeticFormulaSymbol.EQ, lhs, rhs)
-        print(self)
-        print( "lhs: {}".format(lhs))
-        print( "rhs: {}".format(rhs))
-        
+
 class NEQFormula(ArithmeticFormula) :
 
     def __init__(self,lhs,rhs) :
