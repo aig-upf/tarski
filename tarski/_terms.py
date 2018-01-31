@@ -109,7 +109,6 @@ class Term(object) :
         return sym(self,rhs)
 
     def __eq__(self, rhs ) :
-        raise RuntimeError("Hello!")
         sym = self.language.resolve_formula_symbol('=')
         return sym(self,rhs)
 
