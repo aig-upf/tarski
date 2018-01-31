@@ -6,6 +6,15 @@ import copy
 
 class Term(object) :
 
+    """
+        Term class
+
+        NOTE: since we are overloading operators like __eq__, etc. these objects
+        may invalidate the assumptions of standard Python containers like set()
+        or break methods like find(). Any container for Term and subclasses
+        will need to be implemented using the comparison the id() of the instances.
+    """
+
     def __init__(self, sym, arguments, lang ) :
         self._f  = sym
         self._lang = lang
@@ -100,6 +109,7 @@ class Term(object) :
         return sym(self,rhs)
 
     def __eq__(self, rhs ) :
+        raise RuntimeError("Hello!")
         sym = self.language.resolve_formula_symbol('=')
         return sym(self,rhs)
 
@@ -202,7 +212,7 @@ class Constant(Term) :
     def __ne__(self, rhs ) :
         return super(Constant,self).__ne__(rhs)
 
-    def __lt_(self, rhs) :
+    def __lt__(self, rhs) :
         return super(Constant,self).__lt__(rhs)
 
     def __gt__(self,rhs) :
@@ -222,8 +232,6 @@ class Variable(Term) :
         super(Variable, self).__init__(self, [], lang)
         self._name = name
         self._sort = sort
-        # MRJ: not sure if this is completely necessary yet...
-        self._lang._variables.add( self )
 
     def __deepcopy__(self, memo):
         cls = self.__class__
@@ -306,7 +314,7 @@ class Variable(Term) :
     def __ne__(self, rhs ) :
         return super(Variable,self).__ne__(rhs)
 
-    def __lt_(self, rhs) :
+    def __lt__(self, rhs) :
         return super(Variable,self).__lt__(rhs)
 
     def __gt__(self,rhs) :

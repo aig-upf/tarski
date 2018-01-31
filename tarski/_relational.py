@@ -17,16 +17,14 @@ class ArithmeticFormula(RelationalFormula) :
 
     def __init__( self, symbol : ArithmeticFormulaSymbol, lhs, rhs ) :
         super(ArithmeticFormula,self).__init__(symbol,lhs,rhs)
-        self._lhs = lhs
-        self._rhs = rhs
 
     @property
     def lhs(self) :
-        return self._lhs
+        return self.subterms[0]
 
     @property
     def rhs(self) :
-        return self._rhs
+        return self.subterms[1]
 
     def __str__(self) :
         try :
@@ -39,8 +37,12 @@ class ArithmeticFormula(RelationalFormula) :
 class EQFormula(ArithmeticFormula) :
 
     def __init__(self,lhs,rhs) :
-        super(EQFormula,self).__init__(ArithmeticFormulaSymbol.EQ, lhs, rhs)
 
+        super(EQFormula,self).__init__(ArithmeticFormulaSymbol.EQ, lhs, rhs)
+        print(self)
+        print( "lhs: {}".format(lhs))
+        print( "rhs: {}".format(rhs))
+        
 class NEQFormula(ArithmeticFormula) :
 
     def __init__(self,lhs,rhs) :
