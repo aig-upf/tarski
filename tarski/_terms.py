@@ -117,7 +117,7 @@ class Term(object) :
         sym = self.language.resolve_formula_symbol('!=')
         return sym(self,rhs)
 
-    def __lt_(self, rhs) :
+    def __lt__(self, rhs) :
         sym = self.language.resolve_formula_symbol('<')
         return sym(self,rhs)
 
