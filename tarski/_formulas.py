@@ -137,7 +137,7 @@ class OpenFormula(Formula) :
 
     @property
     def name(self) :
-        self._name
+        return self._name
 
     @property
     def subformulae(self) :

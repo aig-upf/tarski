@@ -31,9 +31,9 @@ class ArithmeticFormula(RelationalFormula) :
     def __str__(self) :
         try :
             # if symbol is Enum
-            return '{}{}{}'.format(str(self.lhs),self.symbol.value,str(self.rhs))
+            return '{} {} {}'.format(str(self.lhs),self.symbol.value,str(self.rhs))
         except AttributeError :
-            return '{}{}{}'.format(str(self.lhs),str(self.symbol),str(self.rhs))
+            return '{} {} {}'.format(str(self.lhs),str(self.symbol),str(self.rhs))
 
 
 class EQFormula(ArithmeticFormula) :
