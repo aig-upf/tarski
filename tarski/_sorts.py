@@ -47,6 +47,11 @@ class Sort :
         return dict( name = self._name,\
                      domain = [n for n, _ in self._domain.items()] )
 
+    def extend(self, constant) :
+        self._domain[constant.symbol] = constant
+        for p in parents(self) :
+            p.extend(constant)
+
 def parents( s : Sort ) -> List[Sort] :
     """ Returns direct parent sorts in the sort hierarchy associated with
         the language

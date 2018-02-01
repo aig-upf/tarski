@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from ._errors import LanguageError
 from ._sorts import Sort
-from ._terms import Term
+from ._terms import Term, Constant
 
 class Function(object) :
 
@@ -10,6 +10,7 @@ class Function(object) :
         self._lang = lang # fol the symbol belongs to
         self._domain = []
         self._codomain = None
+        self._map ={}
 
         # we validate the arguments now
         for k, a in enumerate(args) :
@@ -64,3 +65,17 @@ class Function(object) :
     def __call__(self, *args) :
         # @TODO: check arity and type of arguments!
         return Term(self, args, self._lang)
+
+    def add(self, *args ) :
+        arguments = args[:-1]
+        value = args[-1]
+        for k, a in enumerate(arguments) :
+            if not isinstance(a,Constant) :
+                raise LanguageError("Function.add() : function can only be defined over constants, argument {} is not: {}".format(k,type(a)))
+            if a.type.name != self.domain[k].name :
+                raise LanguageError("Function.add(): type mismatch, argument {} is {}, expected to be {}".format(k, a.type.name, self.domain[k].name))
+
+        self._map[arguments] = value
+
+    def __getitem__(self, *args ) :
+        return self._map[args]

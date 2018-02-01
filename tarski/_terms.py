@@ -139,7 +139,7 @@ class Constant(Term) :
         super(Constant, self).__init__(self, [], lang)
         self._name = name
         self._sort = sort
-        self._sort._domain[name] = self
+        self._sort.extend(self)
 
     @property
     def symbol(self) :
@@ -156,6 +156,9 @@ class Constant(Term) :
     @property
     def language(self) :
         return self._lang
+
+    def __hash__(self) :
+        return hash(self.symbol)
 
     def __str__(self) :
         return str(self.symbol)
