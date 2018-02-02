@@ -7,6 +7,7 @@ from ._function import Function
 
 from ._relational import EQFormula, LTFormula, GTFormula, LEQFormula, GEQFormula, NEQFormula
 
+import tarski.funcsym
 
 class FOL :
 
@@ -34,8 +35,9 @@ class FOL :
         # MRJ: let's allow default equality predicates to be enabled/disabled
         # dynamically
         self._default_equality = True
-
+        self._symbol_table = {}
         self._build_builtin_sorts()
+        tarski.funcsym.initialize(self)
 
     def _inclusion_closure( self, s: Sort ) -> Set[Sort] :
         """
@@ -204,9 +206,15 @@ class FOL :
         for _, s in self._sorts.items() :
             s.check_empty()
 
+    def register_symbol(self, key, func_obj ) :
+        self._symbol_table[key] = func_obj
+
     def resolve_function_symbol_2( self, sym : str, lhs : Sort, rhs : Sort ) :
-        raise LanguageError("FOL.resolve_function_symbol_2(): function symbol '{}' is not defined for domain ({},{})"\
-            .format(sym,lhs,rhs))
+        try :
+            return self._symbol_table[(sym,lhs,rhs)]
+        except KeyError :
+            raise LanguageError("FOL.resolve_function_symbol_2(): function symbol '{}' is not defined for domain ({},{})"\
+                .format(sym,lhs,rhs))
         return None
 
     def resolve_formula_symbol(self, symbol) :

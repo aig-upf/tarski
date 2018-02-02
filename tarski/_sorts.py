@@ -35,7 +35,7 @@ class Sort :
 
     def contains( self, x ) :
         try :
-            return self._domain[x] != None # this should always return True
+            return self._domain[x] is not None # this should always return True
         except KeyError :
             return False
 

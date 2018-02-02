@@ -73,7 +73,8 @@ class Function(object) :
             if not isinstance(a,Constant) :
                 raise LanguageError("Function.add() : function can only be defined over constants, argument {} is not: {}".format(k,type(a)))
             if a.type.name != self.domain[k].name :
-                raise LanguageError("Function.add(): type mismatch, argument {} is {}, expected to be {}".format(k, a.type.name, self.domain[k].name))
+                if not self.domain[k].contains(a.symbol) :
+                    raise LanguageError("Function.add(): type mismatch, argument {} is {}, expected to be {}".format(k, a.type.name, self.domain[k].name))
 
         self._map[arguments] = value
 
