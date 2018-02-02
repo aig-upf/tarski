@@ -15,6 +15,7 @@ symbols = [
         '-' : Subtraction,
         '*' : Multiplication,
         '/' : Division,
+        '%' : Modulo,
         '**' : Power,
         'max' : Max,
         'min' : Min,

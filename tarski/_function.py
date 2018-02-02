@@ -11,7 +11,6 @@ class Function(object) :
         self._domain = []
         self._codomain = None
         self._map ={}
-
         # we validate the arguments now
         for k, a in enumerate(args) :
             if isinstance(type(a),Sort) :

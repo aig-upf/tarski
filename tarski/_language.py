@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from ._errors import LanguageError
 from ._sorts import *
-from ._terms import Constant, Variable
+from ._terms import Term, Constant, Variable
 from ._predicate import Predicate, Equality
 from ._function import Function
 
@@ -219,3 +219,13 @@ class FOL :
 
     def resolve_formula_symbol(self, symbol) :
         return FOL.formula_symbols[symbol]
+
+    def eval( self, t : Term ) :
+        if isinstance(t, Variable) :
+            raise LanguageError( "eval(): Found free variable {}".format(t) )
+        elif isinstance(t, Constant) :
+            return t
+        else :
+            # evaluate each of the arguments
+            interpreted = [ self.eval(a) for a in t.arguments ]
+            return t.symbol.__getitem__(*interpreted)

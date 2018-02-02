@@ -23,7 +23,7 @@ class Term(object) :
             if not isinstance(a,Term) :
                 raise LanguageError("Syntax error: argument {} is not a term".format(a))
 
-        self._args = copy.deepcopy(arguments)
+        self._args = copy.copy(arguments)
 
     @property
     def symbol(self) :
@@ -136,8 +136,8 @@ class Term(object) :
 class Constant(Term) :
 
     def __init__(self, name : str , sort : Sort , lang ) :
-        super(Constant, self).__init__(self, [], lang)
         self._name = name
+        super(Constant, self).__init__(self, [], lang)
         self._sort = sort
         self._sort.extend(self)
 
@@ -157,8 +157,16 @@ class Constant(Term) :
     def language(self) :
         return self._lang
 
+    def __deepcopy__(self, memo):
+        cls = self.__class__
+        newone = type(self)(self._name,self._sort,self._lang)
+        memo[id(self)] = newone
+        for k, v in self.__dict__.items():
+            setattr(newone, k, copy.deepcopy(v, memo))
+        return newone
+
     def __hash__(self) :
-        return hash(self.symbol)
+        return hash(self._name)
 
     def __str__(self) :
         return str(self.symbol)
@@ -260,7 +268,7 @@ class Variable(Term) :
         return self._lang
 
     def __hash__(self) :
-        return hash((self.symbol,self.sort.name))
+        return hash((self._name,self._sort.name))
 
     def dump(self) :
         return dict( symbol = self.symbol )
