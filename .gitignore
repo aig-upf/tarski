@@ -56,3 +56,4 @@ venv/
 # Packaging files
 .tox
 *.egg-info/
+dist/

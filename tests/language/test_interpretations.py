@@ -2,7 +2,6 @@
  This tests the type-handling module
 """
 
-from src import tarski as tsk  # TODO Fix this import, 'src' should not be there
 from . import blocksworld
 
 

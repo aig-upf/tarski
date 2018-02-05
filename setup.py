@@ -6,7 +6,7 @@ from os import path
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file
-with open(path.join(here, 'readme.md'), encoding='utf-8') as f:
+with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 
@@ -25,17 +25,14 @@ def main():
 
     setup(
         name='tarski',
-
-        version='0.1.0',  # Required
-
+        version='0.1.0',
         description='tarski: a first-order logic classical planning language module',
-
         long_description=long_description,
-
         url='https://github.com/aig-upf/tarski',
-
         author='Miquel Ramírez and Guillem Francès',
+        author_email='-',
 
+        keywords='planning logic',
         classifiers=[
             'Development Status :: 3 - Alpha',
 
@@ -50,8 +47,6 @@ def main():
             'Programming Language :: Python :: 3.6',
         ],
 
-        keywords='planning logic',
-
         # You can just specify package directories manually here if your project is
         # simple. Or you can use find_packages().
         #
@@ -61,7 +56,9 @@ def main():
         #
         #   py_modules=["my_module"],
         #
-        packages=find_packages(exclude=['docs', 'tests']),
+        packages=find_packages('src'),  # include all packages under src
+        package_dir={'': 'src'},  # tell distutils packages are under src
+
 
         # This field lists other packages that your project depends on to run.
         # Any package you put here will be installed by pip when your project is

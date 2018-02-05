@@ -1,9 +1,6 @@
-"""
- This tests the type-handling module
-"""
 import pytest
 
-from src import tarski as tsk  # TODO Fix this import, 'src' should not be there
+import tarski as tsk
 
 
 def test_empty_type():

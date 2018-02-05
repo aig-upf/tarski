@@ -13,6 +13,9 @@ to help the code comply with the style guidelines, such as [Google's YAPF](https
 We might consider using one of these down the road.
 
 
+## Project Structure
+We follow a [`src`-based](https://blog.ionelmc.ro/2014/05/25/python-packaging/) project structure.
+
 ## Testing
 Tests are written using `pytest` and can be run by issuing `pytest` on the project root directory,
 provided that the `pytest` module has been installed.
@@ -25,11 +28,10 @@ installed first:
 ```
 virtualenv -p python3 venv
 source venv/bin/activate
-pip install pytest scipy
+pip install pytest scipy tox detox
 ```
 
 Once this has been done, running `pytest` will work the same, but we avoid the need for
-doing a system-wide installation of all the project dependencies.
-We are currently testing whether [tox](https://tox.readthedocs.io/en/latest/) 
-might be a good option for the project in order to automatize running tests on different supported 
-Python versions.
+doing a system-wide installation of all the project dependencies. This can be automated by using
+[tox](https://tox.readthedocs.io/en/latest/) & [detox](https://pypi.python.org/pypi/detox): if you have it installed, you can run all tests by simply
+running `detox` on the project root directory
