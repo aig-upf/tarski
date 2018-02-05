@@ -159,6 +159,9 @@ class Constant(Term):
     def create(klass, name, sort: Sort, lang):
         return Constant(name, sort, lang)
 
+    def dump(self):
+        return dict(symbol=self.symbol, sort=self.sort.name)
+
     def __deepcopy__(self, memo):
         newone = type(self)(self._name, self._sort, self._lang)
         memo[id(self)] = newone
@@ -171,9 +174,6 @@ class Constant(Term):
 
     def __str__(self):
         return str(self.symbol)
-
-    def dump(self):
-        return dict(symbol=self.symbol)
 
     def __add__(self, rhs: Term):
         return super(Constant, self).__add__(rhs)

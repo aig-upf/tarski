@@ -10,9 +10,9 @@ from ._relational import EQFormula, LTFormula, GTFormula, LEQFormula, GEQFormula
 
 import tarski.funcsym
 
+import types
 from typing import Set
 
-import scipy
 import scipy.constants
 
 
