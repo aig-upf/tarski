@@ -1,5 +1,4 @@
 import pytest
-
 import tarski as tsk
 
 
@@ -61,5 +60,3 @@ def test_hierarchy():
 #     assert len(type_map) == len(types) == 3, check
 #     assert type_map['object'] == type_map['int'] == [], check
 #     assert type_map['bool'] == ['false', 'true'], "The Bool type has always exactly the two expected objects"
-
-

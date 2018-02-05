@@ -135,7 +135,7 @@ class FOL:
         if super_sorts is None:
             self._possible_promotions[name] = set()  # no possible promotions
         else :
-            for parent in super_list: self.set_parent(sort_obj, parent)
+            for parent in super_sorts: self.set_parent(sort_obj, parent)
 
         # MRJ: create equality
         if self._default_equality:
