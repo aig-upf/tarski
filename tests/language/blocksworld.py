@@ -11,8 +11,12 @@ def generate_small_bw_instance():
     place = lang.sort('place')
     block = lang.sort('block', [place])
 
+    clear = lang.predicate('clear', block)
+    loc = lang.function('loc', block, place)
+
     # Table and blocks
     table = lang.const('table', place)
     b1, b2, b3, b4 = lang.const(('b{}'.format(k) for k in (1, 2, 3, 4)), block)
 
+    return lang
 

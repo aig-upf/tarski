@@ -30,5 +30,6 @@ pip install pytest scipy
 
 Once this has been done, running `pytest` will work the same, but we avoid the need for
 doing a system-wide installation of all the project dependencies.
-We'll soon be transitioning to use [tox](https://tox.readthedocs.io/en/latest/) and run the
-test from within a virtual environment.
+We are currently testing whether [tox](https://tox.readthedocs.io/en/latest/) 
+might be a good option for the project in order to automatize running tests on different supported 
+Python versions.

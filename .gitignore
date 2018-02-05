@@ -52,3 +52,7 @@ venv/
 
 # Pytest dirs
 .pytest_cache
+
+# Packaging files
+.tox
+*.egg-info/
