@@ -1,19 +1,15 @@
 # -*- coding: utf-8 -*-
-
-from ._sorts import *
-from ._terms import Constant, Variable
-from ._predicate import Predicate, Equality
-from ._function import Function
-from ._model import Model
-
-from ._relational import EQFormula, LTFormula, GTFormula, LEQFormula, GEQFormula, NEQFormula
-
-import tarski.funcsym
-
 import types
 from typing import Set
+import scipy
 
-import scipy.constants
+from . import funcsym
+from ._function import Function
+from ._model import Model
+from ._predicate import Predicate, Equality
+from ._relational import EQFormula, LTFormula, GTFormula, LEQFormula, GEQFormula, NEQFormula
+from ._sorts import *
+from ._terms import Constant, Variable
 
 
 class FOL:
@@ -43,7 +39,7 @@ class FOL:
         self._default_equality = True
         self._symbol_table = {}
         self._build_builtin_sorts()
-        tarski.funcsym.initialize(self)
+        funcsym.initialize(self)
 
     def _inclusion_closure(self, s: Sort) -> Set[Sort]:
         """
@@ -229,4 +225,4 @@ class FOL:
                 .format(sym, lhs, rhs))
 
     def resolve_formula_symbol(self, symbol):
-        return FOL.formula_symbols[symbol]
+        return self.formula_symbols[symbol]
