@@ -9,7 +9,7 @@ class Sort :
     def __init__(self, name, lang) :
         self._name = name
         self._language = lang
-        self._domain = {}
+        self._domain = set()
         self._built_in = False
 
     def __str__(self) :
@@ -35,9 +35,18 @@ class Sort :
 
     def contains( self, x ) :
         try :
-            return self._domain[x] is not None # this should always return True
-        except KeyError :
-            return False
+            return x.symbol in self._domain
+        except AttributeError :
+            return x in self._domain
+
+    def cast( self, x ) :
+        try :
+            if x.symbol in self._domain :
+                return x.symbol
+        except AttributeError :
+            if x in self._domain :
+                return x
+        return None
 
     def check_empty(self) :
         if len(self._domain) == 0 :
@@ -45,10 +54,10 @@ class Sort :
 
     def dump(self) :
         return dict( name = self._name,\
-                     domain = [n for n, _ in self._domain.items()] )
+                     domain = [n for n in self._domain] )
 
     def extend(self, constant) :
-        self._domain[constant.symbol] = constant
+        self._domain.add(constant.symbol)
         for p in parents(self) :
             p.extend(constant)
 
@@ -82,6 +91,9 @@ class Interval(Sort) :
         self._ub = ub
         self._encode = encode_fn
         self._domain = lambda x : x >= self._lb and x <= self._ub
+
+    def extend(self, x) :
+        pass
 
     def cast( self, x ) :
         if isinstance(x,str) :

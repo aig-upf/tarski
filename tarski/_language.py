@@ -4,6 +4,7 @@ from ._sorts import *
 from ._terms import Term, Constant, Variable
 from ._predicate import Predicate, Equality
 from ._function import Function
+from ._model import Model
 
 from ._relational import EQFormula, LTFormula, GTFormula, LEQFormula, GEQFormula, NEQFormula
 
@@ -194,6 +195,9 @@ class FOL :
             self._functions[ func.signature ] = func
         return func
 
+    def model( self ) :
+        return Model( self )
+
     def dump(self) :
         return dict(\
                 sorts = [s.dump() for _, s in self._sorts.items() ],\
@@ -219,13 +223,3 @@ class FOL :
 
     def resolve_formula_symbol(self, symbol) :
         return FOL.formula_symbols[symbol]
-
-    def eval( self, t : Term ) :
-        if isinstance(t, Variable) :
-            raise LanguageError( "eval(): Found free variable {}".format(t) )
-        elif isinstance(t, Constant) :
-            return t
-        else :
-            # evaluate each of the arguments
-            interpreted = [ self.eval(a) for a in t.arguments ]
-            return t.symbol.__getitem__(*interpreted)

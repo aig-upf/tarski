@@ -157,6 +157,10 @@ class Constant(Term) :
     def language(self) :
         return self._lang
 
+    @classmethod
+    def create( klass, name, sort : Sort , lang ) :
+        return Constant(name,sort,lang)
+
     def __deepcopy__(self, memo):
         cls = self.__class__
         newone = type(self)(self._name,self._sort,self._lang)

@@ -2,7 +2,7 @@
 from ._errors import LanguageError
 from ._sorts import Sort
 from ._formulas import RelationalFormula
-from ._terms import Term
+from ._terms import Term, Constant
 
 class Predicate(object) :
 
@@ -53,8 +53,20 @@ class Predicate(object) :
                 raise LanguageError('Error binding predicate: {}-th argument is not a term'.format(k+1))
             if arg.type.name != self._type[k].name :
                 raise LanguageError('Error binding predicate: {}-th argument type mismatch, type is {}, was expected to be {}'.format(k+1,arg.type.name,self._type[k].name))
-        return RelationalFormula(self.symbol,*args)
-        
+        return RelationalFormula(self,*args)
+
+    def check_arguments( self, *args ) :
+        if len(args) != self.arity :
+            raise LanguageError('Error setting predicate  extension: arity of {} is {}, {} arguments given'.format(self.symbol,self.arity,len(args)))
+        for k, arg in enumerate(args) :
+            if not isinstance(arg, Constant) :
+                raise LanguageError('Error setting predicate extension: {}-th argument is not a constant'.format(k+1))
+            if arg.type.name != self._type[k].name :
+                raise LanguageError('Error setting predicate extension: {}-th argument type mismatch, type is {}, was expected to be {}'.format(k+1,arg.type.name,self._type[k].name))
+
+    def satisfied(self, *args ) :
+        raise ValueError("Extensionally defined")
+
 class Equality(Predicate) :
 
     def __init__(self, lang, *args ) :
@@ -62,3 +74,6 @@ class Equality(Predicate) :
             raise LanguageError("Equality.__init__() : Equality predicate must \
             have arity of 2, list of arguments has length {}".format(len(args)))
         super(Equality,self).__init__('=', lang, *args)
+
+    def satisfied(self, *args ) :
+        return args[0].symbol == args[1].symbol

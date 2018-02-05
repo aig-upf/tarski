@@ -10,7 +10,6 @@ class Function(object) :
         self._lang = lang # fol the symbol belongs to
         self._domain = []
         self._codomain = None
-        self._map ={}
         # we validate the arguments now
         for k, a in enumerate(args) :
             if isinstance(type(a),Sort) :
@@ -65,7 +64,7 @@ class Function(object) :
         # @TODO: check arity and type of arguments!
         return Term(self, args, self._lang)
 
-    def add(self, *args ) :
+    def check_arguments(self, *args ) :
         arguments = args[:-1]
         value = args[-1]
         for k, a in enumerate(arguments) :
@@ -75,7 +74,5 @@ class Function(object) :
                 if not self.domain[k].contains(a.symbol) :
                     raise LanguageError("Function.add(): type mismatch, argument {} is {}, expected to be {}".format(k, a.type.name, self.domain[k].name))
 
-        self._map[arguments] = value
-
-    def __getitem__(self, *args ) :
-        return self._map[args]
+    def __getitem__(self, *args ):
+        raise ValueError("Extensionally defined")

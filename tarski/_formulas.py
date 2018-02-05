@@ -5,8 +5,9 @@ from ._terms import Term, Variable, Constant
 from enum import Enum
 from typing import List
 import copy
+from abc import *
 
-class Formula(object) :
+class Formula(ABC) :
 
     def __init__(self) :
         pass
@@ -48,6 +49,10 @@ class Formula(object) :
     def __gt__(self, rhs) :
         return implies(self,rhs)
 
+    @abstractmethod
+    def satisfiable(self, s ) :
+        pass
+
 
 
 class AtomicFormula(Formula) :
@@ -63,6 +68,10 @@ class AtomicFormula(Formula) :
     def subterms(self) :
         return self._subterms
 
+    @abstractmethod
+    def satisfiable(self,s) :
+        pass
+
 class RelationalFormula(AtomicFormula) :
 
     def __init__( self, *args ) :
@@ -77,6 +86,9 @@ class RelationalFormula(AtomicFormula) :
     def __str__(self) :
         return '{}({})'.format(self.symbol, ','.join([str(t) for t in self.subterms]) )
 
+    def satisfiable(self, s ) :
+        return s.evaluate((self.symbol,self.subterms))
+
 class AxiomaticFormula(Formula) :
 
     def __init__(self, head, body) :
@@ -89,6 +101,10 @@ class AxiomaticFormula(Formula) :
 
     def __str__(self) :
         return '{} :- {}'.format(self._head,self._body)
+
+    def satisfiable(self, s ) :
+        return s.check_satisfiability( implies(self._head, self._body) ) and\
+            s.check_satisfiability( implies(self._body, self._head))
 
 axiom = AxiomaticFormula
 
@@ -104,6 +120,10 @@ class ExternallyDefinedFormula(Formula) :
     def __str__(self) :
         return '{}({})'.format(self.name, ','.join([str(t) for t in self._subterms]))
 
+def satisfiable(self, s ) :
+    raise RuntimeError("AxiomaticFormula.satisfiable() : not implemented yet")
+
+
 class Tautology(Formula) :
 
     def __init__(self) :
@@ -112,6 +132,8 @@ class Tautology(Formula) :
     def is_tautology(self) : return True
 
     def is_contradiction(self) : return False
+
+    def satisfiable(self, s ) : return True
 
 top = Tautology()
 
@@ -123,6 +145,8 @@ class Contradiction(Formula) :
     def is_tautology(self) : return False
 
     def is_contradiction(self) : return True
+
+    def satisfiable(self,s) : return False
 
 bot = Contradiction()
 
@@ -144,6 +168,10 @@ class OpenFormula(Formula) :
         for f in self._subformulae :
             yield f
 
+    @property
+    def subformula(self) :
+        return self._subformulae
+
     def __str__(self) :
         return '{}({})'.format(self.name, ','.join([str(f) for f in self.subformulae]))
 
@@ -154,6 +182,10 @@ class Conjunction(OpenFormula) :
             raise LanguageError('Formula is not well formed: Conjunction requires at least two subformulas')
         super(Conjunction,self).__init__(*args)
         self._name = 'and'
+
+    def satisfiable(self, s ) :
+        return s.check_satisfiability(self.subformula[0]) and \
+                s.check_satisfiability(self.subformula[1])
 
 def land( *args ) :
     if len(args) < 2:
@@ -176,6 +208,10 @@ class Disjunction(OpenFormula) :
         super(Disjunction,self).__init__(*args)
         self._name = 'or'
 
+    def satisfiable(self, s ) :
+        return s.check_satisfiability(self.subformula[0]) or \
+                s.check_satisfiability(self.subformula[1])
+
 def lor( *args ) :
     if len(args) < 2:
         raise LanguageError('Conjunction requires at least two subformulas')
@@ -195,6 +231,9 @@ class Negation(OpenFormula) :
             raise LanguageError("Formula is not well formed: Negation admits only one subformula")
         super(Negation,self).__init__(*args)
         self._name = 'neg'
+
+    def satisfiable(self, s) :
+        return ~s.check_satisfiability(self.subformula[0])
 
 def neg( phi ) :
     return Negation(phi)
@@ -224,6 +263,8 @@ class ExistentiallyQuantifiedFormula(QuantifiedFormula) :
     def __str__(self) :
         return 'Exists {} : {}'.format(' '.join([str(x) for x in self.vars]), str(self.subformula))
 
+    def satisfiable(self, s) :
+        raise RuntimeError("ExistentiallyQuantifiedFormula.satisifed() : not implemented yet")
 
 def exists( *args ) :
     if len(args) < 2 :
@@ -244,6 +285,9 @@ class UniversallyQuantifiedFormula(QuantifiedFormula) :
 
     def __str__(self) :
         return 'Forall {} : {}'.format(' '.join([str(x) for x in self.vars]), str(self.subformula))
+
+    def satisfiable(self, s ) :
+        return not s.check_satisfiability( exists(x for x in self._vars + [self._phi]) )
 
 def forall( *args ) :
     if len(args) < 2 :

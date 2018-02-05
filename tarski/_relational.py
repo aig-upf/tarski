@@ -40,27 +40,49 @@ class EQFormula(ArithmeticFormula) :
 
         super(EQFormula,self).__init__(ArithmeticFormulaSymbol.EQ, lhs, rhs)
 
+    def satisfiable(self, s) :
+        return s[self.lhs].symbol == s[self.rhs].symbol
+
 class NEQFormula(ArithmeticFormula) :
 
     def __init__(self,lhs,rhs) :
         super(NEQFormula,self).__init__(ArithmeticFormulaSymbol.NEQ, lhs, rhs)
+
+    def satisfiable(self, s) :
+        return s[self.lhs].symbol != s[self.rhs].symbol
+
 
 class LTFormula(ArithmeticFormula) :
 
     def __init__(self,lhs,rhs) :
         super(LTFormula,self).__init__(ArithmeticFormulaSymbol.LT, lhs, rhs)
 
+    def satisfiable(self, s) :
+        return s[self.lhs].symbol < s[self.rhs].symbol
+
+
 class GTFormula(ArithmeticFormula) :
 
     def __init__(self,lhs,rhs) :
         super(GTFormula,self).__init__(ArithmeticFormulaSymbol.GT, lhs, rhs)
+
+    def satisfiable(self, s) :
+        return s[self.lhs].symbol > s[self.rhs].symbol
+
 
 class LEQFormula(ArithmeticFormula) :
 
     def __init__(self,lhs,rhs) :
         super(LEQFormula,self).__init__(ArithmeticFormulaSymbol.LEQ, lhs, rhs)
 
+    def satisfiable(self, s) :
+        return s[self.lhs].symbol <= s[self.rhs].symbol
+
+
 class GEQFormula(ArithmeticFormula) :
 
     def __init__(self,lhs,rhs) :
         super(GEQFormula,self).__init__(ArithmeticFormulaSymbol.GEQ, lhs, rhs)
+
+    def satisfiable(self, s) :
+        return s[self.lhs].symbol >= s[self.rhs].symbol
