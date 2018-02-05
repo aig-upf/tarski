@@ -32,9 +32,6 @@ class Model(object):
             value = Constant.create(symbol.codomain.cast(tup[-1]), symbol.codomain, self.L)
 
         except TypeError:
-            if not isinstance(tup, Constant):
-                raise LanguageError(
-                    'Model.set() : functions need to be set over tuples of constants, a single constant')
             interpreted_args = ()
             value = Constant.create(symbol.codomain.cast(tup), symbol.codomain, self.L)
         # print('{} : {} -> {}'.format(symbol.signature,interpreted_args,value.symbol))

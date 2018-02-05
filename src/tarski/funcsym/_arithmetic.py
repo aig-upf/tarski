@@ -112,4 +112,4 @@ class StandardLibFunction(ArithmeticFunction):
 
     def __getitem__(self, *args):
         assert self.domain[0].contains(args[0])
-        return getattr(math, sym)(args[0])
+        return getattr(math, self.symbol)(args[0])
