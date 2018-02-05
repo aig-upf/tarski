@@ -120,7 +120,7 @@ class FOL:
     def Natural(self):
         return self._sorts['Natural']
 
-    def sort(self, name: str, super_list: List[Sort] = []):
+    def sort(self, name: str, super_sorts: List[Sort] = []):
         """
             Creates instance of Sort object, adds it to the table of
             sorts
@@ -130,12 +130,13 @@ class FOL:
             return other
         sort_obj = Sort(name, self)
         self._sorts[name] = sort_obj
-        if super is None:
+
+        # MRJ: setup promotions table
+        if super_sorts is None:
             self._possible_promotions[name] = set()  # no possible promotions
-            return sort_obj
-        # MRJ: list of objects or names?
-        for parent in super_list:
-            self.set_parent(sort_obj, parent)
+        else :
+            for parent in super_list: self.set_parent(sort_obj, parent)
+
         # MRJ: create equality
         if self._default_equality:
             sort_eq = Equality(self, sort_obj, sort_obj)
