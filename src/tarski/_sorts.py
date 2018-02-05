@@ -54,7 +54,7 @@ class Sort:
 
     def dump(self):
         return dict(name=self._name,
-                    domain=self._domain.copy())
+                    domain=list(self._domain))  # Copy the list
 
     def extend(self, constant):
         self._domain.add(constant.symbol)
@@ -106,6 +106,10 @@ class Interval(Sort):
             raise ValueError(
                 "Interval.cast() : symbol '{}', encoded as '{}' does not belong to the domain!".format(x, y))
         return y
+
+    def check_empty(self):
+        if self._lb > self._ub:
+            raise LanguageError("Sort '{}' is empty!".format(self._name))
 
     def contains(self, x):
         try:

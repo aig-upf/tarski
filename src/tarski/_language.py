@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import types
 from typing import Set
-import scipy
+
+import scipy.constants
 
 from . import funcsym
 from ._function import Function
