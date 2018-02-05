@@ -1,7 +1,6 @@
 
 from typing import List
-
-from tarski import LanguageError
+from ._errors import LanguageError
 
 
 class Sort:

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import types
+
 from ._sorts import *
 from ._terms import Constant, Variable
 from ._predicate import Predicate, Equality
@@ -9,7 +9,11 @@ from ._model import Model
 from ._relational import EQFormula, LTFormula, GTFormula, LEQFormula, GEQFormula, NEQFormula
 
 import tarski.funcsym
+
+from typing import Set
+
 import scipy
+import scipy.constants
 
 
 class FOL:
