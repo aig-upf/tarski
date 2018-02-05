@@ -69,7 +69,7 @@ def parents(s: Sort) -> List[Sort]:
     _parents = []
     for lhs, rhs in s.language.sort_hierarchy:
         if lhs == s.name:
-            _parents.append(s.language.sort(rhs))
+            _parents.append(s.language.get_sort(rhs))
     return _parents
 
 

@@ -11,6 +11,7 @@ from ._predicate import Predicate, Equality
 from ._relational import EQFormula, LTFormula, GTFormula, LEQFormula, GEQFormula, NEQFormula
 from ._sorts import *
 from ._terms import Constant, Variable
+from ._errors import *
 
 
 class FOL:
@@ -100,7 +101,7 @@ class FOL:
         the_ints = Interval(-(2 ** 31 - 1), 2 ** 31 - 1, lambda x: int(x), 'Integer', self)
         the_ints.built_in = True
         self._sorts['Integer'] = the_ints
-        self.set_parent(the_ints, self.sort('Real'))
+        self.set_parent(the_ints, self.Real)
         sort_eq = Equality(self, the_ints, the_ints)
         self._predicates[sort_eq.signature] = sort_eq
 
@@ -112,13 +113,20 @@ class FOL:
         the_nats = Interval(0, 2 ** 32 - 1, lambda x: int(x), 'Natural', self)
         the_nats.built_in = True
         self._sorts['Natural'] = the_nats
-        self.set_parent(the_nats, self.sort('Integer'))
+        self.set_parent(the_nats, self.Integer)
         sort_eq = Equality(self, the_nats, the_nats)
         self._predicates[sort_eq.signature] = sort_eq
 
     @property
     def Natural(self):
         return self._sorts['Natural']
+
+    def get_sort(self, name ) :
+
+        sort =  self._sorts.get(name,None)
+        if sort is None :
+            raise UndefinedSort("Sort {} is not part of the language".format(name))
+        return sort
 
     def sort(self, name: str, super_sorts: List[Sort] = []):
         """
@@ -127,7 +135,9 @@ class FOL:
         """
         other = self._sorts.get(name, None)
         if other:
-            return other
+            err = SortAlreadyDefined("A sort '{}' has already been defined, see sort in attribute 'other' of this exception".format(name))
+            err.other = other
+            raise err
         sort_obj = Sort(name, self)
         self._sorts[name] = sort_obj
 
