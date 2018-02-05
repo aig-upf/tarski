@@ -213,7 +213,7 @@ class FOL:
             functions=[f.dump() for _, f in self._functions.items()]
         )
 
-    def is_well_formed(self):
+    def check_well_formed(self):
         for _, s in self._sorts.items():
             s.check_empty()
 

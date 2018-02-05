@@ -54,7 +54,7 @@ class Sort:
 
     def dump(self):
         return dict(name=self._name,
-                    domain=[n for n in self._domain])
+                    domain=self._domain.copy())
 
     def extend(self, constant):
         self._domain.add(constant.symbol)

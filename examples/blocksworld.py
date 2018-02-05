@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 import sys
-sys.path.append('../')
-import tarski as tsk
-
+sys.path.append('../src')
+from src import tarski as tsk
 
 if __name__ == "__main__":
 
