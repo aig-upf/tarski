@@ -175,7 +175,7 @@ class FOL:
         if not sort.built_in:
 
             if isinstance(namelist, types.GeneratorType):
-                return tuple(list(Constant(n, sort, self) for n in namelist))
+                return tuple(Constant(n, sort, self) for n in namelist)
 
             const_sym = Constant(namelist, sort, self)
             return const_sym

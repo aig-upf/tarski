@@ -1,21 +1,5 @@
 
-# config files
-config.json
-
-# The main FS workspace
-workspace
-
-# Automatically-generated documentation
-# doc
-
-# Clang static analysis output
-analysis
-
-# Build files
-.build
-lib
-
-# Compiled Object files
+# Object code
 *.slo
 *.lo
 *.o
@@ -57,18 +41,14 @@ __pycache__/
 # CMake & make files
 Makefile
 
-# Build temporary files
-experiments/*
-workspace/*
-
 # Singularity images
 *.img
 
-#
-*.pc
-variables.cache
-
-*.pyc
-
 # notebooks
 notebooks/.ipynb_checkpoints/
+
+# virtual environment
+venv/
+
+# Pytest dirs
+.pytest_cache

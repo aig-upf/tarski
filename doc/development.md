@@ -12,3 +12,23 @@ Many Python IDEs support on-the-fly PEP 8 style checks, and there are also exter
 to help the code comply with the style guidelines, such as [Google's YAPF](https://github.com/google/yapf).
 We might consider using one of these down the road.
 
+
+## Testing
+Tests are written using `pytest` and can be run by issuing `pytest` on the project root directory,
+provided that the `pytest` module has been installed.
+
+
+### Running the test from a virtual environment
+We can run the tests from a virtual environment where the necessary dependencies have been
+installed first:
+
+```
+virtualenv -p python3 venv
+source venv/bin/activate
+pip install pytest scipy
+```
+
+Once this has been done, running `pytest` will work the same, but we avoid the need for
+doing a system-wide installation of all the project dependencies.
+We'll soon be transitioning to use [tox](https://tox.readthedocs.io/en/latest/) and run the
+test from within a virtual environment.
