@@ -44,7 +44,9 @@ class Model(object):
         try:
             entry = frozenset([a.symbol for a in tup])
         except TypeError:
-            if isinstance(tup, Constant):
+            if tup is None :
+                entry = frozenset()
+            elif isinstance(tup, Constant):
                 entry = frozenset([tup.symbol])
             else:
                 raise LanguageError('Model.add() : arguments need to be tuple of constants, constants')
@@ -52,11 +54,19 @@ class Model(object):
             self._pred_ext[symbol.signature].add(entry)
         except KeyError:
             self._pred_ext[symbol.signature] = set()
-            self._pred_ext[symbol.signature].add(frozenset())
+            self._pred_ext[symbol.signature].add(entry)
 
     def remove(self, symbol: Predicate, tup=None):
-        entry = frozenset([a.symbol for a in tup])
-        self._pred_ext[symbol.signature].remove(frozenset())
+        try :
+            entry = frozenset([a.symbol for a in tup])
+        except TypeError :
+            if tup is None :
+                entry = frozenset()
+            elif isinstance(tup, Constant) :
+                entry = frozenset([tup.symbol])
+            else :
+                raise LanguageError('Model.remove() : arguments of tuple to add for predicate needs to be a tuple of constants or a constant')
+        self._pred_ext[symbol.signature].remove(entry)
 
     def evaluate(self, t):
         if isinstance(t, Variable):

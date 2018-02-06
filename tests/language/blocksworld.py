@@ -8,15 +8,14 @@ def generate_small_bw_instance():
     lang = tsk.language()
 
     # The sorts
-    place = lang.sort('place')
-    block = lang.sort('block', [place])
+    lang.place = lang.sort('place')
+    lang.block = lang.sort('block', [lang.place])
 
-    clear = lang.predicate('clear', block)
-    loc = lang.function('loc', block, place)
+    lang.clear = lang.predicate('clear', lang.block)
+    lang.loc = lang.function('loc', lang.block, lang.place)
 
     # Table and blocks
-    table = lang.const('table', place)
-    b1, b2, b3, b4 = lang.const(('b{}'.format(k) for k in (1, 2, 3, 4)), block)
+    lang.table = lang.const('table', lang.place)
+    lang.b1, lang.b2, lang.b3, lang.b4 = lang.const(('b{}'.format(k) for k in (1, 2, 3, 4)), lang.block)
 
     return lang
-
