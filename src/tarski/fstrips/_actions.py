@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 from tarski import FOL, \
-    Formula,
-    Variable,
+    Formula, \
+    Variable, \
     LanguageError
 
 import abc
 
 class Action(abc.ABC) :
 
-    def __init__(self, name, pre, effs ) :
+    def __init__(self, name, params, pre, effs ) :
         self._name = name
+        self._params = params
         self._pre = pre
         self._effs = effs
 
@@ -25,7 +26,15 @@ class Action(abc.ABC) :
     def effects(self) :
         return self._effs
 
+    @property
+    def parameters(self) :
+        return self._params
 
+    def dump(self) :
+        return dict(name=self.name,\
+            params=[par.dump() for par in self.parameters],\
+            precondition=self.precondition.dump(),
+            effects=[eff.dump() for eff in self.effects.dump() ])
 
 def action( L : FOL, **kwargs ) :
     # let's pick up each argument from kwargs and
