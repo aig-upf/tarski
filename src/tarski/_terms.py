@@ -131,6 +131,13 @@ class Term(object):
         sym = self.language.resolve_formula_symbol('>=')
         return sym(self, rhs)
 
+    def __enter__(self) :
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback) :
+        if exc_type is None : return False
+        return True
+
 
 class Constant(Term):
     def __init__(self, name: str, sort: Sort, lang):
