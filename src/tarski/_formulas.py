@@ -281,7 +281,7 @@ def exists(*args):
     for x in vars:
         if not isinstance(x, Variable):
             raise LanguageError('Every other argument of exist(...) but the last needs to be a variable')
-    return ExistentialFormula(vars, phi)
+    return ExistentiallyQuantifiedFormula(vars, phi)
 
 
 class UniversallyQuantifiedFormula(QuantifiedFormula):
