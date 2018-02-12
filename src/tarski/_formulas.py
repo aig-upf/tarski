@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from ._errors import LanguageError
+from .errors import LanguageError
 from ._terms import Term, Variable
 
 from typing import List
@@ -53,11 +53,12 @@ class Formula(ABC):
 
 class AtomicFormula(Formula):
     def __init__(self, *args):
+        super().__init__()
         self._subterms = []
         for a in args:
             if not isinstance(a, Term):
                 raise LanguageError(
-                    "Atomic formulae can only be defined over Terms, found argument of type '{}' ".format(type(a)))
+                    "Atomic formulae can only be defined over terms, found argument of type '{}' ".format(type(a)))
             self._subterms.append(a)
 
     @property
@@ -72,7 +73,7 @@ class AtomicFormula(Formula):
 class RelationalFormula(AtomicFormula):
     def __init__(self, *args):
         terms = args[1:]
-        super(RelationalFormula, self).__init__(*terms)
+        super().__init__(*terms)
         self._symbol = args[0]
 
     @property
@@ -88,6 +89,7 @@ class RelationalFormula(AtomicFormula):
 
 class AxiomaticFormula(Formula):
     def __init__(self, head, body):
+        super().__init__()
         if not isinstance(head, Formula):
             raise LanguageError("The head of an axiomatic formulae can only be a Formula, was '{}'".format(type(head)))
         self._head = head
@@ -108,7 +110,7 @@ axiom = AxiomaticFormula
 
 class ExternallyDefinedFormula(Formula):
     def __init__(self, *args):
-        super(ExternallyDefinedFormula, self).__init__(*args)
+        super().__init__(*args)
 
     @property
     def name(self):
@@ -180,7 +182,7 @@ class Conjunction(OpenFormula):
     def __init(self, *args):
         if len(args) < 2:
             raise LanguageError('Formula is not well formed: Conjunction requires at least two subformulas')
-        super(Conjunction, self).__init__(*args)
+        super().__init__(*args)
         self._name = 'and'
 
     def satisfiable(self, s):
@@ -206,7 +208,7 @@ class Disjunction(OpenFormula):
     def __init__(self, *args):
         if len(args) < 2:
             raise LanguageError('Formula is not well formed: Disjunction requires at least two subformulas')
-        super(Disjunction, self).__init__(*args)
+        super().__init__(*args)
         self._name = 'or'
 
     def satisfiable(self, s):
@@ -231,7 +233,7 @@ class Negation(OpenFormula):
     def __init__(self, *args):
         if len(args) != 1:
             raise LanguageError("Formula is not well formed: Negation admits only one subformula")
-        super(Negation, self).__init__(*args)
+        super().__init__(*args)
         self._name = 'neg'
 
     def satisfiable(self, s):
@@ -262,7 +264,7 @@ class QuantifiedFormula(Formula):
 
 class ExistentiallyQuantifiedFormula(QuantifiedFormula):
     def __init__(self, varset: List[Variable], phi: Formula):
-        super(ExistentiallyQuantifiedFormula, self).__init__(varset, phi)
+        super().__init__(varset, phi)
 
     def __str__(self):
         return 'Exists {} : {}'.format(' '.join([str(x) for x in self.vars]), str(self.subformula))
@@ -286,7 +288,7 @@ def exists(*args):
 
 class UniversallyQuantifiedFormula(QuantifiedFormula):
     def __init__(self, varset: List[Variable], phi: Formula):
-        super(UniversallyQuantifiedFormula, self).__init__(varset, phi)
+        super().__init__(varset, phi)
 
     def __str__(self):
         return 'Forall {} : {}'.format(' '.join([str(x) for x in self.vars]), str(self.subformula))

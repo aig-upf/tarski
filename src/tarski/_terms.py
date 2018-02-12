@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from ._errors import LanguageError
+from .errors import LanguageError
 from ._sorts import Sort
 import copy
 
@@ -245,7 +245,7 @@ class Constant(Term):
 
 class Variable(Term):
     def __init__(self, name: str, sort: Sort, lang):
-        super(Variable, self).__init__(self, [], lang)
+        super().__init__(self, [], lang)
         self._name = name
         self._sort = sort
 

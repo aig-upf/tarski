@@ -15,6 +15,6 @@ def generate_numeric_instance():
     f = lang.function('f', particle, lang.Real )
 
     # Particles
-    lang.const(('p{}'.format(k) for k in (1,2,3,4)), particle)
+    lang.constant(('p{}'.format(k) for k in (1,2,3,4)), particle)
 
     return lang

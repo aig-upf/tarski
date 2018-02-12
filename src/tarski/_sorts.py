@@ -1,6 +1,6 @@
 
 from typing import List
-from ._errors import LanguageError
+from .errors import LanguageError
 
 
 class Sort:

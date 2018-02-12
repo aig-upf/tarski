@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from ._errors import LanguageError
+from .errors import LanguageError
 from ._terms import Term, Variable, Constant
 from ._formulas import Formula
 from ._function import Function

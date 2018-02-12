@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import types
+
 from typing import Set
 
 import scipy.constants
@@ -11,7 +11,7 @@ from ._predicate import Predicate, Equality
 from ._relational import EQFormula, LTFormula, GTFormula, LEQFormula, GEQFormula, NEQFormula
 from ._sorts import *
 from ._terms import Constant, Variable
-from ._errors import *
+from .errors import *
 
 
 class FOL:
@@ -32,8 +32,10 @@ class FOL:
         # MRJ: this contains a table where we record possible promotions
         # between sorts (i.e. bottom up along the hierarchy)
         self._possible_promotions = {}
+
         self._functions = {}
         self._predicates = {}
+        self._constants = {}
         self._variables = set()
 
         # MRJ: let's allow default equality predicates to be enabled/disabled
@@ -42,6 +44,12 @@ class FOL:
         self._symbol_table = {}
         self._build_builtin_sorts()
         funcsym.initialize(self)
+
+        self._element_containers = {Sort: self._sorts,
+                                    Function: self._functions,
+                                    Predicate: self._predicates,
+                                    Variable: self._variables}
+
 
     def _inclusion_closure(self, s: Sort) -> Set[Sort]:
         """
@@ -121,23 +129,15 @@ class FOL:
     def Natural(self):
         return self._sorts['Natural']
 
-    def get_sort(self, name ) :
-
-        sort =  self._sorts.get(name,None)
-        if sort is None :
-            raise UndefinedSort("Sort {} is not part of the language".format(name))
-        return sort
-
     def sort(self, name: str, super_sorts: List[Sort] = []):
         """
-            Creates instance of Sort object, adds it to the table of
-            sorts
+            Create new sort with given name and ancestors
+
+            Raises DuplicateSortDefinition if sort already existed
         """
-        other = self._sorts.get(name, None)
-        if other:
-            err = SortAlreadyDefined("A sort '{}' has already been defined, see sort in attribute 'other' of this exception".format(name))
-            err.other = other
-            raise err
+        if self.has_sort(name):
+            raise DuplicateSortDefinition(name, self._sorts[name])
+
         sort_obj = Sort(name, self)
         self._sorts[name] = sort_obj
 
@@ -153,8 +153,17 @@ class FOL:
             self._predicates[sort_eq.signature] = sort_eq
         return sort_obj
 
-    def var(self, name: str, type_: Sort):
-        return Variable(name, type_, self)
+    def has_sort(self, name):
+        return name in self._sorts
+
+    def get_sort(self, name):
+        if not self.has_sort(name):
+            raise UndefinedSort(name)
+        return self._sorts[name]
+
+    def variable(self, name: str, sort: Sort):
+        sort = self._retrieve_object(sort, Sort)
+        return Variable(name, sort, self)
 
     def set_parent(self, lhs: Sort, rhs: Sort):
         if rhs.language is not self:
@@ -162,54 +171,79 @@ class FOL:
         self._sort_hierarchy.add((lhs.name, rhs.name))
         self._possible_promotions[lhs.name] = self._inclusion_closure(rhs)
 
-    def const(self, namelist, sort):
+    def _retrieve_object(self, obj, type_):
         """
-            Creates constant symbol of a given sort
+        Make sure that the given obj is either an object of a certain language type (e.g. sort, predicate, etc.)
+        which has been correctly registered with the language, or the name of such an object, and return the object
         """
-        if isinstance(sort, str):
-            try:
-                sort = self._sorts[sort]
-            except KeyError:
-                raise LanguageError("FOL.const() : unknown sort '{}'".format(sort))
-        elif isinstance(sort, Sort):
-            if sort._language != self:
-                raise LanguageError(
-                    "FOL.const() : sort '{}' has not been declared for this language!".format(sort.name))
-        else:
-            raise LanguageError(
-                "FOL.const() : the specified 'sort' argument needs to be a string or a Sort instance, not {}".format(
-                    type(sort)))
+        if not isinstance(obj, (str, type_)):
+            raise LanguageError("Unknown type of language element {}".format(obj))
 
-        if namelist is None:
-            raise LanguageError("'None' cannot be a constant symbol!")
+        if isinstance(obj, type_):
+            if obj._language != self:
+                raise MismatchingLanguage(obj, obj._language, self)
+            return obj
 
-        if not sort.built_in:
+        # obj must be a string, which we take as the name of a language element
+        if type_ not in self._element_containers:
+            raise RuntimeError("Trying to index incorrect type {}".format(type_))
 
-            if isinstance(namelist, types.GeneratorType):
-                return tuple(Constant(n, sort, self) for n in namelist)
+        if obj not in self._element_containers[type_]:
+            raise UndefinedElement(obj)
 
-            const_sym = Constant(namelist, sort, self)
-            return const_sym
+        return self._element_containers[type_][obj]
 
-        if isinstance(namelist, types.GeneratorType):
-            return tuple(list(sort.cast(n) for n in namelist))
-        return sort.cast(namelist)
+    def constant(self, name, sort: Sort):
+        """ Create constant symbol of a given sort """
+        sort = self._retrieve_object(sort, Sort)
 
-    def predicate(self, symbol: str, *args):
-        pred = Predicate(symbol, self, *args)
-        try:
-            return self._predicates[pred.signature]
-        except KeyError:
-            self._predicates[pred.signature] = pred
-        return pred
+        # TODO - CLARIFY THE LOGIC OF BUILT-INS HERE
+        if sort.built_in:
+            return sort.cast(name)
 
-    def function(self, symbol: str, *args):
-        func = Function(symbol, self, *args)
-        try:
-            return self._functions[func.signature]
-        except KeyError:
-            self._functions[func.signature] = func
-        return func
+        if name in self._constants:
+            raise DuplicateConstantDefinition(name, self._constants[name])
+
+        self._constants[name] = Constant(name, sort, self)
+        return self._constants[name]
+
+    def has_constant(self, name):
+        return name in self._constants
+
+    def get_constant(self, name):
+        if not self.has_constant(name):
+            raise UndefinedConstant(name)
+        return self._constants[name]
+
+    def predicate(self, name: str, *args):
+        if name in self._predicates:
+            raise DuplicatePredicateDefinition(name, self._predicates[name])
+
+        self._predicates[name] = Predicate(name, self, *args)
+        return self._predicates[name]
+
+    def has_predicate(self, name):
+        return name in self._predicates
+
+    def get_predicate(self, name):
+        if not self.has_predicate(name):
+            raise UndefinedPredicate(name)
+        return self._predicates[name]
+
+    def function(self, name: str, *args):
+        if name in self._functions:
+            raise DuplicateFunctionDefinition(name, self._functions[name])
+
+        self._functions[name] = Function(name, self, *args)
+        return self._functions[name]
+
+    def has_function(self, name):
+        return name in self._functions
+
+    def get_function(self, name):
+        if not self.has_function(name):
+            raise UndefinedFunction(name)
+        return self._functions[name]
 
     def model(self):
         return Model(self)

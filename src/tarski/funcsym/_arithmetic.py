@@ -3,7 +3,7 @@
 import math
 
 from .._function import Function
-from .._errors import LanguageError
+from ..errors import LanguageError
 
 
 class ArithmeticFunction(Function):

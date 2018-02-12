@@ -6,13 +6,14 @@ from tarski import FOL, \
 
 import abc
 
-class Action(abc.ABC) :
 
-    def __init__(self, name, params, pre, effs ) :
+class Action(abc.ABC):
+    def __init__(self, lang, name, parameters, precondition, effects):
         self._name = name
-        self._params = params
-        self._pre = pre
-        self._effs = effs
+        self.lang = lang
+        self._params = parameters
+        self._pre = precondition
+        self._effs = effects
 
     @property
     def name(self) :

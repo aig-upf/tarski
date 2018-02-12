@@ -8,7 +8,7 @@ def test_empty_type():
     with pytest.raises(tsk.LanguageError):
         lang.check_well_formed()
 
-    lang.const('Miquel', s)
+    lang.constant('Miquel', s)
     lang.check_well_formed()
 
 

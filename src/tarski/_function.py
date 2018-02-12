@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from ._errors import LanguageError
+from .errors import LanguageError
 from ._sorts import Sort
 from ._terms import Term, Constant
 

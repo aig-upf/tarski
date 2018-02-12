@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from ._errors import LanguageError
+from .errors import LanguageError
 from ._sorts import Sort
 from ._formulas import RelationalFormula
 from ._terms import Term, Constant
@@ -14,7 +14,7 @@ class Predicate(object):
 
         # we validate the arguments now
         for k, a in enumerate(args):
-            if isinstance(type(a), Sort):
+            if not isinstance(a, Sort):
                 raise LanguageError("Predicate.__init__() : arguments need \
                 to be of type 'Sort', {}-th argument '{}' is of type '{}''".format(k + 1, a, type(a)))
             if self._lang != a.language:
@@ -60,10 +60,9 @@ class Predicate(object):
 
     def check_arguments(self, *args):
         if len(args) != self.arity:
-            raise LanguageError(
-                'Error setting predicate  extension: arity of {} is {}, {} arguments given'.format(self.symbol,
-                                                                                                   self.arity,
-                                                                                                   len(args)))
+            raise LanguageError('Error setting predicate  extension: arity of {} is {}, {} arguments given'.
+                                format(self.symbol, self.arity, len(args)))
+
         for k, arg in enumerate(args):
             if not isinstance(arg, Constant):
                 raise LanguageError('Error setting predicate extension: {}-th argument is not a constant'.format(k + 1))
