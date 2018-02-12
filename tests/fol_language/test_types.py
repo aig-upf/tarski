@@ -1,15 +1,34 @@
 import pytest
 import tarski as tsk
+import tarski.errors as err
+
+# TODO NOT SURE WE WANT TO DISALLOW EMPTY TYPES. I HAVE TEMPORARILY DISABLED THE CHECK
+# TODO ALSO, WE SHOULDN'T HAVE TO CALL ANY "CHECK WELL FORMED" METHOD EXPLICITLY
+# def test_empty_type():
+#     lang = tsk.language()
+#     s = lang.sort('person')
+#     with pytest.raises(tsk.LanguageError):
+#         lang.check_well_formed()
+#
+#     lang.constant('Miquel', s)
+#     lang.check_well_formed()
 
 
-def test_empty_type():
+def test_object_type():
     lang = tsk.language()
-    s = lang.sort('person')
-    with pytest.raises(tsk.LanguageError):
-        lang.check_well_formed()
+    lang.get_sort("object")
 
-    lang.constant('Miquel', s)
-    lang.check_well_formed()
+
+def test_type_retrieval():
+    lang = tsk.language()
+    s = lang.sort("foobar")
+    assert s == lang.get_sort("foobar")
+
+
+def test_nonexisting_type():
+    lang = tsk.language()
+    with pytest.raises(err.UndefinedSort):
+        lang.get_sort('foobar')
 
 
 def test_duplicate_type():
@@ -17,46 +36,30 @@ def test_duplicate_type():
     lang.sort('person')
 
     # Adding two sorts with the same name should raise some type of error
-    with pytest.raises(tsk.LanguageError):
+    with pytest.raises(err.LanguageError):
         lang.sort('person')
 
 
-def test_hierarchy():
-    lang = tsk.language()
-    animal = lang.sort('animal')
-    human = lang.sort('human', [animal])
+def test_parent_types():
+    lang, human, animal, being = get_children_parent_types()
 
-    assert len(tsk.parents(human)) == 1
+    assert len(tsk.parents(human)) == 2  # i.e. including the top "object" sort
     assert animal in tsk.parents(human)
 
 
-# def test_simple_type():
-#     fd_objects = generate_fd_objects([('b1', 'block'), ('b2', 'block')])
-#     types, type_map = process_types([('block', 'object'), ('object', None)], fd_objects)
-#     assert len(type_map) == len(types) == 4, "Types should be: object, bool, int and block"
-#     assert type_map['object'] == type_map['block'] == ['b1', 'b2']
-#
-#
-# def test_int_type():
-#     types, type_map = process_problem_types([], [], [generate_fd_bound(('val', 5, 15))])
-#     assert type_map['val'] == list(range(5, 16))
-#
-#     with pytest.raises(RuntimeError):
-#         process_problem_types([], [], [generate_fd_bound(('val', 10, 1))])  # The bound is incorrect
-#
-#
+def test_is_subtype_of():
+    lang, human, animal, being = get_children_parent_types()
 
-#
-# def test_intermediate_parent_map():
-#     fd_types = generate_fd_types([('dad', 'grand'), ('object', None), ('grand', 'object'), ('me', 'dad')])
-#     types, supertypes = process_type_hierarchy(fd_types)
-#     assert len(supertypes) == len(types) == len(fd_types) + 2  # the declared types plus bool, int.
-#     assert len(supertypes['me']) == 3 and len(supertypes['dad']) == 2 and len(supertypes['grand']) == 1
-#
-#
-# def test_no_object_types():
-#     check = "Even if not explicitly declared, the base 'object', 'bool' and 'int' types get properly identified"
-#     types, type_map = process_types([], [])
-#     assert len(type_map) == len(types) == 3, check
-#     assert type_map['object'] == type_map['int'] == [], check
-#     assert type_map['bool'] == ['false', 'true'], "The Bool type has always exactly the two expected objects"
+    assert lang.is_strict_subtype(human, lang.get_sort('object'))
+    assert lang.is_strict_subtype(human, being)
+    assert lang.is_strict_subtype(human, animal)
+    assert lang.is_subtype(human, animal)
+    assert lang.is_subtype(animal, human) is False
+
+
+def get_children_parent_types():
+    lang = tsk.language()
+    being = lang.sort('being')
+    animal = lang.sort('animal', [being])
+    human = lang.sort('human', [animal])
+    return lang, human, animal, being

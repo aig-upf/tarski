@@ -1,7 +1,7 @@
 """
     Generate simple numeric domain language elements
 """
-from src import tarski as tsk  # TODO Fix this import, 'src' should not be there
+import tarski as tsk
 
 
 def generate_numeric_instance():

@@ -1,31 +1,28 @@
 # -*- coding: utf-8 -*-
+
 from .errors import LanguageError
 from ._sorts import Sort
-from ._terms import Term, Constant
+from . import errors as err
 
 
 class Function(object):
-    def __init__(self, name, lang, *args):
-        self._symbol = name  # name, a string
-        self._lang = lang  # fol the symbol belongs to
-        self._domain = []
-        self._codomain = None
-        # we validate the arguments now
-        for k, a in enumerate(args):
-            if isinstance(type(a), Sort):
+    def __init__(self, symbol, language, *args):
+        self.symbol = symbol
+        self.language = language
+        self.domain = tuple(args[:-1])
+        self.codomain = args[-1]
+
+        self._check_well_formed()
+
+    def _check_well_formed(self):
+
+        for k, a in enumerate(self.domain):
+            if not isinstance(a, Sort):
                 raise LanguageError("Function.__init__() : arguments need \
                 to be of type 'Sort', {}-th argument '{}' is of type '{}''".format(k + 1, a, type(a)))
-            if self._lang != a.language:
-                raise LanguageError("Function.__init__(): {}-th argument \
-                belongs to a different language".format(k + 1))
-            if k < len(args) - 1:
-                self._domain.append(a)
-            else:
-                self._codomain = a
 
-    @property
-    def symbol(self):
-        return self._symbol
+            if self.language != a.language:
+                raise err.LanguageMismatch(a, a.language, self.language)
 
     @property
     def signature(self):
@@ -33,26 +30,15 @@ class Function(object):
 
     @property
     def arity(self):
-        return len(self._domain)
+        return len(self.domain)
 
-    @property
-    def domain(self):
-        return tuple(self._domain)
-
-    @property
-    def codomain(self):
-        return self._codomain
-
+    # TODO Rename this for "sort"
     @property
     def type(self):
-        return self._codomain
-
-    @property
-    def language(self):
-        return self._lang
+        return self.domain + (self.codomain, )
 
     def __str__(self):
-        return '{}({})'.format(self.symbol, ','.join([a.name for a in self._domain]))
+        return '{}({})'.format(self.symbol, ','.join([a.name for a in self.domain]))
 
     def dump(self):
         return dict(symbol=self.symbol,
@@ -60,20 +46,6 @@ class Function(object):
                     codomain=self.codomain.name)
 
     def __call__(self, *args):
-        # @TODO: check arity and type of arguments!
-        return Term(self, args, self._lang)
+        from ._terms import CompoundTerm
+        return CompoundTerm(self, args)
 
-    def check_arguments(self, *args):
-        arguments = args[:-1]
-        value = args[-1]
-        for k, a in enumerate(arguments):
-            if not isinstance(a, Constant):
-                raise LanguageError("Function.add() : function can only be defined over constants, argument {} is not:"
-                                    " {}".format(k, type(a)))
-            if a.type.name != self.domain[k].name:
-                if not self.domain[k].contains(a.symbol):
-                    raise LanguageError("Function.add(): type mismatch, argument {} is {}, expected to be {}".
-                                        format(k, a.type.name, self.domain[k].name))
-
-    def __getitem__(self, *args):
-        raise ValueError("Extensionally defined")

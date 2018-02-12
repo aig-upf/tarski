@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+from collections import defaultdict
 from typing import Set
 
 import scipy.constants
@@ -7,40 +7,34 @@ import scipy.constants
 from . import funcsym
 from ._function import Function
 from ._model import Model
-from ._predicate import Predicate, Equality
-from ._relational import EQFormula, LTFormula, GTFormula, LEQFormula, GEQFormula, NEQFormula
+from ._predicate import Predicate
 from ._sorts import *
 from ._terms import Constant, Variable
 from .errors import *
+from .evaluators import builtins
 
 
 class FOL:
-    formula_symbols = {
-        '=': EQFormula,
-        '!=': NEQFormula,
-        '<': LTFormula,
-        '>': GTFormula,
-        '<=': LEQFormula,
-        '>=': GEQFormula
-    }
+    """ A full-fledged first-order language, """
 
     def __init__(self):
         self._sorts = {}
         # MRJ: let's represent this temporally as pairs of names of sorts,
         # lhs \sqsubseteq rhs, lhs is a subset of rhs
         self._sort_hierarchy = set()
-        # MRJ: this contains a table where we record possible promotions
-        # between sorts (i.e. bottom up along the hierarchy)
-        self._possible_promotions = {}
+
+        # _possible_promotions[t] is a set containing all supertypes of sort 't'
+        self._possible_promotions = defaultdict(set)
 
         self._functions = {}
         self._predicates = {}
+        # self._predicates_by_sort = {}
+        # self._functions_by_sort = {}
         self._constants = {}
         self._variables = set()
 
-        # MRJ: let's allow default equality predicates to be enabled/disabled
-        # dynamically
-        self._default_equality = True
+        # Allow default builtin predicates to be enabled dynamically
+        self._create_default_builtins = True
         self._symbol_table = {}
         self._build_builtin_sorts()
         funcsym.initialize(self)
@@ -50,11 +44,8 @@ class FOL:
                                     Predicate: self._predicates,
                                     Variable: self._variables}
 
-
     def _inclusion_closure(self, s: Sort) -> Set[Sort]:
-        """
-            Calculates the inclusion closure over given sort s
-        """
+        """ Calculates the inclusion closure over given sort s """
         closure = set()
         frontier = {s}
         while len(frontier) > 0:
@@ -89,6 +80,7 @@ class FOL:
             yield f
 
     def _build_builtin_sorts(self):
+        self._build_the_objects()
         self._build_the_reals()
         self._build_the_integers()
         self._build_the_naturals()
@@ -98,8 +90,7 @@ class FOL:
         the_reals.built_in = True
         the_reals.pi = scipy.constants.pi
         self._sorts['Real'] = the_reals
-        sort_eq = Equality(self, the_reals, the_reals)
-        self._predicates[sort_eq.signature] = sort_eq
+        # self.create_builtin_predicates(the_reals)
 
     @property
     def Real(self):
@@ -110,8 +101,7 @@ class FOL:
         the_ints.built_in = True
         self._sorts['Integer'] = the_ints
         self.set_parent(the_ints, self.Real)
-        sort_eq = Equality(self, the_ints, the_ints)
-        self._predicates[sort_eq.signature] = sort_eq
+        # self.create_builtin_predicates(the_ints)
 
     @property
     def Integer(self):
@@ -122,14 +112,18 @@ class FOL:
         the_nats.built_in = True
         self._sorts['Natural'] = the_nats
         self.set_parent(the_nats, self.Integer)
-        sort_eq = Equality(self, the_nats, the_nats)
-        self._predicates[sort_eq.signature] = sort_eq
+        # self.create_builtin_predicates(the_nats)
+
+    def _build_the_objects(self):
+        sort = Sort('object', self)
+        self._sorts['object'] = sort
+        self.create_builtin_predicates(sort)
 
     @property
     def Natural(self):
         return self._sorts['Natural']
 
-    def sort(self, name: str, super_sorts: List[Sort] = []):
+    def sort(self, name: str, super_sorts: List[Sort] = None):
         """
             Create new sort with given name and ancestors
 
@@ -138,20 +132,21 @@ class FOL:
         if self.has_sort(name):
             raise DuplicateSortDefinition(name, self._sorts[name])
 
-        sort_obj = Sort(name, self)
-        self._sorts[name] = sort_obj
+        sort = Sort(name, self)
+        self._sorts[name] = sort
 
         # MRJ: setup promotions table
-        if super_sorts is None:
-            self._possible_promotions[name] = set()  # no possible promotions
-        else :
-            for parent in super_sorts: self.set_parent(sort_obj, parent)
+        otype = self.get_sort("object")
+        super_sorts = super_sorts or []
+        if otype not in super_sorts:  # Make sure all sorts derive from "object"
+            super_sorts.append(otype)
 
-        # MRJ: create equality
-        if self._default_equality:
-            sort_eq = Equality(self, sort_obj, sort_obj)
-            self._predicates[sort_eq.signature] = sort_eq
-        return sort_obj
+        for parent in super_sorts:
+            self.set_parent(sort, parent)
+
+        # self.create_builtin_predicates(sort)
+
+        return sort
 
     def has_sort(self, name):
         return name in self._sorts
@@ -163,13 +158,13 @@ class FOL:
 
     def variable(self, name: str, sort: Sort):
         sort = self._retrieve_object(sort, Sort)
-        return Variable(name, sort, self)
+        return Variable(name, sort)
 
     def set_parent(self, lhs: Sort, rhs: Sort):
         if rhs.language is not self:
             raise LanguageError("FOL.sort(): tried to set as parent a sort from a different language")
         self._sort_hierarchy.add((lhs.name, rhs.name))
-        self._possible_promotions[lhs.name] = self._inclusion_closure(rhs)
+        self._possible_promotions[lhs.name].update(self._inclusion_closure(rhs))
 
     def _retrieve_object(self, obj, type_):
         """
@@ -180,8 +175,8 @@ class FOL:
             raise LanguageError("Unknown type of language element {}".format(obj))
 
         if isinstance(obj, type_):
-            if obj._language != self:
-                raise MismatchingLanguage(obj, obj._language, self)
+            if obj.language != self:
+                raise LanguageMismatch(obj, obj.language, self)
             return obj
 
         # obj must be a string, which we take as the name of a language element
@@ -204,7 +199,7 @@ class FOL:
         if name in self._constants:
             raise DuplicateConstantDefinition(name, self._constants[name])
 
-        self._constants[name] = Constant(name, sort, self)
+        self._constants[name] = Constant(name, sort)
         return self._constants[name]
 
     def has_constant(self, name):
@@ -219,8 +214,10 @@ class FOL:
         if name in self._predicates:
             raise DuplicatePredicateDefinition(name, self._predicates[name])
 
-        self._predicates[name] = Predicate(name, self, *args)
-        return self._predicates[name]
+        predicate = Predicate(name, self, *args)
+        self._predicates[name] = predicate
+        # self._predicates_by_sort[(name,) + tuple(*args)] = predicate
+        return predicate
 
     def has_predicate(self, name):
         return name in self._predicates
@@ -234,8 +231,10 @@ class FOL:
         if name in self._functions:
             raise DuplicateFunctionDefinition(name, self._functions[name])
 
-        self._functions[name] = Function(name, self, *args)
-        return self._functions[name]
+        func = Function(name, self, *args)
+        self._functions[name] = func
+        # self._functions_by_sort[(name,) + tuple(*args)] = func
+        return func
 
     def has_function(self, name):
         return name in self._functions
@@ -270,5 +269,19 @@ class FOL:
                 "FOL.resolve_function_symbol_2(): function symbol '{}' is not defined for domain ({},{})"
                 .format(sym, lhs, rhs))
 
-    def resolve_formula_symbol(self, symbol):
-        return self.formula_symbols[symbol]
+    def is_subtype(self, t, st):
+        return t == st or self.is_strict_subtype(t, st)
+
+    def is_strict_subtype(self, t, st):
+        return st in self._possible_promotions[t._name]
+
+    def create_builtin_predicates(self, sort):
+        if not self._create_default_builtins:
+            return
+
+        builtins.create_symbols_for_language(self)
+
+        # for s in builtins.Predicates:
+        #     # The name of the built-in predicate takes into account the type it is applied to, e.g. =_int
+        #     name = "{}_{}".format(s.value, sort._name)
+        #     self.predicate(name, sort, sort)

@@ -1,9 +1,38 @@
 # -*- coding: utf-8 -*-
-from .errors import LanguageError
-from ._terms import Term, Variable, Constant
-from ._formulas import Formula
+from collections import defaultdict
+
+from . import errors as err
+from ._terms import Constant
 from ._function import Function
 from ._predicate import Predicate
+
+
+def _check_assignment(fun, point, value=None):
+    assert isinstance(point, tuple)
+    elements = point + (value,) if value is not None else point
+    processed = []
+
+    typ = fun.type
+    if len(typ) != len(elements):
+        raise err.ArityMismatch(fun, elements)
+
+    language = fun.language
+    for element, expected_type in zip(elements, typ):
+
+        if not isinstance(element, Constant):
+            # Assume a literal value has been passed instead of its corresponding constant
+            element = Constant(expected_type.cast(element), expected_type)
+            # raise err.IncorrectExtensionDefinition(fun, point, value)
+
+        if element.language != language:
+            raise err.LanguageMismatch(element, element.language, language)
+
+        if not language.is_subtype(element.sort, expected_type):
+            raise err.TypeMismatch(element, element.sort, expected_type)
+
+        processed.append(element)
+
+    return tuple(processed) if value is None else tuple(processed[:-1]), processed[-1]
 
 
 class Model(object):
@@ -11,86 +40,48 @@ class Model(object):
         A First Order Language Model
     """
 
-    def __init__(self, lang):
-        self._lang = lang
-        self._func_ext = {}
-        self._pred_ext = {}
+    def __init__(self, language):
+        self.language = language
+        self.function_extensions = defaultdict(dict)
+        self.predicate_extensions = defaultdict(set)
 
-    def L(self):
-        return self._lang
+    def set(self, fun: Function, point, value):
+        """ Set the value of function 'fun' at point 'point' to be equal to 'value'
+            'point' needs to be a tuple of constants, and value a single constant.
+        """
+        point, value = _check_assignment(fun, point, value)
 
-    def __getitem__(self, obj):
-        if isinstance(obj, Term):
-            return self.evaluate(obj)
-        if isinstance(obj, Formula):
-            return self.check_satisfiability(obj)
+        self.function_extensions[fun.signature][point] = value
 
-    def set(self, symbol: Function, tup):
-        try:
-            symbol.check_arguments(*tup)
-            interpreted_args = tuple(a.symbol for a in tup[:-1])
-            value = Constant.create(symbol.codomain.cast(tup[-1]), symbol.codomain, self.L)
+    def add(self, predicate: Predicate, *args):
+        _check_assignment(predicate, args)
 
-        except TypeError:
-            interpreted_args = ()
-            value = Constant.create(symbol.codomain.cast(tup), symbol.codomain, self.L)
-        # print('{} : {} -> {}'.format(symbol.signature,interpreted_args,value.symbol))
-        try:
-            self._func_ext[symbol.signature][interpreted_args] = value
-        except KeyError:
-            self._func_ext[symbol.signature] = {interpreted_args: value}
+        entry = frozenset(a.symbol for a in args)
+        self.predicate_extensions[predicate.signature].add(entry)
 
-    def add(self, symbol: Predicate, tup=None):
-        try:
-            entry = frozenset([a.symbol for a in tup])
-        except TypeError:
-            if tup is None :
-                entry = frozenset()
-            elif isinstance(tup, Constant):
-                entry = frozenset([tup.symbol])
-            else:
-                raise LanguageError('Model.add() : arguments need to be tuple of constants, constants')
-        try:
-            self._pred_ext[symbol.signature].add(entry)
-        except KeyError:
-            self._pred_ext[symbol.signature] = set()
-            self._pred_ext[symbol.signature].add(entry)
+    def remove(self, predicate: Predicate, *args):
+        entry = frozenset(a.symbol for a in args)
 
-    def remove(self, symbol: Predicate, tup=None):
-        try :
-            entry = frozenset([a.symbol for a in tup])
-        except TypeError :
-            if tup is None :
-                entry = frozenset()
-            elif isinstance(tup, Constant) :
-                entry = frozenset([tup.symbol])
-            else :
-                raise LanguageError('Model.remove() : arguments of tuple to add for predicate needs to be a tuple of constants or a constant')
-        self._pred_ext[symbol.signature].remove(entry)
+        # try:
+        #
+        # except TypeError:
+        #     if point is None:
+        #         entry = frozenset()
+        #     elif isinstance(point, Constant):
+        #         entry = frozenset([point.symbol])
+        #     else :
+        #         raise err.LanguageError('Model.remove() : arguments of tuple to add for predicate needs to be a tuple of constants or a constant')
+        self.predicate_extensions[predicate.signature].remove(entry)
 
-    def evaluate(self, t):
-        if isinstance(t, Variable):
-            raise LanguageError("eval(): Found free variable {}".format(t))
-        elif isinstance(t, Constant):
-            return t
-        elif isinstance(t, Term):
-            # evaluate each of the arguments
-            interpreted = [self.evaluate(a) for a in t.arguments]
-            symbols = tuple(i.symbol for i in interpreted)
-            try:
-                return t.symbol.__getitem__(*symbols)
-            except ValueError:
-                # check extension
-                # print("[f({})]^s = {}".format(symbols, self._func_ext[t.symbol.signature][symbols]))
-                return self._func_ext[t.symbol.signature][symbols]
-        elif isinstance(t, tuple):
-            pred_sym, terms = t
-            interpreted = [self.evaluate(a) for a in terms]
-            symbols = frozenset(tuple(i.symbol for i in interpreted))
-            # print('P({}) : {}'.format(symbols, symbols in self._pred_ext[pred_sym.signature]))
-            return symbols in self._pred_ext[pred_sym.signature]
+    def value(self, fun: Function, point):
+        """ Return the value of the given function on the given point in the current model """
+        # print("[f({})]^s = {}".format(symbols, self.function_extensions[t.symbol.signature][symbols]))
+        return self.function_extensions[fun.signature][point]
 
-        raise LanguageError("Model.evaluate() : Could not interpret: {}".format(t))
+    def holds(self, predicate: Predicate, point):
+        """ Return true iff the given predicate is true on the given point in the current model """
 
-    def check_satisfiability(self, phi):
-        return phi.satisfiable(self)
+        symbols = frozenset(tuple(c.symbol for c in point))
+        return symbols in self.predicate_extensions[predicate.signature]
+
+

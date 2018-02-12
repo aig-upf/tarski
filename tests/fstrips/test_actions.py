@@ -1,6 +1,4 @@
 
-import pytest
-import tarski as tsk
 from tarski import fstrips as fs
 from tarski.operators import *
 

@@ -12,16 +12,42 @@ class LanguageError(TarskiError):
         super().__init__(msg)
 
 
-class MismatchingLanguage(LanguageError):
+class SyntacticError(LanguageError):
+    def __init__(self, msg=None):
+        msg = msg or 'Unexplained Tarski syntactic error'
+        super().__init__(msg)
+
+
+class SemanticError(LanguageError):
+    def __init__(self, msg=None):
+        msg = msg or 'Unexplained Tarski semantic error'
+        super().__init__(msg)
+
+
+class LanguageMismatch(SyntacticError):
     def __init__(self, obj, l1, l2, msg=None):
         msg = msg or ('Language mismatch when operating on object {obj} of type {classname}.\n'
-                      'Object\'s language: {l1}\n'
-                      'Base language: : {l2}\n')\
+                      'Expected language: {l2}\n'
+                      'Actual language: : {l1}\n')\
             .format(obj=obj, classname=type(obj).__name__, l1=l1, l2=l2)
         super().__init__(msg)
 
 
-class DuplicateDefinition(LanguageError):
+class ArityMismatch(SyntacticError):
+    def __init__(self, head, arguments, msg=None):
+        msg = msg or 'Arity mismatch applying element {} with arity {} to arguments {}'.\
+            format(head, head.arity, arguments)
+        super().__init__(msg)
+
+
+class TypeMismatch(SyntacticError):
+    def __init__(self, element, type_, expected_type, msg=None):
+        msg = msg or 'Type mismatch on element {}. Expected type was "{}", element has type "{}"'.format(
+            element, expected_type, type_)
+        super().__init__(msg)
+
+
+class DuplicateDefinition(SyntacticError):
     def __init__(self, name, other, msg=None):
         msg = msg or 'Duplicate definition of element "{}": "{}"'.format(name, other)
         super().__init__(msg)
@@ -29,7 +55,7 @@ class DuplicateDefinition(LanguageError):
         self.other = other
 
 
-class UndefinedElement(LanguageError):
+class UndefinedElement(SyntacticError):
     def __init__(self, name, msg=None):
         msg = msg or 'Undefined element "{}"'.format(name)
         super().__init__(msg)
@@ -73,3 +99,16 @@ class UndefinedConstant(UndefinedElement):
 
 class UndefinedAction(UndefinedElement):
     pass
+
+
+class UnboundVariable(SemanticError):
+    def __init__(self, var, msg=None):
+        msg = msg or 'Attempted to evaluate open formula with free variable {}'.format(var)
+        super().__init__(msg)
+
+
+class IncorrectExtensionDefinition(SemanticError):
+    def __init__(self, element, point, value, msg=None):
+        msg = msg or 'Incorrect definition of extension of symbol "{}". Cannot assign value "{}" to point "{}"'.format(
+            element, value, point)
+        super().__init__(msg)

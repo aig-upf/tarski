@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
+import copy
+from typing import List
+
 from .errors import LanguageError
 from ._sorts import Sort
-import copy
+from .evaluators import builtins
 
 
 class Term(object):
@@ -14,135 +17,124 @@ class Term(object):
         will need to be implemented using the comparison the id() of the instances.
     """
 
-    def __init__(self, sym, arguments, lang):
-        self._f = sym
-        self._lang = lang
-
-        for a in arguments:
-            if not isinstance(a, Term):
-                raise LanguageError("Syntax error: argument {} is not a term".format(a))
-
-        self._args = copy.copy(arguments)
-
-    @property
-    def symbol(self):
-        return self._f
-
-    @property
-    def arguments(self):
-        return self._args
-
-    @property
-    def is_constant(self):
-        return isinstance(self, Constant)
-
-    @property
-    def type(self):
-        return self.symbol.type
+    # def __init__(self, sym, arguments, language):
+    #     self._f = sym
+    #     self.language = language
+    #     self.arguments = copy.copy(arguments)
+    #
+    #     for a in arguments:
+    #         if not isinstance(a, Term):
+    #             raise LanguageError("Syntax error: argument {} is not a term".format(a))
 
     @property
     def language(self):
-        return self._lang
+        raise NotImplementedError()  # Let the subclasses implement this
 
-    def __str__(self):
-        return '{}({})'.format(self.symbol.symbol, ','.join([str(t) for t in self.arguments]))
+    @property
+    def sort(self):
+        raise NotImplementedError()  # Let the subclasses implement this
 
-    def dump(self):
-        return dict(symbol=self.f.dump(),
-                    arguments=[t.dump() for t in self.arguments])
+    # @property
+    # def symbol(self):
+    #     return self._f
 
-    def __add__(self, rhs):
-        sym = self.language.resolve_function_symbol_2('+', self.type, rhs.type)
-        return sym(self, rhs)
+    # @property
+    # def type(self):
+    #     return self.symbol.type
 
-    def __sub__(self, rhs):
-        sym = self.language.resolve_function_symbol_2('-', self.type, rhs.type)
-        return sym(self, rhs)
+    # def __str__(self):
+    #     return '{}({})'.format(self.symbol.symbol, ','.join([str(t) for t in self.arguments]))
 
-    def __mul__(self, rhs):
-        sym = self.language.resolve_function_symbol_2('*', self.type, rhs.type)
-        return sym(self, rhs)
+    # def dump(self):
+    #     return dict(symbol=self._f.dump(),
+    #                 arguments=[t.dump() for t in self.arguments])
 
-    def __matmul__(self, rhs):
-        sym = self.language.resolve_function_symbol_2('@', self.type, rhs.type)
-        return sym(self, rhs)
-
-    def __truediv__(self, rhs):
-        sym = self.language.resolve_function_symbol_2('/', self.type, rhs.type)
-        return sym(self, rhs)
-
-    def __floordiv__(self, rhs):
-        sym = self.language.resolve_function_symbol_2('//', self.type, rhs.type)
-        return sym(self, rhs)
-
-    def __mod__(self, rhs):
-        sym = self.language.resolve_function_symbol_2('%', self.type, rhs.type)
-        return sym(self, rhs)
-
-    def __divmod__(self, rhs):
-        sym = self.language.resolve_function_symbol_2('divmod', self.type, rhs.type)
-        return sym(self, rhs)
-
-    def __pow__(self, rhs):
-        sym = self.language.resolve_function_symbol_2('**', self.type, rhs.type)
-        return sym(self, rhs)
-
-    def __lshift__(self, rhs):
-        sym = self.language.resolve_function_symbol_2('<<', self.type, rhs.type)
-        return sym(self, rhs)
-
-    def __rshift__(self, rhs):
-        sym = self.language.resolve_function_symbol_2('>>', self.type, rhs.type)
-        return sym(self, rhs)
-
-    def __and__(self, rhs):
-        sym = self.language.resolve_function_symbol_2('&', self.type, rhs.type)
-        return sym(self, rhs)
-
-    def __xor__(self, rhs):
-        sym = self.language.resolve_function_symbol_2('^', self.type, rhs.type)
-        return sym(self, rhs)
-
-    def __or__(self, rhs):
-        sym = self.language.resolve_function_symbol_2('|', self.type, rhs.type)
-        return sym(self, rhs)
+    # def __add__(self, rhs):
+    #     sym = self.language.resolve_function_symbol_2('+', self.type, rhs.type)
+    #     return sym(self, rhs)
+    #
+    # def __sub__(self, rhs):
+    #     sym = self.language.resolve_function_symbol_2('-', self.type, rhs.type)
+    #     return sym(self, rhs)
+    #
+    # def __mul__(self, rhs):
+    #     sym = self.language.resolve_function_symbol_2('*', self.type, rhs.type)
+    #     return sym(self, rhs)
+    #
+    # def __matmul__(self, rhs):
+    #     sym = self.language.resolve_function_symbol_2('@', self.type, rhs.type)
+    #     return sym(self, rhs)
+    #
+    # def __truediv__(self, rhs):
+    #     sym = self.language.resolve_function_symbol_2('/', self.type, rhs.type)
+    #     return sym(self, rhs)
+    #
+    # def __floordiv__(self, rhs):
+    #     sym = self.language.resolve_function_symbol_2('//', self.type, rhs.type)
+    #     return sym(self, rhs)
+    #
+    # def __mod__(self, rhs):
+    #     sym = self.language.resolve_function_symbol_2('%', self.type, rhs.type)
+    #     return sym(self, rhs)
+    #
+    # def __divmod__(self, rhs):
+    #     sym = self.language.resolve_function_symbol_2('divmod', self.type, rhs.type)
+    #     return sym(self, rhs)
+    #
+    # def __pow__(self, rhs):
+    #     sym = self.language.resolve_function_symbol_2('**', self.type, rhs.type)
+    #     return sym(self, rhs)
+    #
+    # def __lshift__(self, rhs):
+    #     sym = self.language.resolve_function_symbol_2('<<', self.type, rhs.type)
+    #     return sym(self, rhs)
+    #
+    # def __rshift__(self, rhs):
+    #     sym = self.language.resolve_function_symbol_2('>>', self.type, rhs.type)
+    #     return sym(self, rhs)
+    #
+    # def __and__(self, rhs):
+    #     sym = self.language.resolve_function_symbol_2('&', self.type, rhs.type)
+    #     return sym(self, rhs)
+    #
+    # def __xor__(self, rhs):
+    #     sym = self.language.resolve_function_symbol_2('^', self.type, rhs.type)
+    #     return sym(self, rhs)
+    #
+    # def __or__(self, rhs):
+    #     sym = self.language.resolve_function_symbol_2('|', self.type, rhs.type)
+    #     return sym(self, rhs)
 
     def __eq__(self, rhs):
-        sym = self.language.resolve_formula_symbol('=')
-        return sym(self, rhs)
+        return builtins.eq(self, rhs)
 
     def __ne__(self, rhs):
-        sym = self.language.resolve_formula_symbol('!=')
-        return sym(self, rhs)
+        return builtins.ne(self, rhs)
 
     def __lt__(self, rhs):
-        sym = self.language.resolve_formula_symbol('<')
-        return sym(self, rhs)
+        return builtins.lt(self, rhs)
 
     def __gt__(self, rhs):
-        sym = self.language.resolve_formula_symbol('>')
-        return sym(self, rhs)
+        return builtins.gt(self, rhs)
 
     def __le__(self, rhs):
-        sym = self.language.resolve_formula_symbol('<=')
-        return sym(self, rhs)
+        return builtins.le(self, rhs)
 
     def __ge__(self, rhs):
-        sym = self.language.resolve_formula_symbol('>=')
-        return sym(self, rhs)
+        return builtins.ge(self, rhs)
 
-    def __enter__(self) :
-        return self
+    # ???
+    # def __enter__(self):
+    #     return self
+    #
+    # def __exit__(self, exc_type, exc_value, traceback):
+    #     return exc_type is not None
 
-    def __exit__(self, exc_type, exc_value, traceback) :
-        if exc_type is None : return False
-        return True
 
-
-class Constant(Term):
-    def __init__(self, name: str, sort: Sort, lang):
+class Constant_OLD(Term):
+    def __init__(self, name: str, sort: Sort, language):
         self._name = name
-        super(Constant, self).__init__(self, [], lang)
+        super().__init__(self, [], language)
         self._sort = sort
         self._sort.extend(self)
 
@@ -158,19 +150,11 @@ class Constant(Term):
     def type(self):
         return self._sort
 
-    @property
-    def language(self):
-        return self._lang
-
-    @classmethod
-    def create(klass, name, sort: Sort, lang):
-        return Constant(name, sort, lang)
-
     def dump(self):
         return dict(symbol=self.symbol, sort=self.sort.name)
 
     def __deepcopy__(self, memo):
-        newone = type(self)(self._name, self._sort, self._lang)
+        newone = type(self)(self._name, self._sort, self.language)
         memo[id(self)] = newone
         for k, v in self.__dict__.items():
             setattr(newone, k, copy.deepcopy(v, memo))
@@ -182,164 +166,94 @@ class Constant(Term):
     def __str__(self):
         return str(self.symbol)
 
-    def __add__(self, rhs: Term):
-        return super(Constant, self).__add__(rhs)
-
-    def __sub__(self, rhs: Term):
-        return super(Constant, self).__sub__(rhs)
-
-    def __mul__(self, rhs: Term):
-        return super(Constant, self).__mul__(rhs)
-
-    def __matmul__(self, rhs: Term):
-        return super(Constant, self).__matmul__(rhs)
-
-    def __truediv__(self, rhs: Term):
-        return super(Constant, self).__truediv__(rhs)
-
-    def __floordiv__(self, rhs: Term):
-        return super(Constant, self).__floordiv__(rhs)
-
-    def __mod__(self, rhs: Term):
-        return super(Constant, self).__mod__(rhs)
-
-    def __divmod__(self, rhs: Term):
-        return super(Constant, self).__divmod__(rhs)
-
-    def __pow__(self, rhs: Term):
-        return super(Constant, self).__pow__(rhs)
-
-    def __lshift__(self, rhs: Term):
-        return super(Constant, self).__lshift__(rhs)
-
-    def __rshift__(self, rhs: Term):
-        return super(Constant, self).__rshift__(rhs)
-
-    def __and__(self, rhs: Term):
-        return super(Constant, self).__and__(rhs)
-
-    def __xor__(self, rhs: Term):
-        return super(Constant, self).__xor__(rhs)
-
-    def __or__(self, rhs: Term):
-        return super(Constant, self).__or__(rhs)
-
-    def __eq__(self, rhs):
-        return super(Constant, self).__eq__(rhs)
-
-    def __ne__(self, rhs):
-        return super(Constant, self).__ne__(rhs)
-
-    def __lt__(self, rhs):
-        return super(Constant, self).__lt__(rhs)
-
-    def __gt__(self, rhs):
-        return super(Constant, self).__gt__(rhs)
-
-    def __le__(self, rhs):
-        return super(Constant, self).__le__(rhs)
-
-    def __ge__(self, rhs):
-        return super(Constant, self).__ge__(rhs)
-
 
 class Variable(Term):
-    def __init__(self, name: str, sort: Sort, lang):
-        super().__init__(self, [], lang)
-        self._name = name
+    def __init__(self, symbol: str, sort: Sort):
+        self.symbol = symbol
         self._sort = sort
-
-    def __deepcopy__(self, memo):
-        newone = type(self)(self._name, self._sort, self._lang)
-        memo[id(self)] = newone
-        for k, v in self.__dict__.items():
-            setattr(newone, k, copy.deepcopy(v, memo))
-        return newone
+        # TODO VALIDATE
 
     @property
-    def symbol(self):
-        return self._name
+    def language(self):
+        return self.sort.language
 
     @property
     def sort(self):
         return self._sort
 
-    @property
-    def type(self):
-        return self._sort
+    # def __deepcopy__(self, memo):
+    #     newone = type(self)(self.symbol, self.sort, self.language)
+    #     memo[id(self)] = newone
+    #     for k, v in self.__dict__.items():
+    #         setattr(newone, k, copy.deepcopy(v, memo))
+    #     return newone
+
+    def __hash__(self):
+        return hash((self.symbol, self.sort))
+
+    # def dump(self):
+    #     return dict(symbol=self.symbol)
+
+    def __str__(self):
+        return '{}/{}'.format(self.symbol, self.sort.name)
+
+
+class CompoundTerm(Term):
+    def __init__(self, symbol, subterms: List[Term]):
+        self.symbol = symbol
+        self.subterms = subterms
+        # TODO VALIDATE
+        # @TODO: check arity and type of arguments!
 
     @property
     def language(self):
-        return self._lang
+        return self.symbol.language
 
-    def __hash__(self):
-        return hash((self._name, self._sort.name))
+    @property
+    def sort(self):
+        # The type of term f(x1, ..., xn) is the codomain of "f"
+        return self.symbol.codomain
 
-    def dump(self):
-        return dict(symbol=self.symbol)
+    # def __deepcopy__(self, memo):
+    #     newone = type(self)(self.symbol, self.sort, self.language)
+    #     memo[id(self)] = newone
+    #     for k, v in self.__dict__.items():
+    #         setattr(newone, k, copy.deepcopy(v, memo))
+    #     return newone
+
+    # @property
+    # def type(self):
+    #     return self.sort
+
+    # def __hash__(self):
+    #     return hash((self.symbol, self.sort))
+
+    # def dump(self):
+    #     return dict(symbol=self.symbol)
 
     def __str__(self):
-        return '?{}'.format(str(self.symbol))
-
-    def __add__(self, rhs: Term):
-        return super(Variable, self).__add__(rhs)
-
-    def __sub__(self, rhs: Term):
-        return super(Variable, self).__sub__(rhs)
-
-    def __mul__(self, rhs: Term):
-        return super(Variable, self).__mul__(rhs)
-
-    def __matmul__(self, rhs: Term):
-        return super(Variable, self).__matmul__(rhs)
-
-    def __truediv__(self, rhs: Term):
-        return super(Variable, self).__truediv__(rhs)
-
-    def __floordiv__(self, rhs: Term):
-        return super(Variable, self).__floordiv__(rhs)
-
-    def __mod__(self, rhs: Term):
-        return super(Variable, self).__mod__(rhs)
-
-    def __divmod__(self, rhs: Term):
-        return super(Variable, self).__divmod__(rhs)
-
-    def __pow__(self, rhs: Term):
-        return super(Variable, self).__pow__(rhs)
-
-    def __lshift__(self, rhs: Term):
-        return super(Variable, self).__lshift__(rhs)
-
-    def __rshift__(self, rhs: Term):
-        return super(Variable, self).__rshift__(rhs)
-
-    def __and__(self, rhs: Term):
-        return super(Variable, self).__and__(rhs)
-
-    def __xor__(self, rhs: Term):
-        return super(Variable, self).__xor__(rhs)
-
-    def __or__(self, rhs: Term):
-        return super(Variable, self).__or__(rhs)
-
-    def __eq__(self, rhs):
-        return super(Variable, self).__eq__(rhs)
-
-    def __ne__(self, rhs):
-        return super(Variable, self).__ne__(rhs)
-
-    def __lt__(self, rhs):
-        return super(Variable, self).__lt__(rhs)
-
-    def __gt__(self, rhs):
-        return super(Variable, self).__gt__(rhs)
-
-    def __le__(self, rhs):
-        return super(Variable, self).__le__(rhs)
-
-    def __ge__(self, rhs):
-        return super(Variable, self).__ge__(rhs)
+        return '{}({})'.format(self.symbol, ', '.join([str(t) for t in self.subterms]))
 
 
-Var = Variable
+class Constant(Term):
+    def __init__(self, symbol, sort: Sort):
+        self.symbol = symbol
+        self._sort = sort
+        # TODO VALIDATE
+
+    @property
+    def language(self):
+        return self.sort.language
+
+    @property
+    def sort(self):
+        return self._sort
+
+    def __str__(self):
+        return '{}'.format(self.symbol)
+
+    def __repr__(self):
+        return '{} ({})'.format(self.symbol, self.sort.name)
+
+    def __hash__(self):
+        return hash((self.symbol, self.sort))

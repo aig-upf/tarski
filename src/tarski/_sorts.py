@@ -4,11 +4,11 @@ from .errors import LanguageError
 
 
 class Sort:
-    def __init__(self, name, lang):
+    def __init__(self, name, language, builtin=False):
         self._name = name
-        self._language = lang
+        self.language = language
         self._domain = set()
-        self._built_in = False
+        self._built_in = builtin
 
     def __str__(self):
         return 'Sort({})'.format(self.name)
@@ -19,10 +19,6 @@ class Sort:
     @property
     def name(self):
         return self._name
-
-    @property
-    def language(self):
-        return self._language
 
     @property
     def built_in(self):
@@ -79,7 +75,7 @@ def children(s: Sort) -> List[Sort]:
     """
     _children = []
     for lhs, rhs in s.language.sort_hierarchy:
-        if rhs == sort:
+        if rhs == s:
             _children.append(s.language.sort(lhs))
     return _children
 

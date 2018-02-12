@@ -6,7 +6,7 @@ class JsonReader(object):
         self.filename = filename
 
     def read(self):
-        raise RuntimeError("Unimplemented")
+        raise NotImplementedError()
 
 
 class JsonWriter(object):
@@ -15,4 +15,4 @@ class JsonWriter(object):
         self.filename = filename
 
     def write(self, element):
-        raise RuntimeError("Unimplemented")
+        raise NotImplementedError()
