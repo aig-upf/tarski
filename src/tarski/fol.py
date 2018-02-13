@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
 from collections import defaultdict
-from typing import Set
+from typing import List
 
 import scipy.constants
 
 from . import funcsym
-from .function import Function
-from .predicate import Predicate
-from .sorts import *
-from .terms import Constant, Variable
 from .errors import *
 from .evaluators import builtins
+from .function import Function
+from .predicate import Predicate
+from .sorts import Sort, Interval, inclusion_closure
+from .terms import Constant, Variable
 
 
-class FOL:
-    """ A full-fledged first-order language """
+class FirstOrderLanguage:
+    """ A full-fledged many-sorted first-order language """
 
     def __init__(self):
         self._sorts = {}
@@ -42,17 +42,6 @@ class FOL:
                                     Function: self._functions,
                                     Predicate: self._predicates,
                                     Variable: self._variables}
-
-    def _inclusion_closure(self, s: Sort) -> Set[Sort]:
-        """ Calculates the inclusion closure over given sort s """
-        closure = set()
-        frontier = {s}
-        while len(frontier) > 0:
-            s = frontier.pop()
-            closure.add(s)
-            for p in parents(s):
-                frontier.add(p)
-        return closure
 
     @property
     def variables(self):
@@ -163,7 +152,7 @@ class FOL:
         if rhs.language is not self:
             raise LanguageError("FOL.sort(): tried to set as parent a sort from a different language")
         self._sort_hierarchy.add((lhs.name, rhs.name))
-        self._possible_promotions[lhs.name].update(self._inclusion_closure(rhs))
+        self._possible_promotions[lhs.name].update(inclusion_closure(rhs))
 
     def _retrieve_object(self, obj, type_):
         """

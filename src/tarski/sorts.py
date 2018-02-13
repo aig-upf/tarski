@@ -1,5 +1,5 @@
 
-from typing import List
+from typing import List, Set
 from .errors import LanguageError
 
 
@@ -117,3 +117,15 @@ class Interval(Sort):
     def dump(self):
         return dict(name=self.name,
                     domain=[self._lb, self._ub])
+
+
+def inclusion_closure(s: Sort) -> Set[Sort]:
+    """ Calculates the inclusion closure over given sort s """
+    closure = set()
+    frontier = {s}
+    while len(frontier) > 0:
+        s = frontier.pop()
+        closure.add(s)
+        for p in parents(s):
+            frontier.add(p)
+    return closure
