@@ -8,7 +8,7 @@ class Sort:
         self._name = name
         self.language = language
         self._domain = set()
-        self._built_in = builtin
+        self.built_in = builtin
 
     def __str__(self):
         return 'Sort({})'.format(self.name)
@@ -19,15 +19,6 @@ class Sort:
     @property
     def name(self):
         return self._name
-
-    @property
-    def built_in(self):
-        return self._built_in
-
-    @built_in.setter
-    def built_in(self, v):
-        assert isinstance(v, bool)
-        self._built_in = v
 
     def contains(self, x):
         try:
