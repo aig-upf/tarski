@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 from . import errors as err
-from ._terms import Term, Variable
-from ._predicate import Predicate
+from .terms import Term, Variable
+from .predicate import Predicate
 
-from enum import Enum
-
-from typing import List
 import copy
+from enum import Enum
+from typing import List
 
 
 class Connective(Enum):
@@ -39,7 +38,6 @@ class Formula(object):
         return newone
 
     def __deepcopy__(self, memo):
-        cls = self.__class__
         newone = type(self)()
         memo[id(self)] = newone
         for k, v in self.__dict__.items():

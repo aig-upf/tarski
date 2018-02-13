@@ -2,7 +2,7 @@
 
 import math
 
-from .._function import Function
+from ..function import Function
 from ..errors import LanguageError
 
 

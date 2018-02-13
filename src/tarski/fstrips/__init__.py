@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
 
-from ._actions import Action
+from .fstrips import Problem, Action

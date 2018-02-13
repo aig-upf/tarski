@@ -2,9 +2,9 @@
 from collections import defaultdict
 
 from . import errors as err
-from ._terms import Constant
-from ._function import Function
-from ._predicate import Predicate
+from .terms import Constant
+from .function import Function
+from .predicate import Predicate
 
 
 def _check_assignment(fun, point, value=None):

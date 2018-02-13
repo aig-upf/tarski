@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from .errors import LanguageError
-from ._sorts import Sort
-from ._terms import Constant
+from .sorts import Sort
+from .terms import Constant
 
 
 class Predicate(object):
@@ -40,7 +40,7 @@ class Predicate(object):
         return dict(symbol=self.symbol, type=[a.name for a in self.type])
 
     def __call__(self, *args):
-        from ._formulas import Atom
+        from .formulas import Atom
         return Atom(self, args)
 
     def check_arguments(self, *args):

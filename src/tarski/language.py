@@ -5,17 +5,16 @@ from typing import Set
 import scipy.constants
 
 from . import funcsym
-from ._function import Function
-from ._model import Model
-from ._predicate import Predicate
-from ._sorts import *
-from ._terms import Constant, Variable
+from .function import Function
+from .predicate import Predicate
+from .sorts import *
+from .terms import Constant, Variable
 from .errors import *
 from .evaluators import builtins
 
 
 class FOL:
-    """ A full-fledged first-order language, """
+    """ A full-fledged first-order language """
 
     def __init__(self):
         self._sorts = {}
@@ -243,9 +242,6 @@ class FOL:
         if not self.has_function(name):
             raise UndefinedFunction(name)
         return self._functions[name]
-
-    def model(self):
-        return Model(self)
 
     def dump(self):
         return dict(

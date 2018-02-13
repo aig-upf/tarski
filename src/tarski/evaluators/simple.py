@@ -1,8 +1,8 @@
 
 from . import builtins
-from .._formulas import Connective, Atom, Formula, CompoundFormula, Quantifier, QuantifiedFormula
-from .._terms import Variable, Constant, CompoundTerm
-from .._model import Model
+from ..formulas import Connective, Atom, Formula, CompoundFormula, Quantifier, QuantifiedFormula
+from ..terms import Variable, Constant, CompoundTerm
+from ..model import Model
 from .. import errors as err
 
 

@@ -1,6 +1,6 @@
 
 from tarski import fstrips as fs
-from tarski.operators import *
+from tarski.formulas import *
 
 from ..common import blocksworld
 
@@ -14,8 +14,8 @@ def test_action_creation():
     clear = lang.get_predicate('clear')
     loc = lang.get_function('loc')
 
-    precondition = And(clear(to), clear(b), loc(b) != to)
-    effects = [Not(clear(to)), loc(b) == to, clear(loc(b))]
+    precondition = land(clear(to), clear(b), loc(b) != to)
+    effects = [neg(clear(to)), loc(b) == to, clear(loc(b))]
 
     fs.Action(lang, name='move', parameters=[b, to], precondition=precondition, effects=effects)
 

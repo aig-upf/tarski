@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from .errors import LanguageError
-from ._sorts import Sort
+from .sorts import Sort
 from . import errors as err
 
 
@@ -46,6 +46,6 @@ class Function(object):
                     codomain=self.codomain.name)
 
     def __call__(self, *args):
-        from ._terms import CompoundTerm
+        from .terms import CompoundTerm
         return CompoundTerm(self, args)
 

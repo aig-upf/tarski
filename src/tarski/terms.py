@@ -2,8 +2,7 @@
 import copy
 from typing import List
 
-from .errors import LanguageError
-from ._sorts import Sort
+from .sorts import Sort
 from .evaluators import builtins
 
 
@@ -131,6 +130,7 @@ class Term(object):
     #     return exc_type is not None
 
 
+# TODO DELETE
 class Constant_OLD(Term):
     def __init__(self, name: str, sort: Sort, language):
         self._name = name

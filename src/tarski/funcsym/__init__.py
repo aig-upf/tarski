@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from ._arithmetic import Addition, Subtraction, Multiplication, Division, Modulo, \
+from .arithmetic import Addition, Subtraction, Multiplication, Division, Modulo, \
     Power, ArcTangent2, \
     Max, Min, StandardLibFunction
 
