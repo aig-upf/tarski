@@ -71,7 +71,7 @@ def test_ints():
     assert ints.contains(1)
     assert ints.contains(0)
     assert ints.contains(-999)
-    # assert not ints.contains(1.2) # TODO ACTIVATE THIS
+    assert not ints.contains(1.2)
 
 
 def test_naturals():
@@ -79,7 +79,7 @@ def test_naturals():
     nats = lang.Natural
     assert nats.contains(999)
     assert not nats.contains(-12)
-    # assert not nats.contains(1.3)  # TODO ACTIVATE THIS
+    assert not nats.contains(1.3)
 
 
 def test_reals():

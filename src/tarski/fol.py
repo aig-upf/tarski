@@ -7,8 +7,7 @@ from tarski.syntax.predicate import Predicate
 
 from . import funcsym
 from . import errors as err
-from .evaluators import builtins
-from .syntax import Function, Constant, Variable, Sort, Interval, inclusion_closure
+from .syntax import Function, Constant, Variable, Sort, Interval, inclusion_closure, builtins
 
 
 class FirstOrderLanguage:
@@ -244,12 +243,12 @@ class FirstOrderLanguage:
     def register_symbol(self, key, func_obj):
         self._symbol_table[key] = func_obj
 
-    def resolve_function_symbol_2(self, sym: str, lhs: Sort, rhs: Sort):
+    def resolve_function_symbol(self, sym: str, lhs: Sort, rhs: Sort):
         try:
             return self._symbol_table[(sym, lhs, rhs)]
         except KeyError:
             raise err.LanguageError(
-                "FOL.resolve_function_symbol_2(): function symbol '{}' is not defined for domain ({},{})"
+                "FOL.resolve_function_symbol(): function symbol '{}' is not defined for domain ({},{})"
                 .format(sym, lhs, rhs))
 
     def is_subtype(self, t, st):

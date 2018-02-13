@@ -3,7 +3,7 @@ import copy
 from typing import List
 
 from .sorts import Sort
-from tarski.evaluators import builtins
+from . import builtins
 
 
 class Term(object):
@@ -49,59 +49,59 @@ class Term(object):
     #                 arguments=[t.dump() for t in self.arguments])
 
     # def __add__(self, rhs):
-    #     sym = self.language.resolve_function_symbol_2('+', self.type, rhs.type)
+    #     sym = self.language.resolve_function_symbol('+', self.type, rhs.type)
     #     return sym(self, rhs)
     #
     # def __sub__(self, rhs):
-    #     sym = self.language.resolve_function_symbol_2('-', self.type, rhs.type)
+    #     sym = self.language.resolve_function_symbol('-', self.type, rhs.type)
     #     return sym(self, rhs)
     #
     # def __mul__(self, rhs):
-    #     sym = self.language.resolve_function_symbol_2('*', self.type, rhs.type)
+    #     sym = self.language.resolve_function_symbol('*', self.type, rhs.type)
     #     return sym(self, rhs)
     #
     # def __matmul__(self, rhs):
-    #     sym = self.language.resolve_function_symbol_2('@', self.type, rhs.type)
+    #     sym = self.language.resolve_function_symbol('@', self.type, rhs.type)
     #     return sym(self, rhs)
     #
     # def __truediv__(self, rhs):
-    #     sym = self.language.resolve_function_symbol_2('/', self.type, rhs.type)
+    #     sym = self.language.resolve_function_symbol('/', self.type, rhs.type)
     #     return sym(self, rhs)
     #
     # def __floordiv__(self, rhs):
-    #     sym = self.language.resolve_function_symbol_2('//', self.type, rhs.type)
+    #     sym = self.language.resolve_function_symbol('//', self.type, rhs.type)
     #     return sym(self, rhs)
     #
     # def __mod__(self, rhs):
-    #     sym = self.language.resolve_function_symbol_2('%', self.type, rhs.type)
+    #     sym = self.language.resolve_function_symbol('%', self.type, rhs.type)
     #     return sym(self, rhs)
     #
     # def __divmod__(self, rhs):
-    #     sym = self.language.resolve_function_symbol_2('divmod', self.type, rhs.type)
+    #     sym = self.language.resolve_function_symbol('divmod', self.type, rhs.type)
     #     return sym(self, rhs)
     #
     # def __pow__(self, rhs):
-    #     sym = self.language.resolve_function_symbol_2('**', self.type, rhs.type)
+    #     sym = self.language.resolve_function_symbol('**', self.type, rhs.type)
     #     return sym(self, rhs)
     #
     # def __lshift__(self, rhs):
-    #     sym = self.language.resolve_function_symbol_2('<<', self.type, rhs.type)
+    #     sym = self.language.resolve_function_symbol('<<', self.type, rhs.type)
     #     return sym(self, rhs)
     #
     # def __rshift__(self, rhs):
-    #     sym = self.language.resolve_function_symbol_2('>>', self.type, rhs.type)
+    #     sym = self.language.resolve_function_symbol('>>', self.type, rhs.type)
     #     return sym(self, rhs)
     #
     # def __and__(self, rhs):
-    #     sym = self.language.resolve_function_symbol_2('&', self.type, rhs.type)
+    #     sym = self.language.resolve_function_symbol('&', self.type, rhs.type)
     #     return sym(self, rhs)
     #
     # def __xor__(self, rhs):
-    #     sym = self.language.resolve_function_symbol_2('^', self.type, rhs.type)
+    #     sym = self.language.resolve_function_symbol('^', self.type, rhs.type)
     #     return sym(self, rhs)
     #
     # def __or__(self, rhs):
-    #     sym = self.language.resolve_function_symbol_2('|', self.type, rhs.type)
+    #     sym = self.language.resolve_function_symbol('|', self.type, rhs.type)
     #     return sym(self, rhs)
 
     def __eq__(self, rhs):

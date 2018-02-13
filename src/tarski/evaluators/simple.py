@@ -1,8 +1,6 @@
 
-from tarski.syntax.terms import Variable, Constant, CompoundTerm
-
-from . import builtins
-from ..syntax import Connective, Atom, Formula, CompoundFormula, QuantifiedFormula
+from ..syntax import Connective, Atom, Formula, CompoundFormula, QuantifiedFormula, builtins, Variable, \
+    Constant, CompoundTerm
 from ..model import Model
 
 
@@ -40,7 +38,7 @@ _compound_evaluators = {
 
 def evaluate_atom(atom: Atom, m: Model, sigma):
     if builtins.is_builtin_predicate(atom.predicate):
-        return builtins.evaluate(atom, m, sigma)
+        return evaluate_builtin(atom, m, sigma)
 
     else:  # the extension is given by the model
         point = [evaluate(t, m, sigma) for t in atom.subterms]
@@ -69,3 +67,17 @@ def evaluate_term(term, m: Model, sigma):
         arguments = tuple(evaluate(a, m, sigma) for a in term.subterms)
 
     return m.value(term.symbol, arguments)
+
+
+def evaluate_builtin(atom, model, sigma):
+    bip = builtins.BuiltinPredicate
+    _evaluators = {
+        bip.EQ: lambda f, m, s: evaluate(f.subterms[0], m, s) == evaluate(f.subterms[1], m, s),
+        bip.NE: lambda f, m, s: evaluate(f.subterms[0], m, s) != evaluate(f.subterms[1], m, s),
+        bip.LT: lambda f, m, s: evaluate(f.subterms[0], m, s) < evaluate(f.subterms[1], m, s),
+        bip.LE: lambda f, m, s: evaluate(f.subterms[0], m, s) <= evaluate(f.subterms[1], m, s),
+        bip.GT: lambda f, m, s: evaluate(f.subterms[0], m, s) > evaluate(f.subterms[1], m, s),
+        bip.GE: lambda f, m, s: evaluate(f.subterms[0], m, s) >= evaluate(f.subterms[1], m, s),
+    }
+
+    return _evaluators[atom.symbol](atom, model, sigma)
