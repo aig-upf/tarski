@@ -16,6 +16,10 @@ We might consider using one of these down the road.
 ## Project Structure
 We follow a [`src`-based](https://blog.ionelmc.ro/2014/05/25/python-packaging/) project structure.
 
+## Installation
+Tarski aims at being a full-fledged Python package. At the moment, you should be able to install it by running
+`python setup.py sdist` from the project root. This is of course best done in some virtual environment.
+
 ## Testing
 Tests are written using `pytest` and can be run by issuing `pytest` on the project root directory,
 provided that the `pytest` module has been installed.
