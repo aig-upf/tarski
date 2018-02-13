@@ -179,9 +179,17 @@ class FirstOrderLanguage:
         """ Create constant symbol of a given sort """
         sort = self._retrieve_object(sort, Sort)
 
-        # TODO - CLARIFY THE LOGIC OF BUILT-INS HERE
-        if sort.built_in:
-            return sort.cast(name)
+        if sort.built_in :
+            actual = sort.cast(name)
+            if actual is not None :
+                # MRJ: if name is a Python primitive type literal that can
+                # interpreted as the underlying type of the built in sort, we
+                # return a Constant object.
+                # TODO: I do no't see it is desirable to store constants of
+                # built in sorts.
+                return Constant(name,sort)
+            # MRJ: otherwise
+            raise err.SemanticError("Cannot create constant term of sort '{}' from '{}' of Python type '{}'".format(sort.name,name,type(name)))
 
         if name in self._constants:
             raise err.DuplicateConstantDefinition(name, self._constants[name])
