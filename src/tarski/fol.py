@@ -3,11 +3,10 @@ from collections import defaultdict
 from typing import List
 
 import scipy.constants
-from tarski.syntax.predicate import Predicate
 
 from . import funcsym
 from . import errors as err
-from .syntax import Function, Constant, Variable, Sort, Interval, inclusion_closure, builtins
+from .syntax import Function, Constant, Variable, Sort, Interval, inclusion_closure, builtins, Predicate
 
 
 class FirstOrderLanguage:
@@ -15,6 +14,9 @@ class FirstOrderLanguage:
 
     def __init__(self):
         self._sorts = {}
+
+        # TODO (GFM) I would refactor all of the type information into some kind of TableInfo class that keeps
+        # TODO (GFM) all of the necessary data structures to retrieve parenthood, childhood, etc. information.
         # MRJ: let's represent this temporally as pairs of names of sorts,
         # lhs \sqsubseteq rhs, lhs is a subset of rhs
         self._sort_hierarchy = set()
@@ -33,7 +35,7 @@ class FirstOrderLanguage:
         self._create_default_builtins = True
         self._symbol_table = {}
         self._build_builtin_sorts()
-        funcsym.initialize(self)
+
 
         self._element_containers = {Sort: self._sorts,
                                     Function: self._functions,

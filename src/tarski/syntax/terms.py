@@ -48,9 +48,9 @@ class Term(object):
     #     return dict(symbol=self._f.dump(),
     #                 arguments=[t.dump() for t in self.arguments])
 
-    # def __add__(self, rhs):
-    #     sym = self.language.resolve_function_symbol('+', self.type, rhs.type)
-    #     return sym(self, rhs)
+    def __add__(self, rhs):
+        sym = self.language.resolve_function_symbol('+', self.type, rhs.type)
+        return sym(self, rhs)
     #
     # def __sub__(self, rhs):
     #     sym = self.language.resolve_function_symbol('-', self.type, rhs.type)
