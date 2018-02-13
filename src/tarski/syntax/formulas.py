@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from . import errors as err
+from tarski import errors as err
 from .terms import Term, Variable
 from .predicate import Predicate
 

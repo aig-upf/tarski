@@ -3,7 +3,7 @@ import copy
 from typing import List
 
 from .sorts import Sort
-from .evaluators import builtins
+from tarski.evaluators import builtins
 
 
 class Term(object):

@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from collections import defaultdict
 
+from tarski.syntax.predicate import Predicate
+
 from . import errors as err
-from .terms import Constant
-from .function import Function
-from .predicate import Predicate
+from .syntax import Function, Constant
 
 
 def _check_assignment(fun, point, value=None):

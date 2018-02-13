@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from .errors import LanguageError
+from tarski.errors import LanguageError
 from .sorts import Sort
-from . import errors as err
+from tarski import errors as err
 
 
 class Function(object):

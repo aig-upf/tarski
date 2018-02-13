@@ -25,8 +25,8 @@ def create_symbols_for_language(lang):
 
 
 def create_atom(symbol: BuiltinPredicate, lhs, rhs):
-    from ..terms import Term
-    from ..formulas import Atom
+    from tarski.syntax import Term
+    from ..syntax import Atom
 
     assert isinstance(lhs, Term) and isinstance(rhs, Term)
 

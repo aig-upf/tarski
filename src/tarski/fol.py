@@ -3,14 +3,12 @@ from collections import defaultdict
 from typing import List
 
 import scipy.constants
+from tarski.syntax.predicate import Predicate
 
 from . import funcsym
-from .errors import *
+from . import errors as err
 from .evaluators import builtins
-from .function import Function
-from .predicate import Predicate
-from .sorts import Sort, Interval, inclusion_closure
-from .terms import Constant, Variable
+from .syntax import Function, Constant, Variable, Sort, Interval, inclusion_closure
 
 
 class FirstOrderLanguage:
@@ -115,10 +113,10 @@ class FirstOrderLanguage:
         """
             Create new sort with given name and ancestors
 
-            Raises DuplicateSortDefinition if sort already existed
+            Raises err.DuplicateSortDefinition if sort already existed
         """
         if self.has_sort(name):
-            raise DuplicateSortDefinition(name, self._sorts[name])
+            raise err.DuplicateSortDefinition(name, self._sorts[name])
 
         sort = Sort(name, self)
         self._sorts[name] = sort
@@ -141,7 +139,7 @@ class FirstOrderLanguage:
 
     def get_sort(self, name):
         if not self.has_sort(name):
-            raise UndefinedSort(name)
+            raise err.UndefinedSort(name)
         return self._sorts[name]
 
     def variable(self, name: str, sort: Sort):
@@ -150,7 +148,7 @@ class FirstOrderLanguage:
 
     def set_parent(self, lhs: Sort, rhs: Sort):
         if rhs.language is not self:
-            raise LanguageError("FOL.sort(): tried to set as parent a sort from a different language")
+            raise err.LanguageError("FOL.sort(): tried to set as parent a sort from a different language")
         self._sort_hierarchy.add((lhs.name, rhs.name))
         self._possible_promotions[lhs.name].update(inclusion_closure(rhs))
 
@@ -160,11 +158,11 @@ class FirstOrderLanguage:
         which has been correctly registered with the language, or the name of such an object, and return the object
         """
         if not isinstance(obj, (str, type_)):
-            raise LanguageError("Unknown type of language element {}".format(obj))
+            raise err.LanguageError("Unknown type of language element {}".format(obj))
 
         if isinstance(obj, type_):
             if obj.language != self:
-                raise LanguageMismatch(obj, obj.language, self)
+                raise err.LanguageMismatch(obj, obj.language, self)
             return obj
 
         # obj must be a string, which we take as the name of a language element
@@ -172,7 +170,7 @@ class FirstOrderLanguage:
             raise RuntimeError("Trying to index incorrect type {}".format(type_))
 
         if obj not in self._element_containers[type_]:
-            raise UndefinedElement(obj)
+            raise err.UndefinedElement(obj)
 
         return self._element_containers[type_][obj]
 
@@ -185,7 +183,7 @@ class FirstOrderLanguage:
             return sort.cast(name)
 
         if name in self._constants:
-            raise DuplicateConstantDefinition(name, self._constants[name])
+            raise err.DuplicateConstantDefinition(name, self._constants[name])
 
         self._constants[name] = Constant(name, sort)
         return self._constants[name]
@@ -195,12 +193,12 @@ class FirstOrderLanguage:
 
     def get_constant(self, name):
         if not self.has_constant(name):
-            raise UndefinedConstant(name)
+            raise err.UndefinedConstant(name)
         return self._constants[name]
 
     def predicate(self, name: str, *args):
         if name in self._predicates:
-            raise DuplicatePredicateDefinition(name, self._predicates[name])
+            raise err.DuplicatePredicateDefinition(name, self._predicates[name])
 
         predicate = Predicate(name, self, *args)
         self._predicates[name] = predicate
@@ -212,12 +210,12 @@ class FirstOrderLanguage:
 
     def get_predicate(self, name):
         if not self.has_predicate(name):
-            raise UndefinedPredicate(name)
+            raise err.UndefinedPredicate(name)
         return self._predicates[name]
 
     def function(self, name: str, *args):
         if name in self._functions:
-            raise DuplicateFunctionDefinition(name, self._functions[name])
+            raise err.DuplicateFunctionDefinition(name, self._functions[name])
 
         func = Function(name, self, *args)
         self._functions[name] = func
@@ -229,7 +227,7 @@ class FirstOrderLanguage:
 
     def get_function(self, name):
         if not self.has_function(name):
-            raise UndefinedFunction(name)
+            raise err.UndefinedFunction(name)
         return self._functions[name]
 
     def dump(self):
@@ -250,7 +248,7 @@ class FirstOrderLanguage:
         try:
             return self._symbol_table[(sym, lhs, rhs)]
         except KeyError:
-            raise LanguageError(
+            raise err.LanguageError(
                 "FOL.resolve_function_symbol_2(): function symbol '{}' is not defined for domain ({},{})"
                 .format(sym, lhs, rhs))
 

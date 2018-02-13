@@ -1,9 +1,9 @@
 
+from tarski.syntax.terms import Variable, Constant, CompoundTerm
+
 from . import builtins
-from ..formulas import Connective, Atom, Formula, CompoundFormula, Quantifier, QuantifiedFormula
-from ..terms import Variable, Constant, CompoundTerm
+from ..syntax import Connective, Atom, Formula, CompoundFormula, QuantifiedFormula
 from ..model import Model
-from .. import errors as err
 
 
 # TODO We will need to extend this so that the interpretation depends on a certain, given sigma of values to

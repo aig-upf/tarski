@@ -23,21 +23,21 @@ symbols = [
 ]
 
 
-def initialize(L):
+def initialize(lang):
     # register real defined functions
-    L.register_symbol(('sqrt', L.Real), StandardLibFunction('sqrt', L, L.Real))
-    L.register_symbol(('sin', L.Real), StandardLibFunction('sin', L, L.Real))
-    L.register_symbol(('cos', L.Real), StandardLibFunction('cos', L, L.Real))
-    L.register_symbol(('tan', L.Real), StandardLibFunction('tan', L, L.Real))
-    L.register_symbol(('asin', L.Real), StandardLibFunction('asin', L, L.Real))
-    L.register_symbol(('acos', L.Real), StandardLibFunction('acos', L, L.Real))
-    L.register_symbol(('atan', L.Real), StandardLibFunction('atan', L, L.Real))
-    L.register_symbol(('exp', L.Real), StandardLibFunction('exp', L, L.Real))
-    L.register_symbol(('abs', L.Real), StandardLibFunction('abs', L, L.Real))
+    lang.register_symbol(('sqrt', lang.Real), StandardLibFunction('sqrt', lang, lang.Real))
+    lang.register_symbol(('sin', lang.Real), StandardLibFunction('sin', lang, lang.Real))
+    lang.register_symbol(('cos', lang.Real), StandardLibFunction('cos', lang, lang.Real))
+    lang.register_symbol(('tan', lang.Real), StandardLibFunction('tan', lang, lang.Real))
+    lang.register_symbol(('asin', lang.Real), StandardLibFunction('asin', lang, lang.Real))
+    lang.register_symbol(('acos', lang.Real), StandardLibFunction('acos', lang, lang.Real))
+    lang.register_symbol(('atan', lang.Real), StandardLibFunction('atan', lang, lang.Real))
+    lang.register_symbol(('exp', lang.Real), StandardLibFunction('exp', lang, lang.Real))
+    lang.register_symbol(('abs', lang.Real), StandardLibFunction('abs', lang, lang.Real))
 
     # register arithmetic functions
-    sorts = [L.Real, L.Integer, L.Natural]
+    sorts = [lang.Real, lang.Integer, lang.Natural]
 
     for sym, klass in symbols[2].items():
         for s in sorts:
-            L.register_symbol((sym, s, s), klass(L, s, s))
+            lang.register_symbol((sym, s, s), klass(lang, s, s))

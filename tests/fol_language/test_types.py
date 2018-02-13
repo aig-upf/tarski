@@ -43,8 +43,8 @@ def test_duplicate_type():
 def test_parent_types():
     lang, human, animal, being = get_children_parent_types()
 
-    assert len(tsk.parents(human)) == 2  # i.e. including the top "object" sort
-    assert animal in tsk.parents(human)
+    assert len(tsk.syntax.sorts.parents(human)) == 2  # i.e. including the top "object" sort
+    assert animal in tsk.syntax.sorts.parents(human)
 
 
 def test_is_subtype_of():
@@ -63,3 +63,27 @@ def get_children_parent_types():
     animal = lang.sort('animal', [being])
     human = lang.sort('human', [animal])
     return lang, human, animal, being
+
+
+def test_ints():
+    lang = tsk.language()
+    ints = lang.Integer
+    assert ints.contains(1)
+    assert ints.contains(0)
+    assert ints.contains(-999)
+    # assert not ints.contains(1.2) # TODO ACTIVATE THIS
+
+
+def test_naturals():
+    lang = tsk.language()
+    nats = lang.Natural
+    assert nats.contains(999)
+    assert not nats.contains(-12)
+    # assert not nats.contains(1.3)  # TODO ACTIVATE THIS
+
+
+def test_reals():
+    lang = tsk.language()
+    reals = lang.Real
+    assert reals.contains(1000.36)
+    assert reals.contains(-17)

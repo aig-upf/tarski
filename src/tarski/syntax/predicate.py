@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from .errors import LanguageError
+from tarski.errors import LanguageError
 from .sorts import Sort
 from .terms import Constant
 

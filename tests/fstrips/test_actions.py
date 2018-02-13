@@ -1,6 +1,6 @@
 
 from tarski import fstrips as fs
-from tarski.formulas import *
+from tarski.syntax import *
 
 from ..common import blocksworld
 

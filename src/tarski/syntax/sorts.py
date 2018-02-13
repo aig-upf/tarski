@@ -1,6 +1,6 @@
 
 from typing import List, Set
-from .errors import LanguageError
+from ..errors import LanguageError
 
 
 class Sort:
@@ -58,28 +58,6 @@ class Sort:
             p.extend(constant)
 
 
-def parents(s: Sort) -> List[Sort]:
-    """ Returns direct parent sorts in the sort hierarchy associated with
-        the language
-    """
-    _parents = []
-    for lhs, rhs in s.language.sort_hierarchy:
-        if lhs == s.name:
-            _parents.append(s.language.get_sort(rhs))
-    return _parents
-
-
-def children(s: Sort) -> List[Sort]:
-    """ Return direct child sorts in the sort hierarchy associated with
-        the language
-    """
-    _children = []
-    for lhs, rhs in s.language.sort_hierarchy:
-        if rhs == s:
-            _children.append(s.language.sort(lhs))
-    return _children
-
-
 class Interval(Sort):
     def __init__(self, lb, ub, encode_fn, name, lang):
         super(Interval, self).__init__(name, lang)
@@ -129,3 +107,25 @@ def inclusion_closure(s: Sort) -> Set[Sort]:
         for p in parents(s):
             frontier.add(p)
     return closure
+
+
+def parents(s: Sort) -> List[Sort]:
+    """ Returns direct parent sorts in the sort hierarchy associated with
+        the language
+    """
+    _parents = []
+    for lhs, rhs in s.language.sort_hierarchy:
+        if lhs == s.name:
+            _parents.append(s.language.get_sort(rhs))
+    return _parents
+
+
+def children(s: Sort) -> List[Sort]:
+    """ Return direct child sorts in the sort hierarchy associated with
+        the language
+    """
+    _children = []
+    for lhs, rhs in s.language.sort_hierarchy:
+        if rhs == s:
+            _children.append(s.language.sort(lhs))
+    return _children
