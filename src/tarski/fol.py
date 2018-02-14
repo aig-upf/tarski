@@ -6,8 +6,9 @@ import scipy.constants
 
 from . import funcsym
 from . import errors as err
-from .syntax import Function, Constant, Variable, Sort, Interval, inclusion_closure, builtins, Predicate
+from .syntax import Function, Constant, Variable, Sort, Interval, inclusion_closure, Predicate
 
+import tarski.syntax.builtins as syntax_builtins
 
 class FirstOrderLanguage:
     """ A full-fledged many-sorted first-order language """
@@ -179,7 +180,7 @@ class FirstOrderLanguage:
         """ Create constant symbol of a given sort """
         sort = self._retrieve_object(sort, Sort)
 
-        if sort.built_in :
+        if sort.builtin :
             actual = sort.cast(name)
             if actual is not None :
                 # MRJ: if name is a Python primitive type literal that can
@@ -270,8 +271,7 @@ class FirstOrderLanguage:
     def create_builtin_predicates(self, sort):
         if not self._create_default_builtins:
             return
-
-        builtins.create_symbols_for_language(self)
+        syntax_builtins.create_symbols_for_language(self)
 
         # for s in builtins.Predicates:
         #     # The name of the built-in predicate takes into account the type it is applied to, e.g. =_int
