@@ -9,7 +9,18 @@ def test_builtin_constants():
     assert isinstance(two, tsk.Constant), "two should be the constant 2, not the integer value 2"
 
 
-def test_arithmetic_terms():
+def test_arithmetic_terms_fails_without_import():
+    lang = tsk.language()
+    ints = lang.Integer
+    two, three = lang.constant(2, ints), lang.constant(3, ints)
+    try :
+        sum_ = two + three
+    except TypeError :
+        return
+    assert False, "sum_ = two + three should raise TypeError as no import has been made of the arithmetic module"
+
+def test_arithmetic_terms_does_not_fail_with_import():
+    import tarski.syntax.arithmetic
     lang = tsk.language()
     ints = lang.Integer
     two, three = lang.constant(2, ints), lang.constant(3, ints)
