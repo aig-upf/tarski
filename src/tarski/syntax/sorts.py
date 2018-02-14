@@ -1,7 +1,6 @@
 
 from typing import List, Set
-from ..errors import LanguageError
-
+from .. import errors as err
 
 class Sort:
     def __init__(self, name, language, builtin=False):
@@ -37,7 +36,7 @@ class Sort:
 
     def check_empty(self):
         if len(self._domain) == 0:
-            raise LanguageError("Sort '{}' is empty!".format(self._name))
+            raise err.LanguageError("Sort '{}' is empty!".format(self._name))
 
     def dump(self):
         return dict(name=self._name,
@@ -74,7 +73,7 @@ class Interval(Sort):
 
     def check_empty(self):
         if self._lb > self._ub:
-            raise LanguageError("Sort '{}' is empty!".format(self._name))
+            raise err.LanguageError("Sort '{}' is empty!".format(self._name))
 
     def contains(self, x):
         try:
@@ -82,18 +81,21 @@ class Interval(Sort):
         except ValueError:
             return False
 
-        relevant_supers = set()
-        for p in parents(self) :
-            relevant_supers.add(p)
-        while len(relevant_supers) > 0 :
+        # Downcasting Python literals from their type to a subtype (i.e. Real
+        # to Integer) works whenever the resulting instance of the subtype belongs
+        # to the domain *and* Python equality over the subtype instance and the
+        # supertype instance returns true. For instance, downcasting 1.0 to
+        # integers is okay, but 1.2 will not.
+        relevant_supers = set(parents(self))
+        while len(relevant_supers) > 0:
             p = relevant_supers.pop()
             try:
                 z = p.cast(x)
-            except ValueError :
+            except ValueError:
                 raise err.LanguageError()
-            if y != z :
+            if y != z:
                 return False
-            for p2 in parents(p) :
+            for p2 in parents(p):
                 relevant_supers.add(p2)
 
         return self._domain(y)
