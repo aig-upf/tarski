@@ -8,7 +8,7 @@ class Sort:
         self._name = name
         self.language = language
         self._domain = set()
-        self.built_in = builtin
+        self.builtin = builtin
 
     def __str__(self):
         return 'Sort({})'.format(self.name)
@@ -81,6 +81,21 @@ class Interval(Sort):
             y = self._encode(x)
         except ValueError:
             return False
+
+        relevant_supers = set()
+        for p in parents(self) :
+            relevant_supers.add(p)
+        while len(relevant_supers) > 0 :
+            p = relevant_supers.pop()
+            try:
+                z = p.cast(x)
+            except ValueError :
+                raise err.LanguageError()
+            if y != z :
+                return False
+            for p2 in parents(p) :
+                relevant_supers.add(p2)
+
         return self._domain(y)
 
     def dump(self):
