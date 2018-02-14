@@ -12,7 +12,11 @@ def _check_assignment(fun, point, value=None):
     elements = point + (value,) if value is not None else point
     processed = []
 
-    typ = fun.type
+    try :
+        typ = fun.sort
+    except AttributeError as e :
+        typ = fun.type
+
     if len(typ) != len(elements):
         raise err.ArityMismatch(fun, elements)
 
@@ -83,5 +87,3 @@ class Model(object):
 
         symbols = frozenset(tuple(c.symbol for c in point))
         return symbols in self.predicate_extensions[predicate.signature]
-
-

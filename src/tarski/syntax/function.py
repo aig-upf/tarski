@@ -32,9 +32,8 @@ class Function(object):
     def arity(self):
         return len(self.domain)
 
-    # TODO Rename this for "sort"
     @property
-    def type(self):
+    def sort(self):
         return self.domain + (self.codomain, )
 
     def __str__(self):
@@ -48,4 +47,3 @@ class Function(object):
     def __call__(self, *args):
         from .terms import CompoundTerm
         return CompoundTerm(self, args)
-
