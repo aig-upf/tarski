@@ -44,17 +44,17 @@ class Formula(object):
             setattr(newone, k, copy.deepcopy(v, memo))
         return newone
 
-    # def __and__(self, rhs):
-    #     return Conjunction(self, rhs)
-    #
-    # def __or__(self, rhs):
-    #     return Disjunction(self, rhs)
-    #
-    # def __invert__(self):
-    #     return Negation(self)
-    #
-    # def __gt__(self, rhs):
-    #     return implies(self, rhs)
+    def __and__(self, rhs):
+        return land(self, rhs)
+
+    def __or__(self, rhs):
+        return lor(self, rhs)
+
+    def __invert__(self):
+        return neg(self)
+
+    def __gt__(self, rhs):
+        return implies(self, rhs)
 
 
 class Tautology(Formula):
@@ -224,7 +224,3 @@ class Atom(Formula):
 #
 #     def __str__(self):
 #         return '{}({})'.format(self.name, ','.join([str(t) for t in self._subterms]))
-
-
-
-
