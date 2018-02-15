@@ -75,7 +75,7 @@ class FirstOrderLanguage:
 
     def _build_the_reals(self):
         the_reals = Interval(-3.40282e+38, 3.40282e+38, lambda x: float(x), 'Real', self)
-        the_reals.built_in = True
+        the_reals.builtin = True
         the_reals.pi = scipy.constants.pi
         self._sorts['Real'] = the_reals
         # self.create_builtin_predicates(the_reals)
@@ -86,7 +86,7 @@ class FirstOrderLanguage:
 
     def _build_the_integers(self):
         the_ints = Interval(-(2 ** 31 - 1), 2 ** 31 - 1, lambda x: int(x), 'Integer', self)
-        the_ints.built_in = True
+        the_ints.builtin = True
         self._sorts['Integer'] = the_ints
         self.set_parent(the_ints, self.Real)
         # self.create_builtin_predicates(the_ints)
@@ -97,7 +97,7 @@ class FirstOrderLanguage:
 
     def _build_the_naturals(self):
         the_nats = Interval(0, 2 ** 32 - 1, lambda x: int(x), 'Natural', self)
-        the_nats.built_in = True
+        the_nats.builtin = True
         self._sorts['Natural'] = the_nats
         self.set_parent(the_nats, self.Integer)
         # self.create_builtin_predicates(the_nats)
