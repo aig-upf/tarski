@@ -110,6 +110,8 @@ class Constant(Term):
             # construction of constants extends the domain
             # of sorts
             self._sort.extend(self)
+        else :
+            self.symbol = self._sort.cast(self.symbol)
 
     @property
     def language(self):
