@@ -74,14 +74,22 @@ class CompoundTerm(Term):
     def __init__(self, symbol, subterms: List[Term]):
 
         self.symbol = symbol
-        self.subterms = subterms
+
         if len(subterms) != self.symbol.arity :
             raise err.ArityMismatch(symbol,subterms)
         argument_sorts = list(self.symbol.sort)[:-1]
+        processed_st = []
         for k, s in enumerate(argument_sorts) :
             # @TODO Implement upcasting for non built-in compound terms
-            if subterms[k].sort.name != s.name :
-                raise err.TypeMismatch(self.symbol,subterms[k].sort,s)
+            try :
+                if subterms[k].sort.name != s.name and not self.symbol.language.is_subtype(s, subterms[k].sort):
+                    raise err.TypeMismatch(self.symbol,subterms[k].sort,s)
+                processed_st.append(subterms[k])
+            except AttributeError :
+                s_k = s.cast(subterms[k])
+                if s_k is None : raise err.TypeMismatch(self.symbol,subterms[k],s)
+                processed_st.append(s_k)
+        self.subterms = tuple(processed_st)
         self.symbol.language.language_components_frozen = True
 
     @property
@@ -101,7 +109,7 @@ class CompoundTerm(Term):
 
     def __str__(self):
         # MRJ: we don't want to print the symbol/signature
-        # but rather the name. 
+        # but rather the name.
         return '{}({})'.format(self.symbol.symbol, ', '.join([str(t) for t in self.subterms]))
 
 
