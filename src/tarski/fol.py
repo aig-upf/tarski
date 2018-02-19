@@ -49,6 +49,7 @@ class FirstOrderLanguage:
         self.Variable = copy.deepcopy(Variable)
         self.Constant = copy.deepcopy(Constant)
         self.language_components_frozen = False
+        self.modules = []
 
 
     @property
@@ -287,6 +288,10 @@ class FirstOrderLanguage:
         if modname == 'arithmetic' :
             import tarski.syntax.arithmetic
             tarski.syntax.arithmetic.bind_operators_to_language_components(self)
+            # MRJ: module funcsym needs to be refactored
+            tarski.funcsym.initialize(self)
+            self.modules.append(modname)
+            print("Loaded language module '{}'".format(modname))
 
     def create_builtin_predicates(self, sort):
         if not self._create_default_builtins:
