@@ -4,13 +4,11 @@ from typing import List
 
 import scipy.constants
 
-from . import funcsym
 from . import errors as err
 from .syntax import Function, Constant, Term, CompoundTerm, Variable, Sort, Interval, inclusion_closure, Predicate, \
     bind_equality_to_language_components
 
 import tarski.syntax.builtins as syntax_builtins
-import copy
 
 
 class FirstOrderLanguage:
@@ -306,3 +304,7 @@ class FirstOrderLanguage:
         #     # The name of the built-in predicate takes into account the type it is applied to, e.g. =_int
         #     name = "{}_{}".format(s.value, sort._name)
         #     self.predicate(name, sort, sort)
+
+    def __str__(self):
+        return "{}: Tarski language with {} sorts, {} function symbols, {} predicate symbols and {} variables".format(
+            self.name, len(self._sorts), len(self._functions), len(self._predicates), len(self._variables))
