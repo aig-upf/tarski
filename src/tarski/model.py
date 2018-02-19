@@ -44,7 +44,8 @@ class Model(object):
         A First Order Language Model
     """
 
-    def __init__(self, language):
+    def __init__(self, language, **kwargs):
+        self.evaluator = None
         self.language = language
         self.function_extensions = defaultdict(dict)
         self.predicate_extensions = defaultdict(set)
@@ -87,3 +88,13 @@ class Model(object):
 
         symbols = frozenset(tuple(c.symbol for c in point))
         return symbols in self.predicate_extensions[predicate.signature]
+
+    def __getitem__(self, arg ) :
+        try :
+            expr, sigma = arg
+            return self.evaluator(expr, self, sigma)
+        except TypeError :
+            return self.evaluator(arg, self)
+
+def create( L ) :
+    return Model(L)
