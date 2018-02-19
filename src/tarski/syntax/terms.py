@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-import copy
 from typing import List
 
 from .sorts import Sort
-from . import builtins
 from .. import errors as err
+
 
 class Term(object):
     """
@@ -28,10 +27,11 @@ class Term(object):
     # with bw.var('x',block) as x, bw.var('y',block) as y do :
     #   ... declarations using x and y
     def __enter__(self):
-         return self
+        return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-         return exc_type is not None
+        return exc_type is not None
+
 
 class Variable(Term):
     def __init__(self, symbol: str, sort: Sort):
@@ -71,23 +71,24 @@ class CompoundTerm(Term):
         Argument symbol needs to be an instance of Function of have
         Function-like interface.
     """
+
     def __init__(self, symbol, subterms: List[Term]):
 
         self.symbol = symbol
 
-        if len(subterms) != self.symbol.arity :
-            raise err.ArityMismatch(symbol,subterms)
+        if len(subterms) != self.symbol.arity:
+            raise err.ArityMismatch(symbol, subterms)
         argument_sorts = list(self.symbol.sort)[:-1]
         processed_st = []
-        for k, s in enumerate(argument_sorts) :
+        for k, s in enumerate(argument_sorts):
             # @TODO Implement upcasting for non built-in compound terms
-            try :
+            try:
                 if subterms[k].sort.name != s.name and not self.symbol.language.is_subtype(s, subterms[k].sort):
-                    raise err.TypeMismatch(self.symbol,subterms[k].sort,s)
+                    raise err.TypeMismatch(self.symbol, subterms[k].sort, s)
                 processed_st.append(subterms[k])
-            except AttributeError :
+            except AttributeError:
                 s_k = s.cast(subterms[k])
-                if s_k is None : raise err.TypeMismatch(self.symbol,subterms[k],s)
+                if s_k is None: raise err.TypeMismatch(self.symbol, subterms[k], s)
                 processed_st.append(s_k)
         self.subterms = tuple(processed_st)
         self.symbol.language.language_components_frozen = True
@@ -118,11 +119,11 @@ class Constant(Term):
         self.symbol = symbol
         self._sort = sort
         # symbol validation
-        if not self._sort.builtin :
+        if not self._sort.builtin:
             # construction of constants extends the domain
             # of sorts
             self._sort.extend(self)
-        else :
+        else:
             self.symbol = self._sort.cast(self.symbol)
         self.sort.language.language_components_frozen = True
 
