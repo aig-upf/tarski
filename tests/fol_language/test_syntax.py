@@ -1,6 +1,8 @@
 import pytest
 import tarski as tsk
 
+from ..common import numeric
+
 
 def test_builtin_constants():
     lang = tsk.language()
@@ -19,6 +21,15 @@ def test_arithmetic_terms_fails_without_import():
         # not been loaded
         sum_ = two + three
 
+def test_arithmetic_term_plus_float_lit_is_term() :
+    lang = numeric.generate_numeric_instance()
+    particle = lang.get_sort('particle')
+    p1 = lang.get_constant('p1')
+    x = lang.get_function('x')
+    t = x(p1) + 1.0
+    assert isinstance(t, tsk.Term)
+    assert isinstance(t.subterms[0], tsk.Term)
+    assert isinstance(t.subterms[1], tsk.Term)
 
 def test_arithmetic_terms_does_not_fail_with_load_module():
     lang = tsk.language()

@@ -2,7 +2,6 @@
  This tests the type-handling module
 """
 
-# from ..common import numeric
 import tarski.model
 from tarski.model import Model
 
@@ -21,7 +20,7 @@ def test_numeric_function_set():
      p1 = lang.get_constant('p1')
      x = lang.get_function('x')
      model = tarski.model.create(lang)
-     model.set(x, (0.0,), 1.0)
+     model.set(x, (p1,), 1.0)
 
 def test_numeric_builtin_addition() :
     lang = numeric.generate_numeric_instance()
@@ -30,12 +29,12 @@ def test_numeric_builtin_addition() :
     x = lang.get_function('x')
     model = tarski.model.create(lang)
     model.evaluator = evaluate
-    model.set(x, (0.0,), 1.0)
+    model.set(x, (p1,), 1.0)
 
     expr = model[ x(p1) + 1.0 ]
 
     assert isinstance(expr,lang.Constant)
-    assert expr.symbol == 1.0
+    assert expr.symbol == 2.0
 
 
 def test_blocksworld_set():
