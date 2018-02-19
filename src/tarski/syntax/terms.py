@@ -4,7 +4,7 @@ from typing import List
 
 from .sorts import Sort
 from . import builtins
-
+from .. import errors as err
 
 class Term(object):
     """
