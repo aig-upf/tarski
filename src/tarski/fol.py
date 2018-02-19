@@ -6,15 +6,17 @@ import scipy.constants
 
 from . import funcsym
 from . import errors as err
-from .syntax import Function, Constant, Term, CompoundTerm, Variable, Sort, Interval, inclusion_closure, Predicate, bind_equality_to_language_components
+from .syntax import Function, Constant, Term, CompoundTerm, Variable, Sort, Interval, inclusion_closure, Predicate, \
+    bind_equality_to_language_components
 
 import tarski.syntax.builtins as syntax_builtins
 import copy
 
+
 class FirstOrderLanguage:
     """ A full-fledged many-sorted first-order language """
 
-    def __init__(self, name = 'L'):
+    def __init__(self, name='L'):
         self.name = name
         self._sorts = {}
 
@@ -39,7 +41,6 @@ class FirstOrderLanguage:
         self._symbol_table = {}
         self._build_builtin_sorts()
 
-
         self._element_containers = {Sort: self._sorts,
                                     Function: self._functions,
                                     Predicate: self._predicates,
@@ -53,7 +54,6 @@ class FirstOrderLanguage:
         self.language_components_frozen = False
         self.modules = []
         bind_equality_to_language_components(self)
-
 
     @property
     def variables(self):
@@ -121,7 +121,7 @@ class FirstOrderLanguage:
         self.create_builtin_predicates(sort)
 
     @property
-    def Object(self) :
+    def Object(self):
         return self._sorts['object']
 
     @property
@@ -197,17 +197,19 @@ class FirstOrderLanguage:
         """ Create constant symbol of a given sort """
         sort = self._retrieve_object(sort, Sort)
 
-        if sort.builtin :
+        if sort.builtin:
             actual = sort.cast(name)
-            if actual is not None :
+            if actual is not None:
                 # MRJ: if name is a Python primitive type literal that can
                 # interpreted as the underlying type of the built in sort, we
                 # return a Constant object.
                 # TODO: I do no't see it is desirable to store constants of
                 # built in sorts.
-                return self.Constant(name,sort)
+                return self.Constant(name, sort)
             # MRJ: otherwise
-            raise err.SemanticError("Cannot create constant term of sort '{}' from '{}' of Python type '{}'".format(sort.name,name,type(name)))
+            raise err.SemanticError(
+                "Cannot create constant term of sort '{}' from '{}' of Python type '{}'".format(sort.name, name,
+                                                                                                type(name)))
 
         if name in self._constants:
             raise err.DuplicateConstantDefinition(name, self._constants[name])
@@ -275,9 +277,8 @@ class FirstOrderLanguage:
         try:
             return self._symbol_table[(sym, lhs, rhs)]
         except KeyError:
-            raise err.LanguageError(
-                "FOL.resolve_function_symbol(): function symbol '{}' is not defined for domain ({},{})"
-                .format(sym, lhs, rhs))
+            raise err.LanguageError("FOL.resolve_function_symbol(): function symbol '{}' not defined for domain ({},{})"
+                                    .format(sym, lhs, rhs))
 
     def is_subtype(self, t, st):
         return t == st or self.is_strict_subtype(t, st)
@@ -285,10 +286,10 @@ class FirstOrderLanguage:
     def is_strict_subtype(self, t, st):
         return st in self._possible_promotions[t._name]
 
-    def load_module(self, modname ) :
-        if self.language_components_frozen :
-            raise err.LanguageError("FOL.load_module(): language components interface is frozen already, as Terms have been already defined")
-        if modname == 'arithmetic' :
+    def load_module(self, modname):
+        if self.language_components_frozen:
+            raise err.LanguageError("FOL.load_module(): Cannot load modules once language elements have been defined")
+        if modname == 'arithmetic':
             import tarski.syntax.arithmetic
             tarski.syntax.arithmetic.bind_operators_to_language_components(self)
             # MRJ: module funcsym needs to be refactored

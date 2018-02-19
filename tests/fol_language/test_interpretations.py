@@ -10,19 +10,20 @@ from tarski.evaluators.simple import evaluate
 
 
 def test_interpretation_instance():
-     lang = numeric.generate_numeric_instance()
-     s = tarski.model.create(lang)
+    lang = numeric.generate_numeric_instance()
+    s = tarski.model.create(lang)
 
 
 def test_numeric_function_set():
-     lang = numeric.generate_numeric_instance()
-     particle = lang.get_sort('particle')
-     p1 = lang.get_constant('p1')
-     x = lang.get_function('x')
-     model = tarski.model.create(lang)
-     model.set(x, (p1,), 1.0)
+    lang = numeric.generate_numeric_instance()
+    particle = lang.get_sort('particle')
+    p1 = lang.get_constant('p1')
+    x = lang.get_function('x')
+    model = tarski.model.create(lang)
+    model.set(x, (p1,), 1.0)
 
-def test_numeric_builtin_addition() :
+
+def test_numeric_builtin_addition():
     lang = numeric.generate_numeric_instance()
     particle = lang.get_sort('particle')
     p1 = lang.get_constant('p1')
@@ -31,12 +32,13 @@ def test_numeric_builtin_addition() :
     model.evaluator = evaluate
     model.set(x, (p1,), 1.0)
 
-    expr = model[ x(p1) + 1.0 ]
+    expr = model[x(p1) + 1.0]
 
-    assert isinstance(expr,lang.Constant)
+    assert isinstance(expr, lang.Constant)
     assert expr.symbol == 2.0
 
-def test_numeric_rel_formula_evaluation() :
+
+def test_numeric_rel_formula_evaluation():
     lang = numeric.generate_numeric_instance()
     p1 = lang.get_constant('p1')
     p2 = lang.get_constant('p2')
@@ -46,7 +48,7 @@ def test_numeric_rel_formula_evaluation() :
     model.set(x, (p1,), 1.0)
     model.set(x, (p2,), 2.0)
 
-    assert model[ x(p1) < x(p2) ]
+    assert model[x(p1) < x(p2)]
 
 
 def test_blocksworld_set():
@@ -57,6 +59,7 @@ def test_blocksworld_set():
     model.set(loc, (b1,), table)
 
     assert evaluate(loc(b1), model) == table
+
 
 def test_blocksworld_set_via_square_brackets():
     lang = blocksworld.generate_small_bw_language()

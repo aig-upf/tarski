@@ -1,6 +1,6 @@
-
 from typing import List, Set
 from .. import errors as err
+
 
 class Sort:
     def __init__(self, name, language, builtin=False):
@@ -75,11 +75,11 @@ class Interval(Sort):
         if self._lb > self._ub:
             raise err.LanguageError("Sort '{}' is empty!".format(self._name))
 
-    def contains(self, x, raises_exceptions = False ):
+    def contains(self, x, raises_exceptions=False):
         try:
             y = self._encode(x)
         except ValueError:
-            if raises_exceptions :
+            if raises_exceptions:
                 raise err.SemanticError('Cannot encode "{}"'.format(x))
             return False
 
@@ -96,8 +96,8 @@ class Interval(Sort):
             except ValueError:
                 raise err.LanguageError()
             if z is not None and y != z:
-                if raises_exceptions :
-                    raise err.SemanticError('{} casted into y: {} and z: {}, y!=z'.format(x,y,z))
+                if raises_exceptions:
+                    raise err.SemanticError('{} casted into y: {} and z: {}, y!=z'.format(x, y, z))
                 return False
             for p2 in parents(p):
                 relevant_supers.add(p2)

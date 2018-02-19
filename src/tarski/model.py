@@ -12,9 +12,9 @@ def _check_assignment(fun, point, value=None):
     elements = point + (value,) if value is not None else point
     processed = []
 
-    try :
+    try:
         typ = fun.sort
-    except AttributeError as e :
+    except AttributeError:
         typ = fun.type
 
     if len(typ) != len(elements):
@@ -81,10 +81,10 @@ class Model(object):
     def value(self, fun: Function, point):
         """ Return the value of the given function on the given point in the current model """
         # print("[f({})]^s = {}".format(symbols, self.function_extensions[t.symbol.signature][symbols]))
-        assert not isinstance(point,list)
-        try :
+        assert not isinstance(point, list)
+        try:
             return self.function_extensions[fun.signature][point]
-        except KeyError :
+        except KeyError:
             return fun[point]
 
     def holds(self, predicate: Predicate, point):
@@ -93,12 +93,13 @@ class Model(object):
         symbols = frozenset(tuple(c.symbol for c in point))
         return symbols in self.predicate_extensions[predicate.signature]
 
-    def __getitem__(self, arg ) :
-        try :
+    def __getitem__(self, arg):
+        try:
             expr, sigma = arg
             return self.evaluator(expr, self, sigma)
-        except TypeError :
+        except TypeError:
             return self.evaluator(arg, self)
 
-def create( L ) :
-    return Model(L)
+
+def create(lang):
+    return Model(lang)

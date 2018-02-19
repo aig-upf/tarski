@@ -1,4 +1,3 @@
-
 from enum import Enum
 
 from .. import errors as err
@@ -14,6 +13,7 @@ class BuiltinPredicate(Enum):
 
     def __str__(self):
         return self.value.lower()
+
 
 def is_builtin_predicate(predicate):
     return isinstance(predicate.symbol, BuiltinPredicate)
