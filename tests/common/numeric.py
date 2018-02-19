@@ -6,6 +6,7 @@ import tarski as tsk
 
 def generate_numeric_instance():
     lang = tsk.language()
+    lang.load_module('arithmetic')
 
     # The sorts
     particle = lang.sort('particle')
@@ -15,6 +16,7 @@ def generate_numeric_instance():
     f = lang.function('f', particle, lang.Real)
 
     # Particles
-    lang.constant(('p{}'.format(k) for k in (1, 2, 3, 4)), particle)
+    for k in (1,2,3,4) :
+        lang.constant('p{}'.format(k), particle)
 
     return lang
