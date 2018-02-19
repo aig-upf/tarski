@@ -31,9 +31,9 @@ def test_arithmetic_term_plus_float_lit_is_term():
     assert isinstance(t.subterms[1], tsk.Term)
 
 
-def test_arithmetic_terms_does_not_fail_with_load_module():
+def test_arithmetic_terms_does_not_fail_with_load_theory():
     lang = tsk.language()
-    lang.load_module('arithmetic')
+    lang.load_theory('arithmetic')
     ints = lang.Integer
     two, three = lang.constant(2, ints), lang.constant(3, ints)
     sum_ = two + three
@@ -47,6 +47,6 @@ def test_load_arithmetic_module_fails_when_language_frozen():
     two, three = lang.constant(2, ints), lang.constant(3, ints)
 
     with pytest.raises(err.LanguageError):
-        # load_module() should raise LanguageError as we have created two constants
-        lang.load_module('arithmetic')
+        # load_theory() should raise LanguageError as we have created two constants
+        lang.load_theory('arithmetic')
         sum_ = two + three

@@ -50,7 +50,7 @@ class FirstOrderLanguage:
         self.Variable = type('{}_Variable'.format(self.name), (self.Term,), Variable.__dict__.copy())
         self.Constant = type('{}_Constant'.format(self.name), (self.Term,), Constant.__dict__.copy())
         self.language_components_frozen = False
-        self.modules = []
+        self.theories = []
         bind_equality_to_language_components(self)
 
     @property
@@ -284,16 +284,16 @@ class FirstOrderLanguage:
     def is_strict_subtype(self, t, st):
         return st in self._possible_promotions[t._name]
 
-    def load_module(self, modname):
+    def load_theory(self, theory):
         if self.language_components_frozen:
-            raise err.LanguageError("FOL.load_module(): Cannot load modules once language elements have been defined")
-        if modname == 'arithmetic':
+            raise err.LanguageError("FOL.load_theory(): Cannot load theories once language elements have been defined")
+        if theory == 'arithmetic':
             import tarski.syntax.arithmetic
             tarski.syntax.arithmetic.bind_operators_to_language_components(self)
             # MRJ: module funcsym needs to be refactored
             tarski.funcsym.initialize(self)
-            self.modules.append(modname)
-            print("Loaded language module '{}'".format(modname))
+            self.theories.append(theory)
+            print("Loaded theory '{}'".format(theory))
 
     def create_builtin_predicates(self, sort):
         if not self._create_default_builtins:
