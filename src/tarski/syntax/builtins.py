@@ -22,7 +22,7 @@ def is_builtin_predicate(predicate):
 def create_symbols_for_language(lang):
     obj = lang.get_sort('object')
     for s in BuiltinPredicate:
-        lang.predicate(s, obj, obj)
+        p = lang.predicate(s, obj, obj)
 
 
 def create_atom(symbol: BuiltinPredicate, lhs, rhs):

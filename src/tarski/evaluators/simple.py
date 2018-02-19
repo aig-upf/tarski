@@ -20,10 +20,10 @@ def evaluate(element, m: Model, sigma={}):
         return evaluate_quantified(element, m, sigma)
 
     # Terms
-    if isinstance(element, Variable):
+    if isinstance(element, m.language.Variable):
         return sigma[element]  # TODO Finish this, ATM it will raise a runtime error
 
-    if isinstance(element, (Constant, CompoundTerm)):
+    if isinstance(element, (m.language.Constant, m.language.CompoundTerm)):
         return evaluate_term(element, m, sigma)
 
     raise RuntimeError("Unknown logical element type: {}".format(element))
@@ -50,7 +50,7 @@ def evaluate_quantified(formula: Formula, m: Model, sigma):
 
 
 def evaluate_term(term, m: Model, sigma):
-    assert isinstance(term, (Constant, CompoundTerm))
+    assert isinstance(term, (m.language.Constant, m.language.CompoundTerm))
     arguments = []
 
     # TODO This is technically not correct - a constant still depends on the actual model on which is evaluated.
@@ -59,10 +59,10 @@ def evaluate_term(term, m: Model, sigma):
     # TODO constant for each element in the universe, and the other way round
     # TODO How does Z3 deal with this distinction?
     # TODO We'll need to fix this eventually
-    if isinstance(term, Constant):
+    if isinstance(term, m.language.Constant):
         return term
 
-    if isinstance(term, CompoundTerm):
+    if isinstance(term, m.language.CompoundTerm):
         # evaluate each of the arguments
         arguments = tuple(evaluate(a, m, sigma) for a in term.subterms)
 
@@ -80,4 +80,4 @@ def evaluate_builtin(atom, model, sigma):
         bip.GE: lambda f, m, s: evaluate(f.subterms[0], m, s) >= evaluate(f.subterms[1], m, s),
     }
 
-    return _evaluators[atom.symbol](atom, model, sigma)
+    return _evaluators[atom.predicate.symbol](atom, model, sigma)

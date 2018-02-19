@@ -6,7 +6,7 @@ import scipy.constants
 
 from . import funcsym
 from . import errors as err
-from .syntax import Function, Constant, Term, CompoundTerm, Variable, Sort, Interval, inclusion_closure, Predicate
+from .syntax import Function, Constant, Term, CompoundTerm, Variable, Sort, Interval, inclusion_closure, Predicate, bind_equality_to_language_components
 
 import tarski.syntax.builtins as syntax_builtins
 import copy
@@ -14,7 +14,8 @@ import copy
 class FirstOrderLanguage:
     """ A full-fledged many-sorted first-order language """
 
-    def __init__(self):
+    def __init__(self, name = 'L'):
+        self.name = name
         self._sorts = {}
 
         # TODO (GFM) I would refactor all of the type information into some kind of TableInfo class that keeps
@@ -43,13 +44,15 @@ class FirstOrderLanguage:
                                     Function: self._functions,
                                     Predicate: self._predicates,
                                     Variable: self._variables}
-
-        self.Term = copy.deepcopy(Term)
-        self.CompoundTerm = copy.deepcopy(CompoundTerm)
-        self.Variable = copy.deepcopy(Variable)
-        self.Constant = copy.deepcopy(Constant)
+        # MRJ: https://stackoverflow.com/questions/9541025/how-to-copy-a-python-class
+        # see the second most voted answer
+        self.Term = type('{}_Term'.format(self.name), (Term,), {})
+        self.CompoundTerm = type('{}_CompoundTerm'.format(self.name), (self.Term,), CompoundTerm.__dict__.copy())
+        self.Variable = type('{}_Variable'.format(self.name), (self.Term,), Variable.__dict__.copy())
+        self.Constant = type('{}_Constant'.format(self.name), (self.Term,), Constant.__dict__.copy())
         self.language_components_frozen = False
         self.modules = []
+        bind_equality_to_language_components(self)
 
 
     @property

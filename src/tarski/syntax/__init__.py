@@ -14,9 +14,11 @@ symbol_rel_op_map = {
     'ne' : '__ne__'
 }
 
-term_classes = [ Term, CompoundTerm, Variable, Constant ]
+def bind_equality_to_language_components(L) :
 
-for class_obj in term_classes :
+    term_classes = [ L.Term, L.CompoundTerm, L.Variable, L.Constant ]
 
-    for sym, method in symbol_rel_op_map.items() :
-        setattr(class_obj, method, RelationalOperatorImplementation(sym))
+    for class_obj in term_classes :
+
+        for sym, method in symbol_rel_op_map.items() :
+            setattr(class_obj, method, RelationalOperatorImplementation(sym))

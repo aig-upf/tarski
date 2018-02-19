@@ -25,7 +25,7 @@ def _check_assignment(fun, point, value=None):
 
         if not isinstance(element, Constant):
             # Assume a literal value has been passed instead of its corresponding constant
-            element = Constant(expected_type.cast(element), expected_type)
+            element = language.Constant(expected_type.cast(element), expected_type)
             # raise err.IncorrectExtensionDefinition(fun, point, value)
 
         if element.language != language:
@@ -81,6 +81,7 @@ class Model(object):
     def value(self, fun: Function, point):
         """ Return the value of the given function on the given point in the current model """
         # print("[f({})]^s = {}".format(symbols, self.function_extensions[t.symbol.signature][symbols]))
+        assert not isinstance(point,list)
         try :
             return self.function_extensions[fun.signature][point]
         except KeyError :
