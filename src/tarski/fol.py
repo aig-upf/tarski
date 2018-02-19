@@ -6,9 +6,10 @@ import scipy.constants
 
 from . import funcsym
 from . import errors as err
-from .syntax import Function, Constant, Variable, Sort, Interval, inclusion_closure, Predicate
+from .syntax import Function, Constant, Term, CompoundTerm, Variable, Sort, Interval, inclusion_closure, Predicate
 
 import tarski.syntax.builtins as syntax_builtins
+import copy
 
 class FirstOrderLanguage:
     """ A full-fledged many-sorted first-order language """
@@ -42,6 +43,13 @@ class FirstOrderLanguage:
                                     Function: self._functions,
                                     Predicate: self._predicates,
                                     Variable: self._variables}
+
+        self.Term = copy.deepcopy(Term)
+        self.CompoundTerm = copy.deepcopy(CompoundTerm)
+        self.Variable = copy.deepcopy(Variable)
+        self.Constant = copy.deepcopy(Constant)
+        self.language_components_frozen = False
+
 
     @property
     def variables(self):
@@ -78,6 +86,7 @@ class FirstOrderLanguage:
         the_reals.builtin = True
         the_reals.pi = scipy.constants.pi
         self._sorts['Real'] = the_reals
+        self.set_parent(the_reals, self.Object)
         # self.create_builtin_predicates(the_reals)
 
     @property
@@ -106,6 +115,10 @@ class FirstOrderLanguage:
         sort = Sort('object', self)
         self._sorts['object'] = sort
         self.create_builtin_predicates(sort)
+
+    @property
+    def Object(self) :
+        return self._sorts['object']
 
     @property
     def Natural(self):
@@ -146,7 +159,7 @@ class FirstOrderLanguage:
 
     def variable(self, name: str, sort: Sort):
         sort = self._retrieve_object(sort, Sort)
-        return Variable(name, sort)
+        return self.Variable(name, sort)
 
     def set_parent(self, lhs: Sort, rhs: Sort):
         if rhs.language is not self:
@@ -188,14 +201,14 @@ class FirstOrderLanguage:
                 # return a Constant object.
                 # TODO: I do no't see it is desirable to store constants of
                 # built in sorts.
-                return Constant(name,sort)
+                return self.Constant(name,sort)
             # MRJ: otherwise
             raise err.SemanticError("Cannot create constant term of sort '{}' from '{}' of Python type '{}'".format(sort.name,name,type(name)))
 
         if name in self._constants:
             raise err.DuplicateConstantDefinition(name, self._constants[name])
 
-        self._constants[name] = Constant(name, sort)
+        self._constants[name] = self.Constant(name, sort)
         return self._constants[name]
 
     def has_constant(self, name):
@@ -267,6 +280,13 @@ class FirstOrderLanguage:
 
     def is_strict_subtype(self, t, st):
         return st in self._possible_promotions[t._name]
+
+    def load_module(self, modname ) :
+        if self.language_components_frozen :
+            raise err.LanguageError("FOL.load_module(): language components interface is frozen already, as Terms have been already defined")
+        if modname == 'arithmetic' :
+            import tarski.syntax.arithmetic
+            tarski.syntax.arithmetic.bind_operators_to_language_components(self)
 
     def create_builtin_predicates(self, sort):
         if not self._create_default_builtins:

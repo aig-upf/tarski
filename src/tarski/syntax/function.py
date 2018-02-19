@@ -45,5 +45,4 @@ class Function(object):
                     codomain=self.codomain.name)
 
     def __call__(self, *args):
-        from .terms import CompoundTerm
-        return CompoundTerm(self, args)
+        return self.language.CompoundTerm(self, args)

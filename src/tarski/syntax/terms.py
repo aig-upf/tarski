@@ -37,6 +37,7 @@ class Variable(Term):
     def __init__(self, symbol: str, sort: Sort):
         self.symbol = symbol
         self._sort = sort
+        self.sort.language.language_components_frozen = True
         # TODO VALIDATE
 
     @property
@@ -81,6 +82,7 @@ class CompoundTerm(Term):
             # @TODO Implement upcasting for non built-in compound terms
             if subterms[k].sort.name != s.name :
                 raise err.TypeMismatch(self.symbol,subterms[k].sort,s)
+        self.symbol.language.language_components_frozen = True
 
     @property
     def language(self):
@@ -98,7 +100,9 @@ class CompoundTerm(Term):
     #     return newone
 
     def __str__(self):
-        return '{}({})'.format(self.symbol, ', '.join([str(t) for t in self.subterms]))
+        # MRJ: we don't want to print the symbol/signature
+        # but rather the name. 
+        return '{}({})'.format(self.symbol.symbol, ', '.join([str(t) for t in self.subterms]))
 
 
 class Constant(Term):
@@ -112,6 +116,7 @@ class Constant(Term):
             self._sort.extend(self)
         else :
             self.symbol = self._sort.cast(self.symbol)
+        self.sort.language.language_components_frozen = True
 
     @property
     def language(self):

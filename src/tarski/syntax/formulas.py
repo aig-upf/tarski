@@ -11,10 +11,9 @@ from typing import List
 class Connective(Enum):
     """" A logical connective """
     And, Or, Not = range(3)
-    to_string = ["and", "or", "not"]
 
     def __str__(self):
-        return self.to_string[self.value]
+        return self.name.lower()
 
 
 class Quantifier(Enum):

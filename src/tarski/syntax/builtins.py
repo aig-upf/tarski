@@ -12,6 +12,8 @@ class BuiltinPredicate(Enum):
     GT = ">"
     GE = ">="
 
+    def __str__(self):
+        return self.value.lower()
 
 def is_builtin_predicate(predicate):
     return isinstance(predicate.symbol, BuiltinPredicate)
@@ -27,7 +29,7 @@ def create_atom(symbol: BuiltinPredicate, lhs, rhs):
     from .terms import Term
     from .formulas import Atom
 
-    assert isinstance(lhs, Term) and isinstance(rhs, Term)
+    assert isinstance(lhs, lhs.language.Term) and isinstance(rhs, lhs.language.Term)
 
     language = lhs.language
     if language != rhs.language:

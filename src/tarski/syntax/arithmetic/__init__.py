@@ -1,5 +1,6 @@
 from .. terms import Term, CompoundTerm, Variable, Constant
 from .. _meta import ArithmeticOperatorImplementation, RelationalOperatorImplementation
+import copy
 
 symbol_arith_op_map = {
     '+' : '__add__',
@@ -26,21 +27,22 @@ symbol_rel_op_map = {
 }
 
 
+def bind_operators_to_language_components(L) :
 
-# bind operators to term class
-for sym, method in symbol_arith_op_map.items() :
-    setattr(Term, method, ArithmeticOperatorImplementation(sym))
-
-for sym, method in symbol_rel_op_map.items() :
-    setattr(Term, method, RelationalOperatorImplementation(sym))
-
-# bind operators to subclasses
-
-term_classes = [ CompoundTerm, Variable, Constant ]
-
-for class_obj in term_classes :
+    # bind operators to term class
     for sym, method in symbol_arith_op_map.items() :
-        setattr(class_obj, method, ArithmeticOperatorImplementation(sym))
+        setattr(L.Term, method, ArithmeticOperatorImplementation(sym))
 
     for sym, method in symbol_rel_op_map.items() :
-        setattr(class_obj, method, RelationalOperatorImplementation(sym))
+        setattr(L.Term, method, RelationalOperatorImplementation(sym))
+
+    # bind operators to subclasses
+
+    term_classes = [ L.CompoundTerm, L.Variable, L.Constant ]
+
+    for class_obj in term_classes :
+        for sym, method in symbol_arith_op_map.items() :
+            setattr(class_obj, method, ArithmeticOperatorImplementation(sym))
+
+        for sym, method in symbol_rel_op_map.items() :
+            setattr(class_obj, method, RelationalOperatorImplementation(sym))
