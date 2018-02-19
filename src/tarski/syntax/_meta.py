@@ -10,7 +10,7 @@ class ArithmeticOperatorImplementation :
         if isinstance(rhs, lhs.language.Term) :
             sym = lhs.language.resolve_function_symbol(self._symbol, lhs.sort, rhs.sort)
         else :
-            rhs = lhs.sort.cast(rhs)
+            rhs = lhs.language.Constant(lhs.sort.cast(rhs), lhs.sort)
             sym = lhs.language.resolve_function_symbol(self._symbol, lhs.sort, lhs.sort)
         return sym(lhs, rhs)
 
@@ -26,7 +26,8 @@ class RelationalOperatorImplementation :
         if  isinstance(rhs, lhs.language.Term) :
             return getattr(syntax_builtins,self._symbol)(lhs,rhs)
         else :
-            return getattr(syntax_builtins,self._symbol)(lhs,lhs.sort.cast(rhs))
+            rhs = lhs.language.Constant(lhs.sort.cast(rhs), lhs.sort)
+            return getattr(syntax_builtins,self._symbol)(lhs,rhs)
 
     def __get__(self, instance, owner):
         return MethodType(self, instance) if instance else self
