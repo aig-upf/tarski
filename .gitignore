@@ -57,3 +57,9 @@ venv/
 .tox
 *.egg-info/
 dist/
+
+# helper scripts
+alltests.bat
+
+# pytest internals
+.cache/
