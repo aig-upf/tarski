@@ -8,7 +8,7 @@ def test_builtin_constants():
     lang = tsk.language()
     ints = lang.Integer
     two = lang.constant(2, ints)
-    assert isinstance(two, tsk.Constant), "two should be the constant 2, not the integer value 2"
+    assert isinstance(two, lang.Constant), "two should be the constant 2, not the integer value 2"
 
 
 def test_arithmetic_terms_fails_without_import():
