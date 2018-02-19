@@ -36,6 +36,18 @@ def test_numeric_builtin_addition() :
     assert isinstance(expr,lang.Constant)
     assert expr.symbol == 2.0
 
+def test_numeric_rel_formula_evaluation() :
+    lang = numeric.generate_numeric_instance()
+    p1 = lang.get_constant('p1')
+    p2 = lang.get_constant('p2')
+    x = lang.get_function('x')
+    model = tarski.model.create(lang)
+    model.evaluator = evaluate
+    model.set(x, (p1,), 1.0)
+    model.set(x, (p2,), 2.0)
+
+    assert model[ x(p1) < x(p2) ]
+
 
 def test_blocksworld_set():
     lang = blocksworld.generate_small_bw_language()
