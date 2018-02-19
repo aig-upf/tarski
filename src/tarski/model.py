@@ -81,7 +81,10 @@ class Model(object):
     def value(self, fun: Function, point):
         """ Return the value of the given function on the given point in the current model """
         # print("[f({})]^s = {}".format(symbols, self.function_extensions[t.symbol.signature][symbols]))
-        return self.function_extensions[fun.signature][point]
+        try :
+            return self.function_extensions[fun.signature][point]
+        except KeyError :
+            return fun[point]
 
     def holds(self, predicate: Predicate, point):
         """ Return true iff the given predicate is true on the given point in the current model """
