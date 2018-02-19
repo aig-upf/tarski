@@ -75,10 +75,12 @@ class Interval(Sort):
         if self._lb > self._ub:
             raise err.LanguageError("Sort '{}' is empty!".format(self._name))
 
-    def contains(self, x):
+    def contains(self, x, raises_exceptions = False ):
         try:
             y = self._encode(x)
         except ValueError:
+            if raises_exceptions :
+                raise err.SemanticError('Cannot encode "{}"'.format(x))
             return False
 
         # Downcasting Python literals from their type to a subtype (i.e. Real
@@ -93,7 +95,9 @@ class Interval(Sort):
                 z = p.cast(x)
             except ValueError:
                 raise err.LanguageError()
-            if y != z:
+            if z is not None and y != z:
+                if raises_exceptions :
+                    raise err.SemanticError('{} casted into y: {} and z: {}, y!=z'.format(x,y,z))
                 return False
             for p2 in parents(p):
                 relevant_supers.add(p2)
