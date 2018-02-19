@@ -28,7 +28,7 @@ symbol_rel_op_map = {
 
 
 def bind_operators_to_language_components(L) :
-
+    print('Binding operators to language: {}'.format(L))
     # bind operators to term class
     for sym, method in symbol_arith_op_map.items() :
         setattr(L.Term, method, ArithmeticOperatorImplementation(sym))
