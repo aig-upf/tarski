@@ -88,7 +88,8 @@ class CompoundTerm(Term):
                 processed_st.append(subterms[k])
             except AttributeError:
                 s_k = s.cast(subterms[k])
-                if s_k is None: raise err.TypeMismatch(self.symbol, subterms[k], s)
+                if s_k is None:
+                    raise err.TypeMismatch(self.symbol, subterms[k], s)
                 processed_st.append(s_k)
         self.subterms = tuple(processed_st)
         self.symbol.language.language_components_frozen = True
