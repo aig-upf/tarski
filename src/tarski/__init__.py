@@ -6,8 +6,7 @@ from .errors import LanguageError
 from . import funcsym
 
 
-def language():
-    lang = FirstOrderLanguage()
+def language(name = 'L'):
+    lang = FirstOrderLanguage(name)
     funcsym.initialize(lang)
     return lang
-
