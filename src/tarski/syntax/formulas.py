@@ -22,7 +22,7 @@ class Quantifier(Enum):
     to_string = ["exists", "forall"]
 
     def __str__(self):
-        return self.to_string[self.value]
+        return self.name.lower()
 
 
 class Formula(object):
@@ -127,6 +127,14 @@ def neg(phi):
 def implies(phi, psi):
     return lor(neg(phi), psi)
 
+def equiv(phi, psi):
+    # MRJ: I choose the form below in the code over
+    #
+    # lor(land(phi,psi), land(neg(psi),neg(phi)))
+    #
+    # as I find it easier to transform into a
+    # given normal form.
+    return land( implies(phi,psi), implies(psi,phi) )
 
 def forall(*args):
     return _quantified(Quantifier.Forall, *args)
@@ -145,8 +153,16 @@ def _quantified(quantifier, *args):
     if len(args) < 2:
         raise err.LanguageError('Quantified formula needs at least two arguments')
 
-    if not isinstance(args[-1], Formula) or any(not isinstance(x, Variable) for x in args[:-1]):
+    if not isinstance(args[-1], Formula) :
         raise err.LanguageError('Ill-formed arguments for quantified formula: {}'.format(args))
+
+    for x in args[:-1] :
+        try :
+            lang = x.language
+        except AttributeError :
+            raise err.LanguageError('Ill-formed arguments for quantified formula: {}'.format(args))
+        if not isinstance(x, lang.Variable) :
+            raise err.LanguageError('Ill-formed arguments for quantified formula: {}'.format(args))
 
     return QuantifiedFormula(quantifier, args[:-1], args[-1])
 
@@ -174,7 +190,7 @@ class Atom(Formula):
 
         # Check arguments are all terms of the appropriate type and matching language
         for arg, expected_type in zip(self.subterms, head.type):
-            if not isinstance(arg, Term):
+            if not isinstance(arg, language.Term):
                 raise err.LanguageError("Wrong argument for atomic formula: '{}' ".format(arg))
 
             if arg.language != language:
