@@ -83,7 +83,7 @@ class CompoundTerm(Term):
         for k, s in enumerate(argument_sorts):
             # @TODO Implement upcasting for non built-in compound terms
             try:
-                if subterms[k].sort.name != s.name and not self.symbol.language.is_subtype(s, subterms[k].sort):
+                if subterms[k].sort.name != s.name and not self.symbol.language.is_subtype(subterms[k].sort, s):
                     raise err.TypeMismatch(self.symbol, subterms[k].sort, s)
                 processed_st.append(subterms[k])
             except AttributeError:
