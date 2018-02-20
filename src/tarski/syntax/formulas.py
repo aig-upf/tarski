@@ -189,15 +189,15 @@ class Atom(Formula):
         language = head.language
 
         # Check arguments are all terms of the appropriate type and matching language
-        for arg, expected_type in zip(self.subterms, head.type):
+        for arg, expected_sort in zip(self.subterms, head.sort):
             if not isinstance(arg, language.Term):
                 raise err.LanguageError("Wrong argument for atomic formula: '{}' ".format(arg))
 
             if arg.language != language:
                 raise err.LanguageMismatch(arg, arg.language, language)
 
-            if not language.is_subtype(arg.sort, expected_type):
-                raise err.TypeMismatch(arg, arg.sort, expected_type)
+            if not language.is_subtype(arg.sort, expected_sort):
+                raise err.SortMismatch(arg, arg.sort, expected_sort)
 
     def __str__(self):
         return '{}({})'.format(self.predicate.symbol, ','.join([str(t) for t in self.subterms]))

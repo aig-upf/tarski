@@ -40,9 +40,9 @@ class ArityMismatch(SyntacticError):
         super().__init__(msg)
 
 
-class TypeMismatch(SyntacticError):
+class SortMismatch(SyntacticError):
     def __init__(self, element, type_, expected_type, msg=None):
-        msg = msg or 'Type mismatch on element {}. Expected type was "{}", element has type "{}"'.format(
+        msg = msg or 'Sort mismatch on element {}. Expected sort was "{}", element has sort "{}"'.format(
             element, expected_type, type_)
         super().__init__(msg)
 

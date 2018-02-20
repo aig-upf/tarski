@@ -9,7 +9,7 @@ class Predicate(object):
 
         self._symbol = name  # name, a string
         self.language = language  # fol the symbol belongs to
-        self.type = []
+        self.sort = []
 
         # we validate the arguments now
         for k, a in enumerate(args):
@@ -19,7 +19,7 @@ class Predicate(object):
             if self.language != a.language:
                 raise LanguageError("Predicate.__init__(): {}-th argument \
                 belongs to a different language".format(k + 1))
-            self.type.append(a)
+            self.sort.append(a)
 
     @property
     def symbol(self):
@@ -27,17 +27,17 @@ class Predicate(object):
 
     @property
     def signature(self):
-        return tuple([self.symbol] + [a.name for a in self.type])
+        return tuple([self.symbol] + [a.name for a in self.sort])
 
     @property
     def arity(self):
-        return len(self.type)
+        return len(self.sort)
 
     def __str__(self):
-        return '{}({})'.format(self.symbol, ','.join([a.name for a in self.type]))
+        return '{}({})'.format(self.symbol, ','.join([a.name for a in self.sort]))
 
     def dump(self):
-        return dict(symbol=self.symbol, type=[a.name for a in self.type])
+        return dict(symbol=self.symbol, sort=[a.name for a in self.sort])
 
     def __call__(self, *args):
         from .formulas import Atom
@@ -51,9 +51,9 @@ class Predicate(object):
         for k, arg in enumerate(args):
             if not isinstance(arg, Constant):
                 raise LanguageError('Error setting predicate extension: {}-th argument is not a constant'.format(k + 1))
-            if arg.type.name != self.type[k].name:
+            if arg.sort.name != self.sort[k].name:
                 raise LanguageError('Error setting predicate extension: {}-th argument type mismatch, type is {}, '
-                                    'was expected to be {}'.format(k + 1, arg.type.name, self.type[k].name))
+                                    'was expected to be {}'.format(k + 1, arg.sort.name, self.sort[k].name))
 
     def satisfied(self, *args):
         raise ValueError("Extensionally defined")

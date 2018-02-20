@@ -139,10 +139,10 @@ class FirstOrderLanguage:
         self._sorts[name] = sort
 
         # MRJ: setup promotions table
-        otype = self.get_sort("object")
+        osort = self.get_sort("object")
         super_sorts = super_sorts or []
-        if otype not in super_sorts:  # Make sure all sorts derive from "object"
-            super_sorts.append(otype)
+        if osort not in super_sorts:  # Make sure all sorts derive from "object"
+            super_sorts.append(osort)
 
         for parent in super_sorts:
             self.set_parent(sort, parent)

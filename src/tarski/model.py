@@ -12,10 +12,7 @@ def _check_assignment(fun, point, value=None):
     elements = point + (value,) if value is not None else point
     processed = []
 
-    try:
-        typ = fun.sort
-    except AttributeError:
-        typ = fun.type
+    typ = fun.sort
 
     if len(typ) != len(elements):
         raise err.ArityMismatch(fun, elements)
@@ -32,7 +29,7 @@ def _check_assignment(fun, point, value=None):
             raise err.LanguageMismatch(element, element.language, language)
 
         if not language.is_subtype(element.sort, expected_type):
-            raise err.TypeMismatch(element, element.sort, expected_type)
+            raise err.SortMismatch(element, element.sort, expected_type)
 
         processed.append(element)
 
