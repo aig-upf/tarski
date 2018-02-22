@@ -76,11 +76,6 @@ class DuplicateFunctionDefinition(DuplicateDefinition):
 class DuplicateConstantDefinition(DuplicateDefinition):
     pass
 
-
-class DuplicateActionDefinition(DuplicateDefinition):
-    pass
-
-
 class UndefinedSort(UndefinedElement):
     pass
 
@@ -94,10 +89,6 @@ class UndefinedFunction(UndefinedElement):
 
 
 class UndefinedConstant(UndefinedElement):
-    pass
-
-
-class UndefinedAction(UndefinedElement):
     pass
 
 
