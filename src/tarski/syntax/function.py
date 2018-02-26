@@ -11,6 +11,7 @@ class Function(object):
         self.language = language
         self.domain = tuple(args[:-1])
         self.codomain = args[-1]
+        self.builtin = True
 
         self._check_well_formed()
 

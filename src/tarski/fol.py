@@ -74,7 +74,7 @@ class FirstOrderLanguage:
 
     @property
     def functions(self):
-        for f in self._functions.items():
+        for _, f in self._functions.items():
             yield f
 
     def _build_builtin_sorts(self):
@@ -228,6 +228,7 @@ class FirstOrderLanguage:
             raise err.DuplicatePredicateDefinition(name, self._predicates[name])
 
         predicate = Predicate(name, self, *args)
+        predicate.builtin = False
         self._predicates[name] = predicate
         # self._predicates_by_sort[(name,) + tuple(*args)] = predicate
         return predicate
@@ -245,6 +246,7 @@ class FirstOrderLanguage:
             raise err.DuplicateFunctionDefinition(name, self._functions[name])
 
         func = Function(name, self, *args)
+        func.builtin = False
         self._functions[name] = func
         # self._functions_by_sort[(name,) + tuple(*args)] = func
         return func

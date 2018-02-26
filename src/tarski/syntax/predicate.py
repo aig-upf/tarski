@@ -10,6 +10,7 @@ class Predicate(object):
         self._symbol = name  # name, a string
         self.language = language  # fol the symbol belongs to
         self.sort = []
+        self.builtin = True
 
         # we validate the arguments now
         for k, a in enumerate(args):
