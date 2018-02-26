@@ -15,6 +15,19 @@ class Sort:
     def __repr__(self):
         return self.name
 
+    # MRJ: we define __hash__ and __eq__ so we can
+    # use references to Sort instances in associative
+    # containers
+    def __hash__(self):
+        return hash(self.name)
+
+    def __eq__(self, other):
+        # @TODO: we're not checking the domains... it is kind of fragile,
+        # but also reasonable? Or is this just wishful thinking?
+        return self.name == other.name and \
+            self.language == other.language and \
+            self.builtin == other.builtin
+
     @property
     def name(self):
         return self._name
