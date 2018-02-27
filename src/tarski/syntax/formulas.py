@@ -55,6 +55,11 @@ class Formula(object):
     def __gt__(self, rhs):
         return implies(self, rhs)
 
+    def accept(self, visitor):
+        """
+            Visitor pattern
+        """
+        visitor.visit(self)
 
 class Tautology(Formula):
     def __str__(self): return "T"
@@ -201,6 +206,12 @@ class Atom(Formula):
 
     def __str__(self):
         return '{}({})'.format(self.predicate.symbol, ','.join([str(t) for t in self.subterms]))
+
+    def __hash__(self):
+        return hash(self.predicate.symbol)
+
+    def __eq__(self, other):
+        return self.predicate.symbol == other.predicate.symbol
 
 
 

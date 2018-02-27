@@ -32,6 +32,11 @@ class Term(object):
     def __exit__(self, exc_type, exc_value, traceback):
         return exc_type is not None
 
+    def accept(self, visitor):
+        """
+            Visitor pattern
+        """
+        visitor.visit(self)
 
 class Variable(Term):
     def __init__(self, symbol: str, sort: Sort):
@@ -101,6 +106,12 @@ class CompoundTerm(Term):
     @property
     def sort(self):
         return self.symbol.codomain
+
+    def is_equivalent(self, other):
+        return self.symbol == other.symbol and\
+            all( type(lhs)==type(rhs) for lhs, rhs in zip(self.subterms,other.subterms)) and\
+            all( lhs.sort==rhs.sort for lhs, rhs in zip(self.subterms,other.subterms))
+
 
     # def __deepcopy__(self, memo):
     #     newone = type(self)(self.symbol, self.sort, self.language)
