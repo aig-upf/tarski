@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from .fol import FirstOrderLanguage
-from .syntax import Function, Formula, Term, Constant, Variable
+from .syntax import Function, Predicate, Formula, Term, Constant, Variable
 from .errors import LanguageError
 from . import funcsym
 
