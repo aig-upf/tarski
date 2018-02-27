@@ -45,5 +45,4 @@ class TaskIndex(object):
         raise NotImplementedError()
 
     def process_state_variables(self):
-
-        self.state_variables =create_all_possible_state_variables(self.fluent_symbols)
+        raise NotImplementedError()
