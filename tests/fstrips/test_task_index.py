@@ -28,12 +28,3 @@ def test_task_index_process_symbols_statics():
 
     print(','.join([str(sym) for sym in index.static_symbols]))
     assert len(index.static_symbols) == 0
-
-def test_task_index_create_state_variables():
-    prob = blocksworld.create_small_task()
-    index = fs.TaskIndex(prob.language.name,prob.name)
-    index.process_symbols(prob)
-    index.process_state_variables()
-
-    print(','.join([str(var) for var in index.state_variables]))
-    assert len(index.state_variables) == 8
