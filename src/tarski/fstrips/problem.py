@@ -3,29 +3,6 @@ from collections import OrderedDict
 
 from . import errors as err
 
-# class Action(abc.ABC):
-class Action(object):
-    """ A (possibly lifted) planning action """
-    def __init__(self, language, name, parameters, precondition, effects):
-        self.name = name
-        self.language = language
-        self.parameters = parameters
-        self.precondition = precondition
-        self.effects = effects
-
-    def dump(self):
-        return dict(name=self.name,
-                    params=[par.dump() for par in self.parameters],
-                    precondition=self.precondition.dump(),
-                    effects=[eff.dump() for eff in self.effects.dump()])
-
-
-    def __str__(self):
-        tokens = [ 'action {}:'.format(self.name),\
-                    'pre=({})'.format(self.precondition),\
-                    'eff=({})'.format(' & '.join( str(eff) for eff in self.effects))]
-        return  '\n'.join(tokens)
-
 class Problem(object):
     """ A Functional STRIPS problem """
 
@@ -45,7 +22,7 @@ class Problem(object):
         try :
             self.init = kwargs['init']
             if self.init is None :
-                raise err.IncompleteProblemError(self,msg="No initial state was given")    
+                raise err.IncompleteProblemError(self,msg="No initial state was given")
         except KeyError:
             raise err.IncompleteProblemError(self,msg="No initial state was given")
         try :
