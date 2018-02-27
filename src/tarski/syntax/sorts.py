@@ -60,6 +60,9 @@ class Sort:
         for p in parents(self):
             p.extend(constant)
 
+    def domain(self):
+        for v in self._domain : yield v
+
 
 class Interval(Sort):
     def __init__(self, lb, ub, encode_fn, name, lang):
