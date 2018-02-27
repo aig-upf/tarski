@@ -42,6 +42,7 @@ def create_atom(symbol: BuiltinPredicate, lhs, rhs):
     # TODO AT THE MOMENT WE DO NOT CHECK FOR TYPE SAFETY WITH BUILT-IN TYPES
 
     predicate = language.get_predicate(symbol)
+    predicate.builtin = True
     return Atom(predicate, [lhs, rhs])
 
 
