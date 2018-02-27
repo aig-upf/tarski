@@ -4,7 +4,7 @@
 
 import itertools
 
-from .util import IndexDictionary
+from tarski.util import IndexDictionary
 from tarski import Function, Predicate
 
 class StateVariable(object):
