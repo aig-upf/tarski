@@ -69,13 +69,13 @@ class FluentSymbolCollector(object):
             for f in phi.subformulas: f.accept(self)
             self.under_next = old_value
         elif isinstance(phi, CompoundFormula):
-            for f in phi.subformulas : f.accept(self)
-        elif isinstance(phi, QuantifiedFormula):
             old_visited = self.visited.copy()
-            phi.formula.accept(self)
+            for f in phi.subformulas : f.accept(self)
             delta = self.visited - old_visited
             if any( f in self.fluents for f in delta) :
                 for f in delta : self.fluents.add(f)
+        elif isinstance(phi, QuantifiedFormula):
+            phi.formula.accept(self)
         elif isinstance(phi, Atom):
             if not phi.predicate.builtin:
                 self.visited.add(SymbolReference(phi))
