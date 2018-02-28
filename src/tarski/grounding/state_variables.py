@@ -7,28 +7,34 @@ import itertools
 from tarski.util import IndexDictionary
 from tarski import Function, Predicate
 
+from . errors import UnableToGroundError
+
 class StateVariable(object):
     """
-    A state variable, a CompoundTerm of note along with a particular instantiation
-    of its subterms.
+    A state variable, a CompoundTerm or Atom which is expected to change its
+    value, along with a particular instantiation of its subterms.
     """
     def __init__(self, term, instantiation):
         self.term = term
         try :
-            self.head = term.symbol.symbol
+            self.head = term.predicate
         except AttributeError:
-            self.head = term.predicate.symbol
+            self.head = term.symbol
         self.instantiation = instantiation
 
     def __hash__(self):
-        return hash((self.term.symbol, self.instantiation))
+        if len(self.instantiation)==0: return hash(self.head.symbol)
+        accum = hash(self.instantiation[0])
+        for k in range(1,len(self.instantiation)):
+            accum = accum ^ hash(self.instantiation[k])
+        return hash(self.head.symbol) ^ accum
 
     def __eq__(self, other):
-        return self.term.symbol == other.term.symbol\
-            and all(repr(lhs)==repr(rhs) for lhs, rhs in zip(self.instantiation,other.instantiation))
+        return self.head.symbol == other.head.symbol\
+            and all(lhs.symbol == rhs.symbol for lhs, rhs, in zip(self.instantiation,other.instantiation))
 
     def __str__(self):
-        return '{}({})'.format(self.head, ','.join([str(a) for a in self.instantiation]))
+        return '{}({})'.format(self.head.symbol, ','.join([str(a) for a in self.instantiation]))
 
     __repr__ = __str__
 
@@ -38,11 +44,22 @@ def create_all_possible_state_variables(fluent_symbols):
     """
     variables = IndexDictionary()
 
-    for expr in fluent_symbols:
+    for ref in fluent_symbols:
         # @TODO: Work in Progress and we will need to iterate over this a bit
-        instantiations = [ list(t.sort.domain()) for t in expr.e.subterms]
+        # @TODO: Sort fluent symbols according to the number of variable subterms
+        L = ref.language
+        instantiations = []
+        for st in ref.expr.subterms:
+            if isinstance(st,L.Constant):
+                instantiations.append( [ st ])
+            elif isinstance(st,L.Variable):
+                if st.sort.builtin:
+                    raise UnableToGroundError(st, "Term is of built-in sort '{}', domain is too large!".format(st.sort.name))
+                instantiations.append( list(st.sort.domain()) )
+            else :
+                raise UnableToGroundError(st, "Grounding of complex nested subterms is not implemented yet!")
         for instantiation in itertools.product(*instantiations):
-            variables.add( StateVariable(expr.e,instantiation) )
+            variables.add( StateVariable(ref.expr,instantiation) )
     return variables
 
 
