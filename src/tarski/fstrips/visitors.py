@@ -12,34 +12,23 @@ def emvr(self, other):
     """
         Checks if two terms or atoms are equivalent modulo variable renaming
     """
-    try :
-        head = self.predicate
-        try:
-            other_head = other.predicate
-        except AttributeError:
-            return False # other is term
-    except AttributeError:
-        head = self
-        try :
-            other_head = other.predicate
-            return False # other is predicate
-        except AttributeError:
-            other_head = other
 
-    if head.symbol != other_head.symbol: return False
+    # @TODO: the variable renaming should be maintained across the
+    # whole sub-expression
+    if self.head.symbol != other.head.symbol: return False
 
     for lhs, rhs in zip(self.subterms,other.subterms):
-        if isinstance(lhs,head.language.Variable) and\
-            isinstance(rhs,head.language.Variable):
+        if isinstance(lhs,self.language.Variable) and\
+            isinstance(rhs,self.language.Variable):
             if lhs.sort.name != rhs.sort.name :
                 if not rhs.sort in inclusion_closure(lhs.sort):
                     return False
-        elif isinstance(lhs,head.language.Constant) and\
-            isinstance(rhs,head.language.Constant):
+        elif isinstance(lhs,self.language.Constant) and\
+            isinstance(rhs,self.language.Constant):
             if lhs.symbol != rhs.symbol: return False
-        elif isinstance(lhs,head.language.CompoundTerm) and\
-            isinstance(rhs,head.language.CompoundTerm):
-            if not emvr(lhs,rhs): return False
+        elif isinstance(lhs,self.language.CompoundTerm) and\
+            isinstance(rhs,self.language.CompoundTerm):
+            if not emvr(SymbolReference(lhs),SymbolReference(rhs)): return False
         else:
             return False
     return True
@@ -48,22 +37,30 @@ class SymbolReference(object):
 
     def __init__(self, component):
         self.expr = component
+        try:
+            self.head = self.expr.predicate
+            self.is_atom = True
+        except AttributeError:
+            self.head = self.expr
+            self.is_atom = False
+    @property
+    def language(self):
+        return self.head.language
+
+    @property
+    def subterms(self):
+        return self.expr.subterms
 
     def __hash__(self):
         # MRJ: Note that here we want to have a *guaranteed* hash collision
         # for terms and atoms with the same symbol
-        try :
-            return hash(self.expr.symbol.symbol)
-        except AttributeError:
-            return hash(self.expr.predicate.symbol)
+        return hash(self.head.symbol)
 
     def __eq__(self, other):
-        i_am_atom = isinstance(self.expr,Atom)
-        other_is_atom = isinstance(other.expr,Atom)
-        if i_am_atom and other_is_atom:
-            return emvr(self.expr, other.expr)
-        if not i_am_atom and not other_is_atom:
-            return emvr(self.expr, other.expr)
+        if self.is_atom and other.is_atom:
+            return emvr(self, other)
+        if not self.is_atom and not other.is_atom:
+            return emvr(self, other)
         return False
 
     __cmp__ = __eq__
