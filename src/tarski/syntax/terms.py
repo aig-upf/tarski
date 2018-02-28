@@ -32,6 +32,12 @@ class Term(object):
     def __exit__(self, exc_type, exc_value, traceback):
         return exc_type is not None
 
+    def __lshift__(self, rhs):
+        return self.language.dispatch_operator('<<', Term, Term, self, rhs)
+
+    def __rshift__(self, rhs):
+        return self.language.dispatch_operator('>>', Term, Term, self, rhs)
+
 
 class Variable(Term):
     def __init__(self, symbol: str, sort: Sort):
@@ -63,6 +69,8 @@ class Variable(Term):
 
     def __str__(self):
         return '{}/{}'.format(self.symbol, self.sort.name)
+
+    __repr__ = __str__
 
 
 class CompoundTerm(Term):

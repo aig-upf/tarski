@@ -10,8 +10,6 @@ symbol_arith_op_map = {
     '%': '__mod__',
     'divmod': '__divmod__',
     '**': '__pow__',
-    '<<': '__lshift__',
-    '>>': '__rshift__',
     '&': '__and__',
     '^': '__xor__',
     '|': '__or__'

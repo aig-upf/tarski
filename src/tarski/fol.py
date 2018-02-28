@@ -9,6 +9,14 @@ from .syntax import Function, Constant, Term, CompoundTerm, Variable, Sort, Inte
     bind_equality_to_language_components
 
 import tarski.syntax.builtins as syntax_builtins
+from . import funcsym
+
+
+def language(name='L'):
+    """ A helper to construct languages"""
+    lang = FirstOrderLanguage(name)
+    funcsym.initialize(lang)
+    return lang
 
 
 class FirstOrderLanguage:
@@ -37,6 +45,7 @@ class FirstOrderLanguage:
         # Allow default builtin predicates to be enabled dynamically
         self._create_default_builtins = True
         self._symbol_table = {}
+        self._operators = dict()
         self._build_builtin_sorts()
 
         self._element_containers = {Sort: self._sorts,
@@ -308,3 +317,15 @@ class FirstOrderLanguage:
     def __str__(self):
         return "{}: Tarski language with {} sorts, {} function symbols, {} predicate symbols and {} variables".format(
             self.name, len(self._sorts), len(self._functions), len(self._predicates), len(self._variables))
+
+    def register_operator_handler(self, operator, t1, t2, handler):
+        self._operators[(operator, t1, t2)] = handler
+
+    def dispatch_operator(self, operator, t1, t2, lhs, rhs):
+        assert isinstance(lhs, t1)
+        assert isinstance(rhs, t2)
+        try:
+            return self._operators[(operator, t1, t2)](lhs, rhs)
+        except KeyError:
+            raise err.LanguageError("Operator '{}' not defined on domain ({}, {})".format(operator, t1, t2))
+

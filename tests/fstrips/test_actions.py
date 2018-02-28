@@ -19,3 +19,10 @@ def test_action_creation():
 
     fs.Action(lang, name='move', parameters=[b, to], precondition=precondition, effects=effects)
 
+
+def test_effect_creation():
+    lang = fs.language()
+    t1 = lang.constant('x', 'object')
+    t2 = lang.constant('y', 'object')
+    eff = t1 << t2  # i.e. x := y
+    assert isinstance(eff, fs.Effect)

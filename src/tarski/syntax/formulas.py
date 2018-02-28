@@ -202,6 +202,8 @@ class Atom(Formula):
     def __str__(self):
         return '{}({})'.format(self.predicate.symbol, ','.join([str(t) for t in self.subterms]))
 
+    __repr__ = __str__
+
 
 
 # TODO (GFM) Revise this after the refactoring. The distinction between whether a formula is axiomatic, external, etc.
