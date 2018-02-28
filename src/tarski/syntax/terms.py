@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from typing import List
 
-from .sorts import Sort, inclusion_closure
+from .sorts import Sort
 from .. import errors as err
 
 
@@ -107,27 +107,6 @@ class CompoundTerm(Term):
     def sort(self):
         return self.symbol.codomain
 
-    def emvr(self, other):
-        """
-            Checks if the other term is equivalent modulo variable renaming
-        """
-        if self.symbol != other.symbol: return False
-
-        for lhs, rhs in zip(self.subterms,other.subterms):
-            if isinstance(lhs,self.language.Variable) and\
-                isinstance(rhs,self.language.Variable):
-                if lhs.sort.name != rhs.sort.name :
-                    if not rhs.sort in inclusion_closure(lhs.sort):
-                        return False
-            elif isinstance(lhs,self.language.Constant) and\
-                isinstance(rhs,self.language.Constant):
-                if lhs.symbol != rhs.symbol: return False
-            elif isinstance(lhs,self.language.CompoundTerm) and\
-                isinstance(rhs,self.language.CompoundTerm):
-                if not lhs.emvr(rhs): return False
-            else:
-                return False
-        return True
 
     # def __deepcopy__(self, memo):
     #     newone = type(self)(self.symbol, self.sort, self.language)

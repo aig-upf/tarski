@@ -210,31 +210,6 @@ class Atom(Formula):
     def __hash__(self):
         return hash(self.predicate.symbol)
 
-    def __eq__(self, other):
-        #return self.predicate.symbol == other.predicate.symbol
-        return self.emvr(other)
-
-    def emvr(self, other):
-        """
-            Checks if the other term is equivalent modulo variable renaming
-        """
-        if self.predicate.symbol != other.predicate.symbol: return False
-
-        for lhs, rhs in zip(self.subterms,other.subterms):
-            if isinstance(lhs,self.predicate.language.Variable) and\
-                isinstance(rhs,self.predicate.language.Variable):
-                if lhs.sort.name != rhs.sort.name :
-                    if not rhs.sort in inclusion_closure(lhs.sort):
-                        return False
-            elif isinstance(lhs,self.predicate.language.Constant) and\
-                isinstance(rhs,self.predicate.language.Constant):
-                if lhs.symbol != rhs.symbol: return False
-            elif isinstance(lhs,self.predicate.language.CompoundTerm) and\
-                isinstance(rhs,self.predicate.language.CompoundTerm):
-                if not lhs.emvr(rhs): return False
-            else:
-                return False
-        return True
 
 # TODO (GFM) Revise this after the refactoring. The distinction between whether a formula is axiomatic, external, etc.
 # TODO should probably be done elsewhere, not here (possibly at the evaluation level)

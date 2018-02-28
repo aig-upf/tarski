@@ -6,6 +6,43 @@
 """
 from tarski.syntax.temporal import ltl
 from tarski.syntax.formulas import *
+from tarski.syntax.sorts import inclusion_closure
+
+def emvr(self, other):
+    """
+        Checks if two terms or atoms are equivalent modulo variable renaming
+    """
+    try :
+        head = self.predicate
+        try:
+            other_head = other.predicate
+        except AttributeError:
+            return False # other is term
+    except AttributeError:
+        head = self
+        try :
+            other_head = other.predicate
+            return False # other is predicate
+        except AttributeError:
+            other_head = other
+
+    if head.symbol != other_head.symbol: return False
+
+    for lhs, rhs in zip(self.subterms,other.subterms):
+        if isinstance(lhs,head.language.Variable) and\
+            isinstance(rhs,head.language.Variable):
+            if lhs.sort.name != rhs.sort.name :
+                if not rhs.sort in inclusion_closure(lhs.sort):
+                    return False
+        elif isinstance(lhs,head.language.Constant) and\
+            isinstance(rhs,head.language.Constant):
+            if lhs.symbol != rhs.symbol: return False
+        elif isinstance(lhs,head.language.CompoundTerm) and\
+            isinstance(rhs,head.language.CompoundTerm):
+            if not emvr(lhs,rhs): return False
+        else:
+            return False
+    return True
 
 class SymbolReference(object):
 
@@ -24,9 +61,9 @@ class SymbolReference(object):
         i_am_atom = isinstance(self.expr,Atom)
         other_is_atom = isinstance(other.expr,Atom)
         if i_am_atom and other_is_atom:
-            return self.expr == other.expr
+            return emvr(self.expr, other.expr)
         if not i_am_atom and not other_is_atom:
-            return self.expr.emvr(other.expr)
+            return emvr(self.expr, other.expr)
         return False
 
     __cmp__ = __eq__
