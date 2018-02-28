@@ -27,14 +27,24 @@ class TaskIndex(object):
 
         visitor = FluentSymbolCollector(P.language,self.fluent_symbols,self.static_symbols)
 
-        for _, act in P.actions.items() :
-            for eff in act.effects :
-                eff.accept(visitor)
+        oF = len(self.fluent_symbols)
+        oS = len(self.static_symbols)
+        while True :
+            for _, act in P.actions.items() :
+                for eff in act.effects :
+                    visitor.reset()
+                    eff.accept(visitor)
+            for const in P.constraints :
+                visitor.reset()
+                const.accept(visitor)
 
-        for const in P.constraints :
-            const.accept(visitor)
+            visitor.post_process()
+            if len(self.fluent_symbols) == oF and\
+                 len(self.static_symbols) == oS:
+                 break
+            oF = len(self.fluent_symbols)
+            oS = len(self.static_symbols)
 
-        visitor.post_process()
         self.all_symbols = self.fluent_symbols | self.static_symbols
 
 

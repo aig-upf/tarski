@@ -7,31 +7,32 @@
 from tarski.syntax.temporal import ltl
 from tarski.syntax.formulas import *
 
-class Expression(object):
+class SymbolReference(object):
 
     def __init__(self, component):
-        self.e = component
+        self.expr = component
 
     def __hash__(self):
         # MRJ: Note that here we want to have a *guaranteed* hash collision
-        # for symbols whose expression
+        # for terms and atoms with the same symbol
         try :
-            return hash(self.e.symbol)
+            return hash(self.expr.symbol.symbol)
         except AttributeError:
-            return hash(self.e.predicate.symbol)
+            return hash(self.expr.predicate.symbol)
 
     def __eq__(self, other):
-        i_am_atom = isinstance(self.e,Atom)
-        other_is_atom = isinstance(other.e,Atom)
+        i_am_atom = isinstance(self.expr,Atom)
+        other_is_atom = isinstance(other.expr,Atom)
         if i_am_atom and other_is_atom:
-            return self.e == other.e
+            return self.expr == other.expr
         if not i_am_atom and not other_is_atom:
-            #print("Checking equivalence: {} {} {}".format(str(self),str(other),self.e.is_equivalent(other.e)))
-            return self.e.is_equivalent(other.e)
+            return self.expr.emvr(other.expr)
         return False
 
+    __cmp__ = __eq__
+
     def __str__(self):
-        return str(self.e)
+        return str(self.expr)
 
 class FluentSymbolCollector(object):
     """
@@ -44,6 +45,10 @@ class FluentSymbolCollector(object):
         self.fluents = fluents
         self.statics = statics
         self.under_next = False
+        self.visited = set()
+
+    def reset(self):
+        self.visited = set()
 
     def visit(self, phi):
         """
@@ -66,19 +71,25 @@ class FluentSymbolCollector(object):
         elif isinstance(phi, CompoundFormula):
             for f in phi.subformulas : f.accept(self)
         elif isinstance(phi, QuantifiedFormula):
+            old_visited = self.visited.copy()
             phi.formula.accept(self)
+            delta = self.visited - old_visited
+            if any( f in self.fluents for f in delta) :
+                for f in delta : self.fluents.add(f)
         elif isinstance(phi, Atom):
-            if not self.under_next:
-                return
             if not phi.predicate.builtin:
-                self.fluents.add(Expression(phi))
+                self.visited.add(SymbolReference(phi))
+            if self.under_next:
+                if not phi.predicate.builtin:
+                    self.fluents.add(SymbolReference(phi))
             for t in phi.subterms:
                 t.accept(self)
         elif isinstance(phi,self.lang.CompoundTerm):
-            if not self.under_next:
-                return
-            if not phi.symbol.builtin :
-                self.fluents.add(Expression(phi))
+            if not phi.symbol.builtin:
+                self.visited.add(SymbolReference(phi))
+            if self.under_next:
+                if not phi.symbol.builtin :
+                    self.fluents.add(SymbolReference(phi))
             for t in phi.subterms :
                 t.accept(self)
 
