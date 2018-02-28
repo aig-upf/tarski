@@ -4604,6 +4604,9 @@ class fstripsParser ( Parser ):
             return self.getTypedRuleContext(fstripsParser.DaGDContext,0)
 
 
+        def K_EFFECT(self):
+            return self.getToken(fstripsParser.K_EFFECT, 0)
+
         def daEffect(self):
             return self.getTypedRuleContext(fstripsParser.DaEffectContext,0)
 

@@ -4,9 +4,11 @@
 """
 import logging
 
-from antlr4 import FileStream, CommonTokenStream
+from antlr4 import FileStream, CommonTokenStream, InputStream
+from antlr4.error.ErrorListener import ErrorListener
 from tarski import model
-from tarski.fstrips import DelEffect, AddEffect, FunctionalEffect, UniversalEffect
+from tarski.errors import SyntacticError
+from tarski.fstrips import DelEffect, AddEffect, FunctionalEffect, UniversalEffect, language
 from tarski.syntax import neg, land, lor, Tautology, implies, exists, forall
 from tarski.syntax.builtins import eq
 
@@ -15,23 +17,54 @@ from .parser.lexer import fstripsLexer
 from .parser.parser import fstripsParser
 
 
+class ParsingError(SyntacticError):
+    pass
+
+
+class ExceptionRaiserListener(ErrorListener):
+    """ An ANTLR ErrorListener that simply transforms any syntax error into a Tarski parsing error.
+        Useful at least for testing purposes.
+    """
+    def syntaxError(self, recognizer, offending_symbol, line, column, msg, e):
+        """ """
+        msg = "line " + str(line) + ":" + str(column) + " " + msg
+        raise ParsingError(msg)
+
+
 class FStripsParser(fstripsVisitor):
     """
     The parser assumes that the domain file is visited _before_ the instance file
     """
 
-    @staticmethod
-    def parse(filename):
-        """ Parse a given filename """
-        lexer = fstripsLexer(FileStream(filename))
-        stream = CommonTokenStream(lexer)
-        parser = fstripsParser(stream)
-        tree = parser.pddlDoc()
-        return stream, tree
+    def parse_string(self, string, start_rule='pddlDoc'):
+        """ Parse a given string starting from a given grammar rule """
+        return self._parse_stream(InputStream(string), start_rule)
 
-    def __init__(self, problem):
+    def parse_file(self, filename, start_rule='pddlDoc'):
+        """ Parse a given filename starting from a given grammar rule """
+        return self._parse_stream(FileStream(filename), start_rule)
+
+    def _parse_stream(self, filestream, start_rule='pddlDoc'):
+        lexer = self._configure_error_handling(fstripsLexer(filestream))
+        stream = CommonTokenStream(lexer)
+        parser = self._configure_error_handling(fstripsParser(stream))
+
+        assert hasattr(parser, start_rule)
+        tree = getattr(parser, start_rule)()
+        return tree, stream
+
+    def _configure_error_handling(self, element):
+        if self.error_handler is not None:
+            # If necessary, _replace_ previous error handlers with the given one
+            # element.removeErrorListeners()
+            element.addErrorListener(self.error_handler)
+        return element
+
+    def __init__(self, problem, raise_on_error=False):
         self.problem = problem
+        self.problem.language = language()
         self.problem.init = model.create(problem.language)
+        self.error_handler = ExceptionRaiserListener() if raise_on_error else None
 
         # Shortcuts
         self.language = problem.language

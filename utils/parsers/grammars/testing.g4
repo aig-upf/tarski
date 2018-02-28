@@ -4,7 +4,7 @@
   To keep in mind: https://stackoverflow.com/a/29780284
 */
 
-grammar fstrips;
+grammar copy;
 
 tokens {
     DOMAIN,
@@ -302,7 +302,7 @@ prefTimedGD
 	;
 
 timedGD
-	: '(' 'at' timeSpecifier goalDesc ')'
+	: '(' 'MIQUELat' timeSpecifier goalDesc ')'
 	| '(' 'over' interval goalDesc ')'
 	;
 
@@ -393,7 +393,7 @@ durationConstraint
 
 simpleDurationConstraint
 	: '(' durOp '?duration' durValue ')'
-	| '(' 'at' timeSpecifier simpleDurationConstraint ')'
+	| '(' 'MIQUELat' timeSpecifier simpleDurationConstraint ')'
 	;
 
 durOp : '<=' | '>=' | '=' ;
@@ -409,8 +409,8 @@ daEffect
 	;
 
 timedEffect
-	: '(' 'at' timeSpecifier daEffect ')'     // BNF has a-effect here, but not defined anywhere
-	| '(' 'at' timeSpecifier fAssignDA ')'
+	: '(' 'MIQUELat' timeSpecifier daEffect ')'     // BNF has a-effect here, but not defined anywhere
+	| '(' 'MIQUELat' timeSpecifier fAssignDA ')'
 	| '(' assignOp fHead fExp ')'         // BNF has assign-op-t and f-exp-t here, but not defined anywhere
 	;
 
@@ -480,7 +480,7 @@ groundFunctionTerm : '(' functionSymbol groundTerm* ')';
 initEl
 	: nameLiteral                             #InitLiteral
 	| '(' '=' groundFunctionTerm NUMBER ')'   #InitAssignmentNumeric
-	| '(' 'at' NUMBER nameLiteral ')'         #InitTimedLiteral
+	| '(' 'MIQUELat' NUMBER nameLiteral ')'         #InitTimedLiteral
     | '(' '=' groundFunctionTerm NAME ')'     #InitAssignmentObject
 	;
 
@@ -537,7 +537,7 @@ stageCost
 conGD
 	: '(' 'and' conGD+ ')'                                 # ConjunctiveConstraint
 	| '(' 'forall' '(' variableList ')' conGD ')'     # ForallConstraint
-	| '(' 'at' 'end' goalDesc ')'                          # AtEndConstraint
+	| '(' 'MIQUELat' 'end' goalDesc ')'                          # AtEndConstraint
     | '(' 'always' goalDesc ')'                            # AlwaysConstraint
 	| '(' 'sometime' goalDesc ')'                          # SometimeConstraint
  	| '(' 'within' NUMBER goalDesc ')'                     # WithinConstraint
