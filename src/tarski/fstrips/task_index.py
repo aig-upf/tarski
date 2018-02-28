@@ -53,6 +53,3 @@ class TaskIndex(object):
 
     def process_initial_state(self, I):
         raise NotImplementedError()
-
-    def process_state_variables(self):
-        raise NotImplementedError()
