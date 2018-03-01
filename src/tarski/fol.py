@@ -236,7 +236,8 @@ class FirstOrderLanguage:
         if name in self._predicates:
             raise err.DuplicatePredicateDefinition(name, self._predicates[name])
 
-        predicate = Predicate(name, self, *args)
+        types = [self._retrieve_object(a, Sort) for a in args]  # Convert possible strings into Sort objects
+        predicate = Predicate(name, self, *types)
         self._predicates[name] = predicate
         # self._predicates_by_sort[(name,) + tuple(*args)] = predicate
         return predicate
@@ -253,7 +254,8 @@ class FirstOrderLanguage:
         if name in self._functions:
             raise err.DuplicateFunctionDefinition(name, self._functions[name])
 
-        func = Function(name, self, *args)
+        types = [self._retrieve_object(a, Sort) for a in args]  # Convert possible strings into Sort objects
+        func = Function(name, self, *types)
         self._functions[name] = func
         # self._functions_by_sort[(name,) + tuple(*args)] = func
         return func

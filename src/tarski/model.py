@@ -33,7 +33,11 @@ def _check_assignment(fun, point, value=None):
 
         processed.append(element)
 
-    return tuple(processed) if value is None else tuple(processed[:-1]), processed[-1]
+    if value is None:
+        return tuple(processed)
+
+    assert len(processed) > 0
+    return tuple(processed[:-1]), processed[-1]
 
 
 class Model(object):
@@ -56,9 +60,9 @@ class Model(object):
         self.function_extensions[fun.signature][point] = value
 
     def add(self, predicate: Predicate, *args):
-        _check_assignment(predicate, args)
+        point = _check_assignment(predicate, args)
 
-        entry = frozenset(a.symbol for a in args)
+        entry = frozenset(a.symbol for a in point)
         self.predicate_extensions[predicate.signature].add(entry)
 
     def remove(self, predicate: Predicate, *args):

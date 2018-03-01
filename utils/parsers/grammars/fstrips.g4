@@ -64,19 +64,14 @@ pddlDoc : domain | problem;
 
 domain
     : '(' 'define' domainName
-      requireDef?
-      typesDef?
-      constantsDef?
-      predicatesDef?
-      functionsDef?
-      free_functionsDef?
+      requireDef ?
+      typesDef ?
+      constantsDef ?
+      predicate_definition_block ?
+      function_definition_block ?
       structureDef*
       ')'
     ;
-
-free_functionsDef
-	: '(' ':free_functions' functionDeclGroup* ')'
-	;
 
 domainName
     : '(' 'domain' NAME ')'
@@ -91,14 +86,14 @@ typesDef
 	;
 
 numericBuiltinType
-  : 'int'             # Integer
-  | 'float'           # Float
-  | 'number'          # Number
+  : INT_T             # Integer
+  | FLOAT_T           # Float
+  | NUMBER_T          # Number
   ;
 
 builtinType
   : numericBuiltinType  # NumericBuiltin
-  | 'object'            # ObjectBuiltin
+  | OBJECT_T            # ObjectBuiltin
   ;
 
 
@@ -115,41 +110,41 @@ nameListWithType
 	  ;
 
 typename
-	: '(' 'either' primType+ ')'
-	| primType
+	: '(' 'either' primitive_type+ ')'
+	| primitive_type
 	;
 
-primType : NAME | builtinType;
+primitive_type : NAME | builtinType;
 
-functionsDef
-	: '(' ':functions' functionDeclGroup* ')'
+function_definition_block
+	: '(' ':functions' single_function_definition* ')'
 	;
 
-functionDeclGroup
-    : atomicFunctionSkeleton+ '-' primType
+single_function_definition
+    : typed_function_definition
+    | untyped_function_definition
     ;
 
-atomicFunctionSkeleton
-    : '(' functionSymbol variableList ')'
+typed_function_definition
+    : '(' logical_symbol_name variableList ')' '-' primitive_type
     ;
 
-functionSymbol : NAME | EXTNAME;
+untyped_function_definition
+    : '(' logical_symbol_name variableList ')'
+    ;
 
-//functionType :  primType ;
+logical_symbol_name : NAME | EXTNAME;
 
-//functionTypedList : VARIABLE+ '-' functionType functionTypedList |
-//                    VARIABLE+ |
-//                    ;
 
 constantsDef
 	: '(' ':constants' typedNameList ')'
 	;
 
-predicatesDef
-	: '(' ':predicates' atomicFormulaSkeleton* ')'
+predicate_definition_block
+	: '(' ':predicates' single_predicate_definition* ')'
 	;
 
-atomicFormulaSkeleton
+single_predicate_definition
 	: '(' predicate variableList ')'
 	;
 
@@ -162,13 +157,12 @@ variableList
     ;
 
 variableListWithType
-    : VARIABLE+ '-' primType
+    : VARIABLE+ '-' primitive_type
     ;
 
 structureDef
 	: actionDef
     | eventDef
-	| durativeActionDef
 	| derivedDef
 	| constraintDef
     | processDef
@@ -247,7 +241,7 @@ term :
   ;
 
 functionTerm :
-  '(' functionSymbol term* ')'        #GenericFunctionTerm
+  '(' logical_symbol_name term* ')'        #GenericFunctionTerm
   | '(' binaryOp term term ')'        #BinaryArithmeticFunctionTerm
   | '(' unaryBuiltIn term ')'         #UnaryArithmeticFunctionTerm
   ;
@@ -273,41 +267,6 @@ processEffect
 	: '(' processEffectOp functionTerm processEffectExp ')' # ProcessAssignEffect
 	;
 
-/************* DURATIVE ACTIONS ****************************/
-
-durativeActionDef
-	: '(' ':durative-action' actionName
-	      ':parameters'  '(' variableList ')'
-           daDefBody ')'
-    | '(' ':durative-action' actionName
-  	      ':parameters'  '(' ')'
-             daDefBody ')'
-    ;
-
-daDefBody
-	: ':duration' durationConstraint
-	| ':condition' (('(' ')') | daGD)
-    | K_EFFECT (('(' ')') | daEffect)
-    ;
-
-daGD
-	: prefTimedGD
-	| '(' 'and' daGD* ')'
-	| '(' 'forall' '(' variableList ')' daGD ')'
-	;
-
-prefTimedGD
-	: timedGD
-	| '(' 'preference' NAME? timedGD ')'
-	;
-
-timedGD
-	: '(' 'at' timeSpecifier goalDesc ')'
-	| '(' 'over' interval goalDesc ')'
-	;
-
-timeSpecifier : 'start' | 'end' ;
-interval : 'all' ;
 
 /************* DERIVED DEFINITIONS ****************************/
 
@@ -346,7 +305,7 @@ processVarEff
 
 
 fHead
-	: '(' functionSymbol term* ')'
+	: '(' logical_symbol_name term* ')'
 	;
 
 effect
@@ -374,55 +333,12 @@ binaryOp : '*' | '+' | '-' | '/' | '^' | 'max' | 'min' ;
 
 unaryBuiltIn : '-' | 'sin' | 'cos' | 'sqrt' | 'tan' | 'acos' | 'asin' | 'atan' | 'exp' | 'abs';
 
-multiOp	: '*' | '+' ;
-
 binaryComp : '>' | '<' | '=' | '>=' | '<=' ;
 
 assignOp : 'assign' | 'scale-up' | 'scale-down' | 'increase' | 'decrease' ;
 
 processEffectOp : 'increase' | 'decrease';
 
-
-/************* DURATIONS  ****************************/
-
-durationConstraint
-	: '(' 'and' simpleDurationConstraint+ ')'
-	| '(' ')'
-	| simpleDurationConstraint
-	;
-
-simpleDurationConstraint
-	: '(' durOp '?duration' durValue ')'
-	| '(' 'at' timeSpecifier simpleDurationConstraint ')'
-	;
-
-durOp : '<=' | '>=' | '=' ;
-
-durValue : NUMBER | fExp ;
-
-daEffect
-	: '(' 'and' daEffect* ')'
-	| timedEffect
-	| '(' 'forall' '(' variableList ')' daEffect ')'
-	| '(' 'when' daGD timedEffect ')'
-	| '(' assignOp fHead fExpDA ')'
-	;
-
-timedEffect
-	: '(' 'at' timeSpecifier daEffect ')'     // BNF has a-effect here, but not defined anywhere
-	| '(' 'at' timeSpecifier fAssignDA ')'
-	| '(' assignOp fHead fExp ')'         // BNF has assign-op-t and f-exp-t here, but not defined anywhere
-	;
-
-fAssignDA
-	: '(' assignOp fHead fExpDA ')'
-	;
-
-fExpDA
-	: '(' ((binaryOp fExpDA fExpDA) | ('-' fExpDA)) ')'
-	| '?duration'
-	| fExp
-	;
 
 /************* PROBLEMS ****************************/
 
@@ -475,12 +391,11 @@ groundTerm :
   | groundFunctionTerm      #GroundTermFunction
   ;
 
-groundFunctionTerm : '(' functionSymbol groundTerm* ')';
+groundFunctionTerm : '(' logical_symbol_name groundTerm* ')';
 
 initEl
 	: nameLiteral                             #InitLiteral
 	| '(' '=' groundFunctionTerm NUMBER ')'   #InitAssignmentNumeric
-	| '(' 'at' NUMBER nameLiteral ')'         #InitTimedLiteral
     | '(' '=' groundFunctionTerm NAME ')'     #InitAssignmentObject
 	;
 
@@ -536,8 +451,9 @@ stageCost
 
 conGD
 	: '(' 'and' conGD+ ')'                                 # ConjunctiveConstraint
-	| '(' 'forall' '(' variableList ')' conGD ')'     # ForallConstraint
-	| '(' 'at' 'end' goalDesc ')'                          # AtEndConstraint
+	| '(' 'forall' '(' variableList ')' conGD ')'          # ForallConstraint
+	// The standard says "at end", but that conflicts with 50% of PDDL benchmarks which use "at" as an identifier:
+	| '(' 'at-end' goalDesc ')'                            # AtEndConstraint
     | '(' 'always' goalDesc ')'                            # AlwaysConstraint
 	| '(' 'sometime' goalDesc ')'                          # SometimeConstraint
  	| '(' 'within' NUMBER goalDesc ')'                     # WithinConstraint
@@ -613,8 +529,10 @@ K_PRECONDITION: ':' P R E C O N D I T I O N;
 K_EFFECT : ':effect';
 //K_EFFECT : ':' E F F E C T;
 
-
-
+INT_T:    'int';
+FLOAT_T:  'float';
+OBJECT_T: 'object';
+NUMBER_T: 'number';
 
 // Case-insensitive lexing, see e.g. https://github.com/antlr/antlr4/blob/master/doc/case-insensitive-lexing.md
 fragment A : [aA];

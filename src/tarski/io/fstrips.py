@@ -27,6 +27,7 @@ class FstripsReader(object):
         parse_tree, _ = self.parser.parse_string(string, start_rule)
         logging.info("Processing AST")
         self.parser.visit(parse_tree)
+        return self.problem
 
 
 class FstripsWriter(object):

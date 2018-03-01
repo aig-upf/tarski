@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import itertools
 from tarski.errors import LanguageError
 from .sorts import Sort
 from tarski import errors as err
@@ -16,10 +16,10 @@ class Function(object):
 
     def _check_well_formed(self):
 
-        for k, a in enumerate(self.domain):
+        for k, a in enumerate(itertools.chain(self.domain, [self.codomain])):
             if not isinstance(a, Sort):
                 raise LanguageError("Function.__init__() : arguments need \
-                to be of type 'Sort', {}-th argument '{}' is of type '{}''".format(k + 1, a, type(a)))
+                to be of type 'Sort', argument #i: '{}' is of type '{}''".format(k + 1, a, type(a)))
 
             if self.language != a.language:
                 raise err.LanguageMismatch(a, a.language, self.language)

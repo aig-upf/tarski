@@ -56,7 +56,7 @@ class FStripsParser(fstripsVisitor):
     def _configure_error_handling(self, element):
         if self.error_handler is not None:
             # If necessary, _replace_ previous error handlers with the given one
-            # element.removeErrorListeners()
+            element.removeErrorListeners()
             element.addErrorListener(self.error_handler)
         return element
 
@@ -129,10 +129,9 @@ class FStripsParser(fstripsVisitor):
             derived += self.visit(sub_ctx)
         return simple + derived
 
-    def visitAtomicFormulaSkeleton(self, ctx):
+    def visitSingle_predicate_definition(self, ctx):
         predicate = ctx.predicate().getText().lower()
-        arguments = self.visit(ctx.variableList())
-        argument_types = [a.sort for a in arguments]
+        argument_types = [a.sort for a in self.visit(ctx.variableList())]
         return self.language.predicate(predicate, *argument_types)
 
     def visitUntypedVariableList(self, ctx):
@@ -147,48 +146,22 @@ class FStripsParser(fstripsVisitor):
         return typed_var_names + untyped_var_names
 
     def visitVariableListWithType(self, ctx):
-        typename = ctx.primType().getText().lower()  # This is the type of all variables in the list
+        typename = ctx.primitive_type().getText().lower()  # This is the type of all variables in the list
         return [self.language.variable(name.getText().lower(), typename) for name in ctx.VARIABLE()]
 
-    def visitFunctionsDef(self, ctx):
-        for sub_ctx in ctx.functionDeclGroup():
-            self.functions += self.visit(sub_ctx)
-        for f in self.functions:
-            if f.name in self.functions_table:
-                raise SystemExit(
-                    "Function aliasing is not allowed:\n First function: {0} \n Second function: {1}".format(
-                        str(self.functions_table[f.name]), str(f)))
-            # Check type of function
-            try:
-                foo = self.types_table[f.type]
-            except KeyError:
-                raise SystemExit("Function {} return type {} is not declared".format(f, f.type))
-
-            self.functions_table[f.name] = f
-            # print('Functions')
-            # for f in self.functions :
-            #    print(f)
-
-    def visitFunctionDeclGroup(self, ctx):
-        return_type = ctx.primType().getText().lower()
-        functions = []
-        for sub_ctx in ctx.atomicFunctionSkeleton():
-            f_name, f_args = self.visit(sub_ctx)
-            functions.append(TypedFunction(f_name, f_args, return_type))
-        return functions
-
-    def visitAtomicFunctionSkeleton(self, ctx):
-        func_name = ctx.functionSymbol().getText().lower()
-        func_args = self.visit(ctx.variableList())
-        return func_name, func_args
+    def visitTyped_function_definition(self, ctx, return_type=None):
+        return_type = return_type or ctx.primitive_type().getText().lower()
+        name = ctx.logical_symbol_name().getText().lower()
+        argument_types = [a.sort for a in self.visit(ctx.variableList())]
+        return self.language.function(name, *argument_types, return_type)
+        
+    def visitUnTyped_function_definition(self, ctx):
+        return self.visitTyped_function_definition(ctx, 'object')
 
     def visitBoundsDecl(self, ctx):
 
         for sub_ctx in ctx.typeBoundsDefinition():
             self.type_bounds.append(self.visit(sub_ctx))
-            # print ('Bounds')
-            # for b in self.type_bounds :
-            #    print(b)
 
     def visitTypeBoundsDefinition(self, ctx):
 
@@ -256,7 +229,7 @@ class FStripsParser(fstripsVisitor):
         raise UnresolvedVariableError(variable_name)
 
     def visitGenericFunctionTerm(self, ctx):
-        func_name = ctx.functionSymbol().getText().lower()
+        func_name = ctx.logical_symbol_name().getText().lower()
         if func_name not in self.functions_table:
             pass
         func_definition = self.functions_table[func_name]
@@ -421,7 +394,7 @@ class FStripsParser(fstripsVisitor):
         pass
 
     def visitGroundFunctionTerm(self, ctx):
-        func_name = ctx.functionSymbol().getText().lower()
+        func_name = ctx.logical_symbol_name().getText().lower()
         if func_name not in self.functions_table:
             raise SystemExit("Function {0} first seen used as a term in Initial State".format(func_name))
         term_list = []

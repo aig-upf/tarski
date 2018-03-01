@@ -19,11 +19,6 @@ class fstripsVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by fstripsParser#free_functionsDef.
-    def visitFree_functionsDef(self, ctx:fstripsParser.Free_functionsDefContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by fstripsParser#domainName.
     def visitDomainName(self, ctx:fstripsParser.DomainNameContext):
         return self.visitChildren(ctx)
@@ -89,28 +84,33 @@ class fstripsVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by fstripsParser#primType.
-    def visitPrimType(self, ctx:fstripsParser.PrimTypeContext):
+    # Visit a parse tree produced by fstripsParser#primitive_type.
+    def visitPrimitive_type(self, ctx:fstripsParser.Primitive_typeContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by fstripsParser#functionsDef.
-    def visitFunctionsDef(self, ctx:fstripsParser.FunctionsDefContext):
+    # Visit a parse tree produced by fstripsParser#function_definition_block.
+    def visitFunction_definition_block(self, ctx:fstripsParser.Function_definition_blockContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by fstripsParser#functionDeclGroup.
-    def visitFunctionDeclGroup(self, ctx:fstripsParser.FunctionDeclGroupContext):
+    # Visit a parse tree produced by fstripsParser#single_function_definition.
+    def visitSingle_function_definition(self, ctx:fstripsParser.Single_function_definitionContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by fstripsParser#atomicFunctionSkeleton.
-    def visitAtomicFunctionSkeleton(self, ctx:fstripsParser.AtomicFunctionSkeletonContext):
+    # Visit a parse tree produced by fstripsParser#typed_function_definition.
+    def visitTyped_function_definition(self, ctx:fstripsParser.Typed_function_definitionContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by fstripsParser#functionSymbol.
-    def visitFunctionSymbol(self, ctx:fstripsParser.FunctionSymbolContext):
+    # Visit a parse tree produced by fstripsParser#untyped_function_definition.
+    def visitUntyped_function_definition(self, ctx:fstripsParser.Untyped_function_definitionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by fstripsParser#logical_symbol_name.
+    def visitLogical_symbol_name(self, ctx:fstripsParser.Logical_symbol_nameContext):
         return self.visitChildren(ctx)
 
 
@@ -119,13 +119,13 @@ class fstripsVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by fstripsParser#predicatesDef.
-    def visitPredicatesDef(self, ctx:fstripsParser.PredicatesDefContext):
+    # Visit a parse tree produced by fstripsParser#predicate_definition_block.
+    def visitPredicate_definition_block(self, ctx:fstripsParser.Predicate_definition_blockContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by fstripsParser#atomicFormulaSkeleton.
-    def visitAtomicFormulaSkeleton(self, ctx:fstripsParser.AtomicFormulaSkeletonContext):
+    # Visit a parse tree produced by fstripsParser#single_predicate_definition.
+    def visitSingle_predicate_definition(self, ctx:fstripsParser.Single_predicate_definitionContext):
         return self.visitChildren(ctx)
 
 
@@ -324,41 +324,6 @@ class fstripsVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by fstripsParser#durativeActionDef.
-    def visitDurativeActionDef(self, ctx:fstripsParser.DurativeActionDefContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by fstripsParser#daDefBody.
-    def visitDaDefBody(self, ctx:fstripsParser.DaDefBodyContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by fstripsParser#daGD.
-    def visitDaGD(self, ctx:fstripsParser.DaGDContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by fstripsParser#prefTimedGD.
-    def visitPrefTimedGD(self, ctx:fstripsParser.PrefTimedGDContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by fstripsParser#timedGD.
-    def visitTimedGD(self, ctx:fstripsParser.TimedGDContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by fstripsParser#timeSpecifier.
-    def visitTimeSpecifier(self, ctx:fstripsParser.TimeSpecifierContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by fstripsParser#interval.
-    def visitInterval(self, ctx:fstripsParser.IntervalContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by fstripsParser#derivedDef.
     def visitDerivedDef(self, ctx:fstripsParser.DerivedDefContext):
         return self.visitChildren(ctx)
@@ -474,11 +439,6 @@ class fstripsVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by fstripsParser#multiOp.
-    def visitMultiOp(self, ctx:fstripsParser.MultiOpContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by fstripsParser#binaryComp.
     def visitBinaryComp(self, ctx:fstripsParser.BinaryCompContext):
         return self.visitChildren(ctx)
@@ -491,46 +451,6 @@ class fstripsVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by fstripsParser#processEffectOp.
     def visitProcessEffectOp(self, ctx:fstripsParser.ProcessEffectOpContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by fstripsParser#durationConstraint.
-    def visitDurationConstraint(self, ctx:fstripsParser.DurationConstraintContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by fstripsParser#simpleDurationConstraint.
-    def visitSimpleDurationConstraint(self, ctx:fstripsParser.SimpleDurationConstraintContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by fstripsParser#durOp.
-    def visitDurOp(self, ctx:fstripsParser.DurOpContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by fstripsParser#durValue.
-    def visitDurValue(self, ctx:fstripsParser.DurValueContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by fstripsParser#daEffect.
-    def visitDaEffect(self, ctx:fstripsParser.DaEffectContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by fstripsParser#timedEffect.
-    def visitTimedEffect(self, ctx:fstripsParser.TimedEffectContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by fstripsParser#fAssignDA.
-    def visitFAssignDA(self, ctx:fstripsParser.FAssignDAContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by fstripsParser#fExpDA.
-    def visitFExpDA(self, ctx:fstripsParser.FExpDAContext):
         return self.visitChildren(ctx)
 
 
@@ -601,11 +521,6 @@ class fstripsVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by fstripsParser#InitAssignmentNumeric.
     def visitInitAssignmentNumeric(self, ctx:fstripsParser.InitAssignmentNumericContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by fstripsParser#InitTimedLiteral.
-    def visitInitTimedLiteral(self, ctx:fstripsParser.InitTimedLiteralContext):
         return self.visitChildren(ctx)
 
 

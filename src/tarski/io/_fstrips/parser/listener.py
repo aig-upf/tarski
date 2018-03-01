@@ -26,15 +26,6 @@ class fstripsListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by fstripsParser#free_functionsDef.
-    def enterFree_functionsDef(self, ctx:fstripsParser.Free_functionsDefContext):
-        pass
-
-    # Exit a parse tree produced by fstripsParser#free_functionsDef.
-    def exitFree_functionsDef(self, ctx:fstripsParser.Free_functionsDefContext):
-        pass
-
-
     # Enter a parse tree produced by fstripsParser#domainName.
     def enterDomainName(self, ctx:fstripsParser.DomainNameContext):
         pass
@@ -152,48 +143,57 @@ class fstripsListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by fstripsParser#primType.
-    def enterPrimType(self, ctx:fstripsParser.PrimTypeContext):
+    # Enter a parse tree produced by fstripsParser#primitive_type.
+    def enterPrimitive_type(self, ctx:fstripsParser.Primitive_typeContext):
         pass
 
-    # Exit a parse tree produced by fstripsParser#primType.
-    def exitPrimType(self, ctx:fstripsParser.PrimTypeContext):
-        pass
-
-
-    # Enter a parse tree produced by fstripsParser#functionsDef.
-    def enterFunctionsDef(self, ctx:fstripsParser.FunctionsDefContext):
-        pass
-
-    # Exit a parse tree produced by fstripsParser#functionsDef.
-    def exitFunctionsDef(self, ctx:fstripsParser.FunctionsDefContext):
+    # Exit a parse tree produced by fstripsParser#primitive_type.
+    def exitPrimitive_type(self, ctx:fstripsParser.Primitive_typeContext):
         pass
 
 
-    # Enter a parse tree produced by fstripsParser#functionDeclGroup.
-    def enterFunctionDeclGroup(self, ctx:fstripsParser.FunctionDeclGroupContext):
+    # Enter a parse tree produced by fstripsParser#function_definition_block.
+    def enterFunction_definition_block(self, ctx:fstripsParser.Function_definition_blockContext):
         pass
 
-    # Exit a parse tree produced by fstripsParser#functionDeclGroup.
-    def exitFunctionDeclGroup(self, ctx:fstripsParser.FunctionDeclGroupContext):
-        pass
-
-
-    # Enter a parse tree produced by fstripsParser#atomicFunctionSkeleton.
-    def enterAtomicFunctionSkeleton(self, ctx:fstripsParser.AtomicFunctionSkeletonContext):
-        pass
-
-    # Exit a parse tree produced by fstripsParser#atomicFunctionSkeleton.
-    def exitAtomicFunctionSkeleton(self, ctx:fstripsParser.AtomicFunctionSkeletonContext):
+    # Exit a parse tree produced by fstripsParser#function_definition_block.
+    def exitFunction_definition_block(self, ctx:fstripsParser.Function_definition_blockContext):
         pass
 
 
-    # Enter a parse tree produced by fstripsParser#functionSymbol.
-    def enterFunctionSymbol(self, ctx:fstripsParser.FunctionSymbolContext):
+    # Enter a parse tree produced by fstripsParser#single_function_definition.
+    def enterSingle_function_definition(self, ctx:fstripsParser.Single_function_definitionContext):
         pass
 
-    # Exit a parse tree produced by fstripsParser#functionSymbol.
-    def exitFunctionSymbol(self, ctx:fstripsParser.FunctionSymbolContext):
+    # Exit a parse tree produced by fstripsParser#single_function_definition.
+    def exitSingle_function_definition(self, ctx:fstripsParser.Single_function_definitionContext):
+        pass
+
+
+    # Enter a parse tree produced by fstripsParser#typed_function_definition.
+    def enterTyped_function_definition(self, ctx:fstripsParser.Typed_function_definitionContext):
+        pass
+
+    # Exit a parse tree produced by fstripsParser#typed_function_definition.
+    def exitTyped_function_definition(self, ctx:fstripsParser.Typed_function_definitionContext):
+        pass
+
+
+    # Enter a parse tree produced by fstripsParser#untyped_function_definition.
+    def enterUntyped_function_definition(self, ctx:fstripsParser.Untyped_function_definitionContext):
+        pass
+
+    # Exit a parse tree produced by fstripsParser#untyped_function_definition.
+    def exitUntyped_function_definition(self, ctx:fstripsParser.Untyped_function_definitionContext):
+        pass
+
+
+    # Enter a parse tree produced by fstripsParser#logical_symbol_name.
+    def enterLogical_symbol_name(self, ctx:fstripsParser.Logical_symbol_nameContext):
+        pass
+
+    # Exit a parse tree produced by fstripsParser#logical_symbol_name.
+    def exitLogical_symbol_name(self, ctx:fstripsParser.Logical_symbol_nameContext):
         pass
 
 
@@ -206,21 +206,21 @@ class fstripsListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by fstripsParser#predicatesDef.
-    def enterPredicatesDef(self, ctx:fstripsParser.PredicatesDefContext):
+    # Enter a parse tree produced by fstripsParser#predicate_definition_block.
+    def enterPredicate_definition_block(self, ctx:fstripsParser.Predicate_definition_blockContext):
         pass
 
-    # Exit a parse tree produced by fstripsParser#predicatesDef.
-    def exitPredicatesDef(self, ctx:fstripsParser.PredicatesDefContext):
+    # Exit a parse tree produced by fstripsParser#predicate_definition_block.
+    def exitPredicate_definition_block(self, ctx:fstripsParser.Predicate_definition_blockContext):
         pass
 
 
-    # Enter a parse tree produced by fstripsParser#atomicFormulaSkeleton.
-    def enterAtomicFormulaSkeleton(self, ctx:fstripsParser.AtomicFormulaSkeletonContext):
+    # Enter a parse tree produced by fstripsParser#single_predicate_definition.
+    def enterSingle_predicate_definition(self, ctx:fstripsParser.Single_predicate_definitionContext):
         pass
 
-    # Exit a parse tree produced by fstripsParser#atomicFormulaSkeleton.
-    def exitAtomicFormulaSkeleton(self, ctx:fstripsParser.AtomicFormulaSkeletonContext):
+    # Exit a parse tree produced by fstripsParser#single_predicate_definition.
+    def exitSingle_predicate_definition(self, ctx:fstripsParser.Single_predicate_definitionContext):
         pass
 
 
@@ -575,69 +575,6 @@ class fstripsListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by fstripsParser#durativeActionDef.
-    def enterDurativeActionDef(self, ctx:fstripsParser.DurativeActionDefContext):
-        pass
-
-    # Exit a parse tree produced by fstripsParser#durativeActionDef.
-    def exitDurativeActionDef(self, ctx:fstripsParser.DurativeActionDefContext):
-        pass
-
-
-    # Enter a parse tree produced by fstripsParser#daDefBody.
-    def enterDaDefBody(self, ctx:fstripsParser.DaDefBodyContext):
-        pass
-
-    # Exit a parse tree produced by fstripsParser#daDefBody.
-    def exitDaDefBody(self, ctx:fstripsParser.DaDefBodyContext):
-        pass
-
-
-    # Enter a parse tree produced by fstripsParser#daGD.
-    def enterDaGD(self, ctx:fstripsParser.DaGDContext):
-        pass
-
-    # Exit a parse tree produced by fstripsParser#daGD.
-    def exitDaGD(self, ctx:fstripsParser.DaGDContext):
-        pass
-
-
-    # Enter a parse tree produced by fstripsParser#prefTimedGD.
-    def enterPrefTimedGD(self, ctx:fstripsParser.PrefTimedGDContext):
-        pass
-
-    # Exit a parse tree produced by fstripsParser#prefTimedGD.
-    def exitPrefTimedGD(self, ctx:fstripsParser.PrefTimedGDContext):
-        pass
-
-
-    # Enter a parse tree produced by fstripsParser#timedGD.
-    def enterTimedGD(self, ctx:fstripsParser.TimedGDContext):
-        pass
-
-    # Exit a parse tree produced by fstripsParser#timedGD.
-    def exitTimedGD(self, ctx:fstripsParser.TimedGDContext):
-        pass
-
-
-    # Enter a parse tree produced by fstripsParser#timeSpecifier.
-    def enterTimeSpecifier(self, ctx:fstripsParser.TimeSpecifierContext):
-        pass
-
-    # Exit a parse tree produced by fstripsParser#timeSpecifier.
-    def exitTimeSpecifier(self, ctx:fstripsParser.TimeSpecifierContext):
-        pass
-
-
-    # Enter a parse tree produced by fstripsParser#interval.
-    def enterInterval(self, ctx:fstripsParser.IntervalContext):
-        pass
-
-    # Exit a parse tree produced by fstripsParser#interval.
-    def exitInterval(self, ctx:fstripsParser.IntervalContext):
-        pass
-
-
     # Enter a parse tree produced by fstripsParser#derivedDef.
     def enterDerivedDef(self, ctx:fstripsParser.DerivedDefContext):
         pass
@@ -845,15 +782,6 @@ class fstripsListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by fstripsParser#multiOp.
-    def enterMultiOp(self, ctx:fstripsParser.MultiOpContext):
-        pass
-
-    # Exit a parse tree produced by fstripsParser#multiOp.
-    def exitMultiOp(self, ctx:fstripsParser.MultiOpContext):
-        pass
-
-
     # Enter a parse tree produced by fstripsParser#binaryComp.
     def enterBinaryComp(self, ctx:fstripsParser.BinaryCompContext):
         pass
@@ -878,78 +806,6 @@ class fstripsListener(ParseTreeListener):
 
     # Exit a parse tree produced by fstripsParser#processEffectOp.
     def exitProcessEffectOp(self, ctx:fstripsParser.ProcessEffectOpContext):
-        pass
-
-
-    # Enter a parse tree produced by fstripsParser#durationConstraint.
-    def enterDurationConstraint(self, ctx:fstripsParser.DurationConstraintContext):
-        pass
-
-    # Exit a parse tree produced by fstripsParser#durationConstraint.
-    def exitDurationConstraint(self, ctx:fstripsParser.DurationConstraintContext):
-        pass
-
-
-    # Enter a parse tree produced by fstripsParser#simpleDurationConstraint.
-    def enterSimpleDurationConstraint(self, ctx:fstripsParser.SimpleDurationConstraintContext):
-        pass
-
-    # Exit a parse tree produced by fstripsParser#simpleDurationConstraint.
-    def exitSimpleDurationConstraint(self, ctx:fstripsParser.SimpleDurationConstraintContext):
-        pass
-
-
-    # Enter a parse tree produced by fstripsParser#durOp.
-    def enterDurOp(self, ctx:fstripsParser.DurOpContext):
-        pass
-
-    # Exit a parse tree produced by fstripsParser#durOp.
-    def exitDurOp(self, ctx:fstripsParser.DurOpContext):
-        pass
-
-
-    # Enter a parse tree produced by fstripsParser#durValue.
-    def enterDurValue(self, ctx:fstripsParser.DurValueContext):
-        pass
-
-    # Exit a parse tree produced by fstripsParser#durValue.
-    def exitDurValue(self, ctx:fstripsParser.DurValueContext):
-        pass
-
-
-    # Enter a parse tree produced by fstripsParser#daEffect.
-    def enterDaEffect(self, ctx:fstripsParser.DaEffectContext):
-        pass
-
-    # Exit a parse tree produced by fstripsParser#daEffect.
-    def exitDaEffect(self, ctx:fstripsParser.DaEffectContext):
-        pass
-
-
-    # Enter a parse tree produced by fstripsParser#timedEffect.
-    def enterTimedEffect(self, ctx:fstripsParser.TimedEffectContext):
-        pass
-
-    # Exit a parse tree produced by fstripsParser#timedEffect.
-    def exitTimedEffect(self, ctx:fstripsParser.TimedEffectContext):
-        pass
-
-
-    # Enter a parse tree produced by fstripsParser#fAssignDA.
-    def enterFAssignDA(self, ctx:fstripsParser.FAssignDAContext):
-        pass
-
-    # Exit a parse tree produced by fstripsParser#fAssignDA.
-    def exitFAssignDA(self, ctx:fstripsParser.FAssignDAContext):
-        pass
-
-
-    # Enter a parse tree produced by fstripsParser#fExpDA.
-    def enterFExpDA(self, ctx:fstripsParser.FExpDAContext):
-        pass
-
-    # Exit a parse tree produced by fstripsParser#fExpDA.
-    def exitFExpDA(self, ctx:fstripsParser.FExpDAContext):
         pass
 
 
@@ -1076,15 +932,6 @@ class fstripsListener(ParseTreeListener):
 
     # Exit a parse tree produced by fstripsParser#InitAssignmentNumeric.
     def exitInitAssignmentNumeric(self, ctx:fstripsParser.InitAssignmentNumericContext):
-        pass
-
-
-    # Enter a parse tree produced by fstripsParser#InitTimedLiteral.
-    def enterInitTimedLiteral(self, ctx:fstripsParser.InitTimedLiteralContext):
-        pass
-
-    # Exit a parse tree produced by fstripsParser#InitTimedLiteral.
-    def exitInitTimedLiteral(self, ctx:fstripsParser.InitTimedLiteralContext):
         pass
 
 
