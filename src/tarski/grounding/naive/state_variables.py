@@ -7,7 +7,7 @@ import itertools
 from tarski.util import IndexDictionary
 from tarski import Function, Predicate
 
-from . errors import UnableToGroundError
+from .. errors import UnableToGroundError
 
 class StateVariable(object):
     """
