@@ -56,7 +56,7 @@ def test_ground_actions_for_small_bw():
         g_prec.accept(var_collector)
         assert len(var_collector.variables) == 0
         g_effs = []
-        for eff in grounded.effects:
+        for eff in actions[0].effects:
             g_eff = copy.deepcopy(eff)
             g_eff.accept(op)
             var_collector = CollectVariables(prob.language)
@@ -64,5 +64,5 @@ def test_ground_actions_for_small_bw():
             assert len(var_collector.variables) == 0
             g_effs.append(g_eff)
         ground_actions.append(fs.Action(prob.language, actions[0].name, [], g_prec, g_effs))
-        print(str(ground_actions[-1]))
-        assert False
+        #print(str(ground_actions[-1]))
+    assert len(ground_actions)==K
