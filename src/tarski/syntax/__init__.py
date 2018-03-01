@@ -7,6 +7,8 @@ from .formulas import Formula, land, lor, neg, implies, forall, exists, equiv, C
 
 from ._meta import RelationalOperatorImplementation
 
+from .visitors import CollectVariables
+
 symbol_rel_op_map = {
     'eq': '__eq__',
     'ne': '__ne__'
