@@ -17,9 +17,23 @@ def create_small_bw_with_index():
 
     return prob, index
 
-def test_enumeration_of_action_parameters():
+def test_enumeration_of_action_parameters_for_small_bw():
     prob, index = create_small_bw_with_index()
     index.ground_actions = IndexDictionary()
     actions = list(prob.actions.values())
-    K, subst = instantiation.enumerate(prob.language,actions[0].parameters)
+    K, syms, substs = instantiation.enumerate(prob.language,actions[0].parameters)
     assert K == 20
+    assert len(syms)==2
+    assert len(substs)==2
+
+def test_generate_substitutions_for_small_bw():
+    import itertools
+
+    prob, index = create_small_bw_with_index()
+    index.ground_actions = IndexDictionary()
+    actions = list(prob.actions.values())
+    K, syms, substs = instantiation.enumerate(prob.language,actions[0].parameters)
+    for values in itertools.product(*substs):
+        assert(len(syms)==len(values))
+        subst = { syms[k] : v for k,v in enumerate(values) }
+        assert len(subst)==2
