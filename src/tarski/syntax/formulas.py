@@ -78,6 +78,15 @@ class CompoundFormula(Formula):
         self.subformulas = subformulas
         self._check_well_formed()
 
+
+    def __deepcopy__(self, memo):
+        # Dummy call to constructor
+        newone = type(self)(Connective.And, [top,top])
+        memo[id(self)] = newone
+        for k, v in self.__dict__.items():
+            setattr(newone, k, copy.deepcopy(v, memo))
+        return newone
+
     def _check_well_formed(self):
         if any(not isinstance(f, Formula) for f in self.subformulas):
             raise err.LanguageError("Wrong argument types for compound formula: '{}' ".format(self.subformulas))
@@ -103,6 +112,14 @@ class QuantifiedFormula(Formula):
         self.variables = variables
         self.formula = formula
         self._check_well_formed()
+
+    def __deepcopy__(self,memo):
+        # Dummy call to constructor
+        newone = type(self)(Quantifier.Forall, [None] , top)
+        memo[id(self)] = newone
+        for k, v in self.__dict__.items():
+            setattr(newone, k, copy.deepcopy(v, memo))
+        return newone
 
     def _check_well_formed(self):
         if len(self.variables) == 0:
@@ -181,8 +198,19 @@ class Atom(Formula):
         self.subterms = arguments
         self._check_well_formed()
 
+    def __deepcopy__(self,memo):
+        # Dummy call to constructor
+        newone = type(self)( None,[])
+        memo[id(self)] = newone
+        for k, v in self.__dict__.items():
+            setattr(newone, k, copy.deepcopy(v, memo))
+        return newone
+
+
     def _check_well_formed(self):
         head = self.predicate
+
+        if head is None : return # check automatically passes 
 
         if not isinstance(head, Predicate):
             raise err.LanguageError("Incorrect atom head: '{}' ".format(head))
