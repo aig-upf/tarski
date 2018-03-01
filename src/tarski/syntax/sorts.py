@@ -15,6 +15,10 @@ class Sort:
     def __repr__(self):
         return self.name
 
+    def __deepcopy__(self,memo):
+        memo[id(self)]=self
+        return self
+
     # MRJ: we define __hash__ and __eq__ so we can
     # use references to Sort instances in associative
     # containers

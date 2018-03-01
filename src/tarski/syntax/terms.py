@@ -142,6 +142,10 @@ class Constant(Term):
     def sort(self):
         return self._sort
 
+    def __deepcopy__(self,memo):
+        memo[id(self)]=self
+        return self
+
     def __str__(self):
         return '{}'.format(self.symbol)
 

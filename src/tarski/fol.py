@@ -53,6 +53,10 @@ class FirstOrderLanguage:
         self.theories = []
         bind_equality_to_language_components(self)
 
+    def __deepcopy__(self,memo):
+        memo[id(self)]=self
+        return self
+
     @property
     def variables(self):
         for x in self._variables:
