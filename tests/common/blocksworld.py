@@ -28,6 +28,7 @@ def create_small_task():
     M = tarski.model.create(bw)
 
     block = bw.get_sort('block')
+    place = bw.get_sort('place')
     loc = bw.get_function('loc')
     clear = bw.get_predicate('clear')
     b1, b2, b3, b4 = [bw.get_constant('b{}'.format(k)) for k in range(1, 5)]
@@ -40,9 +41,10 @@ def create_small_task():
 
     M.add( clear, b1) # clear(b1)
     M.add( clear, b4) # clear(b4)
+    M.add( clear, table) # clear(table)
 
     src = bw.variable('src', block)
-    dest = bw.variable('dest', block)
+    dest = bw.variable('dest', place)
 
     move_schema = fs.Action(bw, name='move', \
                      parameters=[src, dest], \
