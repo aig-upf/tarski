@@ -1,6 +1,6 @@
 
 from tarski import fstrips as fs
-from tarski.grounding import state_variables as sv
+from tarski.grounding.naive import state_variables as sv
 from tarski.syntax import *
 from tarski.util import IndexDictionary
 
