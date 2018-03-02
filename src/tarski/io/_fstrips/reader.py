@@ -4,7 +4,6 @@
 """
 import logging
 
-import itertools
 from antlr4 import FileStream, CommonTokenStream, InputStream
 from antlr4.error.ErrorListener import ErrorListener
 from tarski import model
@@ -177,7 +176,7 @@ class FStripsParser(fstripsVisitor):
             self.language.constant(o, t)
 
     # For a fixed problem, there's no particular distinction btw domain constants and problem objects.
-    visitConstantsDef = visitObject_declaration
+    visitConstant_declaration = visitObject_declaration
 
     def visitActionDef(self, ctx):
         name = ctx.actionName().getText().lower()
@@ -337,11 +336,11 @@ class FStripsParser(fstripsVisitor):
     def visitSingleEffect(self, ctx):
         # The effect might already be a list if it derives from a multiple conditional effect.
         # Otherwise, we turn it into a list
-        effect = self.visit(ctx.cEffect())
+        effect = self.visit(ctx.single_effect())
         return effect if isinstance(effect, list) else [effect]
 
     def visitConjunctiveEffectFormula(self, ctx):
-        return [self.visit(sub_ctx) for sub_ctx in ctx.cEffect()]
+        return [self.visit(sub_ctx) for sub_ctx in ctx.single_effect()]
 
     def visitAtomicEffect(self, ctx):
         return self.visit(ctx.atomic_effect())

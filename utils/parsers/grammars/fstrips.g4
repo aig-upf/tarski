@@ -66,7 +66,7 @@ domain
     : '(' 'define' domainName
       requireDef ?
       declaration_of_types ?
-      constantsDef ?
+      constant_declaration ?
       predicate_definition_block ?
       function_definition_block ?
       structureDef*
@@ -148,7 +148,7 @@ untyped_function_definition
 logical_symbol_name : NAME | EXTNAME;
 
 
-constantsDef
+constant_declaration
 	: '(' ':constants' possibly_typed_name_list ')'
 	;
 
@@ -306,16 +306,12 @@ processVarEff
     ;
 
 
-fHead
-	: '(' logical_symbol_name term* ')'
-	;
-
 effect
-	: '(' 'and' cEffect* ')'       # ConjunctiveEffectFormula
-	| cEffect                      # SingleEffect
+	: '(' 'and' single_effect* ')'       # ConjunctiveEffectFormula
+	| single_effect                      # SingleEffect
 	;
 
-cEffect
+single_effect
 	: '(' 'forall' '(' possibly_typed_variable_list ')' effect ')'         # UniversallyQuantifiedEffect
 	| '(' 'when' goalDesc atomic_effect ')'                # SingleConditionalEffect
 	| '(' 'when' goalDesc '(' 'and' atomic_effect* ')' ')' # MultipleConditionalEffect
@@ -528,8 +524,7 @@ WHITESPACE
 // Keywords
 K_INIT: ':' I N I T;
 K_PRECONDITION: ':' P R E C O N D I T I O N;
-K_EFFECT : ':effect';
-//K_EFFECT : ':' E F F E C T;
+K_EFFECT : ':' E F F E C T;
 
 INT_T:    'int';
 FLOAT_T:  'float';

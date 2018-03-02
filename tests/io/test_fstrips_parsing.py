@@ -4,15 +4,16 @@ from tarski.io import FstripsReader
 from tarski.io._fstrips.reader import ParsingError
 
 
-rule_names = {  # TODO Move this somewhere compiling common rule names
-    "domain": "domainName",
-    "effect": "effect",
-    "action_body": "actionDefBody",
-    "predicate_definition": "single_predicate_definition",
-    "function_definition": "single_function_definition",
-    "init_atom": "initEl",
-    "possibly_typed_name_list": "possibly_typed_name_list"
-}
+def get_rule(name):
+    return {  # TODO Move this somewhere compiling common rule names
+        "domain": "domainName",
+        "effect": "effect",
+        "action_body": "actionDefBody",
+        "predicate_definition": "single_predicate_definition",
+        "function_definition": "single_function_definition",
+        "init_atom": "initEl",
+        "formula": "goalDesc"
+    }.get(name, name)
 
 
 def reader():
@@ -22,7 +23,7 @@ def reader():
 
 def _test_input(string, rule, reader_):
     """ """
-    return reader_.parse_string(string, rule_names[rule])
+    return reader_.parse_string(string, get_rule(rule))
 
 
 def _test_inputs(inputs, r=None):
@@ -67,7 +68,7 @@ def test_symbol_declarations():
 
     # Some additional tests
     r = reader()
-    problem = r.parse_string("(loc1 ?x) - object", rule_names["function_definition"])
+    problem = r.parse_string("(loc1 ?x) - object", get_rule("function_definition"))
     lang = problem.language
     f = lang.get_function("loc1")
     assert f.codomain == lang.get_sort('object')
@@ -96,14 +97,14 @@ def test_domain_name_parsing():
     # Test a few names expected to be valid:
     for domain_name in ["BLOCKS", "blocS-woRlD", "blocks_world"]:
         tag = "(domain {})".format(domain_name)
-        _ = r.parse_string(tag, rule_names["domain"])
+        _ = r.parse_string(tag, get_rule("domain"))
 
     # And a few ones expected to be invalid
     for domain_name in ["BL#OCKS", "@mydomain", "2ndblocksworld", "blocks2.0"]:
         tag = "(domain {})".format(domain_name)
 
         with pytest.raises(ParsingError):
-            _ = r.parse_string(tag, rule_names["domain"])
+            _ = r.parse_string(tag, get_rule("domain"))
 
 
 def test_formulas():
@@ -112,17 +113,17 @@ def test_formulas():
     # Test a few names expected to be valid:
     for domain_name in ["BLOCKS", "blocS-woRlD", "blocks_world"]:
         tag = "(domain {})".format(domain_name)
-        _ = r.parse_string(tag, rule_names["domain"])
+        _ = r.parse_string(tag, get_rule("domain"))
 
     # And a few ones expected to be invalid
     for domain_name in ["BL#OCKS", "@mydomain", "2ndblocksworld", "blocks2.0"]:
         tag = "(domain {})".format(domain_name)
 
         with pytest.raises(ParsingError):
-            _ = r.parse_string(tag, rule_names["domain"])
+            _ = r.parse_string(tag, get_rule("domain"))
 
 
-def test_effects():
+def test_predicate_effects():
     _test_inputs([
         # First rule defines the predicate, necessary for the rest of rules not to raise an "UndefinedPredicate" error
         ("(at)", "predicate_definition"),
@@ -134,3 +135,53 @@ def test_effects():
         ("(when (not (at)) (at))", "effect"),
         ("(when (not (at)) (and (at) (at)))", "effect"),
     ], r=reader())  # This uses one single reader for all tests
+
+
+def test_functional_effects():
+    read = _setup_function_environment()
+    _test_inputs([
+        ("(assign (f o1) o1)", "effect"),
+    ], r=read)
+
+
+def _setup_function_environment():
+    read = reader()
+    # Set up a few declarations of types objects and functions/predicates
+    _test_inputs([
+        ("(:types t)", "declaration_of_types"),
+        ("(:constants o1 o2 - t)", "constant_declaration"),
+        ("(f ?o - t) - t", "function_definition"),
+    ], r=read)
+    return read
+
+
+def _setup_predicate_environment():
+    read = reader()
+    # Set up a few declarations of types objects and functions/predicates
+    _test_inputs([
+        ("(:types t)", "declaration_of_types"),
+        ("(:constants o1 o2 - t)", "constant_declaration"),
+        ("(p ?o - t)", "predicate_definition"),
+    ], r=read)
+    return read
+
+
+def test_functional_atoms():
+    read = _setup_function_environment()
+    _test_inputs([
+        ("(= (f o1) o1)", "formula"),
+        ("(= (f o1) (f (f o2)))", "formula"),
+    ], r=read)
+
+
+def test_strips_atoms():
+    read = _setup_predicate_environment()
+    _test_inputs([
+        ("(p o1)", "formula"),
+        ("(not (p o1))", "formula"),
+        ("(and (p o1) (p o2))", "formula"),
+        ("(or (p o1) (p o2))", "formula"),
+        ("(imply (p o1) (p o2))", "formula"),
+        ("(forall (?x - t) (p ?x))", "formula"),
+        ("(exists (?x - t) (p ?x))", "formula"),
+    ], r=read)
