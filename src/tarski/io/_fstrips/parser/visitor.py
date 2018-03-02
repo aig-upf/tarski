@@ -29,8 +29,8 @@ class fstripsVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by fstripsParser#typesDef.
-    def visitTypesDef(self, ctx:fstripsParser.TypesDefContext):
+    # Visit a parse tree produced by fstripsParser#declaration_of_types.
+    def visitDeclaration_of_types(self, ctx:fstripsParser.Declaration_of_typesContext):
         return self.visitChildren(ctx)
 
 
@@ -59,11 +59,6 @@ class fstripsVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by fstripsParser#nameList.
-    def visitNameList(self, ctx:fstripsParser.NameListContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by fstripsParser#SimpleNameList.
     def visitSimpleNameList(self, ctx:fstripsParser.SimpleNameListContext):
         return self.visitChildren(ctx)
@@ -74,8 +69,23 @@ class fstripsVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by fstripsParser#nameListWithType.
-    def visitNameListWithType(self, ctx:fstripsParser.NameListWithTypeContext):
+    # Visit a parse tree produced by fstripsParser#name_list_with_type.
+    def visitName_list_with_type(self, ctx:fstripsParser.Name_list_with_typeContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by fstripsParser#UntypedVariableList.
+    def visitUntypedVariableList(self, ctx:fstripsParser.UntypedVariableListContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by fstripsParser#TypedVariableList.
+    def visitTypedVariableList(self, ctx:fstripsParser.TypedVariableListContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by fstripsParser#variable_list_with_type.
+    def visitVariable_list_with_type(self, ctx:fstripsParser.Variable_list_with_typeContext):
         return self.visitChildren(ctx)
 
 
@@ -131,21 +141,6 @@ class fstripsVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by fstripsParser#predicate.
     def visitPredicate(self, ctx:fstripsParser.PredicateContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by fstripsParser#UntypedVariableList.
-    def visitUntypedVariableList(self, ctx:fstripsParser.UntypedVariableListContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by fstripsParser#TypedVariableList.
-    def visitTypedVariableList(self, ctx:fstripsParser.TypedVariableListContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by fstripsParser#variableListWithType.
-    def visitVariableListWithType(self, ctx:fstripsParser.VariableListWithTypeContext):
         return self.visitChildren(ctx)
 
 

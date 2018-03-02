@@ -44,12 +44,12 @@ class fstripsListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by fstripsParser#typesDef.
-    def enterTypesDef(self, ctx:fstripsParser.TypesDefContext):
+    # Enter a parse tree produced by fstripsParser#declaration_of_types.
+    def enterDeclaration_of_types(self, ctx:fstripsParser.Declaration_of_typesContext):
         pass
 
-    # Exit a parse tree produced by fstripsParser#typesDef.
-    def exitTypesDef(self, ctx:fstripsParser.TypesDefContext):
+    # Exit a parse tree produced by fstripsParser#declaration_of_types.
+    def exitDeclaration_of_types(self, ctx:fstripsParser.Declaration_of_typesContext):
         pass
 
 
@@ -98,15 +98,6 @@ class fstripsListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by fstripsParser#nameList.
-    def enterNameList(self, ctx:fstripsParser.NameListContext):
-        pass
-
-    # Exit a parse tree produced by fstripsParser#nameList.
-    def exitNameList(self, ctx:fstripsParser.NameListContext):
-        pass
-
-
     # Enter a parse tree produced by fstripsParser#SimpleNameList.
     def enterSimpleNameList(self, ctx:fstripsParser.SimpleNameListContext):
         pass
@@ -125,12 +116,39 @@ class fstripsListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by fstripsParser#nameListWithType.
-    def enterNameListWithType(self, ctx:fstripsParser.NameListWithTypeContext):
+    # Enter a parse tree produced by fstripsParser#name_list_with_type.
+    def enterName_list_with_type(self, ctx:fstripsParser.Name_list_with_typeContext):
         pass
 
-    # Exit a parse tree produced by fstripsParser#nameListWithType.
-    def exitNameListWithType(self, ctx:fstripsParser.NameListWithTypeContext):
+    # Exit a parse tree produced by fstripsParser#name_list_with_type.
+    def exitName_list_with_type(self, ctx:fstripsParser.Name_list_with_typeContext):
+        pass
+
+
+    # Enter a parse tree produced by fstripsParser#UntypedVariableList.
+    def enterUntypedVariableList(self, ctx:fstripsParser.UntypedVariableListContext):
+        pass
+
+    # Exit a parse tree produced by fstripsParser#UntypedVariableList.
+    def exitUntypedVariableList(self, ctx:fstripsParser.UntypedVariableListContext):
+        pass
+
+
+    # Enter a parse tree produced by fstripsParser#TypedVariableList.
+    def enterTypedVariableList(self, ctx:fstripsParser.TypedVariableListContext):
+        pass
+
+    # Exit a parse tree produced by fstripsParser#TypedVariableList.
+    def exitTypedVariableList(self, ctx:fstripsParser.TypedVariableListContext):
+        pass
+
+
+    # Enter a parse tree produced by fstripsParser#variable_list_with_type.
+    def enterVariable_list_with_type(self, ctx:fstripsParser.Variable_list_with_typeContext):
+        pass
+
+    # Exit a parse tree produced by fstripsParser#variable_list_with_type.
+    def exitVariable_list_with_type(self, ctx:fstripsParser.Variable_list_with_typeContext):
         pass
 
 
@@ -230,33 +248,6 @@ class fstripsListener(ParseTreeListener):
 
     # Exit a parse tree produced by fstripsParser#predicate.
     def exitPredicate(self, ctx:fstripsParser.PredicateContext):
-        pass
-
-
-    # Enter a parse tree produced by fstripsParser#UntypedVariableList.
-    def enterUntypedVariableList(self, ctx:fstripsParser.UntypedVariableListContext):
-        pass
-
-    # Exit a parse tree produced by fstripsParser#UntypedVariableList.
-    def exitUntypedVariableList(self, ctx:fstripsParser.UntypedVariableListContext):
-        pass
-
-
-    # Enter a parse tree produced by fstripsParser#TypedVariableList.
-    def enterTypedVariableList(self, ctx:fstripsParser.TypedVariableListContext):
-        pass
-
-    # Exit a parse tree produced by fstripsParser#TypedVariableList.
-    def exitTypedVariableList(self, ctx:fstripsParser.TypedVariableListContext):
-        pass
-
-
-    # Enter a parse tree produced by fstripsParser#variableListWithType.
-    def enterVariableListWithType(self, ctx:fstripsParser.VariableListWithTypeContext):
-        pass
-
-    # Exit a parse tree produced by fstripsParser#variableListWithType.
-    def exitVariableListWithType(self, ctx:fstripsParser.VariableListWithTypeContext):
         pass
 
 

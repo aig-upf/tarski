@@ -65,7 +65,7 @@ pddlDoc : domain | problem;
 domain
     : '(' 'define' domainName
       requireDef ?
-      typesDef ?
+      declaration_of_types ?
       constantsDef ?
       predicate_definition_block ?
       function_definition_block ?
@@ -81,8 +81,8 @@ requireDef
 	: '(' ':requirements' REQUIRE_KEY+ ')'
 	;
 
-typesDef
-	: '(' ':types' typedNameList ')'
+declaration_of_types
+	: '(' ':types' possibly_typed_name_list ')'
 	;
 
 numericBuiltinType
@@ -97,17 +97,29 @@ builtinType
   ;
 
 
-// If have any typed names, they must come FIRST!
-nameList : NAME*;
-
-typedNameList
-    : nameList                     # SimpleNameList
-    | nameListWithType+ nameList   # ComplexNameList
+possibly_typed_name_list
+    : NAME*                        # SimpleNameList
+    // If there is a mixture of names with and without types,
+    // those _with_ types need to come first:
+    | name_list_with_type+ NAME*   # ComplexNameList
     ;
 
-nameListWithType
-    : NAME nameList '-' theType=typename
-	  ;
+name_list_with_type
+    : NAME+ '-' typename
+	;
+
+// If have any typed variables, they must come FIRST!
+possibly_typed_variable_list
+    : VARIABLE*                               # UntypedVariableList
+    // If there is a mixture of names with and without types,
+    // those _with_ types need to come first:
+    | variable_list_with_type+ VARIABLE*      # TypedVariableList
+    ;
+
+variable_list_with_type
+    : VARIABLE+ '-' primitive_type
+    ;
+
 
 typename
 	: '(' 'either' primitive_type+ ')'
@@ -126,18 +138,18 @@ single_function_definition
     ;
 
 typed_function_definition
-    : '(' logical_symbol_name variableList ')' '-' primitive_type
+    : '(' logical_symbol_name possibly_typed_variable_list ')' '-' primitive_type
     ;
 
 untyped_function_definition
-    : '(' logical_symbol_name variableList ')'
+    : '(' logical_symbol_name possibly_typed_variable_list ')'
     ;
 
 logical_symbol_name : NAME | EXTNAME;
 
 
 constantsDef
-	: '(' ':constants' typedNameList ')'
+	: '(' ':constants' possibly_typed_name_list ')'
 	;
 
 predicate_definition_block
@@ -145,20 +157,10 @@ predicate_definition_block
 	;
 
 single_predicate_definition
-	: '(' predicate variableList ')'
+	: '(' predicate possibly_typed_variable_list ')'
 	;
 
 predicate : NAME;
-
-// If have any typed variables, they must come FIRST!
-variableList
-    : VARIABLE*                               # UntypedVariableList
-    | variableListWithType+ VARIABLE*         # TypedVariableList
-    ;
-
-variableListWithType
-    : VARIABLE+ '-' primitive_type
-    ;
 
 structureDef
 	: actionDef
@@ -173,20 +175,20 @@ structureDef
 
 actionDef
 	: '(' ':action' actionName
-	      ':parameters'  '(' variableList ')'
+	      ':parameters'  '(' possibly_typed_variable_list ')'
            actionDefBody ')'
     ;
 
 constraintDef
 	: '(' ':constraint' constraintSymbol
-	      ':parameters'  '(' variableList ')'
+	      ':parameters'  '(' possibly_typed_variable_list ')'
           ':condition' goalDesc ')'
     ;
 
 
 eventDef
 	: '(' ':event' eventSymbol
-	      ':parameters'  '(' variableList ')'
+	      ':parameters'  '(' possibly_typed_variable_list ')'
            actionDefBody ')'
     ;
 
@@ -215,8 +217,8 @@ goalDesc
 	| '(' 'or' goalDesc* ')'                                 # OrGoalDesc
 	| '(' 'not' goalDesc ')'                                 # NotGoalDesc
 	| '(' 'imply' goalDesc goalDesc ')'                      # ImplyGoalDesc
-	| '(' 'exists' '(' variableList ')' goalDesc ')'         # ExistentialGoalDesc
-	| '(' 'forall' '(' variableList ')' goalDesc ')'         # UniversalGoalDesc
+	| '(' 'exists' '(' possibly_typed_variable_list ')' goalDesc ')'         # ExistentialGoalDesc
+	| '(' 'forall' '(' possibly_typed_variable_list ')' goalDesc ')'         # UniversalGoalDesc
     | fComp                                                  # ComparisonGoalDesc
 	| equality                                               # EqualityGoalDesc
   ;
@@ -250,7 +252,7 @@ functionTerm :
 
 processDef
 	: '(' ':process' actionName
-	      ':parameters'  '(' variableList ')'
+	      ':parameters'  '(' possibly_typed_variable_list ')'
            processDefBody ')'
     ;
 
@@ -271,7 +273,7 @@ processEffect
 /************* DERIVED DEFINITIONS ****************************/
 
 derivedDef
-	: '(' ':derived' variableList goalDesc ')'
+	: '(' ':derived' possibly_typed_variable_list goalDesc ')'
 	;
 
 /************* EXPRESSIONS ****************************/
@@ -314,7 +316,7 @@ effect
 	;
 
 cEffect
-	: '(' 'forall' '(' variableList ')' effect ')'         # UniversallyQuantifiedEffect
+	: '(' 'forall' '(' possibly_typed_variable_list ')' effect ')'         # UniversallyQuantifiedEffect
 	| '(' 'when' goalDesc atomic_effect ')'                # SingleConditionalEffect
 	| '(' 'when' goalDesc '(' 'and' atomic_effect* ')' ')' # MultipleConditionalEffect
 	| atomic_effect                                        # AtomicEffect
@@ -368,7 +370,7 @@ problemDomain
 	;
 
 object_declaration
-	: '(' ':objects' typedNameList ')'
+	: '(' ':objects' possibly_typed_name_list ')'
 	;
 
 
@@ -420,7 +422,7 @@ probConstraints
 
 prefConGD
 	: '(' 'and' prefConGD* ')'                                 # ConjunctionOfConstraints
-	| '(' 'forall' '(' variableList ')' prefConGD ')'     # UniversallyQuantifiedConstraint
+	| '(' 'forall' '(' possibly_typed_variable_list ')' prefConGD ')'     # UniversallyQuantifiedConstraint
 	| '(' 'preference' NAME? conGD ')'                         # PreferenceConstraint
 	| conGD+                                                   # PlainConstraintList
 	;
@@ -451,7 +453,7 @@ stageCost
 
 conGD
 	: '(' 'and' conGD+ ')'                                 # ConjunctiveConstraint
-	| '(' 'forall' '(' variableList ')' conGD ')'          # ForallConstraint
+	| '(' 'forall' '(' possibly_typed_variable_list ')' conGD ')'          # ForallConstraint
 	// The standard says "at end", but that conflicts with 50% of PDDL benchmarks which use "at" as an identifier:
 	| '(' 'at-end' goalDesc ')'                            # AtEndConstraint
     | '(' 'always' goalDesc ')'                            # AlwaysConstraint

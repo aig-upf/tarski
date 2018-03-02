@@ -26,8 +26,7 @@ class FstripsReader(object):
         logging.info('Parsing custom string from grammar rule "{}"'.format(start_rule))
         parse_tree, _ = self.parser.parse_string(string, start_rule)
         logging.info("Processing AST")
-        self.parser.visit(parse_tree)
-        return self.problem
+        return self.parser.visit(parse_tree)
 
 
 class FstripsWriter(object):

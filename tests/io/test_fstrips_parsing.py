@@ -11,12 +11,49 @@ rule_names = {  # TODO Move this somewhere compiling common rule names
     "predicate_definition": "single_predicate_definition",
     "function_definition": "single_function_definition",
     "init_atom": "initEl",
+    "possibly_typed_name_list": "possibly_typed_name_list"
 }
 
 
 def reader():
     """ Return a reader configured to raise exceptions on syntax errors """
     return FstripsReader(raise_on_error=True)
+
+
+def _test_input(string, rule, reader_):
+    """ """
+    return reader_.parse_string(string, rule_names[rule])
+
+
+def _test_inputs(inputs, r=None):
+    """
+        Test a list of pairs (x, y): x is string to be parsed, y is rule name
+        and return a list with the corresponding outputs of the parser
+     """
+    r = r or reader()
+    return [_test_input(string, rule, r) for string, rule in inputs]
+
+
+def test_pddl_type_declaration():
+    r = reader()
+    _test_inputs([
+        ("type1", "possibly_typed_name_list"),
+        ("type1 type2 type3", "possibly_typed_name_list"),
+        ("type1 - object", "possibly_typed_name_list"),
+        ("type1 type2 type3 - object", "possibly_typed_name_list"),
+    ], r=r)
+
+    o = _test_input("type1 type2 - object type3 type4 - object type5", "possibly_typed_name_list", r)
+    assert len(o) == 5 and all(parent == 'object' for typename, parent in o)
+
+    o = _test_input("t t t t", "possibly_typed_name_list", r)
+    assert len(o) == 4 and all(parent == 'object' for typename, parent in o)
+
+    o = _test_input("t t t t - t", "possibly_typed_name_list", r)
+    assert len(o) == 4 and all(parent == 't' for typename, parent in o)
+
+    o = _test_input("t t t t - t t2 t3", "possibly_typed_name_list", r)
+    assert len(o) == 6 and len(list(filter(lambda x: x == 'object', (parent for _, parent in o)))) == 2
 
 
 def test_symbol_declarations():
@@ -35,13 +72,6 @@ def test_symbol_declarations():
     f = lang.get_function("loc1")
     assert f.codomain == lang.get_sort('object')
     assert f.domain == (lang.get_sort('object'), )
-
-
-def _test_inputs(inputs, r=None):
-    """ Tests all inputs, which air pairs (x, y): x is string to be parsed, y is rule name """
-    r = r or reader()
-    for string, rule in inputs:
-        _ = r.parse_string(string, rule_names[rule])
 
 
 def test_init():
@@ -104,5 +134,3 @@ def test_effects():
         ("(when (not (at)) (at))", "effect"),
         ("(when (not (at)) (and (at) (at)))", "effect"),
     ], r=reader())  # This uses one single reader for all tests
-
-

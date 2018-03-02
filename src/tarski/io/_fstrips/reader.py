@@ -4,6 +4,7 @@
 """
 import logging
 
+import itertools
 from antlr4 import FileStream, CommonTokenStream, InputStream
 from antlr4.error.ErrorListener import ErrorListener
 from tarski import model
@@ -104,34 +105,33 @@ class FStripsParser(fstripsVisitor):
         for req_ctx in ctx.REQUIRE_KEY():
             self.requirements.append(req_ctx.getText().lower())
 
-    def visitTypesDef(self, ctx):
-        for typename, basename in self.visit(ctx.typedNameList()):
+    def visitDeclaration_of_types(self, ctx):
+        for typename, basename in self.visit(ctx.possibly_typed_name_list()):
             parents = [self.language.get_sort(basename)]
             self.language.sort(typename, parents)
 
-    def visitNameList(self, ctx):
-        names = [name.getText().lower() for name in ctx.NAME()]
-        return names
+    def extract_namelist(self, ctx):
+        return [name.getText().lower() for name in ctx.NAME()]
 
     def visitSimpleNameList(self, ctx):
-        names = self.visit(ctx.nameList())
+        names = self.extract_namelist(ctx)
         return [(name, 'object') for name in names]
 
-    def visitNameListWithType(self, ctx):
-        names = [ctx.NAME().getText().lower()] + self.visit(ctx.nameList())
-        names = [(name, ctx.theType.getText().lower()) for name in names]
-        return names
+    def visitName_list_with_type(self, ctx):
+        typename = ctx.typename().getText().lower()
+        names = self.extract_namelist(ctx)
+        return [(name, typename) for name in names]
 
     def visitComplexNameList(self, ctx):
-        simple = self.visit(ctx.nameList())
+        simple = self.visitSimpleNameList(ctx)
         derived = []
-        for sub_ctx in ctx.nameListWithType():
-            derived += self.visit(sub_ctx)
+        for sub in ctx.name_list_with_type():
+            derived += self.visit(sub)
         return simple + derived
 
     def visitSingle_predicate_definition(self, ctx):
         predicate = ctx.predicate().getText().lower()
-        argument_types = [a.sort for a in self.visit(ctx.variableList())]
+        argument_types = [a.sort for a in self.visit(ctx.possibly_typed_variable_list())]
         return self.language.predicate(predicate, *argument_types)
 
     def visitUntypedVariableList(self, ctx):
@@ -141,18 +141,18 @@ class FStripsParser(fstripsVisitor):
     def visitTypedVariableList(self, ctx):
         untyped_var_names = [self.language.variable(name.getText().lower(), 'object') for name in ctx.VARIABLE()]
         typed_var_names = []
-        for sub_ctx in ctx.variableListWithType():
+        for sub_ctx in ctx.variable_list_with_type():
             typed_var_names += self.visit(sub_ctx)
         return typed_var_names + untyped_var_names
 
-    def visitVariableListWithType(self, ctx):
+    def visitVariable_list_with_type(self, ctx):
         typename = ctx.primitive_type().getText().lower()  # This is the type of all variables in the list
         return [self.language.variable(name.getText().lower(), typename) for name in ctx.VARIABLE()]
 
     def visitTyped_function_definition(self, ctx, return_type=None):
         return_type = return_type or ctx.primitive_type().getText().lower()
         name = ctx.logical_symbol_name().getText().lower()
-        argument_types = [a.sort for a in self.visit(ctx.variableList())]
+        argument_types = [a.sort for a in self.visit(ctx.possibly_typed_variable_list())]
         return self.language.function(name, *argument_types, return_type)
         
     def visitUnTyped_function_definition(self, ctx):
@@ -171,7 +171,7 @@ class FStripsParser(fstripsVisitor):
         return b
 
     def visitObject_declaration(self, ctx):
-        for o, t in self.visit(ctx.typedNameList()):
+        for o, t in self.visit(ctx.possibly_typed_name_list()):
             # TODO We might want to record elsewhere that these constants are
             # TODO required as per the PDDL spec to have fixed denotation
             self.language.constant(o, t)
@@ -181,7 +181,7 @@ class FStripsParser(fstripsVisitor):
 
     def visitActionDef(self, ctx):
         name = ctx.actionName().getText().lower()
-        params = self.visit(ctx.variableList())
+        params = self.visit(ctx.possibly_typed_variable_list())
         self.current_params = params
         precondition, effect = self.visit(ctx.actionDefBody())
         self.current_params = None
@@ -272,13 +272,13 @@ class FStripsParser(fstripsVisitor):
         return implies(lhs, rhs)
 
     def visitExistentialGoalDesc(self, ctx):
-        variables = self.visit(ctx.variableList())
+        variables = self.visit(ctx.possibly_typed_variable_list())
         self.current_params += variables
         formula = self.visit(ctx.goalDesc())
         return exists(*variables, formula)
 
     def visitUniversalGoalDesc(self, ctx):
-        variables = self.visit(ctx.variableList())
+        variables = self.visit(ctx.possibly_typed_variable_list())
         self.current_params += variables
         formula = self.visit(ctx.goalDesc())
         return forall(*variables, formula)
@@ -356,7 +356,7 @@ class FStripsParser(fstripsVisitor):
         return FunctionalEffect(self.visit(ctx.functionTerm()), self.visit(ctx.term()))
 
     def visitUniversallyQuantifiedEffect(self, ctx):
-        return UniversalEffect(self.visit(ctx.variableList()), self.visit(ctx.effect()))
+        return UniversalEffect(self.visit(ctx.possibly_typed_variable_list()), self.visit(ctx.effect()))
 
     def visitSingleConditionalEffect(self, ctx):
         effect = self.visit(ctx.atomic_effect())
@@ -460,10 +460,10 @@ class FStripsParser(fstripsVisitor):
         self.metric.expr = self.visit(ctx.metricFExp())
 
     def visitFunctionalExprMetric(self, ctx):
-        return (None, self.visit(ctx.functionTerm()))
+        return None, self.visit(ctx.functionTerm())
 
     def visitCompositeMetric(self, ctx):
-        return (self.visit(ctx.terminalCost()), self.visit(ctx.stageCost()))
+        return self.visit(ctx.terminalCost()), self.visit(ctx.stageCost())
 
     def visitTerminalCost(self, ctx):
         return self.visit(ctx.functionTerm())
@@ -525,10 +525,9 @@ class FStripsParser(fstripsVisitor):
         return ConjunctiveEffect(effects)
         # return self.visitConjunctiveEffectFormula( ctx )
 
-
     def visitProcessDef(self, ctx):
         name = ctx.actionName().getText().lower()
-        params = self.visit(ctx.variableList())
+        params = self.visit(ctx.possibly_typed_variable_list())
         self.current_params = params
         try:
             precondition, effect = self.visit(ctx.processDefBody())
@@ -559,7 +558,6 @@ class FStripsParser(fstripsVisitor):
 
         return prec, norm_eff_list
 
-
     def visitAssignEffect(self, ctx):
         operation = ctx.assignOp().getText().lower()
         lhs = self.visit(ctx.functionTerm())
@@ -573,7 +571,7 @@ class FStripsParser(fstripsVisitor):
 
     def visitEventDef(self, ctx):
         name = ctx.eventSymbol().getText().lower()
-        params = self.visit(ctx.variableList())
+        params = self.visit(ctx.possibly_typed_variable_list())
         self.current_params = params
         try:
             precondition, effect = self.visit(ctx.actionDefBody())
@@ -591,7 +589,7 @@ class FStripsParser(fstripsVisitor):
 
     def visitConstraintDef(self, ctx):
         name = ctx.constraintSymbol().getText().lower()
-        params = self.visit(ctx.variableList())
+        params = self.visit(ctx.possibly_typed_variable_list())
         self.current_params = params
 
         try:
