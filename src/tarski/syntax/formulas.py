@@ -210,7 +210,7 @@ class Atom(Formula):
     def _check_well_formed(self):
         head = self.predicate
 
-        if head is None : return # check automatically passes 
+        if head is None : return # check automatically passes
 
         if not isinstance(head, Predicate):
             raise err.LanguageError("Incorrect atom head: '{}' ".format(head))

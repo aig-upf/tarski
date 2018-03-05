@@ -13,16 +13,19 @@ class ConstraintGrounder(object):
         self.problem = prob
         self.L = self.problem.language
         self.index = index
-        self.problem.ground_actions = IndexDictionary()
-        self.schemas = list(self.problem.actions.values())
-        self.actions_generated = 0
+        self.problem.ground_constraints = IndexDictionary()
+        self.schemas = list(self.problem.constraints)
+        self.constraints_generated = 0
 
     def __str__(self):
-        return 'Actions generated: {}'.format(self.actions_generated)
+        return 'Constraints Generated: {}'.format(self.constraints_generated)
 
     def calculate_constraints(self):
 
-        for act_schema in self.schemas:
+        for const_schema in self.schemas:
+            # 1. Collect set of free variables in the constraint
+            
+
             K, syms, substs = instantiation.enumerate(self.L, act_schema.parameters )
             for values in itertools.product(*substs):
                 subst = { syms[k] : v for k,v in enumerate(values) }

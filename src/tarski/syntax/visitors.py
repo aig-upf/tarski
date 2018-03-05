@@ -29,3 +29,6 @@ class CollectVariables(object):
                     self.variables.add(t)
                 else :
                     t.accept(self)
+
+class CollectFreeVariables(object):
+    pass
