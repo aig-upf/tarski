@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from tarski.fol import FirstOrderLanguage
 from .. errors import UnableToGroundError
 

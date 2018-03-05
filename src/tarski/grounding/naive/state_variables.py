@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 """
     A module to deal with the instantiation of state variables.
 """
