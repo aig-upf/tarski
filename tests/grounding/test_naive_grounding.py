@@ -4,6 +4,7 @@ from tarski.grounding.naive import instantiation
 from tarski.syntax import *
 from tarski.util import IndexDictionary
 from tarski.grounding.naive.actions import ActionGrounder
+from tarski.grounding.naive.constraints import ConstraintGrounder
 
 from tests.common import blocksworld
 
@@ -46,3 +47,10 @@ def test_ground_actions_for_small_bw():
     grounder = ActionGrounder(prob,index)
     grounder.calculate_actions()
     assert len(prob.ground_actions) == 20
+
+def test_ground_constraints_for_small_bw():
+
+    prob, index = create_small_bw_with_index()
+    grounder = ConstraintGrounder(prob,index)
+    grounder.calculate_constraints()
+    assert len(prob.ground_constraints) == 10
