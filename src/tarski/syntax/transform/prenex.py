@@ -32,7 +32,9 @@ class PrenexTransformation(object):
             if not key_y in new_variables:
                 new_variables[key_y] = y
             else :
-                subst[y] = self.L.variable( "{}'".format(y.symbol), y.sort)
+                y2 = self.L.variable( "{}'".format(y.symbol), y.sort)
+                subst[y] = y2
+                new_variables[(y2.symbol,y2.sort.name)] = y2
         if len(subst) > 0 :
             substitution = TermSubstitution(self.L, subst)
             rhs.formula.accept(substitution)
