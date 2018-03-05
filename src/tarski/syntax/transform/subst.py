@@ -34,7 +34,10 @@ class TermSubstitution(object):
                 if rep is None :
                     t.accept(self)
                 else :
-                    new_subterms[k] = self.L.get_constant(rep)
+                    if isinstance(rep, self.L.Variable):
+                        new_subterms[k] = rep
+                    else:
+                        new_subterms[k] = self.L.get_constant(rep)
             phi.subterms = tuple(new_subterms)
         elif isinstance(phi, self.L.CompoundTerm):
             new_subterms = list(phi.subterms)
@@ -43,5 +46,8 @@ class TermSubstitution(object):
                 if rep is None :
                     t.accept(self)
                 else :
-                    new_subterms[k] = self.L.get_constant(rep)
+                    if isinstance(rep, self.L.Variable):
+                        new_subterms[k] = rep
+                    else:
+                        new_subterms[k] = self.L.get_constant(rep)
             phi.subterms = tuple(new_subterms)

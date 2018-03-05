@@ -8,26 +8,30 @@ import copy
 from tarski.syntax.temporal import ltl
 from tarski.syntax.formulas import *
 
-from . errors import SubstitutionError
+from . errors import TransformationError
 
 
-class NNFRewriter(object):
+class NNFTransformation(object):
     """
         This class rewrites the input formula phi into an equivalent formula
         in NNF (referenced by the )
     """
 
-    def __init__(self):
+    def __init__(self,phi, do_copy = True):
         self.blueprint = None
+        if do_copy :
+            self.blueprint = copy.deepcopy(phi)
+        else :
+            self.blueprint = phi
         self.nnf = None
 
 
-    def _convert(self,phi):
+    def _convert(self, phi):
         if isinstance(phi, CompoundFormula):
             if phi.connective == Connective.Not :
                 P = phi.subformulas[0]
-                if instance(P,QuantifiedFormula):
-                    if P.quantifier == Quantifier.Exists
+                if isinstance(P,QuantifiedFormula):
+                    if P.quantifier == Quantifier.Exists:
                         P.quantifier = Quantifier.Forall
                     else:
                         assert P.quantifier == Quantifier.Forall
@@ -42,15 +46,18 @@ class NNFRewriter(object):
                     else:
                         assert P.connective == Connective.Or
                         P.connective = Connective.And
-                    P.subformulas[0] = self._convert(neg(phi.subformulas[0]))
-                    P.subformulas[0] = self._convert(neg(phi.subformulas[1]))
+
+                    new_sub = [self._convert(neg(P.subformulas[0])),\
+                                 self._convert(neg(P.subformulas[1]))]
+                    P.subformulas = tuple(new_sub)
                     return P
                 else :
                     return phi # nothing to do
             else :
                 assert phi.connective == Connective.And or phi.connective == Connective.Or
-                phi.subformulas[0] = self._convert(phi.subformulas[0])
-                phi.subformulas[1] = self._convert(phi.subformulas[1])
+                new_sub = [self._convert(phi.subformulas[0]),\
+                            self._convert(phi.subformulas[1])]
+                phi.subformulas = tuple(new_sub)
                 return phi
         elif isinstance(phi,QuantifiedFormula):
             phi.formula = self._convert(phi.formula)
@@ -58,10 +65,11 @@ class NNFRewriter(object):
         else:
             return phi
 
-
-    def rewrite(self, phi, do_copy = True):
-        if do_copy :
-            self.blueprint = copy.deepcopy(phi)
-        else :
-            self.blueprint = phi
+    def convert(self):
         self.nnf = self._convert(self.blueprint)
+
+    @staticmethod
+    def rewrite( phi, do_copy = True):
+        trans =  NNFTransformation(phi, do_copy)
+        trans.convert()
+        return trans
