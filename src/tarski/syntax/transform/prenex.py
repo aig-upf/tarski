@@ -24,7 +24,7 @@ class PrenexTransformation(object):
         self.blueprint = NNFTransformation.rewrite(phi,do_copy).nnf
         self.prenex = None
 
-    def _merge_quantified_subformulas(self, lhs, rhs ):
+    def _merge_quantified_subformulas(self, lhs, rhs, renaming = True ):
         new_variables = { (x.symbol,x.sort.name) : x for x in lhs.variables}
         subst = {}
         for y in rhs.variables :
@@ -32,9 +32,10 @@ class PrenexTransformation(object):
             if not key_y in new_variables:
                 new_variables[key_y] = y
             else :
-                y2 = self.L.variable( "{}'".format(y.symbol), y.sort)
-                subst[y] = y2
-                new_variables[(y2.symbol,y2.sort.name)] = y2
+                if renaming :
+                    y2 = self.L.variable( "{}'".format(y.symbol), y.sort)
+                    subst[y] = y2
+                    new_variables[(y2.symbol,y2.sort.name)] = y2
         if len(subst) > 0 :
             substitution = TermSubstitution(self.L, subst)
             rhs.formula.accept(substitution)
@@ -42,10 +43,33 @@ class PrenexTransformation(object):
             list(new_variables.values()), lor( lhs.formula, rhs.formula ))
         return new_phi
 
-    def _merge_mixed_subformulas(self, q_phi, conn, varphi ):
-        new_phi = QuantifiedFormula(q_phi.quantifier, \
-            q_phi.variables, CompoundFormula(conn, tuple([q_phi.formula, varphi])))
+    def _merge_mixed_subformulas(self, quant, vars, lhs, conn, rhs ):
+        new_phi = QuantifiedFormula(quant, \
+            vars, CompoundFormula(conn, tuple([lhs, rhs])))
         return new_phi
+
+    def _nest_quantifiers( self, out_q, out_vars, out_phi, inner_q, inner_vars, conn, lhs, rhs):
+        """
+            Note that out_phi is either lhs or rhs, we have the parameter duplicated so we
+            can preserve the ordering of subformulas
+        """
+        in_vars_dict = { (x.symbol,x.sort.name) : x for x in inner_vars}
+        new_out_vars = []
+        subst = {}
+        for y in out_vars:
+            key_y = (y.symbol, y.sort.name)
+            if not key_y in in_vars_dict:
+                new_out_vars.append(y)
+            else :
+                y2 = self.L.variable( "{}'".format(y.symbol), y.sort)
+                subst[y] = y2
+                new_out_vars.append(y2)
+        if len(subst) > 0:
+            substitution = TermSubstitution(self.L, subst)
+            out_phi.accept(substitution)
+        phi = CompoundFormula(conn, tuple([lhs, rhs]))
+        inner = QuantifiedFormula( inner_q, inner_vars, phi)
+        return QuantifiedFormula( out_q, new_out_vars, inner)
 
     def _convert(self, phi) :
         if isinstance(phi,CompoundFormula):
@@ -67,42 +91,48 @@ class PrenexTransformation(object):
                 elif is_quant_lhs and is_quant_rhs:
                     # both parts of the formula are quantified
                     if lhs.quantifier == rhs.quantifier:
+                        return self._merge_quantified_subformulas(lhs,rhs)
                         if lhs.quantifier == Quantifier.Exist:
                             if phi.connective == Connective.And :
-                                raise TransformationError('prenex', phi, \
-                                'Cannot distribute existential quantifier over conjunction, please consider reformulating')
+                                return self._merge_quantified_subformulas(lhs,rhs)
                             assert phi.connective == Connective.Or
-                            return self._merge_quantified_subformulas(lhs,rhs)
+                            return self._merge_quantified_subformulas(lhs,rhs, False) # no renaming
                         assert lhs.quantifier == Quantifier.Forall
                         if phi.connective == Connective.Or:
-                            raise TransformationError('prenex', phi, \
-                            'Cannot distribute universal quantifier over disjunction, please consider reformulating')
-                        return self._merge_quantified_subformulas(lhs,rhs)
+                            return self._merge_quantified_subformuls(lhs,rhs)
+                        return self._merge_quantified_subformulas(lhs,rhs,False)
                     # we have different quantifiers, we apply the null quantifier
                     # equivalence
 
                     if rhs.quantifier == Quantifier.Exists \
                         and lhs.quantifier == Quantifier.Forall:
-                        return self._merge_quantified_subformulas(rhs,lhs)
-                    return self._merge_quantified_subformulas(lhs,rhs)
+                        return self._nest_quantifiers(Quantifier.Exists, rhs.variables, rhs.formula,\
+                                                        Quantifier.Forall, lhs.variables, \
+                                                        phi.connective, lhs.formula, rhs.formula)
+                    return self._nest_quantifiers(Quantifier.Exists, lhs.variables, lhs.formula, \
+                                                    Quantifier.Forall, rhs.variables, \
+                                                    phi.connective, lhs.formula, rhs.formula)
                 # \forall ( P \lor Q(x)) \equiv P \lor \forall x Q(x)
                 # \exists (P \land Q(x)) \equiv P \land \exists x Q(x)
                 elif is_quant_rhs:
-                    return self._merge_mixed_subformulas(rhs, phi.connective, lhs)
+                    return self._merge_mixed_subformulas(rhs.quantifier, rhs.variables, lhs, phi.connective, rhs.formula)
                 else: # is_quant_lhs
                     assert is_quant_lhs
-                    return self._merge_mixed_subformulas(lhs, phi.connective, rhs)
+                    return self._merge_mixed_subformulas(lhs.quantifier, lhs.variables, lhs.formula, phi.connective, rhs)
 
         elif isinstance(phi,QuantifiedFormula):
             phi.formula = self._convert(phi.formula)
             if isinstance(phi.formula, QuantifiedFormula):
                 if phi.formula.quantifier == phi.quantifier: #absorb
-                    for x in phi.variables:
-                        phi.formula.variables.append(x)
+                    new_variables = [ x for x in phi.variables]
+                    for x in phi.formula.variables:
+                        new_variables.append(x)
+                    phi.formula.variables = tuple(new_variables)
                     return phi.formula
                 if phi.formula.quantifier == Quantifier.Exists: # push up existential
                     phi.quantifier, phi.formula.quantifier = phi.formula.quantifier, phi.quantifier
                     phi.variables, phi.formula.variables = phi.formula.variables, phi.variables
+                    phi.formula = self._convert(phi.formula) # reordering the quantifiers may trigger further quantifier reordering
                 return phi
             else:
                 return phi

@@ -55,6 +55,16 @@ def test_nnf_quantifier_flips():
 
     assert str(result.nnf) == str(gamma)
 
+def test_nnf_LPL_page_321_antecedent():
+    tw = tarskiworld.create_small_world()
+    x = tw.variable('x', tw.Object)
+    y = tw.variable('y', tw.Object)
+    s = forall( x, neg(land(tw.Cube(x), exists(y, land(tw.Tet(x),tw.LeftOf(x,y))))))
+    result = NNFTransformation.rewrite(s)
+    gamma = forall( x, lor( neg(tw.Cube(x)), forall(y, lor(neg(tw.Tet(x)),neg( tw.LeftOf(x,y)))) ))
+    assert str(result.nnf) == str(gamma)
+
+
 def test_prenex_idempotency():
 
     bw = blocksworld.generate_small_bw_language()
