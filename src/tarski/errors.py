@@ -81,6 +81,12 @@ class DuplicateActionDefinition(DuplicateDefinition):
     pass
 
 
+class DuplicateVariableDefinition(DuplicateDefinition):
+    def __init__(self, variable, other, msg=None):
+        msg = "Variable with name '{}' already defined in binding: {}".format(variable.symbol, other)
+        super().__init__(variable, other, msg)
+
+
 class UndefinedSort(UndefinedElement):
     pass
 
@@ -98,6 +104,10 @@ class UndefinedConstant(UndefinedElement):
 
 
 class UndefinedAction(UndefinedElement):
+    pass
+
+
+class UndefinedVariable(UndefinedElement):
     pass
 
 

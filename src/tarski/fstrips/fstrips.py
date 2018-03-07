@@ -64,10 +64,6 @@ class Problem(object):
     __repr__ = __str__
 
 
-class Effect(object):
-    pass
-
-
 class UniversalEffect(object):
     """ A forall-effect """
     def __init__(self, variables, effects):

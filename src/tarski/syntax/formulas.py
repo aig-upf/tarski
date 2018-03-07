@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+from collections import OrderedDict
+
 from tarski import errors as err
-from .terms import Term, Variable
+from .terms import Variable
 from .predicate import Predicate
 
 import copy
@@ -205,7 +207,6 @@ class Atom(Formula):
     __repr__ = __str__
 
 
-
 # TODO (GFM) Revise this after the refactoring. The distinction between whether a formula is axiomatic, external, etc.
 # TODO should probably be done elsewhere, not here (possibly at the evaluation level)
 # class AxiomaticFormula(Formula):
@@ -225,9 +226,7 @@ class Atom(Formula):
 #         return s.check_satisfiability(implies(self._head, self._body)) and \
 #                s.check_satisfiability(implies(self._body, self._head))
 
-
 # axiom = AxiomaticFormula
-
 
 # TODO (GFM) Revise this after the refactoring. The distinction between whether a formula is axiomatic, external, etc.
 # TODO should probably be done elsewhere, not here (possibly at the evaluation level)
@@ -241,3 +240,27 @@ class Atom(Formula):
 #
 #     def __str__(self):
 #         return '{}({})'.format(self.name, ','.join([str(t) for t in self._subterms]))
+
+
+class VariableBinding(object):
+    """ A VariableBinding contains a set of logical variables which are _bound_ in some formula or term """
+    def __init__(self, variables=None):
+        variables = variables or []
+        # An (ordered) map between variable name and the variable itself:
+        self.variables = OrderedDict((v.symbol, v) for v in variables)
+
+    def add(self, variable: Variable):
+        other = self.variables.get(variable.symbol, None)
+        if other is not None:
+            raise err.DuplicateVariableDefinition(variable, other)
+        self.variables[variable.symbol] = variable
+
+    def get(self, name):
+        var = self.variables.get(name, None)
+        if var is None:
+            raise err.UndefinedVariable(name)
+        return var
+
+    def merge(self, binding):
+        """ Merge the given binding into the current binding, in-place """
+        raise NotImplementedError()
