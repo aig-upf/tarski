@@ -9,8 +9,10 @@ from antlr4 import FileStream, CommonTokenStream, InputStream
 from antlr4.error.ErrorListener import ErrorListener
 from tarski import model
 from tarski.errors import SyntacticError
+from tarski.fol import FirstOrderLanguage
 from tarski.fstrips import DelEffect, AddEffect, FunctionalEffect, UniversalEffect, language
-from tarski.syntax import neg, land, lor, Tautology, implies, exists, forall
+from tarski.syntax import neg, land, lor, Tautology, implies, exists, forall, Term
+from tarski.syntax._meta import ArithmeticOperatorImplementation
 from tarski.syntax.builtins import eq
 from tarski.syntax.formulas import VariableBinding
 
@@ -228,12 +230,8 @@ class FStripsParser(fstripsVisitor):
         return self.language.get_constant(name)
 
     def visitTermNumber(self, ctx):
-        ## TODO REVISE
-        object_name = ctx.NUMBER().getText().lower()
-        try:
-            return NumericConstant(int(object_name))
-        except ValueError:
-            return NumericConstant(float(object_name))
+        number = ctx.NUMBER().getText().lower()
+        return parse_number(number, self.language)
 
     def _recover_variable_from_context(self, name):
         if self.current_binding is None:
@@ -252,16 +250,16 @@ class FStripsParser(fstripsVisitor):
         return func(*subterms)
 
     def visitBinaryArithmeticFunctionTerm(self, ctx):
-        func_name = ctx.binaryOp().getText().lower()
-        if func_name not in built_in_functional_symbols:
-            raise SystemExit("Function {0} first seen used as a term in an atomic formula".format(func_name))
-        term_list = []
-        for term_ctx in ctx.term():
-            term_list.append(self.visit(term_ctx))
-        return FunctionalTerm(func_name, term_list)
+        op = ctx.builtin_binary_function().getText().lower()
+        subterms = [self.visit(t) for t in ctx.term()]
+        lhs, rhs = subterms
+        # return self.language.dispatch_operator(op, Term, Term, lhs, rhs)
+        # TODO CHANGE THE LINE BELOW FOR THE ONE ABOVE, AS WE WANT THIS PARSING TO DEPEND ON THE PARTICULAR
+        # TODO LANGUAGE
+        return ArithmeticOperatorImplementation(op)(lhs, rhs)
 
     def visitUnaryArithmeticFunctionTerm(self, ctx):
-        func_name = ctx.unaryBuiltIn().getText().lower()
+        func_name = ctx.builtin_unary_function().getText().lower()
         if func_name not in built_in_functional_symbols:
             raise SystemExit("Function {0} first seen used as a term in an atomic formula".format(func_name))
         if func_name == '-':
@@ -318,7 +316,7 @@ class FStripsParser(fstripsVisitor):
 
     def visitFComp(self, ctx):
         ## TODO REVISE
-        op = ctx.binaryComp().getText().lower()
+        op = ctx.builtin_binary_predicate().getText().lower()
         neg_op = {'<': '>=', '>': '<=', '<=': '>', '>=': '<'}
         lhs = self.visit(ctx.fExp(0))
         rhs = self.visit(ctx.fExp(1))
@@ -333,7 +331,7 @@ class FStripsParser(fstripsVisitor):
 
     def visitBinaryOperationExpr(self, ctx):
         ## TODO REVISE
-        op = ctx.binaryOp().getText().lower()
+        op = ctx.builtin_binary_function().getText().lower()
         lhs = self.visit(ctx.fExp(0))
         rhs = self.visit(ctx.fExp(1))
         return FunctionalTerm(op, [lhs, rhs])
@@ -661,3 +659,13 @@ class ParserVariableContext(object):
         # Restore the previous binding
         self.parser.current_binding = self.previous_binding
 
+
+# TODO MOVE THIS ELSEWHERE
+def parse_number(number, lang: FirstOrderLanguage):
+    # Because of the grammar, we know that number will be either an int or a float
+    try:
+        value = int(number)
+        return lang.constant(lang.Integer.cast(value), lang.Integer)
+    except ValueError:
+        value = float(number)
+        return lang.constant(lang.Real.cast(value), lang.Real)

@@ -227,7 +227,7 @@ equality
 	: '(' '=' term term ')'
 	;
 fComp
-	: '(' binaryComp fExp fExp ')'
+	: '(' builtin_binary_predicate fExp fExp ')'
 	;
 
 atomicTermFormula
@@ -242,10 +242,10 @@ term :
   | functionTerm      #TermFunction
   ;
 
-functionTerm :
-  '(' logical_symbol_name term* ')'        #GenericFunctionTerm
-  | '(' binaryOp term term ')'        #BinaryArithmeticFunctionTerm
-  | '(' unaryBuiltIn term ')'         #UnaryArithmeticFunctionTerm
+functionTerm
+  : '(' logical_symbol_name term* ')'        #GenericFunctionTerm
+  | '(' builtin_binary_function term term ')'        #BinaryArithmeticFunctionTerm
+  | '(' builtin_unary_function term ')'         #UnaryArithmeticFunctionTerm
   ;
 
 /************* PROCESSES ****************************/
@@ -319,21 +319,21 @@ single_effect
 	;
 
 atomic_effect
-	: '(' assignOp functionTerm fExp ')'                 # AssignEffect  // TODO GFM THIS DOES NOT SEEM CORRECT - WILL PARSE E.G. (assign (+ 1 2) 5) ?? DO WE REALLY NEED TWO DIFFERENT ASSIGNMENT RULES?
+    : '(' 'assign' functionTerm term ')'                 # AssignConstant // TODO GFM THIS DOES NOT SEEM CORRECT - WILL PARSE E.G. (assign (+ 1 2) 5)
+	| '(' assignOp functionTerm fExp ')'                 # AssignEffect  // TODO GFM THIS DOES NOT SEEM CORRECT - WILL PARSE E.G. (assign (+ 1 2) 5) ?? DO WE REALLY NEED TWO DIFFERENT ASSIGNMENT RULES?
 	| '(' 'not' atomicTermFormula ')'                    # DeleteAtomEffect
 	| atomicTermFormula                                  # AddAtomEffect
-    | '(' 'assign' functionTerm term ')'                 # AssignConstant
 	;
 
 
 // TODO: should these be uppercase & lexer section?
-binaryOp : '*' | '+' | '-' | '/' | '^' | 'max' | 'min' ;
+builtin_binary_function : '*' | '+' | '-' | '/' | '^' | 'max' | 'min' ;
 
-unaryBuiltIn : '-' | 'sin' | 'cos' | 'sqrt' | 'tan' | 'acos' | 'asin' | 'atan' | 'exp' | 'abs';
+builtin_unary_function : '-' | 'sin' | 'cos' | 'sqrt' | 'tan' | 'acos' | 'asin' | 'atan' | 'exp' | 'abs';
 
-binaryComp : '>' | '<' | '=' | '>=' | '<=' ;
+builtin_binary_predicate : '>' | '<' | '=' | '>=' | '<=' ;
 
-assignOp : 'assign' | 'scale-up' | 'scale-down' | 'increase' | 'decrease' ;
+assignOp : 'scale-up' | 'scale-down' | 'increase' | 'decrease' ;
 
 processEffectOp : 'increase' | 'decrease';
 

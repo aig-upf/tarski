@@ -141,7 +141,15 @@ def test_functional_effects():
     read = _setup_function_environment()
     _test_inputs([
         ("(assign (f o1) o1)", "effect"),
+        ("(assign (f o1) 10)", "effect"),
+        ("(assign (f o1) (+ 5 15))", "effect"),
+        ("(assign (f o1) (- 10 2))", "effect"),
     ], r=read)
+
+    with pytest.raises(ParsingError):
+        _test_inputs([
+            ("(assign (+ 5 4) 0)", "effect"),  # Cannot redefine fixed built-in functions
+        ], r=read)
 
 
 def _setup_function_environment():
