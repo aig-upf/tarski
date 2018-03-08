@@ -65,7 +65,7 @@ class Sort:
             p.extend(constant)
 
     def domain(self):
-        for v in self._domain : yield v
+        for v in self._domain : yield self.language.get_constant(v)
 
 
 class Interval(Sort):
