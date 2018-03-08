@@ -5,6 +5,11 @@ from tarski.syntax import *
 from tarski.util import IndexDictionary
 
 from tests.common import blocksworld
+from tests.common import parcprinter
+
+def test_task_static_symbol_detection():
+    prob = parcprinter.create_small_task()
+    assert False
 
 def test_task_index_create_state_variables():
     prob = blocksworld.create_small_task()
