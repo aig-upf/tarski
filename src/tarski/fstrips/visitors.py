@@ -52,8 +52,6 @@ class SymbolReference(object):
         return self.expr.subterms
 
     def __hash__(self):
-        # MRJ: Note that here we want to have a *guaranteed* hash collision
-        # for terms and atoms with the same symbol
         return hash(self.head.symbol)
 
     def __eq__(self, other):
@@ -103,11 +101,11 @@ class FluentSymbolCollector(object):
             for f in phi.subformulas: f.accept(self)
             self.under_next = old_value
         elif isinstance(phi, CompoundFormula):
-            old_visited = self.visited.copy()
+            #old_visited = self.visited.copy()
             for f in phi.subformulas : f.accept(self)
-            delta = self.visited - old_visited
-            if any( f in self.fluents for f in delta) :
-                for f in delta : self.fluents.add(f)
+            #delta = self.visited - old_visited
+            #if any( f in self.fluents for f in delta) :
+            #    for f in delta : self.fluents.add(f)
         elif isinstance(phi, QuantifiedFormula):
             phi.formula.accept(self)
         elif isinstance(phi, Atom):
@@ -116,16 +114,23 @@ class FluentSymbolCollector(object):
             if self.under_next:
                 if not phi.predicate.builtin:
                     self.fluents.add(SymbolReference(phi))
-            for t in phi.subterms:
-                t.accept(self)
+                else:
+                    for t in phi.subterms:
+                        t.accept(self)
+            else :
+                self.statics.add(SymbolReference(phi))
         elif isinstance(phi,self.lang.CompoundTerm):
             if not phi.symbol.builtin:
                 self.visited.add(SymbolReference(phi))
             if self.under_next:
                 if not phi.symbol.builtin :
                     self.fluents.add(SymbolReference(phi))
-            for t in phi.subterms :
-                t.accept(self)
+                else :
+                    for t in phi.subterms :
+                        t.accept(self)
+            else :
+                self.statics.add(SymbolReference(phi))
+
 
     def post_process(self):
         """
@@ -133,4 +138,9 @@ class FluentSymbolCollector(object):
             static expressions are those which haven't found
             under the scope of a X operator at least once.
         """
-        self.statics = self.statics - self.fluents
+        print(','.join([str(var) for var in self.fluents]))
+        print(','.join([str(var) for var in self.statics]))
+        self.statics = set([ x for x in self.statics if x not in self.fluents])
+        assert all([x not in self.statics for x in self.fluents])
+        print(','.join([str(var) for var in self.fluents]))
+        print(','.join([str(var) for var in self.statics]))
