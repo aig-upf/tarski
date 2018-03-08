@@ -9,6 +9,7 @@ from .syntax import Function, Constant
 
 def _check_assignment(fun, point, value=None):
     assert isinstance(point, tuple)
+
     elements = point + (value,) if value is not None else point
     processed = []
 
@@ -32,8 +33,8 @@ def _check_assignment(fun, point, value=None):
             raise err.SortMismatch(element, element.sort, expected_type)
 
         processed.append(element)
-
-    return tuple(processed) if value is None else tuple(processed[:-1]), processed[-1]
+    return tuple(processed) if value is None else tuple(processed[:-1]), \
+            processed[-1] if len(processed) > 0 else None
 
 
 class Model(object):

@@ -1,7 +1,7 @@
 """
  This tests the type-handling module
 """
-
+import tarski
 import tarski.model
 from tarski.model import Model
 
@@ -91,3 +91,13 @@ def test_blocksworld_add_and_remove():
     model.add(clear, b1)
     model.remove(clear, b1)
     assert evaluate(clear(b1), model) is False
+
+def test_zero_ary_predicate_set():
+    L = tarski.language()
+
+    P = L.predicate('P')
+
+    M = Model(L)
+    M.add( P )
+
+    assert evaluate( P(), M) is True
