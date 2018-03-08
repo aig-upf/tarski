@@ -224,7 +224,7 @@ class FirstOrderLanguage:
 
     def get_constant(self, name):
         if not self.has_constant(name):
-            raise err.UndefinedConstant(name)
+            raise err.UndefinedConstant(name, 'Language constants: {}'.format(self._constants))
         return self._constants[name]
 
     def predicate(self, name: str, *args):
