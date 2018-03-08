@@ -31,6 +31,8 @@ class TaskIndex(object):
         oS = len(self.static_symbols)
         while True :
             for _, act in P.actions.items() :
+                visitor.reset()
+                act.precondition.accept(visitor)
                 for eff in act.effects :
                     visitor.reset()
                     eff.accept(visitor)
