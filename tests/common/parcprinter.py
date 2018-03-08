@@ -8,6 +8,8 @@ from tarski import fstrips as fs
 from tarski.syntax import *
 from tarski.syntax.temporal import ltl
 
+from tarski.evaluators.simple import evaluate
+
 """ Fragment of ParcPrinter relevant for testing
 
 (:types
@@ -76,6 +78,7 @@ def create_small_task():
 
 
     M = tsk.model.create(upp)
+    M.evaluator = evaluate
     M.add( upp.Uninitialized )
     M.add( upp.Location, dummy_sheet, upp.some_finisher_tray)
     M.add( upp.Prevsheet, sheet1, dummy_sheet)
