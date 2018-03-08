@@ -57,7 +57,10 @@ class DuplicateDefinition(SyntacticError):
 
 class UndefinedElement(SyntacticError):
     def __init__(self, name, msg=None):
-        msg = msg or 'Undefined element "{}"'.format(name)
+        if msg is not None:
+            msg = 'Undefined element {}, {}'.format(name,msg)
+        else:
+            msg = 'Undefined element: {}'.format(name)
         super().__init__(msg)
 
 
