@@ -5,9 +5,11 @@
 """
 
 import itertools
+import copy
 
 from tarski.util import IndexDictionary
 from tarski import Function, Predicate
+from tarski.syntax.transform.subst import TermSubstitution
 
 from .. errors import UnableToGroundError
 
@@ -37,6 +39,14 @@ class StateVariable(object):
 
     def __str__(self):
         return '{}({})'.format(self.head.symbol, ','.join([str(a) for a in self.instantiation]))
+
+    @property
+    def ground(self):
+        subst = { k : v for k,v in zip(self.term.subterms,self.instantiation)}
+        g = copy.deepcopy(self.term)
+        v = TermSubstitution(self.head.language, subst)
+        g.accept(v)
+        return g
 
     __repr__ = __str__
 
