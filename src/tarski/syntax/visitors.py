@@ -1,6 +1,81 @@
 # -*- coding: utf-8 -*-
 from tarski.syntax.temporal import ltl
 from tarski.syntax.formulas import *
+from tarski.syntax.sorts import inclusion_closure
+
+def emvr(self, other):
+    """
+        Checks if two terms or atoms are equivalent modulo variable renaming
+    """
+
+    # @TODO: the variable renaming should be maintained across the
+    # whole sub-expression
+    if self.head.symbol != other.head.symbol: return False
+
+    for lhs, rhs in zip(self.subterms,other.subterms):
+        if isinstance(lhs,self.language.Variable) and\
+            isinstance(rhs,self.language.Variable):
+            if lhs.sort.name != rhs.sort.name :
+                if not rhs.sort in inclusion_closure(lhs.sort):
+                    return False
+        elif isinstance(lhs,self.language.Constant) and\
+            isinstance(rhs,self.language.Constant):
+            if lhs.symbol != rhs.symbol: return False
+        elif isinstance(lhs,self.language.CompoundTerm) and\
+            isinstance(rhs,self.language.CompoundTerm):
+            if not emvr(SymbolReference(lhs),SymbolReference(rhs)): return False
+        else:
+            return False
+    return True
+
+def esm(self,other):
+    """
+        Checks if two terms or atoms are exact syntactic matches
+    """
+    lhs = self.expr
+    rhs = other.expr
+    if isinstance(lhs, self.language.Variable):
+        if not isinstance(rhs,self.language.Variable):
+            return False
+        if lhs.symbol != rhs.symbol: return False
+        if lhs.sort.name != rhs.sort.name :
+            if not rhs.sort in inclusion_closure(lhs.sort):
+                return False
+        return True
+    if isinstance(lhs,self.language.Constant):
+        if not isinstance(rhs,self.language.Constant):
+            return False
+        return lhs.symbol == rhs.symbol
+    raise NotImplementedError()
+
+class SymbolReference(object):
+
+    def __init__(self, component, eq_fn = emvr):
+        self.expr = component
+        self.equality_fn = eq_fn
+        try:
+            self.head = self.expr.predicate
+        except AttributeError:
+            self.head = self.expr
+
+    @property
+    def language(self):
+        return self.head.language
+
+    @property
+    def subterms(self):
+        return self.expr.subterms
+
+    def __hash__(self):
+        return hash(self.head.symbol)
+
+    def __eq__(self, other):
+        return self.equality_fn(self, other)
+
+    __cmp__ = __eq__
+
+    def __str__(self):
+        return str(self.expr)
 
 class CollectVariables(object):
     """
@@ -31,4 +106,41 @@ class CollectVariables(object):
                     t.accept(self)
 
 class CollectFreeVariables(object):
-    pass
+    def __init__(self, L):
+        self.L = L
+        self.quantified_vars = set()
+        self._free_variables = set()
+
+    @property
+    def free_variables(self):
+        for ref in self._free_variables :
+            yield ref.expr
+
+    def visit(self,phi):
+        if isinstance(phi, CompoundFormula):
+            for f in phi.subformulas: f.accept(self)
+        elif isinstance(phi, QuantifiedFormula):
+            for x in phi.variables:
+                x_ref = SymbolReference(x,esm)
+                self.quantified_vars.add( x_ref )
+            phi.formula.accept(self)
+            for x in phi.variables:
+                x_ref = SymbolReference(x,esm)
+                self.quantified_vars.remove( x_ref )
+
+        elif isinstance(phi, Atom):
+            for k,t in enumerate(phi.subterms):
+                if isinstance(t, self.L.Variable):
+                    t_ref = SymbolReference(t,esm)
+                    if t_ref not in self.quantified_vars :
+                        self._free_variables.add(t_ref)
+                else :
+                    t.accept(self)
+        elif isinstance(phi, self.L.CompoundTerm):
+            for k,t in enumerate(phi.subterms):
+                if isinstance(t, self.L.Variable):
+                    t_ref = SymbolReference(t,esm)
+                    if t_ref not in self.quantified_vars :
+                        self._free_variables.add(t_ref)
+                else :
+                    t.accept(self)

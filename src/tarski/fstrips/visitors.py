@@ -6,65 +6,8 @@
 """
 from tarski.syntax.temporal import ltl
 from tarski.syntax.formulas import *
-from tarski.syntax.sorts import inclusion_closure
+from tarski.syntax.visitors import SymbolReference
 
-def emvr(self, other):
-    """
-        Checks if two terms or atoms are equivalent modulo variable renaming
-    """
-
-    # @TODO: the variable renaming should be maintained across the
-    # whole sub-expression
-    if self.head.symbol != other.head.symbol: return False
-
-    for lhs, rhs in zip(self.subterms,other.subterms):
-        if isinstance(lhs,self.language.Variable) and\
-            isinstance(rhs,self.language.Variable):
-            if lhs.sort.name != rhs.sort.name :
-                if not rhs.sort in inclusion_closure(lhs.sort):
-                    return False
-        elif isinstance(lhs,self.language.Constant) and\
-            isinstance(rhs,self.language.Constant):
-            if lhs.symbol != rhs.symbol: return False
-        elif isinstance(lhs,self.language.CompoundTerm) and\
-            isinstance(rhs,self.language.CompoundTerm):
-            if not emvr(SymbolReference(lhs),SymbolReference(rhs)): return False
-        else:
-            return False
-    return True
-
-class SymbolReference(object):
-
-    def __init__(self, component):
-        self.expr = component
-        try:
-            self.head = self.expr.predicate
-            self.is_atom = True
-        except AttributeError:
-            self.head = self.expr
-            self.is_atom = False
-    @property
-    def language(self):
-        return self.head.language
-
-    @property
-    def subterms(self):
-        return self.expr.subterms
-
-    def __hash__(self):
-        return hash(self.head.symbol)
-
-    def __eq__(self, other):
-        if self.is_atom and other.is_atom:
-            return emvr(self, other)
-        if not self.is_atom and not other.is_atom:
-            return emvr(self, other)
-        return False
-
-    __cmp__ = __eq__
-
-    def __str__(self):
-        return str(self.expr)
 
 class FluentHeuristic(object):
     action_effects = 1
@@ -118,7 +61,8 @@ class FluentSymbolCollector(object):
                     for t in phi.subterms :
                         t.accept(self)
             else :
-                self.statics.add(SymbolReference(phi))
+                if not phi.predicate.builtin:
+                    self.statics.add(SymbolReference(phi))
 
     def _visit_constraint_formula(self, phi):
         if isinstance(phi, ltl.TemporalCompoundFormula)\
@@ -131,7 +75,10 @@ class FluentSymbolCollector(object):
             old_visited = self.visited.copy()
             for f in phi.subformulas : f.accept(self)
             delta = self.visited - old_visited
+            #print('Fluents: {}'.format([str(x) for x in self.fluents]))
+            #print('Delta: {}'.format([str(x) for x in delta]))
             if any( f in self.fluents for f in delta) :
+                #print("Fluency propagates")
                 for f in delta : self.fluents.add(f)
         elif isinstance(phi, QuantifiedFormula):
             phi.formula.accept(self)
