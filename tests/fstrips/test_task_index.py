@@ -27,4 +27,4 @@ def test_task_index_process_symbols_statics():
     index.process_symbols(prob)
 
     print(','.join([str(sym) for sym in index.static_symbols]))
-    assert len(index.static_symbols) == 0
+    assert len(index.static_symbols) == 2

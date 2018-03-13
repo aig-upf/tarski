@@ -11,7 +11,7 @@ def test_task_static_symbol_detection():
     prob = parcprinter.create_small_task()
     index = fs.TaskIndex(prob.language.name,prob.name)
     index.process_symbols(prob)
-    assert len(index.static_symbols) == 5
+    assert len(index.static_symbols) == 2
     assert len(index.fluent_symbols) == 4
 
 def test_task_index_create_state_variables_parcprinter():

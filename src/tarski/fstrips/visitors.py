@@ -66,13 +66,19 @@ class SymbolReference(object):
     def __str__(self):
         return str(self.expr)
 
+class FluentHeuristic(object):
+    action_effects = 1
+    precondition = 2
+    constraint = 3
+
 class FluentSymbolCollector(object):
     """
         This visitor collects CompoundTerms which are candidates to become
         state variables.
     """
 
-    def __init__(self, L, fluents, statics):
+    def __init__(self, L, fluents, statics, mode : FluentHeuristic ):
+        self.mode = mode
         self.lang = L
         self.fluents = fluents
         self.statics = statics
@@ -81,6 +87,85 @@ class FluentSymbolCollector(object):
 
     def reset(self):
         self.visited = set()
+
+    def _visit_action_effect_formula(self, phi):
+
+        if isinstance(phi, ltl.TemporalCompoundFormula)\
+            and phi.connective == ltl.TemporalConnective.X:
+            old_value = self.under_next
+            self.under_next = True
+            for f in phi.subformulas: f.accept(self)
+            self.under_next = old_value
+        elif isinstance(phi, CompoundFormula):
+            for f in phi.subformulas : f.accept(self)
+        elif isinstance(phi, QuantifiedFormula):
+            phi.formula.accept(self)
+        elif isinstance(phi, Atom):
+            if self.under_next:
+                if not phi.predicate.builtin:
+                    self.fluents.add(SymbolReference(phi))
+                else:
+                    for t in phi.subterms:
+                        t.accept(self)
+            else :
+                if not phi.predicate.builtin:
+                    self.statics.add(SymbolReference(phi))
+        elif isinstance(phi,self.lang.CompoundTerm):
+            if self.under_next:
+                if not phi.symbol.builtin :
+                    self.fluents.add(SymbolReference(phi))
+                else :
+                    for t in phi.subterms :
+                        t.accept(self)
+            else :
+                self.statics.add(SymbolReference(phi))
+
+    def _visit_constraint_formula(self, phi):
+        if isinstance(phi, ltl.TemporalCompoundFormula)\
+            and phi.connective == ltl.TemporalConnective.X:
+            old_value = self.under_next
+            self.under_next = True
+            for f in phi.subformulas: f.accept(self)
+            self.under_next = old_value
+        elif isinstance(phi, CompoundFormula):
+            old_visited = self.visited.copy()
+            for f in phi.subformulas : f.accept(self)
+            delta = self.visited - old_visited
+            if any( f in self.fluents for f in delta) :
+                for f in delta : self.fluents.add(f)
+        elif isinstance(phi, QuantifiedFormula):
+            phi.formula.accept(self)
+        elif isinstance(phi, Atom):
+            if not phi.predicate.builtin:
+                self.visited.add(SymbolReference(phi))
+            if self.under_next:
+                if not phi.predicate.builtin:
+                    self.fluents.add(SymbolReference(phi))
+            else :
+                self.statics.add(SymbolReference(phi))
+            for t in phi.subterms:
+                t.accept(self)
+
+        elif isinstance(phi,self.lang.CompoundTerm):
+            if not phi.symbol.builtin:
+                self.visited.add(SymbolReference(phi))
+            if self.under_next:
+                if not phi.symbol.builtin :
+                    self.fluents.add(SymbolReference(phi))
+            else :
+                self.statics.add(SymbolReference(phi))
+            for t in phi.subterms:
+                t.accept(self)
+
+    def _visit_precondition_formula(self,phi):
+        if isinstance(phi, CompoundFormula):
+            for f in phi.subformulas : f.accept(self)
+        elif isinstance(phi, QuantifiedFormula):
+            phi.formula.accept(self)
+        elif isinstance(phi, Atom):
+            self.statics.add(SymbolReference(phi))
+        elif isinstance(phi,self.lang.CompoundTerm):
+            self.statics.add(SymbolReference(phi))
 
     def visit(self, phi):
         """
@@ -94,53 +179,10 @@ class FluentSymbolCollector(object):
             NB: at the moment we're trawling all (possibly lifted)
             sub-expressions, this is intentional.
         """
-        if isinstance(phi, ltl.TemporalCompoundFormula)\
-            and phi.connective == ltl.TemporalConnective.X:
-            old_value = self.under_next
-            self.under_next = True
-            for f in phi.subformulas: f.accept(self)
-            self.under_next = old_value
-        elif isinstance(phi, CompoundFormula):
-            #old_visited = self.visited.copy()
-            for f in phi.subformulas : f.accept(self)
-            #delta = self.visited - old_visited
-            #if any( f in self.fluents for f in delta) :
-            #    for f in delta : self.fluents.add(f)
-        elif isinstance(phi, QuantifiedFormula):
-            phi.formula.accept(self)
-        elif isinstance(phi, Atom):
-            if not phi.predicate.builtin:
-                self.visited.add(SymbolReference(phi))
-            if self.under_next:
-                if not phi.predicate.builtin:
-                    self.fluents.add(SymbolReference(phi))
-                else:
-                    for t in phi.subterms:
-                        t.accept(self)
-            else :
-                self.statics.add(SymbolReference(phi))
-        elif isinstance(phi,self.lang.CompoundTerm):
-            if not phi.symbol.builtin:
-                self.visited.add(SymbolReference(phi))
-            if self.under_next:
-                if not phi.symbol.builtin :
-                    self.fluents.add(SymbolReference(phi))
-                else :
-                    for t in phi.subterms :
-                        t.accept(self)
-            else :
-                self.statics.add(SymbolReference(phi))
-
-
-    def post_process(self):
-        """
-            Sorts fluent and static sets, so that the only
-            static expressions are those which haven't found
-            under the scope of a X operator at least once.
-        """
-        print(','.join([str(var) for var in self.fluents]))
-        print(','.join([str(var) for var in self.statics]))
-        self.statics = set([ x for x in self.statics if x not in self.fluents])
-        assert all([x not in self.statics for x in self.fluents])
-        print(','.join([str(var) for var in self.fluents]))
-        print(','.join([str(var) for var in self.statics]))
+        if self.mode == FluentHeuristic.action_effects :
+            self._visit_action_effect_formula(phi)
+        elif self.mode == FluentHeuristic.constraint :
+            self._visit_constraint_formula(phi)
+        else :
+            assert self.mode == FluentHeuristic.precondition
+            self._visit_precondition_formula(phi)
