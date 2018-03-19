@@ -68,7 +68,7 @@ class Effect(object):
     pass
 
 
-class UniversalEffect(object):
+class UniversalEffect(Effect):
     """ A forall-effect """
     def __init__(self, variables, effects):
         self.variables = variables
@@ -80,7 +80,7 @@ class UniversalEffect(object):
     __repr__ = __str__
 
 
-class SingleEffect(object):
+class SingleEffect(Effect):
     def __init__(self, condition):
         self.condition = condition
 
