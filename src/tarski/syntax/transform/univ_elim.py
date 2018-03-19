@@ -24,7 +24,7 @@ class UniversalQuantifierElimination(object):
     def __init__(self, L, phi, do_copy = True):
         self.L = L
         self.blueprint = PrenexTransformation.rewrite(self.L, phi,do_copy).prenex
-        print(str(self.blueprint))
+        #print(str(self.blueprint))
         self.universal_free = None
 
     def _enumerate_instantations( self, phi ):
@@ -54,7 +54,7 @@ class UniversalQuantifierElimination(object):
                     op = TermSubstitution(self.L,subst)
                     g_const.accept(op)
                     conjuncts.append(g_const)
-                print(len(conjuncts))
+                #print(len(conjuncts))
                 return land(*conjuncts)
             else:
 

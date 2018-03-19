@@ -7,8 +7,10 @@ from tests.common import tarskiworld
 from tarski.syntax.transform.nnf import NNFTransformation
 from tarski.syntax.transform.prenex import PrenexTransformation
 from tarski.syntax.transform.univ_elim import UniversalQuantifierElimination
+from tarski.syntax.transform import CNFTransformation
 from tarski.syntax.transform import NegatedBuiltinAbsorption
 from tarski.syntax.transform.errors import TransformationError
+
 
 def test_nnf_conjunction():
 
@@ -154,3 +156,45 @@ def test_builtin_negation_absorption():
 
     r = NegatedBuiltinAbsorption.rewrite(phi)
     assert str(r.formula) == str(psi)
+
+def test_cnf_conversion_easy():
+
+    tw = tarskiworld.create_small_world()
+    x = tw.variable('x', tw.Object)
+
+    y = tw.variable('y', tw.Object)
+
+    obj1 = tw.constant('obj1', tw.Object)
+    obj2 = tw.constant('obj2', tw.Object)
+    obj3 = tw.constant('obj3', tw.Object)
+
+    s1 = land( tw.Cube(obj1), neg( tw.Tet(obj2) ))
+    s2 = land( tw.Cube(obj2), neg( tw.Tet(obj1) ))
+    phi = lor(s1,s2)
+    c1 = lor( tw.Cube(obj1), tw.Cube(obj2) )
+    c2 = lor( tw.Cube(obj1), neg(tw.Tet(obj1)))
+    c3 = lor( neg(tw.Tet(obj2)), tw.Cube(obj2))
+    c4 = lor( neg(tw.Tet(obj2)), neg(tw.Tet(obj1)))
+    psi = land(land(c1,c2),land(c3,c4))
+    result = CNFTransformation.rewrite(tw, phi)
+    assert str(result.cnf) == str(psi)
+
+def test_cnf_conversion_complex():
+    tw = tarskiworld.create_small_world()
+    x = tw.variable('x', tw.Object)
+
+    y = tw.variable('y', tw.Object)
+
+    obj1 = tw.constant('obj1', tw.Object)
+    obj2 = tw.constant('obj2', tw.Object)
+    obj3 = tw.constant('obj3', tw.Object)
+
+    s1 = exists( y, land( tw.Dodec(y), tw.BackOf(x,y) ) )
+    s2 = land( tw.Cube(x), exists( y, land(tw.Tet(y), tw.LeftOf(x,y)) ) )
+    phi = forall( x, implies(s2,s1))
+    result = UniversalQuantifierElimination.rewrite(tw, phi)
+    result2 = CNFTransformation.rewrite(tw, result.universal_free.formula )
+    #print(result2.cnf)
+    #print('\n'.join( [ ','.join([str(l) for l in c]) for c in result2.clauses ] ) )
+    #print(len(result2.clauses))
+    assert len(result2.clauses) == 34
