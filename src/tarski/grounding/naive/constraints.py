@@ -6,6 +6,7 @@ from tarski import fstrips as fs
 from tarski.syntax.transform import TermSubstitution
 from tarski.syntax.transform import UniversalQuantifierElimination
 from tarski.syntax.transform import NegatedBuiltinAbsorption
+from tarski.syntax.transform import CNFTransformation
 from tarski.util import IndexDictionary
 from tarski.syntax import *
 
@@ -40,5 +41,13 @@ class ConstraintGrounder(object):
                 assert len(op2.variables) == 0
                 # Simplification steps
                 s0 = NegatedBuiltinAbsorption.rewrite(g_const)
-                self.problem.ground_constraints.add(s0.formula)
+                # CNF
+                if isinstance(s0.formula,QuantifiedFormula):
+                    assert s0.formula.quantifier == Quantifier.Exists
+                    # s0 is of the form \exists x1, ..., xn phi, phi is quantifier free
+                    s0.formula.formula = CNFTransformation.rewrite(self.L,s0.formula.formula).cnf
+                    self.problem.ground_constraints.add(s0.formula)
+                else:
+                    s1 = CNFTransformation.rewrite(self.L,s0.formula)
+                    self.problem.ground_constraints.add(s1.cnf)
             self.constraints_generated += K

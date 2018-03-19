@@ -53,7 +53,4 @@ def test_ground_constraints_for_small_bw():
     prob, index = create_small_bw_with_index()
     grounder = ConstraintGrounder(prob,index)
     grounder.calculate_constraints()
-    for c in prob.ground_constraints:
-        for f in c.subformulas:
-            print(str(f))
-    assert len(prob.ground_constraints) == 10
+    assert len(prob.ground_constraints) == 1
