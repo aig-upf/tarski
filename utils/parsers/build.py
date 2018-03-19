@@ -55,7 +55,14 @@ def process_antlr_file(name, prefix, target):
     with(open(dst)) as instream:
         lines = instream.read()
     rules = [('from {}Parser'.format(prefix), 'from parser'),
-             ('from .{}Parser'.format(prefix), 'from .parser')]
+             ('from .{}Parser'.format(prefix), 'from .parser'),
+             ('from {}Listener'.format(prefix), 'from listener'),
+             ('from .{}Listener'.format(prefix), 'from .listener'),
+             ('from {}Visitor'.format(prefix), 'from visitor'),
+             ('from .{}Visitor'.format(prefix), 'from .visitor'),
+             ('from {}Lexer'.format(prefix), 'from lexer'),
+             ('from .{}Lexer'.format(prefix), 'from .lexer')
+             ]
     for old, new in rules:
         lines = lines.replace(old, new)
     with open(dst, 'w') as outstream:
