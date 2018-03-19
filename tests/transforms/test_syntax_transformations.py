@@ -7,6 +7,7 @@ from tests.common import tarskiworld
 from tarski.syntax.transform.nnf import NNFTransformation
 from tarski.syntax.transform.prenex import PrenexTransformation
 from tarski.syntax.transform.univ_elim import UniversalQuantifierElimination
+from tarski.syntax.transform import NegatedBuiltinAbsorption
 from tarski.syntax.transform.errors import TransformationError
 
 def test_nnf_conjunction():
@@ -136,3 +137,20 @@ def test_universal_elimination_works():
     result2 = UniversalQuantifierElimination.rewrite(tw, result.universal_free)
     print(str(result2.universal_free))
     assert str(result.universal_free) == str(result2.universal_free)
+
+def test_builtin_negation_absorption():
+    bw = blocksworld.generate_small_bw_language()
+    block = bw.get_sort('block')
+    place = bw.get_sort('place')
+    loc = bw.get_function('loc')
+    clear = bw.get_predicate('clear')
+    b1, b2, b3, b4 = [bw.get_constant('b{}'.format(k)) for k in range(1, 5)]
+    table = bw.get_constant('table')
+
+    x = bw.variable('x', block)
+
+    phi = neg(loc(b1) == b2)
+    psi = loc(b1) != b2
+
+    r = NegatedBuiltinAbsorption.rewrite(phi)
+    assert str(r.formula) == str(psi)
