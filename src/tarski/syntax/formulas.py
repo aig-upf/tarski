@@ -135,10 +135,26 @@ bot = Contradiction()
 
 
 def land(*args):
+    if len(args) > 2 :
+        args =list(args)
+        args.reverse()
+        phi = CompoundFormula(Connective.And, (args[1], args[0]))
+        for k in range(2,len(args)):
+            phi = CompoundFormula(Connective.And, (args[k], phi))
+        return phi
+
     return CompoundFormula(Connective.And, args)
 
 
 def lor(*args):
+    if len(args)> 2:
+        args = list(args)
+        args.reverse()
+        phi = CompoundFormula(Connective.Or, (args[1], args[0]))
+        for k in range(2,len(args)):
+            phi = CompoundFormula(Connective.Or, (args[k], phi))
+        return phi
+
     return CompoundFormula(Connective.Or, args)
 
 
