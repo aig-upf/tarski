@@ -5,6 +5,7 @@ from . import instantiation
 from tarski import fstrips as fs
 from tarski.syntax.transform import TermSubstitution
 from tarski.syntax.transform import UniversalQuantifierElimination
+from tarski.syntax.transform import NegatedBuiltinAbsorption
 from tarski.util import IndexDictionary
 from tarski.syntax import *
 
@@ -37,5 +38,7 @@ class ConstraintGrounder(object):
                 op2 = CollectVariables(self.L)
                 g_const.accept(op2)
                 assert len(op2.variables) == 0
-                self.problem.ground_constraints.add(g_const)
+                # Simplification steps
+                s0 = NegatedBuiltinAbsorption.rewrite(g_const)
+                self.problem.ground_constraints.add(s0.formula)
             self.constraints_generated += K
