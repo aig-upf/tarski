@@ -1,9 +1,13 @@
+import pytest
+
 from tarski.syntax import *
 from tests.common import blocksworld
 from tests.common import tarskiworld
 
 from tarski.syntax.transform.nnf import NNFTransformation
 from tarski.syntax.transform.prenex import PrenexTransformation
+from tarski.syntax.transform.univ_elim import UniversalQuantifierElimination
+from tarski.syntax.transform.errors import TransformationError
 
 def test_nnf_conjunction():
 
@@ -99,3 +103,36 @@ def test_prenex_LPL_page_321():
                                         land(tw.Dodec(yp),tw.BackOf(x,yp)))))).nnf
 
     assert str(result.prenex) == str(gamma)
+
+def test_universal_elimination_fails_due_to_no_constants():
+    tw = tarskiworld.create_small_world()
+    x = tw.variable('x', tw.Object)
+
+    y = tw.variable('y', tw.Object)
+    s1 = exists( y, land( tw.Dodec(y), tw.BackOf(x,y) ) )
+    s2 = land( tw.Cube(x), exists( y, land(tw.Tet(y), tw.LeftOf(x,y)) ) )
+    phi = forall( x, implies(s2,s1))
+    print(str(phi))
+    with pytest.raises(TransformationError):
+        result = UniversalQuantifierElimination.rewrite(tw, phi)
+        print(str(result.universal_free))
+
+def test_universal_elimination_works():
+    tw = tarskiworld.create_small_world()
+    x = tw.variable('x', tw.Object)
+
+    y = tw.variable('y', tw.Object)
+
+    obj1 = tw.constant('obj1', tw.Object)
+    obj2 = tw.constant('obj2', tw.Object)
+    obj3 = tw.constant('obj3', tw.Object)
+
+    s1 = exists( y, land( tw.Dodec(y), tw.BackOf(x,y) ) )
+    s2 = land( tw.Cube(x), exists( y, land(tw.Tet(y), tw.LeftOf(x,y)) ) )
+    phi = forall( x, implies(s2,s1))
+    print(str(phi))
+    result = UniversalQuantifierElimination.rewrite(tw, phi)
+    print(str(result.universal_free))
+    result2 = UniversalQuantifierElimination.rewrite(tw, result.universal_free)
+    print(str(result2.universal_free))
+    assert str(result.universal_free) == str(result2.universal_free)
