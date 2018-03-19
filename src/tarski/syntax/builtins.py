@@ -14,6 +14,17 @@ class BuiltinPredicate(Enum):
     def __str__(self):
         return self.value.lower()
 
+    @staticmethod
+    def complement(v):
+        complement_table = {
+            BuiltinPredicate.EQ: BuiltinPredicate.NE,
+            BuiltinPredicate.NE: BuiltinPredicate.EQ,
+            BuiltinPredicate.LT: BuiltinPredicate.GE,
+            BuiltinPredicate.GT: BuiltinPredicate.LE,
+            BuiltinPredicate.GE: BuiltinPredicate.LT,
+            BuiltinPredicate.LE: BuiltinPredicate.GT
+        }
+        return complement_table[v]
 
 def is_builtin_predicate(predicate):
     return isinstance(predicate.symbol, BuiltinPredicate)
