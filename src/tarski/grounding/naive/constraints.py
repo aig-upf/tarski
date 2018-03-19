@@ -4,6 +4,7 @@ import itertools, copy
 from . import instantiation
 from tarski import fstrips as fs
 from tarski.syntax.transform import TermSubstitution
+from tarski.syntax.transform import UniversalQuantifierElimination
 from tarski.util import IndexDictionary
 from tarski.syntax import *
 
@@ -24,24 +25,17 @@ class ConstraintGrounder(object):
 
         for const_schema in self.schemas:
             # 1. Collect set of free variables in the constraint
-            raise NotImplementedError()
-
-            #K, syms, substs = instantiation.enumerate(self.L, const_schema.parameters )
-            #for values in itertools.product(*substs):
-            #    subst = { syms[k] : v for k,v in enumerate(values) }
-            #    g_prec = copy.deepcopy(act_schema.precondition)
-            #    op = TermSubstitution(self.L,subst)
-            #    g_prec.accept(op)
-            #    var_collector = CollectVariables(self.L)
-            #    g_prec.accept(var_collector)
-            #    assert len(var_collector.variables) == 0
-            #    g_effs = []
-            #    for eff in act_schema.effects:
-            #        g_eff = copy.deepcopy(eff)
-            #        g_eff.accept(op)
-            #        var_collector = CollectVariables(self.L)
-            #        g_eff.accept(var_collector)
-            #        assert len(var_collector.variables) == 0
-            #        g_effs.append(g_eff)
-            #    self.problem.ground_actions.add(fs.Action(self.L, act_schema.name, [], g_prec, g_effs))
-            #self.actions_generated += K
+            const_schema = UniversalQuantifierElimination.rewrite(self.L, const_schema).universal_free
+            var_collector = CollectVariables(self.L)
+            const_schema.accept(var_collector)
+            K, syms, substs = instantiation.enumerate(self.L, list(var_collector.variables) )
+            for values in itertools.product(*substs):
+                subst = { syms[k] : v for k,v in enumerate(values) }
+                g_const = copy.deepcopy(const_schema)
+                op = TermSubstitution(self.L,subst)
+                g_const.accept(op)
+                op2 = CollectVariables(self.L)
+                g_const.accept(op2)
+                assert len(op2.variables) == 0
+                self.problem.ground_constraints.add(g_const)
+            self.constraints_generated += K
