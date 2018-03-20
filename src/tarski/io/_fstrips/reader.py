@@ -66,7 +66,7 @@ class FStripsParser(fstripsVisitor):
         self.problem.language = language()
         self.problem.init = model.create(problem.language)
         self.error_handler = ExceptionRaiserListener() if raise_on_error else None
-
+        self.declared_variables = None # to keep track of declared variables
         # Shortcuts
         self.language = problem.language
         self.init = self.problem.init
