@@ -182,9 +182,9 @@ class FStripsParser(fstripsVisitor):
     def visitActionDef(self, ctx):
         name = ctx.actionName().getText().lower()
         params = self.visit(ctx.possibly_typed_variable_list())
-        self.current_params = params
+        self.declared_variables = params
         precondition, effect = self.visit(ctx.actionDefBody())
-        self.current_params = None
+        self.declared_variables = None
         self.problem.action(name, params, precondition, effect)
 
     def visitActionDefBody(self, ctx):
@@ -221,9 +221,9 @@ class FStripsParser(fstripsVisitor):
 
     def visitTermVariable(self, ctx):
         variable_name = ctx.VARIABLE().getText().lower()
-        if self.current_params is None:
+        if self.declared_variables is None:
             return variable_name
-        for variable in self.current_params:
+        for variable in self.declared_variables:
             if variable.symbol == variable_name:
                 return variable
         raise UnresolvedVariableError(variable_name)
@@ -276,19 +276,19 @@ class FStripsParser(fstripsVisitor):
     def visitExistentialGoalDesc(self, ctx):
         variables = self.visit(ctx.possibly_typed_variable_list())
         # MRJ: so we know what variables have been declared
-        if self.current_params is None :
-            self.current_params = variables
+        if self.declared_variables is None :
+            self.declared_variables = variables
         else :
-            self.current_params += variables
+            self.declared_variables += variables
         formula = self.visit(ctx.goalDesc())
         return exists(*variables, formula)
 
     def visitUniversalGoalDesc(self, ctx):
         variables = self.visit(ctx.possibly_typed_variable_list())
-        if self.current_params is None :
-            self.current_params = variables
+        if self.declared_variables is None :
+            self.declared_variables = variables
         else :
-            self.current_params += variables
+            self.declared_variables += variables
         formula = self.visit(ctx.goalDesc())
         return forall(*variables, formula)
 
@@ -333,8 +333,8 @@ class FStripsParser(fstripsVisitor):
 
     def visitVariableExpr(self, ctx):
         variable_name = ctx.VARIABLE().getText().lower()
-        if self.current_params is None: return variable_name
-        for var_obj in self.current_params:
+        if self.declared_variables is None: return variable_name
+        for var_obj in self.declared_variables:
             if var_obj.name == variable_name:
                 return var_obj
         raise UnresolvedVariableError(variable_name)
@@ -517,8 +517,8 @@ class FStripsParser(fstripsVisitor):
 
     def visitProcessVarEff(self, ctx):
         variable_name = ctx.VARIABLE().getText().lower()
-        if self.current_params is None: return variable_name
-        for var_obj in self.current_params:
+        if self.declared_variables is None: return variable_name
+        for var_obj in self.declared_variables:
             if var_obj.name == variable_name:
                 return var_obj
         raise UnresolvedVariableError(variable_name)
@@ -536,12 +536,12 @@ class FStripsParser(fstripsVisitor):
     def visitProcessDef(self, ctx):
         name = ctx.actionName().getText().lower()
         params = self.visit(ctx.possibly_typed_variable_list())
-        self.current_params = params
+        self.declared_variables = params
         try:
             precondition, effect = self.visit(ctx.processDefBody())
         except UndeclaredVariable as error:
             raise SystemExit("Parsing process {}: undeclared variable {}".format(name, error))
-        self.current_params = None
+        self.declared_variables = None
         process = Action(name, params, len(params), precondition, effect, None)
         self.processes.append(process)
         # print( 'Action: {0}'.format(name) )
@@ -580,12 +580,12 @@ class FStripsParser(fstripsVisitor):
     def visitEventDef(self, ctx):
         name = ctx.eventSymbol().getText().lower()
         params = self.visit(ctx.possibly_typed_variable_list())
-        self.current_params = params
+        self.declared_variables = params
         try:
             precondition, effect = self.visit(ctx.actionDefBody())
         except UndeclaredVariable as error:
             raise SystemExit("Parsing event {}: undeclared variable {}".format(name, error))
-        self.current_params = None
+        self.declared_variables = None
         evt = Event(name, params, len(params), precondition, effect)
         self.events.append(evt)
         # print( 'Action: {0}'.format(name) )
@@ -598,7 +598,7 @@ class FStripsParser(fstripsVisitor):
     def visitConstraintDef(self, ctx):
         name = ctx.constraintSymbol().getText().lower()
         params = self.visit(ctx.possibly_typed_variable_list())
-        self.current_params = params
+        self.declared_variables = params
 
         try:
             conditions = self.visit(ctx.goalDesc())
@@ -607,7 +607,7 @@ class FStripsParser(fstripsVisitor):
                 "Parsing process {}: undeclared variable in {} found undeclared variable {}".format('state constraint',
                                                                                                     repr(error)))
 
-        self.current_params = None
+        self.declared_variables = None
         state_constraint = Constraint(name, params, conditions)
         self.constraint_schemata.append(state_constraint)
 
