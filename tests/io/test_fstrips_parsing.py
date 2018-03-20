@@ -86,8 +86,8 @@ def test_init():
 
 
 def test_blocksworld_reading():
-    instance_file = "/home/frances/projects/code/downward-benchmarks/visitall-sat11-strips/problem12.pddl"
-    domain_file = "/home/frances/projects/code/downward-benchmarks/visitall-sat11-strips/domain.pddl"
+    instance_file = "tests/data/pddl/ipc/visitall-sat11-strips/problem12.pddl"
+    domain_file = "tests/data/pddl/ipc/visitall-sat11-strips/domain.pddl"
     _ = reader().read_problem(domain_file, instance_file)
 
 
