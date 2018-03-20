@@ -247,7 +247,10 @@ class FirstOrderLanguage:
 
     def get_predicate(self, name):
         if not self.has_predicate(name):
-            raise err.UndefinedPredicate(name)
+            # dump predicates in language
+            msg = 'Predicates in language: {}'
+            msg = msg.format( ','.join([ '{},{}:{}'.format(type(k), k, str(p.symbol)) for k, p in self._predicates.items()]))
+            raise err.UndefinedPredicate(name, msg)
         return self._predicates[name]
 
     def function(self, name: str, *args):
@@ -330,4 +333,3 @@ class FirstOrderLanguage:
             return self._operators[(operator, t1, t2)](lhs, rhs)
         except KeyError:
             raise err.LanguageError("Operator '{}' not defined on domain ({}, {})".format(operator, t1, t2))
-
