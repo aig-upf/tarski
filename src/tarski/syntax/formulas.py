@@ -55,6 +55,11 @@ class Formula(object):
     def __gt__(self, rhs):
         return implies(self, rhs)
 
+    def accept(self, visitor):
+        """
+            Visitor pattern
+        """
+        visitor.visit(self)
 
 class Tautology(Formula):
     def __str__(self): return "T"
@@ -72,6 +77,15 @@ class CompoundFormula(Formula):
         self.connective = connective
         self.subformulas = subformulas
         self._check_well_formed()
+
+
+    def __deepcopy__(self, memo):
+        # Dummy call to constructor
+        newone = type(self)(Connective.And, [top,top])
+        memo[id(self)] = newone
+        for k, v in self.__dict__.items():
+            setattr(newone, k, copy.deepcopy(v, memo))
+        return newone
 
     def _check_well_formed(self):
         if any(not isinstance(f, Formula) for f in self.subformulas):
@@ -99,6 +113,14 @@ class QuantifiedFormula(Formula):
         self.formula = formula
         self._check_well_formed()
 
+    def __deepcopy__(self,memo):
+        # Dummy call to constructor
+        newone = type(self)(Quantifier.Forall, [None] , top)
+        memo[id(self)] = newone
+        for k, v in self.__dict__.items():
+            setattr(newone, k, copy.deepcopy(v, memo))
+        return newone
+
     def _check_well_formed(self):
         if len(self.variables) == 0:
             raise err.LanguageError("Quantified formula with no variable")
@@ -113,10 +135,26 @@ bot = Contradiction()
 
 
 def land(*args):
+    if len(args) > 2 :
+        args =list(args)
+        args.reverse()
+        phi = CompoundFormula(Connective.And, (args[1], args[0]))
+        for k in range(2,len(args)):
+            phi = CompoundFormula(Connective.And, (args[k], phi))
+        return phi
+
     return CompoundFormula(Connective.And, args)
 
 
 def lor(*args):
+    if len(args)> 2:
+        args = list(args)
+        args.reverse()
+        phi = CompoundFormula(Connective.Or, (args[1], args[0]))
+        for k in range(2,len(args)):
+            phi = CompoundFormula(Connective.Or, (args[k], phi))
+        return phi
+
     return CompoundFormula(Connective.Or, args)
 
 
@@ -176,8 +214,19 @@ class Atom(Formula):
         self.subterms = arguments
         self._check_well_formed()
 
+    def __deepcopy__(self,memo):
+        # Dummy call to constructor
+        newone = type(self)( None,[])
+        memo[id(self)] = newone
+        for k, v in self.__dict__.items():
+            setattr(newone, k, copy.deepcopy(v, memo))
+        return newone
+
+
     def _check_well_formed(self):
         head = self.predicate
+
+        if head is None : return # check automatically passes
 
         if not isinstance(head, Predicate):
             raise err.LanguageError("Incorrect atom head: '{}' ".format(head))
@@ -203,7 +252,8 @@ class Atom(Formula):
         return '{}({})'.format(self.predicate.symbol, ','.join([str(t) for t in self.subterms]))
 
     __repr__ = __str__
-
+    def __hash__(self):
+        return hash(self.predicate.symbol)
 
 
 # TODO (GFM) Revise this after the refactoring. The distinction between whether a formula is axiomatic, external, etc.

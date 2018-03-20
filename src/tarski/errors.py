@@ -57,7 +57,10 @@ class DuplicateDefinition(SyntacticError):
 
 class UndefinedElement(SyntacticError):
     def __init__(self, name, msg=None):
-        msg = msg or 'Undefined element "{}"'.format(name)
+        if msg is not None:
+            msg = 'Undefined element {}, {}'.format(name,msg)
+        else:
+            msg = 'Undefined element: {}'.format(name)
         super().__init__(msg)
 
 
@@ -76,11 +79,6 @@ class DuplicateFunctionDefinition(DuplicateDefinition):
 class DuplicateConstantDefinition(DuplicateDefinition):
     pass
 
-
-class DuplicateActionDefinition(DuplicateDefinition):
-    pass
-
-
 class UndefinedSort(UndefinedElement):
     pass
 
@@ -94,10 +92,6 @@ class UndefinedFunction(UndefinedElement):
 
 
 class UndefinedConstant(UndefinedElement):
-    pass
-
-
-class UndefinedAction(UndefinedElement):
     pass
 
 

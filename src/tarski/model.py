@@ -9,6 +9,7 @@ from .syntax import Function, Constant
 
 def _check_assignment(fun, point, value=None):
     assert isinstance(point, tuple)
+
     elements = point + (value,) if value is not None else point
     processed = []
 

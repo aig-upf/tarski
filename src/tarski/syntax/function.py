@@ -11,6 +11,7 @@ class Function(object):
         self.language = language
         self.domain = tuple(args[:-1])
         self.codomain = args[-1]
+        self.builtin = True
 
         self._check_well_formed()
 
@@ -23,6 +24,10 @@ class Function(object):
 
             if self.language != a.language:
                 raise err.LanguageMismatch(a, a.language, self.language)
+
+    def __deepcopy__(self,memo):
+        memo[id(self)]=self
+        return self
 
     @property
     def signature(self):

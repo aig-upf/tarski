@@ -38,6 +38,11 @@ class Term(object):
     def __rshift__(self, rhs):
         return self.language.dispatch_operator('>>', Term, Term, self, rhs)
 
+    def accept(self, visitor):
+        """
+            Visitor pattern
+        """
+        visitor.visit(self)
 
 class Variable(Term):
     def __init__(self, symbol: str, sort: Sort):
@@ -110,6 +115,7 @@ class CompoundTerm(Term):
     def sort(self):
         return self.symbol.codomain
 
+
     # def __deepcopy__(self, memo):
     #     newone = type(self)(self.symbol, self.sort, self.language)
     #     memo[id(self)] = newone
@@ -144,10 +150,15 @@ class Constant(Term):
     def sort(self):
         return self._sort
 
+    def __deepcopy__(self,memo):
+        memo[id(self)]=self
+        return self
+
     def __str__(self):
         return '{}'.format(self.symbol)
 
     def __repr__(self):
+
         return '{} ({})'.format(self.symbol, self.sort.name)
 
     def __hash__(self):

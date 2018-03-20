@@ -26,7 +26,7 @@ def evaluate(element, m: Model, sigma={}):
     if isinstance(element, (m.language.Constant, m.language.CompoundTerm)):
         return evaluate_term(element, m, sigma)
 
-    raise RuntimeError("Unknown logical element type: {}".format(element))
+    raise RuntimeError("Unknown logical element type: {}, {}".format(element,type(element)))
 
 
 _compound_evaluators = {

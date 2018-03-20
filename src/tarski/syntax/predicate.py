@@ -10,6 +10,7 @@ class Predicate(object):
         self._symbol = name  # name, a string
         self.language = language  # fol the symbol belongs to
         self.sort = []
+        self.builtin = True
 
         # we validate the arguments now
         for k, a in enumerate(args):
@@ -20,6 +21,10 @@ class Predicate(object):
                 raise LanguageError("Predicate.__init__(): {}-th argument \
                 belongs to a different language".format(k + 1))
             self.sort.append(a)
+
+    def __deepcopy__(self,memo):
+        memo[id(self)]=self
+        return self
 
     @property
     def symbol(self):

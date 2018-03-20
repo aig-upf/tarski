@@ -62,6 +62,10 @@ class FirstOrderLanguage:
         self.theories = []
         bind_equality_to_language_components(self)
 
+    def __deepcopy__(self,memo):
+        memo[id(self)]=self
+        return self
+
     @property
     def variables(self):
         for x in self._variables:
@@ -73,7 +77,7 @@ class FirstOrderLanguage:
 
     @property
     def sorts(self):
-        for s in self.sorts:
+        for _, s in self._sorts.items():
             yield s
 
     @property
@@ -83,7 +87,7 @@ class FirstOrderLanguage:
 
     @property
     def functions(self):
-        for f in self._functions.items():
+        for _, f in self._functions.items():
             yield f
 
     def _build_builtin_sorts(self):
@@ -229,7 +233,7 @@ class FirstOrderLanguage:
 
     def get_constant(self, name):
         if not self.has_constant(name):
-            raise err.UndefinedConstant(name)
+            raise err.UndefinedConstant(name, 'Language constants: {}'.format(self._constants))
         return self._constants[name]
 
     def predicate(self, name: str, *args):
@@ -238,6 +242,8 @@ class FirstOrderLanguage:
 
         types = [self._retrieve_object(a, Sort) for a in args]  # Convert possible strings into Sort objects
         predicate = Predicate(name, self, *types)
+        predicate.builtin = False
+
         self._predicates[name] = predicate
         # self._predicates_by_sort[(name,) + tuple(*args)] = predicate
         return predicate
@@ -259,6 +265,8 @@ class FirstOrderLanguage:
 
         types = [self._retrieve_object(a, Sort) for a in args]  # Convert possible strings into Sort objects
         func = Function(name, self, *types)
+        func.builtin = False
+        
         self._functions[name] = func
         # self._functions_by_sort[(name,) + tuple(*args)] = func
         return func

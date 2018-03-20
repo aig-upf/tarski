@@ -2,10 +2,12 @@ from .function import Function
 from .predicate import Predicate
 from .sorts import Sort, Interval, inclusion_closure
 from .terms import Term, Constant, Variable, CompoundTerm
-from .formulas import Formula, land, lor, neg, implies, forall, exists, Connective, Atom, Formula, CompoundFormula, \
+from .formulas import Formula, land, lor, top, bot, neg, implies, forall, exists, equiv, Connective, Atom, Formula, CompoundFormula, \
     QuantifiedFormula, Tautology, Contradiction
 
 from ._meta import RelationalOperatorImplementation
+
+from .visitors import CollectVariables
 
 symbol_rel_op_map = {
     'eq': '__eq__',

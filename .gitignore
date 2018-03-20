@@ -64,5 +64,5 @@ alltests.bat
 # pytest internals
 .cache/
 
-# Build directory
-build
+# setup internals
+build/
