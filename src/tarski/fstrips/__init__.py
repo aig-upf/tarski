@@ -2,7 +2,7 @@
 from .problem import Problem
 from .action import  Action
 from .task_index import TaskIndex
-from .fstrips import Problem, Action, Effect, AddEffect, DelEffect, FunctionalEffect, UniversalEffect, language
+from .fstrips import Effect, AddEffect, DelEffect, FunctionalEffect, UniversalEffect, language
 
 def create_fs_task(problem):
     """ Create a problem domain and instance and perform the appropriate validity checks """

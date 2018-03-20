@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
-
+from . action import Action
 from . import errors as err
 
 class Problem(object):
     """ A Functional STRIPS problem """
 
-    def __init__(self, name, language, **kwargs):
+    def __init__(self, name = None, language = None, **kwargs):
         """
         A FSTRIPS Problem description. Constructor parameters are:
 
@@ -17,28 +17,20 @@ class Problem(object):
          - constraints: the set of constraints that valid plans need to comply with
          before reaching a goal state
         """
-        self._name = name
+        self.name = name
         self.language = language
-        try :
-            self.init = kwargs['init']
-            if self.init is None :
-                raise err.IncompleteProblemError(self,msg="No initial state was given")
-        except KeyError:
-            raise err.IncompleteProblemError(self,msg="No initial state was given")
-        try :
-            self.goal = kwargs['goal']
-        except KeyError:
-            raise err.IncompleteProblemError(self,msg="Goal was not specified")
-
-        self.constraints = kwargs.get('constraints',None)
+        self.init = kwargs.get('init', None)
+        self.goal = kwargs.get('goal', None)
+        self.constraints = kwargs.get('constraints',[])
         actions = [ ( (a.name,tuple(a.parameters)) , a) for a in kwargs.get('actions',[])]
         self.actions = OrderedDict(actions) if actions is not None else OrderedDict()
 
         # TODO Add axioms, state constraints, etc.
 
-    @property
-    def name(self):
-        return self._name
+    def __str__(self):
+        return 'FSTRIPS Problem "{}", domain "{}"'.format(self.name, self.domain_name)
+
+    __repr__ = __str__
 
     def action(self, name, parameters, precondition, effects):
         if name in self.actions:
@@ -46,7 +38,7 @@ class Problem(object):
             raise err.DuplicateActionDefinition(name, self.actions[name])
 
         self.actions[(name,tuple(parameters))] = Action(self.language, name, parameters, precondition, effects)
-        return self.actions[name]
+        return self.actions[(name,tuple(parameters))]
 
     def has_action(self, name):
         return name in self.actions
