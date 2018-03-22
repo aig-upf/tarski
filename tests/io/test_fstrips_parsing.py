@@ -165,6 +165,20 @@ def _setup_predicate_environment():
     ], r=read)
     return read
 
+def _setup_numeric_environment():
+    read = reader()
+    # Set up a few declaration of numeric functions and objects
+    _test_inputs([
+        ("(:types vehicle obstacle)", "declaration_of_types"),
+        ("(:constants v1 v2 - vehicle o1 o2 o3 - obstacle)", "constant_declaration"),
+        ("(x ?o - vehicle) - number", "function_definition"),
+        ("(y ?o - vehicle) - number", "function_definition"),
+        ("(a ?o - obstacle) - number", "function_definition"),
+        ("(b ?o - obstacle) - number", "function_definition"),
+        ("(c ?o - obstacle) - number", "function_definition"),
+    ], r=read)
+    return read
+
 
 def test_functional_atoms():
     read = _setup_function_environment()
@@ -184,4 +198,11 @@ def test_strips_atoms():
         ("(imply (p o1) (p o2))", "formula"),
         ("(forall (?x - t) (p ?x))", "formula"),
         ("(exists (?x - t) (p ?x))", "formula"),
+    ], r=read)
+
+def test_geometric_precondition():
+    read = _setup_numeric_environment()
+    _test_inputs([
+        ("(>= (x o1) (x o2))", "formula"),
+        ("(>= (+ (^ (-(x o1) (x o2)) 2.0) (^ (- (y o1) (y o2)) 2.0)) 1.5)", "formula"),
     ], r=read)
