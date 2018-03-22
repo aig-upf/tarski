@@ -169,7 +169,7 @@ def _setup_numeric_environment():
     read = reader()
     # Set up a few declaration of numeric functions and objects
     _test_inputs([
-        ("(:types vehicle obstacle)", "declaration_of_types"),
+        ("(:types vehicle obstacle - object)", "declaration_of_types"),
         ("(:constants v1 v2 - vehicle o1 o2 o3 - obstacle)", "constant_declaration"),
         ("(x ?o - vehicle) - number", "function_definition"),
         ("(y ?o - vehicle) - number", "function_definition"),
