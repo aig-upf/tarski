@@ -73,6 +73,16 @@ class FStripsParser(fstripsVisitor):
 
         self.requirements = []
 
+    equivalent_built_in_type = {\
+        'number' : 'Real'
+    }
+
+    def _translate_to_builtin_type(self, typename):
+        try :
+            return FStripsParser.equivalent_built_in_type[typename]
+        except KeyError :
+            return typename
+
     # TODO GFM NOT REVISED YET
 
     task_name = None
@@ -107,8 +117,12 @@ class FStripsParser(fstripsVisitor):
 
     def visitDeclaration_of_types(self, ctx):
         for typename, basename in self.visit(ctx.possibly_typed_name_list()):
+            actual_name = self._translate_to_builtin_type(typename)
+            if actual_name != typename: # it is a built-in type
+                continue
+            basename = self._translate_to_builtin_type(basename)
             parents = [self.language.get_sort(basename)]
-            self.language.sort(typename, parents)
+            self.language.sort(actual_name, parents)
 
     def extract_namelist(self, ctx):
         return [name.getText().lower() for name in ctx.NAME()]
@@ -120,7 +134,7 @@ class FStripsParser(fstripsVisitor):
     def visitName_list_with_type(self, ctx):
         typename = ctx.typename().getText().lower()
         names = self.extract_namelist(ctx)
-        return [(name, typename) for name in names]
+        return [(name, self._translate_to_builtin_type(typename)) for name in names]
 
     def visitComplexNameList(self, ctx):
         simple = self.visitSimpleNameList(ctx)
@@ -147,10 +161,11 @@ class FStripsParser(fstripsVisitor):
 
     def visitVariable_list_with_type(self, ctx):
         typename = ctx.primitive_type().getText().lower()  # This is the type of all variables in the list
-        return [self.language.variable(name.getText().lower(), typename) for name in ctx.VARIABLE()]
+        return [self.language.variable(name.getText().lower(), self._translate_to_builtin_type(typename)) for name in ctx.VARIABLE()]
 
     def visitTyped_function_definition(self, ctx, return_type=None):
         return_type = return_type or ctx.primitive_type().getText().lower()
+        return_type = self._translate_to_builtin_type(return_type)
         name = ctx.logical_symbol_name().getText().lower()
         argument_types = [a.sort for a in self.visit(ctx.possibly_typed_variable_list())]
         return self.language.function(name, *argument_types, return_type)
