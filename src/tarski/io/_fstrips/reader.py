@@ -226,13 +226,17 @@ class FStripsParser(fstripsVisitor):
         name = ctx.NAME().getText().lower()
         return self.language.get_constant(name)
 
-    def visitTermNumber(self, ctx):
-        ## TODO REVISE
-        object_name = ctx.NUMBER().getText().lower()
+    def __process_numeric_literal(self, txt):
         try:
-            return NumericConstant(int(object_name))
+            x = int(txt)
+            return self.language.Constant(x,self.language.Integer)
         except ValueError:
-            return NumericConstant(float(object_name))
+            y = float(txt)
+            return self.language.Constant(y,self.language.Real)
+
+    def visitTermNumber(self, ctx):
+        object_name = ctx.NUMBER().getText().lower()
+        return self.__process_numeric_literal(object_name)
 
     def visitTermVariable(self, ctx):
         variable_name = ctx.VARIABLE().getText().lower()
@@ -257,12 +261,23 @@ class FStripsParser(fstripsVisitor):
 
     def visitBinaryArithmeticFunctionTerm(self, ctx):
         func_name = ctx.binaryOp().getText().lower()
-        if func_name not in built_in_functional_symbols:
-            raise SystemExit("Function {0} first seen used as a term in an atomic formula".format(func_name))
+
         term_list = []
         for term_ctx in ctx.term():
             term_list.append(self.visit(term_ctx))
-        return FunctionalTerm(func_name, term_list)
+
+        if len(term_list) != 2:
+            raise SyntacticError("Arithmetic function {} arity is 2, arity of expression is {}".format(func_name, len(term_list)))
+
+        try :
+            signature = [func_name]
+            for a in term_list:
+                signature.append(a.sort)
+            func = self.language.get_function(tuple(signature))
+        except UndefinedFunction as e:
+            raise SyntacticError("Function {} was not declared!\n Exception thrown by FirstOrderLanguage.get_function():\n{}".format(func_name, str(e)))
+
+        return self.language.CompoundTerm(func, term_list)
 
     def visitUnaryArithmeticFunctionTerm(self, ctx):
         func_name = ctx.unaryBuiltIn().getText().lower()
@@ -323,11 +338,8 @@ class FStripsParser(fstripsVisitor):
         return create_atom(BuiltinPredicate(op), lhs, rhs)
 
     def visitNumericConstantExpr(self, ctx):
-        ## TODO REVISE
-        try:
-            return NumericConstant(int(ctx.NUMBER().getText().lower()))
-        except ValueError:
-            return NumericConstant(float(ctx.NUMBER().getText().lower()))
+        object_name = ctx.NUMBER().getText().lower()
+        return self.__process_numeric_literal(object_name)
 
     def visitBinaryOperationExpr(self, ctx):
         ## TODO REVISE
