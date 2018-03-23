@@ -40,7 +40,8 @@ def create_atom(symbol: BuiltinPredicate, lhs, rhs):
     from .terms import Term
     from .formulas import Atom
 
-    assert isinstance(lhs, lhs.language.Term) and isinstance(rhs, lhs.language.Term)
+    assert isinstance(lhs, lhs.language.Term)
+    assert isinstance(rhs, lhs.language.Term)
 
     language = lhs.language
     if language != rhs.language:
