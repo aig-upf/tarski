@@ -266,7 +266,7 @@ class FirstOrderLanguage:
         types = [self._retrieve_object(a, Sort) for a in args]  # Convert possible strings into Sort objects
         func = Function(name, self, *types)
         func.builtin = False
-        
+
         self._functions[name] = func
         # self._functions_by_sort[(name,) + tuple(*args)] = func
         return func
@@ -276,7 +276,8 @@ class FirstOrderLanguage:
 
     def get_function(self, name):
         if not self.has_function(name):
-            raise err.UndefinedFunction(name)
+            msg = 'Registered functions: {}\n'.format('\n'.join([ '{}:{}'.format(str(k),str(v)) for k,v in self._functions.items()]))
+            raise err.UndefinedFunction(name, msg)
         return self._functions[name]
 
     def dump(self):
@@ -292,6 +293,7 @@ class FirstOrderLanguage:
 
     def register_symbol(self, key, func_obj):
         self._symbol_table[key] = func_obj
+        self._functions[key] = func_obj
 
     def resolve_function_symbol(self, sym: str, lhs: Sort, rhs: Sort):
         try:
