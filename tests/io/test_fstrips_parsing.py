@@ -167,6 +167,7 @@ def _setup_predicate_environment():
 
 def _setup_numeric_environment():
     read = reader()
+    read.problem.language.load_theory('arithmetic')
     # Set up a few declaration of numeric functions and objects
     _test_inputs([
         ("(:types vehicle obstacle - object)", "declaration_of_types"),
