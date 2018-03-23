@@ -171,8 +171,8 @@ def _setup_numeric_environment():
     _test_inputs([
         ("(:types vehicle obstacle - object)", "declaration_of_types"),
         ("(:constants v1 v2 - vehicle o1 o2 o3 - obstacle)", "constant_declaration"),
-        ("(x ?o - vehicle) - number", "function_definition"),
-        ("(y ?o - vehicle) - number", "function_definition"),
+        ("(x ?o - object) - number", "function_definition"),
+        ("(y ?o - object) - number", "function_definition"),
         ("(a ?o - obstacle) - number", "function_definition"),
         ("(b ?o - obstacle) - number", "function_definition"),
         ("(c ?o - obstacle) - number", "function_definition"),
