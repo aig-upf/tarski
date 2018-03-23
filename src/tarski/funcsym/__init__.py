@@ -15,6 +15,7 @@ symbols = [
         '/': Division,
         '%': Modulo,
         '**': Power,
+        '^' : Power,
         'max': Max,
         'min': Min,
         'atan2': ArcTangent2
