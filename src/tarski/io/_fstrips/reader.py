@@ -71,6 +71,7 @@ class FStripsParser(fstripsVisitor):
         # Shortcuts
         self.language = problem.language
         self.init = self.problem.init
+        self.translate_pddl_operators = {'scale-up': '*', 'scale-down': '/', 'increase': '+', 'decrease': '-'}
 
         self.requirements = []
 
@@ -598,12 +599,16 @@ class FStripsParser(fstripsVisitor):
         operation = ctx.assignOp().getText().lower()
         lhs = self.visit(ctx.functionTerm())
         rhs = self.visit(ctx.fExp())
+
         if operation == 'assign':
-            return AssignmentEffect(lhs, rhs)
-        trans_op = {'scale-up': '*', 'scale-down': '/', 'increase': '+', 'decrease': '-'}
-        # print("{} {} {}".format( trans_op[operation], lhs, rhs))
-        new_rhs = FunctionalTerm(trans_op[operation], [lhs, rhs])
-        return AssignmentEffect(lhs, new_rhs)  # This effectively normalizes effects
+            return lhs << rhs
+        try:
+            func = self.language.get_function(trans_op[operation])
+        except UndefinedFunction as e:
+            raise SyntacticError("Undefined function '{}' in term {}".format(func_name,ctx.getText()))
+
+        new_rhs = self.language.CompoundTerm( op_func, [lhs,rhs])
+        return lhs << new_rhs
 
     def visitEventDef(self, ctx):
         name = ctx.eventSymbol().getText().lower()
