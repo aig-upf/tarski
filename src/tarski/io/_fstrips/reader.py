@@ -85,6 +85,15 @@ class FStripsParser(fstripsVisitor):
         except KeyError :
             return typename
 
+    def _retrieve_function( self, func_name, term_list ):
+        try :
+            signature = [func_name]
+            for a in term_list:
+                signature.append(a.sort)
+            return self.language.get_function(tuple(signature))
+        except UndefinedFunction as e:
+            raise SyntacticError("Function {} was not declared!\n Exception thrown by FirstOrderLanguage.get_function():\n{}".format(func_name, str(e)))
+
     # TODO GFM NOT REVISED YET
 
     task_name = None
@@ -251,14 +260,11 @@ class FStripsParser(fstripsVisitor):
 
     def visitGenericFunctionTerm(self, ctx):
         func_name = ctx.logical_symbol_name().getText().lower()
-        try:
-            func = self.language.get_function(func_name)
-        except UndefinedFunction as e:
-            raise SyntacticError("Undefined function '{}' in term {}".format(func_name,ctx.getText()))
-
         term_list = []
         for term_ctx in ctx.term():
             term_list.append(self.visit(term_ctx))
+        func = self.language.get_function(func_name)
+
         return self.language.CompoundTerm(func, term_list)
 
     def visitBinaryArithmeticFunctionTerm(self, ctx):
@@ -271,13 +277,7 @@ class FStripsParser(fstripsVisitor):
         if len(term_list) != 2:
             raise SyntacticError("Arithmetic function {} arity is 2, arity of expression is {}".format(func_name, len(term_list)))
 
-        try :
-            signature = [func_name]
-            for a in term_list:
-                signature.append(a.sort)
-            func = self.language.get_function(tuple(signature))
-        except UndefinedFunction as e:
-            raise SyntacticError("Function {} was not declared!\n Exception thrown by FirstOrderLanguage.get_function():\n{}".format(func_name, str(e)))
+        func = self._retrieve_function(func_name,term_list)
 
         return self.language.CompoundTerm(func, term_list)
 
@@ -521,10 +521,11 @@ class FStripsParser(fstripsVisitor):
         lhs = self.visit(ctx.functionTerm())
         rhs = self.visit(ctx.processEffectExp())
         if operation in ['assign', 'scale-up', 'scale-down']:
-            raise SystemExit("Assign/scale up/scale down effects not allowed in processes")
+            raise ParsingError("Assign/scale up/scale down effects not allowed in processes")
         trans_op = {'increase': '+', 'decrease': '-'}
-        new_rhs = FunctionalTerm(trans_op[operation], [lhs, rhs])
-        return AssignmentEffect(lhs, new_rhs)  # This effectively normalizes effects
+        func = self._retrieve_function( self.translate_pddl_operators[operation], [lhs, rhs])
+        new_rhs = self.language.CompoundTerm(func, [lhs, rhs])
+        return lhs << new_rhs  # This effectively normalizes effects
 
     def visitFunctionalProcessEffectExpr(self, ctx):
         return self.visit(ctx.processFunctionEff())
@@ -602,11 +603,7 @@ class FStripsParser(fstripsVisitor):
 
         if operation == 'assign':
             return lhs << rhs
-        try:
-            func = self.language.get_function(trans_op[operation])
-        except UndefinedFunction as e:
-            raise SyntacticError("Undefined function '{}' in term {}".format(func_name,ctx.getText()))
-
+        op_func = self._retrieve_function( self.translate_pddl_operators[operation], [lhs, rhs])
         new_rhs = self.language.CompoundTerm( op_func, [lhs,rhs])
         return lhs << new_rhs
 
