@@ -235,7 +235,7 @@ def test_geometric_constraint_good():
     ], r=read)
 
 
-def test_geometric_action():
+def test_geometric_action_syntax_error():
     read = _setup_numeric_environment()
     text = """
     (:action move_north
@@ -246,6 +246,25 @@ def test_geometric_action():
         )
     )
     """
+    from tarski.io._fstrips.reader import UnresolvedVariableError
+    with pytest.raises(UnresolvedVariableError):
+        _test_inputs([
+            (text, "actionDef"),
+        ], r=read)
+
+def test_geometric_action_good():
+    read = _setup_numeric_environment()
+    text = """
+    (:action move_north
+        :parameters (?v - vehicle)
+        :precondition (<= (y ?v) 10.0)
+        :effect (and
+            (assign (x ?v) (+ (x ?v) 0.25))
+        )
+    )
+    """
     _test_inputs([
         (text, "actionDef"),
     ], r=read)
+
+    assert len(read.problem.actions) == 1
