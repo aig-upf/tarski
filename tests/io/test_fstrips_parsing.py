@@ -3,7 +3,8 @@ import pytest
 from tarski.errors import SyntacticError
 from tarski.io import FstripsReader
 from tarski.io._fstrips.reader import ParsingError
-
+from tarski.funcsym import Addition
+import tarski.fstrips as fs
 
 def get_rule(name):
     return {  # TODO Move this somewhere compiling common rule names
@@ -268,3 +269,58 @@ def test_geometric_action_good():
     ], r=read)
 
     assert len(read.problem.actions) == 1
+    a = list(read.problem.actions.values())[0]
+    assert len(a.effects) == 1
+    assert isinstance(a.effects[0], fs.FunctionalEffect)
+    assert a.effects[0].lhs.symbol.symbol == 'x'
+    assert isinstance( a.effects[0].rhs.symbol, Addition )
+
+def test_geometric_action_increase_effect():
+    read = _setup_numeric_environment()
+    text = """
+    (:action move_north
+        :parameters (?v - vehicle)
+        :precondition (<= (y ?v) 10.0)
+        :effect (and
+            (increase (x ?v) 0.25)
+        )
+    )
+    """
+    _test_inputs([
+        (text, "actionDef"),
+    ], r=read)
+
+    assert len(read.problem.actions) == 1
+    a = list(read.problem.actions.values())[0]
+    assert len(a.effects) == 1
+    assert isinstance(a.effects[0], fs.FunctionalEffect)
+    assert a.effects[0].lhs.symbol.symbol == 'x'
+    assert isinstance( a.effects[0].rhs.symbol, Addition )
+
+def test_geometric_action_cond_effect():
+    read = _setup_numeric_environment()
+    text = """
+    (:action move_north
+        :parameters (?v - vehicle)
+        :precondition (<= (y ?v) 10.0)
+        :effect (and
+            (when (= ?v v1) (assign (x ?v) (+ (x ?v) 0.25)))
+            (when (= ?v v2) (assign (x ?v) (+ (x ?v) 0.5)))
+        )
+    )
+    """
+    _test_inputs([
+        (text, "actionDef"),
+    ], r=read)
+
+    assert len(read.problem.actions) == 1
+    a = list(read.problem.actions.values())[0]
+    assert len(a.effects) == 2
+    print(a.effects[0])
+    print(a.effects[1])
+    assert isinstance(a.effects[0], fs.FunctionalEffect)
+    assert isinstance(a.effects[1], fs.FunctionalEffect)
+    assert a.effects[0].lhs.symbol.symbol == 'x'
+    assert a.effects[0].rhs.symbol.symbol == '+'
+    assert a.effects[1].lhs.symbol.symbol == 'x'
+    assert a.effects[1].rhs.symbol.symbol == '+'
