@@ -69,5 +69,4 @@ def language(name="L"):
     """
     lang = fol.language(name)
     lang.register_operator_handler("<<", fol.Term, fol.Term, lambda lhs, rhs: FunctionalEffect(lhs, rhs))
-    lang.register_operator_handler("<<", fol.Term, fol.Term, lambda lhs, rhs: FunctionalEffect(rhs, lhs))  # Inverted
     return lang
