@@ -10,6 +10,7 @@ from tarski import model
 from tarski.errors import SyntacticError, UndefinedFunction
 from tarski.fstrips import DelEffect, AddEffect, FunctionalEffect, UniversalEffect, language
 from tarski.syntax import neg, land, lor, Tautology, implies, exists, forall, Atom
+from tarski.syntax.visitors import CollectVariables
 from tarski.syntax.terms import CompoundTerm, Variable, Constant
 from tarski.syntax.builtins import eq, create_atom, BuiltinPredicate
 
@@ -630,13 +631,21 @@ class FStripsParser(fstripsVisitor):
         try:
             conditions = self.visit(ctx.goalDesc())
         except UndeclaredVariable as error:
-            raise SystemExit(
-                "Parsing process {}: undeclared variable in {} found undeclared variable {}".format('state constraint',
-                                                                                                    repr(error)))
-
+            raise ParsingError(
+                "Parsing state constraint {}: undeclared variable:\n {}".format( name, str(error)))
+        print(params)
+        print(conditions)
+        if len(params) > 0 :
+            visitor = CollectVariables(self.language)
+            conditions.accept(visitor)
+            for x in params :
+                if not x in visitor.variables:
+                    raise ParsingError("Parsing state constraint {}: variable in :parameters not found in constraint formula {}".format(name,x,conditions))
+            self.problem.constraints.append(forall( *params, conditions ))
+        else :
+            self.problem.constraints.append(conditions)
         self.declared_variables = None
-        state_constraint = Constraint(name, params, conditions)
-        self.constraint_schemata.append(state_constraint)
+
 
 
 class UnresolvedVariableError(Exception):

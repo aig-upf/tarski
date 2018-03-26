@@ -1,5 +1,6 @@
 
 import pytest
+from tarski.errors import SyntacticError
 from tarski.io import FstripsReader
 from tarski.io._fstrips.reader import ParsingError
 
@@ -206,4 +207,45 @@ def test_geometric_precondition():
     _test_inputs([
         ("(>= (x o1) (x o2))", "formula"),
         ("(>= (+ (^ (-(x o1) (x o2)) 2.0) (^ (- (y o1) (y o2)) 2.0)) 1.5)", "formula"),
+    ], r=read)
+
+def test_geometric_constraint_syntax_error():
+    read = _setup_numeric_environment()
+    text = """
+    (:constraint foo
+        :parameters (?v1 ?v2 - vehicle)
+        :condition (>= (- (x o1) (x o2)) 0.0)
+    )
+    """
+    with pytest.raises(ParsingError):
+        _test_inputs([
+            ( text, "constraintDef"),
+        ], r=read)
+
+def test_geometric_constraint_good():
+    read = _setup_numeric_environment()
+    text = """
+    (:constraint foo
+        :parameters (?v1 ?v2 - vehicle)
+        :condition (>= (- (x ?v1) (x ?v2)) 0.0)
+    )
+    """
+    _test_inputs([
+        ( text, "constraintDef"),
+    ], r=read)
+
+
+def test_geometric_action():
+    read = _setup_numeric_environment()
+    text = """
+    (:action move_north
+        :parameters (?v - vehicle)
+        :precondition (<= (y ?o) 10.0)
+        :effect (and
+            (assign (x ?o) (+ (x ?o) 0.25))
+        )
+    )
+    """
+    _test_inputs([
+        (text, "actionDef"),
     ], r=read)

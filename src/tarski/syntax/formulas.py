@@ -198,9 +198,9 @@ def _quantified(quantifier, *args):
         try :
             lang = x.language
         except AttributeError :
-            raise err.LanguageError('Ill-formed arguments for quantified formula: {}'.format(args))
+            raise err.SyntacticError('Ill-formed arguments for quantified formula: {}'.format(args))
         if not isinstance(x, lang.Variable) :
-            raise err.LanguageError('Ill-formed arguments for quantified formula: {}'.format(args))
+            raise err.SyntacticError('Ill-formed arguments for quantified formula: {}'.format(args))
 
     return QuantifiedFormula(quantifier, args[:-1], args[-1])
 
