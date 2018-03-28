@@ -219,23 +219,15 @@ goalDesc
 	| '(' 'imply' goalDesc goalDesc ')'                      # ImplyGoalDesc
 	| '(' 'exists' '(' possibly_typed_variable_list ')' goalDesc ')'         # ExistentialGoalDesc
 	| '(' 'forall' '(' possibly_typed_variable_list ')' goalDesc ')'         # UniversalGoalDesc
-    | fComp                                                  # ComparisonGoalDesc
-	| equality                                               # EqualityGoalDesc
+    | '(' builtin_binary_predicate term term ')'             # BuiltinBinaryAtom
   ;
-
-equality
-	: '(' '=' term term ')'
-	;
-fComp
-	: '(' builtin_binary_predicate fExp fExp ')'
-	;
 
 atomicTermFormula
 	: '(' predicate term* ')'
 	;
 
-term :
-  NAME                #TermObject
+term
+  : NAME              #TermObject
   | NUMBER            #TermNumber
   | VARIABLE          #TermVariable
   | '#t'              #TermTimeStep
@@ -278,12 +270,6 @@ derivedDef
 
 /************* EXPRESSIONS ****************************/
 
-fExp
-  : functionTerm  #FunctionExpr
-  | NUMBER        #NumericConstantExpr
-  | VARIABLE      #VariableExpr
-  ;
-
 processEffectExp
     : '(' '*' processFunctionEff ')' #FunctionalProcessEffectExpr
     | '(' '*' processConstEff ')'    #ConstProcessEffectExpr
@@ -320,7 +306,8 @@ single_effect
 
 atomic_effect
     : '(' 'assign' functionTerm term ')'                 # AssignConstant // TODO GFM THIS DOES NOT SEEM CORRECT - WILL PARSE E.G. (assign (+ 1 2) 5)
-	| '(' assignOp functionTerm fExp ')'                 # AssignEffect  // TODO GFM THIS DOES NOT SEEM CORRECT - WILL PARSE E.G. (assign (+ 1 2) 5) ?? DO WE REALLY NEED TWO DIFFERENT ASSIGNMENT RULES?
+    // TODO: Reactivate this... when clarified
+//	| '(' assignOp functionTerm fExp ')'                 # AssignEffect  // TODO GFM THIS DOES NOT SEEM CORRECT - WILL PARSE E.G. (assign (+ 1 2) 5) ?? DO WE REALLY NEED TWO DIFFERENT ASSIGNMENT RULES?
 	| '(' 'not' atomicTermFormula ')'                    # DeleteAtomEffect
 	| atomicTermFormula                                  # AddAtomEffect
 	;
@@ -333,7 +320,7 @@ builtin_unary_function : '-' | 'sin' | 'cos' | 'sqrt' | 'tan' | 'acos' | 'asin' 
 
 builtin_binary_predicate : '>' | '<' | '=' | '>=' | '<=' ;
 
-assignOp : 'scale-up' | 'scale-down' | 'increase' | 'decrease' ;
+//assignOp : 'scale-up' | 'scale-down' | 'increase' | 'decrease' ;
 
 processEffectOp : 'increase' | 'decrease';
 

@@ -78,13 +78,11 @@ class FirstOrderLanguage:
 
     @property
     def predicates(self):
-        for _, p in self._predicates.items():
-            yield p
+        return self._predicates.values()
 
     @property
     def functions(self):
-        for f in self._functions.items():
-            yield f
+        return self._functions.values()
 
     def _build_builtin_sorts(self):
         self._build_the_objects()
@@ -295,6 +293,9 @@ class FirstOrderLanguage:
     def is_strict_subtype(self, t, st):
         return st in self._possible_promotions[t._name]
 
+    def are_vertically_related(self, t1, t2):
+        return self.is_subtype(t1, t2) or self.is_subtype(t2, t1)
+
     def load_theory(self, theory):
         if self.language_components_frozen:
             raise err.LanguageError("FOL.load_theory(): Cannot load theories once language elements have been defined")
@@ -307,9 +308,8 @@ class FirstOrderLanguage:
             print("Loaded theory '{}'".format(theory))
 
     def create_builtin_predicates(self, sort):
-        if not self._create_default_builtins:
-            return
-        syntax_builtins.create_symbols_for_language(self)
+        if self._create_default_builtins:
+            syntax_builtins.create_symbols_for_language(self)
 
         # for s in builtins.Predicates:
         #     # The name of the built-in predicate takes into account the type it is applied to, e.g. =_int

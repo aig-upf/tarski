@@ -88,3 +88,10 @@ def test_reals():
     reals = lang.Real
     assert reals.contains(1000.36)
     assert reals.contains(-17)
+
+
+def test_integer_subtypes():
+    lang = tsk.language()
+    nats = lang.Natural
+
+    counter_t = lang.sort("counter", [nats])

@@ -22,11 +22,10 @@ def is_builtin_predicate(predicate):
 def create_symbols_for_language(lang):
     obj = lang.get_sort('object')
     for s in BuiltinPredicate:
-        p = lang.predicate(s, obj, obj)
+        lang.predicate(s, obj, obj)
 
 
 def create_atom(symbol: BuiltinPredicate, lhs, rhs):
-    from .terms import Term
     from .formulas import Atom
 
     assert isinstance(lhs, lhs.language.Term) and isinstance(rhs, lhs.language.Term)

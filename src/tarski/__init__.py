@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from .fol import language
+from .fol import language, FirstOrderLanguage
 from .syntax import Function, Formula, Term, Constant, Variable
 from .errors import LanguageError
 

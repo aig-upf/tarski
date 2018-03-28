@@ -195,16 +195,6 @@ class FStripsParser(fstripsVisitor):
 
         self.problem.action(name, binding, precondition, effect)
 
-
-
-        # TODO This variable binding logic should be refactored into some ParserVariableContext class where
-        # TODO new variables can be pushed, conflicts are managed, etc.
-        # assert self.current_binding is None
-        # self.current_binding = copy.deepcopy(binding)
-        # precondition, effect = self.visit(ctx.actionDefBody())
-        # self.current_binding = None
-        # self.problem.action(name, binding, precondition, effect)
-
     def visitActionDefBody(self, ctx):
         prec = self.visit(ctx.precondition())
         eff = self.visit(ctx.effect())
@@ -287,15 +277,6 @@ class FStripsParser(fstripsVisitor):
 
         with self.push_variables(variables, root=True) as _:
             formula = self.visit(ctx.goalDesc())
-
-        # prev_binding = self.current_binding
-        # if self.current_binding is None:
-        #     self.current_binding = VariableBinding(variables)
-        # else:
-        #     self.current_binding = copy.deepcopy(self.current_binding)
-        #     [self.current_binding.add(v) for v in variables]
-        # formula = self.visit(ctx.goalDesc())
-        # self.current_binding = prev_binding
         return variables, formula
 
     def visitExistentialGoalDesc(self, ctx):
@@ -306,49 +287,13 @@ class FStripsParser(fstripsVisitor):
         variables, formula = self._visit_quantified_formula(ctx)
         return forall(*variables, formula)
 
-    def visitComparisonGoalDesc(self, ctx):
-        return self.visit(ctx.fComp())
-
-    def visitEquality(self, ctx):
+    def visitBuiltinBinaryAtom(self, ctx):
+        op = ctx.builtin_binary_predicate().getText().lower()
         lhs = self.visit(ctx.term(0))
         rhs = self.visit(ctx.term(1))
-        return eq(lhs, rhs)
-
-    def visitFComp(self, ctx):
-        ## TODO REVISE
-        op = ctx.builtin_binary_predicate().getText().lower()
-        neg_op = {'<': '>=', '>': '<=', '<=': '>', '>=': '<'}
-        lhs = self.visit(ctx.fExp(0))
-        rhs = self.visit(ctx.fExp(1))
-        return Atom(op, [lhs, rhs])
-
-    def visitNumericConstantExpr(self, ctx):
-        ## TODO REVISE
-        try:
-            return NumericConstant(int(ctx.NUMBER().getText().lower()))
-        except ValueError:
-            return NumericConstant(float(ctx.NUMBER().getText().lower()))
-
-    def visitBinaryOperationExpr(self, ctx):
-        ## TODO REVISE
-        op = ctx.builtin_binary_function().getText().lower()
-        lhs = self.visit(ctx.fExp(0))
-        rhs = self.visit(ctx.fExp(1))
-        return FunctionalTerm(op, [lhs, rhs])
-
-    def visitUnaryOperationExpr(self, ctx):
-        ## TODO REVISE
-        op = '*'
-        lhs = self.visit(ctx.fExp())
-        rhs = NumericConstant(-1)
-        return PrimitiveNumericExpression(op, [lhs, rhs])
-
-    def visitFunctionExpr(self, ctx):
-        return self.visit(ctx.functionTerm())
-
-    def visitVariableExpr(self, ctx):
-        variable_name = ctx.VARIABLE().getText().lower()
-        return self._recover_variable_from_context(variable_name)
+        # TODO: Map the string op to the real predicate object
+        assert False
+        return None
 
     def visitGoal(self, ctx):
         self.problem.goal = self.visit(ctx.goalDesc())
