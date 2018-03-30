@@ -31,7 +31,6 @@ class FirstOrderLanguage:
         self._constants = {}
         self._variables = set()
 
-        self._symbol_table = {}
         self._operators = dict()
         self._build_builtin_sorts()
 
@@ -256,16 +255,6 @@ class FirstOrderLanguage:
         for _, s in self._sorts.items():
             s.check_empty()
 
-    def register_symbol(self, key, func_obj):
-        self._symbol_table[key] = func_obj
-
-    def resolve_function_symbol(self, sym: str, lhs: Sort, rhs: Sort):
-        try:
-            return self._symbol_table[(sym, lhs, rhs)]
-        except KeyError:
-            raise err.LanguageError("FOL.resolve_function_symbol(): function symbol '{}' not defined for domain ({},{})"
-                                    .format(sym, lhs, rhs))
-
     def is_subtype(self, t, st):
         return t == st or self.is_strict_subtype(t, st)
 
@@ -288,6 +277,4 @@ class FirstOrderLanguage:
         try:
             return self._operators[(operator, t1, t2)](lhs, rhs)
         except KeyError:
-            # raise err.LanguageError("Operator '{}' not defined on domain ({}, {})".format(operator, t1, t2))
-            raise err.LanguageError("Operator '{}' not defined on domain ({}, {})")
-
+            raise err.LanguageError("Operator '{}' not defined on domain ({}, {})".format(operator, t1, t2))

@@ -47,83 +47,52 @@ class Term(object):
 
     def __lt__(self, rhs):
         return self.language.dispatch_operator(BuiltinPredicateSymbol.LT, Term, Term, self, rhs)
-        sym = self.language.resolve_formula_symbol('<')
-        return sym(self, rhs)
 
     def __gt__(self, rhs):
         return self.language.dispatch_operator(BuiltinPredicateSymbol.GT, Term, Term, self, rhs)
-        sym = self.language.resolve_formula_symbol('>')
-        return sym(self, rhs)
 
     def __le__(self, rhs):
         return self.language.dispatch_operator(BuiltinPredicateSymbol.LE, Term, Term, self, rhs)
-        sym = self.language.resolve_formula_symbol('<=')
-        return sym(self, rhs)
 
     def __ge__(self, rhs):
         return self.language.dispatch_operator(BuiltinPredicateSymbol.GE, Term, Term, self, rhs)
-        sym = self.language.resolve_formula_symbol('>=')
-        return sym(self, rhs)
 
     def __add__(self, rhs):
         return self.language.dispatch_operator(BuiltinFunctionSymbol.ADD, Term, Term, self, rhs)
-        sym = self.language.resolve_function_symbol_2('+', self.type, rhs.type)
-        return sym(self, rhs)
 
     def __sub__(self, rhs):
         return self.language.dispatch_operator(BuiltinFunctionSymbol.SUB, Term, Term, self, rhs)
-        sym = self.language.resolve_function_symbol_2('-', self.type, rhs.type)
-        return sym(self, rhs)
 
     def __mul__(self, rhs):
-        return self.language.dispatch_operator('*', Term, Term, self, rhs)
-        sym = self.language.resolve_function_symbol_2('*', self.type, rhs.type)
-        return sym(self, rhs)
-
-    def __matmul__(self, rhs):
-        return self.language.dispatch_operator('@', Term, Term, self, rhs)
-        sym = self.language.resolve_function_symbol_2('@', self.type, rhs.type)
-        return sym(self, rhs)
+        return self.language.dispatch_operator(BuiltinFunctionSymbol.MUL, Term, Term, self, rhs)
 
     def __truediv__(self, rhs):
-        return self.language.dispatch_operator('/', Term, Term, self, rhs)
-        sym = self.language.resolve_function_symbol_2('/', self.type, rhs.type)
-        return sym(self, rhs)
+        return self.language.dispatch_operator(BuiltinFunctionSymbol.DIV, Term, Term, self, rhs)
+
+    # TODO - THE OPERATORS BELOW PROBABLY NEED TO BE REFACTORED
+    def __matmul__(self, rhs):
+        return self.language.dispatch_operator('@', Term, Term, self, rhs)
 
     def __floordiv__(self, rhs):
         return self.language.dispatch_operator('//', Term, Term, self, rhs)
-        sym = self.language.resolve_function_symbol_2('//', self.type, rhs.type)
-        return sym(self, rhs)
 
     def __mod__(self, rhs):
         return self.language.dispatch_operator('%', Term, Term, self, rhs)
-        sym = self.language.resolve_function_symbol_2('%', self.type, rhs.type)
-        return sym(self, rhs)
 
     def __divmod__(self, rhs):
         return self.language.dispatch_operator('divmod', Term, Term, self, rhs)
-        sym = self.language.resolve_function_symbol_2('divmod', self.type, rhs.type)
-        return sym(self, rhs)
 
     def __pow__(self, rhs):
         return self.language.dispatch_operator('**', Term, Term, self, rhs)
-        sym = self.language.resolve_function_symbol_2('**', self.type, rhs.type)
-        return sym(self, rhs)
 
     def __and__(self, rhs):
         return self.language.dispatch_operator('&', Term, Term, self, rhs)
-        sym = self.language.resolve_function_symbol_2('&', self.type, rhs.type)
-        return sym(self, rhs)
 
     def __xor__(self, rhs):
         return self.language.dispatch_operator('^', Term, Term, self, rhs)
-        sym = self.language.resolve_function_symbol_2('^', self.type, rhs.type)
-        return sym(self, rhs)
 
     def __or__(self, rhs):
         return self.language.dispatch_operator('|', Term, Term, self, rhs)
-        sym = self.language.resolve_function_symbol_2('|', self.type, rhs.type)
-        return sym(self, rhs)
 
 
 class Variable(Term):

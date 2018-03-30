@@ -161,20 +161,21 @@ single_predicate_definition
 	;
 
 predicate : NAME;
+function_name: NAME;
 
 structureDef
 	: actionDef
     | eventDef
 	| derivedDef
 	| constraintDef
-    | processDef
+//    | processDef
 	;
 
 
 /************* ACTIONS ****************************/
 
 actionDef
-	: '(' ':action' actionName
+	: '(' K_ACTION actionName
 	      ':parameters'  '(' possibly_typed_variable_list ')'
            actionDefBody ')'
     ;
@@ -213,12 +214,12 @@ precondition
 // A goalDesc is just a FOL formula
 goalDesc
 	:  atomicTermFormula                                     # TermGoalDesc
-	| '(' 'and' goalDesc* ')'                                # AndGoalDesc
-	| '(' 'or' goalDesc* ')'                                 # OrGoalDesc
-	| '(' 'not' goalDesc ')'                                 # NotGoalDesc
-	| '(' 'imply' goalDesc goalDesc ')'                      # ImplyGoalDesc
-	| '(' 'exists' '(' possibly_typed_variable_list ')' goalDesc ')'         # ExistentialGoalDesc
-	| '(' 'forall' '(' possibly_typed_variable_list ')' goalDesc ')'         # UniversalGoalDesc
+	| '(' K_AND goalDesc* ')'                                # AndGoalDesc
+	| '(' K_OR goalDesc* ')'                                 # OrGoalDesc
+	| '(' K_NOT goalDesc ')'                                 # NotGoalDesc
+	| '(' K_IMPLY goalDesc goalDesc ')'                      # ImplyGoalDesc
+	| '(' K_EXISTS '(' possibly_typed_variable_list ')' goalDesc ')'         # ExistentialGoalDesc
+	| '(' K_FORALL '(' possibly_typed_variable_list ')' goalDesc ')'         # UniversalGoalDesc
     | '(' builtin_binary_predicate term term ')'             # BuiltinBinaryAtom
   ;
 
@@ -235,13 +236,14 @@ term
   ;
 
 functionTerm
-  : '(' logical_symbol_name term* ')'        #GenericFunctionTerm
-  | '(' builtin_binary_function term term ')'        #BinaryArithmeticFunctionTerm
-  | '(' builtin_unary_function term ')'         #UnaryArithmeticFunctionTerm
+  : '(' logical_symbol_name term* ')'           # GenericFunctionTerm
+  | '(' builtin_binary_function term term ')'   # BinaryArithmeticFunctionTerm
+  | '(' builtin_unary_function term ')'         # UnaryArithmeticFunctionTerm
   ;
 
 /************* PROCESSES ****************************/
 
+/*
 processDef
 	: '(' ':process' actionName
 	      ':parameters'  '(' possibly_typed_variable_list ')'
@@ -253,14 +255,14 @@ processDefBody
   ;
 
 processEffectList
-	: '(' 'and' processEffect* ')'       #ProcessConjunctiveEffectFormula
+	: '(' K_AND processEffect* ')'       #ProcessConjunctiveEffectFormula
 	| processEffect                      #ProcessSingleEffect
 	;
 
 processEffect
 	: '(' processEffectOp functionTerm processEffectExp ')' # ProcessAssignEffect
 	;
-
+*/
 
 /************* DERIVED DEFINITIONS ****************************/
 
@@ -293,22 +295,22 @@ processVarEff
 
 
 effect
-	: '(' 'and' single_effect* ')'       # ConjunctiveEffectFormula
+	: '(' K_AND single_effect* ')'       # ConjunctiveEffectFormula
 	| single_effect                      # SingleEffect
 	;
 
 single_effect
-	: '(' 'forall' '(' possibly_typed_variable_list ')' effect ')'         # UniversallyQuantifiedEffect
-	| '(' 'when' goalDesc atomic_effect ')'                # SingleConditionalEffect
-	| '(' 'when' goalDesc '(' 'and' atomic_effect* ')' ')' # MultipleConditionalEffect
+	: '(' K_FORALL '(' possibly_typed_variable_list ')' effect ')'         # UniversallyQuantifiedEffect
+	| '(' K_WHEN goalDesc atomic_effect ')'                # SingleConditionalEffect
+	| '(' K_WHEN goalDesc '(' K_AND atomic_effect* ')' ')' # MultipleConditionalEffect
 	| atomic_effect                                        # AtomicEffect
 	;
 
 atomic_effect
     : '(' 'assign' functionTerm term ')'                 # AssignConstant // TODO GFM THIS DOES NOT SEEM CORRECT - WILL PARSE E.G. (assign (+ 1 2) 5)
     // TODO: Reactivate this... when clarified
-//	| '(' assignOp functionTerm fExp ')'                 # AssignEffect  // TODO GFM THIS DOES NOT SEEM CORRECT - WILL PARSE E.G. (assign (+ 1 2) 5) ?? DO WE REALLY NEED TWO DIFFERENT ASSIGNMENT RULES?
-	| '(' 'not' atomicTermFormula ')'                    # DeleteAtomEffect
+	| '(' assignOp functionTerm term ')'                 # AssignEffect  // TODO GFM THIS DOES NOT SEEM CORRECT - WILL PARSE E.G. (assign (+ 1 2) 5) ?? DO WE REALLY NEED TWO DIFFERENT ASSIGNMENT RULES?
+	| '(' K_NOT atomicTermFormula ')'                    # DeleteAtomEffect
 	| atomicTermFormula                                  # AddAtomEffect
 	;
 
@@ -320,9 +322,9 @@ builtin_unary_function : '-' | 'sin' | 'cos' | 'sqrt' | 'tan' | 'acos' | 'asin' 
 
 builtin_binary_predicate : '>' | '<' | '=' | '>=' | '<=' ;
 
-//assignOp : 'scale-up' | 'scale-down' | 'increase' | 'decrease' ;
+assignOp : K_SCALEUP | K_SCALEDOWN | K_INCREASE | K_DECREASE ;
 
-processEffectOp : 'increase' | 'decrease';
+//processEffectOp : K_INCREASE | K_DECREASE;
 
 
 /************* PROBLEMS ****************************/
@@ -366,37 +368,30 @@ typeBoundsDefinition
   ;
 
 init
-	: '(' K_INIT initEl* ')'
+	: '(' K_INIT init_element* ')'
 	;
 
+init_element
+	: flat_atom                            # InitPositiveLiteral
+	| '(' K_NOT flat_atom ')'              # InitNegativeLiteral
+	| '(' '=' flat_term constant_name ')'  # InitFunctionAssignment
+	;
 
-groundTerm :
-  NAME                      #GroundTermObject
-  | NUMBER                  #GroundTermNumber
-  | groundFunctionTerm      #GroundTermFunction
+flat_term : '(' function_name constant_name* ')';
+
+flat_atom
+	: '(' predicate constant_name* ')'
+	;
+
+constant_name
+  : NAME           # symbolic_constant
+  | NUMBER         # numeric_constant
   ;
 
-groundFunctionTerm : '(' logical_symbol_name groundTerm* ')';
-
-initEl
-	: nameLiteral                             #InitLiteral
-	| '(' '=' groundFunctionTerm NUMBER ')'   #InitAssignmentNumeric
-    | '(' '=' groundFunctionTerm NAME ')'     #InitAssignmentObject
-	;
-
-nameLiteral
-	: groundAtomicFormula                        #InitPositiveLiteral
-	| '(' 'not' groundAtomicFormula ')'          #InitNegativeLiteral
-	;
-
-groundAtomicFormula
-	: '(' predicate groundTerm* ')'
-	;
 
 // Should allow preGD instead of goalDesc -
 // but I can't get the LL(*) parsing to work
 // This means 'preference' preconditions cannot be used
-
 goal : '(' ':goal' goalDesc ')'  ;
 
 probConstraints
@@ -404,8 +399,8 @@ probConstraints
 	;
 
 prefConGD
-	: '(' 'and' prefConGD* ')'                                 # ConjunctionOfConstraints
-	| '(' 'forall' '(' possibly_typed_variable_list ')' prefConGD ')'     # UniversallyQuantifiedConstraint
+	: '(' K_AND prefConGD* ')'                                 # ConjunctionOfConstraints
+	| '(' K_FORALL '(' possibly_typed_variable_list ')' prefConGD ')'     # UniversallyQuantifiedConstraint
 	| '(' 'preference' NAME? conGD ')'                         # PreferenceConstraint
 	| conGD+                                                   # PlainConstraintList
 	;
@@ -435,8 +430,8 @@ stageCost
 /************* CONSTRAINTS ****************************/
 
 conGD
-	: '(' 'and' conGD+ ')'                                 # ConjunctiveConstraint
-	| '(' 'forall' '(' possibly_typed_variable_list ')' conGD ')'          # ForallConstraint
+	: '(' K_AND conGD+ ')'                                 # ConjunctiveConstraint
+	| '(' K_FORALL '(' possibly_typed_variable_list ')' conGD ')'          # ForallConstraint
 	// The standard says "at end", but that conflicts with 50% of PDDL benchmarks which use "at" as an identifier:
 	| '(' 'at-end' goalDesc ')'                            # AtEndConstraint
     | '(' 'always' goalDesc ')'                            # AlwaysConstraint
@@ -448,7 +443,7 @@ conGD
 	| '(' 'always-within' NUMBER goalDesc goalDesc ')'     # AlwaysWithinConstraint
 	| '(' 'hold-during' NUMBER NUMBER goalDesc ')'         # HoldDuringConstraint
 	| '(' 'hold-after' NUMBER goalDesc ')'                 # HoldAfterConstraint
-    | '(' EXTNAME groundFunctionTerm+ ')'                  # ExtensionalConstraintGD
+//    | '(' EXTNAME flat_term+ ')'                  # ExtensionalConstraintGD
     | goalDesc                                             # AlternativeAlwaysConstraint
 	;
 
@@ -475,7 +470,23 @@ REQUIRE_KEY
     | ':timed-initial-literals'
     | ':preferences'
     | ':constraints'
+    | ':action-costs'
     ;
+
+K_AND: A N D;
+K_NOT: N O T;
+K_OR:  O R;
+K_IMPLY: I M P L Y;
+K_EXISTS: E X I S T S;
+K_FORALL: F O R A L L;
+K_WHEN: W H E N;
+
+K_ACTION: ':' A C T I O N;
+
+K_INCREASE: I N C R E A S E;
+K_DECREASE: D E C R E A S E;
+K_SCALEUP: 'scale-up';
+K_SCALEDOWN: 'scale-down';
 
 NAME:    LETTER ANY_CHAR* ;
 

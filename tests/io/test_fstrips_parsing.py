@@ -13,7 +13,7 @@ def get_rule(name):
         "action_body": "actionDefBody",
         "predicate_definition": "single_predicate_definition",
         "function_definition": "single_function_definition",
-        "init_atom": "initEl",
+        "init_atom": "init_element",
         "formula": "goalDesc"
     }.get(name, name)
 

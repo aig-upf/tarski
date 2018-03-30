@@ -7,13 +7,14 @@ import logging
 
 from antlr4 import FileStream, CommonTokenStream, InputStream
 from antlr4.error.ErrorListener import ErrorListener
-from tarski import model
+from tarski import model, theories
 from tarski.errors import SyntacticError
 from tarski.fol import FirstOrderLanguage
-from tarski.fstrips import DelEffect, AddEffect, FunctionalEffect, UniversalEffect, language
+from tarski.fstrips import DelEffect, AddEffect, FunctionalEffect, UniversalEffect, language, OptimizationMetric
 from tarski.syntax import neg, land, lor, Tautology, implies, exists, forall, Term
 from tarski.syntax.builtins import get_predicate_from_symbol, get_function_from_symbol
 from tarski.syntax.formulas import VariableBinding
+from tarski.theories import Theory
 
 from .parser.visitor import fstripsVisitor
 from .parser.lexer import fstripsLexer
@@ -36,6 +37,11 @@ class ExceptionRaiserListener(ErrorListener):
         """ """
         msg = "line " + str(line) + ":" + str(column) + " " + msg
         raise ParsingError(msg)
+
+
+def process_requirements(requirements, lang):
+    if ':action-costs' in requirements:
+        theories.load_theory(lang, Theory.ARITHMETIC)
 
 
 class FStripsParser(fstripsVisitor):
@@ -79,7 +85,7 @@ class FStripsParser(fstripsVisitor):
         self.language = problem.language
         self.init = self.problem.init
 
-        self.requirements = []
+        self.requirements = set()
 
     # TODO GFM NOT REVISED YET
 
@@ -109,7 +115,11 @@ class FStripsParser(fstripsVisitor):
 
     def visitRequireDef(self, ctx):
         for req_ctx in ctx.REQUIRE_KEY():
-            self.requirements.append(req_ctx.getText().lower())
+            requirement = req_ctx.getText().lower()
+            self.requirements.add(requirement)
+
+        process_requirements(self.requirements, self.language)
+
 
     def visitDeclaration_of_types(self, ctx):
         for typename, basename in self.visit(ctx.possibly_typed_name_list()):
@@ -157,6 +167,7 @@ class FStripsParser(fstripsVisitor):
 
     def visitTyped_function_definition(self, ctx, return_type=None):
         return_type = return_type or ctx.primitive_type().getText().lower()
+        return_type = 'Integer' if return_type== 'number' else return_type
         name = ctx.logical_symbol_name().getText().lower()
         argument_types = [a.sort for a in self.visit(ctx.possibly_typed_variable_list())]
         return self.language.function(name, *argument_types, return_type)
@@ -335,68 +346,44 @@ class FStripsParser(fstripsVisitor):
 
     def visitInit(self, ctx):
         # i.e. simply visit all node children
-        for element_ctx in ctx.initEl():
+        for element_ctx in ctx.init_element():
             self.visit(element_ctx)
 
-    def visitInitLiteral(self, ctx):
-        return self.visit(ctx.nameLiteral())
-
-    def visitGroundAtomicFormula(self, ctx):
-        predicate = self.language.get_predicate(ctx.predicate().getText().lower())
-        subterms = [self.visit(term_ctx) for term_ctx in ctx.groundTerm()]
-        return predicate, subterms
-
     def visitInitPositiveLiteral(self, ctx):
-        predicate, subterms = self.visit(ctx.groundAtomicFormula())
+        predicate, subterms = self.visit(ctx.flat_atom())
         self.init.add(predicate, *subterms)
 
     def visitInitNegativeLiteral(self, ctx):
-        # predicate, subterms = self.visit(ctx.groundAtomicFormula())
         # No need to do anything here, as atoms are assumed by default to be false
         pass
 
-    def visitGroundFunctionTerm(self, ctx):
-        func_name = ctx.logical_symbol_name().getText().lower()
-        if func_name not in self.functions_table:
-            raise SystemExit("Function {0} first seen used as a term in Initial State".format(func_name))
-        term_list = []
-        for term_ctx in ctx.groundTerm():
-            term_list.append(self.visit(term_ctx))
-        return FunctionalTerm(func_name, term_list)
+    def visitInitFunctionAssignment(self, ctx):
+        fun, subterms = self.visit(ctx.flat_term())
+        value = self.visit(ctx.constant_name())
+        self.init.set(fun, subterms, value)
 
-    def visitGroundTermObject(self, ctx):
-        name = ctx.NAME().getText().lower()
-        return self.language.get_constant(name)
+    def visitFlat_atom(self, ctx):
+        predicate = self.language.get_predicate(ctx.predicate().getText().lower())
+        subterms = tuple(self.visit(term_ctx) for term_ctx in ctx.constant_name())
+        return predicate, subterms
 
-    def visitGroundTermNumber(self, ctx):
-        object_name = ctx.NUMBER().getText().lower()
-        try:
-            return NumericConstant(int(object_name))
-        except ValueError:
-            return NumericConstant(float(object_name))
+    def visitFlat_term(self, ctx):
+        func_name = self.language.get_function(ctx.function_name().getText().lower())
+        subterms = tuple(self.visit(term_ctx) for term_ctx in ctx.constant_name())
+        return func_name, subterms
 
-    def visitInitAssignmentNumeric(self, ctx):
-        lhs = self.visit(ctx.groundFunctionTerm())
-        try:
-            rhs = NumericConstant(int(ctx.NUMBER().getText().lower()))
-        except ValueError:
-            rhs = NumericConstant(float(ctx.NUMBER().getText().lower()))
-        return Assign(lhs, rhs)
+    def visitSymbolic_constant(self, ctx):
+        return self.language.get_constant(ctx.NAME().getText().lower())
 
-    def visitInitAssignmentObject(self, ctx):
-        lhs = self.visit(ctx.groundFunctionTerm())
-        obj_name = ctx.NAME().getText().lower()
-        if not obj_name in self.objects_table:
-            raise SystemExit(
-                "Object {0} first seen assigning a value to {1} in the initial state".format(obj_name, str(lhs)))
-        rhs = self.objects_table[obj_name]
-        return Assign(lhs, rhs)
+    def visitNumeric_constant(self, ctx):
+        number = ctx.NUMBER().getText().lower()
+        return number
 
-    def visitExtensionalConstraintGD(self, ctx):
-        arg_list = []
-        for fn_ctx in ctx.groundFunctionTerm():
-            arg_list.append(self.visit(fn_ctx))
-        return [Atom(ctx.EXTNAME().getText().lower(), arg_list)]
+    # def visitExtensionalConstraintGD(self, ctx):
+    #     arg_list = []
+    #     for fn_ctx in ctx.groundFunctionTerm():
+    #         arg_list.append(self.visit(fn_ctx))
+    #     return [Atom(ctx.EXTNAME().getText().lower(), arg_list)]
 
     def visitAlternativeAlwaysConstraint(self, ctx):
         return [self.visit(ctx.goalDesc())]
@@ -417,9 +404,9 @@ class FStripsParser(fstripsVisitor):
         self.constraints = Conjunction(self.visit(ctx.prefConGD()))
 
     def visitProblemMetric(self, ctx):
-        optimization = ctx.optimization().getText().lower()
-        self.metric = Metric(optimization)
-        self.metric.expr = self.visit(ctx.metricFExp())
+        opt_type = ctx.optimization().getText().lower()
+        opt_expression = self.visit(ctx.metricFExp())
+        self.problem.metric = OptimizationMetric(opt_expression, opt_type)
 
     def visitFunctionalExprMetric(self, ctx):
         return None, self.visit(ctx.functionTerm())
@@ -438,6 +425,14 @@ class FStripsParser(fstripsVisitor):
 
     def visitIsViolatedMetric(self, ctx):
         raise SystemExit("Unsupported feature: Count of violated constraints metric is not supported")
+
+    def visitAssignEffect(self, ctx):
+        operation = ctx.assignOp().getText().lower()
+        lhs = self.visit(ctx.functionTerm())
+        rhs = self.visit(ctx.term())
+        operator = {'scale-up': '*', 'scale-down': '/', 'increase': '+', 'decrease': '-'}[operation]
+        rhs = self.language.dispatch_operator(get_function_from_symbol(operator), Term, Term, lhs, rhs)
+        return FunctionalEffect(lhs, self.visit(ctx.term()), rhs)
 
     ########## PROCESS STUFF - UNREVISED #######
 
@@ -515,17 +510,6 @@ class FStripsParser(fstripsVisitor):
         add_effect(norm_eff, norm_eff_list)
 
         return prec, norm_eff_list
-
-    def visitAssignEffect(self, ctx):
-        operation = ctx.assignOp().getText().lower()
-        lhs = self.visit(ctx.functionTerm())
-        rhs = self.visit(ctx.fExp())
-        if operation == 'assign':
-            return AssignmentEffect(lhs, rhs)
-        trans_op = {'scale-up': '*', 'scale-down': '/', 'increase': '+', 'decrease': '-'}
-        # print("{} {} {}".format( trans_op[operation], lhs, rhs))
-        new_rhs = FunctionalTerm(trans_op[operation], [lhs, rhs])
-        return AssignmentEffect(lhs, new_rhs)  # This effectively normalizes effects
 
     def visitEventDef(self, ctx):
         name = ctx.eventSymbol().getText().lower()

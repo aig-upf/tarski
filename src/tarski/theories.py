@@ -44,11 +44,6 @@ def load_theory(lang, theory):
             lang.register_operator_handler(fun, Term, Term, create_casting_handler(fun, create_arithmetic_term))
             lang.function(fun, object_t, object_t, object_t)
 
-
-        # TODO DELETE THIS
-        # MRJ: module funcsym needs to be refactored
-        # from . import funcsym
-        # funcsym.initialize(lang)
         lang.theories.append(theory)
         # print("Loaded theory '{}'".format(theory))
     else:

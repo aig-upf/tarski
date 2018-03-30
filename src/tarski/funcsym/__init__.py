@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+# TODO THE WHOLE MODULE FUNCSYM IS ATM NOT USED AND SHOULD BE REMOVE
+# TODO I'M LEAVING IT HERE TEMPORARILY JUST FOR THE REFERENCE
+
 from .arithmetic import Addition, Subtraction, Multiplication, Division, Modulo, \
     Power, ArcTangent2, Max, Min
 
@@ -30,8 +33,8 @@ def initialize(lang):
     # lang.register_symbol(('abs', lang.Real), StandardLibFunction('abs', lang, lang.Real))
 
     # register arithmetic functions
-    sorts = [lang.Real, lang.Integer, lang.Natural]
-
-    for symbol, klass in binary_functions.items():
-        for s in sorts:
-            lang.register_symbol((symbol, s, s), klass(lang, s, s))
+    # sorts = [lang.Real, lang.Integer, lang.Natural]
+    #
+    # for symbol, klass in binary_functions.items():
+    #     for s in sorts:
+    #         lang.register_symbol((symbol, s, s), klass(lang, s, s))

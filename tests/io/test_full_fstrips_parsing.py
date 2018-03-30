@@ -15,28 +15,36 @@ def get_benchmark_dir_if_exists(envvar):
 
 
 SAMPLE_STRIPS_INSTANCES = [
-    "visitall-sat11-strips:problem12.pddl",
-    "blocks:probBLOCKS-4-1.pddl",
-    "gripper:prob01.pddl",
-    "trucks:p01.pddl",
-    "parking-sat11-strips:pfile08-031.pddl",
-    "sokoban-opt08-strips:p01.pddl",
+    "trucks:p01.pddl",  # quantified formulas
+    # "visitall-sat11-strips:problem12.pddl",
+    # "blocks:probBLOCKS-4-1.pddl",
+    # "gripper:prob01.pddl",
+    # "parking-sat11-strips:pfile08-031.pddl",
+    # "sokoban-opt08-strips:p01.pddl",
 ]
 
 SAMPLE_FSTRIPS_INSTANCES = [
-    "counters-fn:instance_4.pddl",
+    # "counters-fn:instance_4.pddl",
 ]
 
 
-def add_domains_from(metafunc, envvar, domains):
+def add_domains_from(metafunc, envvar, domains, benchmark_prefix=None):
     db = get_benchmark_dir_if_exists(envvar)
     if db is None:  # Benchmarks dir not installed on the machine
         return
 
+    db = db if benchmark_prefix is None else os.path.join(db, benchmark_prefix)
+
+    instances = []
+
     for dom, ins in (x.split(":") for x in domains):
         base_dir = os.path.join(db, dom)
-        metafunc.addcall(funcargs=dict(instance_file=os.path.join(base_dir, ins),
-                                       domain_file=os.path.join(base_dir, "domain.pddl")))
+        instances.append([
+            os.path.join(base_dir, ins),
+            os.path.join(base_dir, "domain.pddl")
+        ])
+
+    return instances
 
 
 def pytest_generate_tests(metafunc):
@@ -46,8 +54,10 @@ def pytest_generate_tests(metafunc):
     if metafunc.function != test_pddl_instances:
         return
 
-    add_domains_from(metafunc, "DOWNWARD_BENCHMARKS", SAMPLE_STRIPS_INSTANCES)
-    add_domains_from(metafunc, "FSBENCHMARKS", SAMPLE_FSTRIPS_INSTANCES)
+    argnames = ['instance_file', 'domain_file']
+    argvalues = add_domains_from(metafunc, "DOWNWARD_BENCHMARKS", SAMPLE_STRIPS_INSTANCES)
+    argvalues += add_domains_from(metafunc, "FSBENCHMARKS", SAMPLE_FSTRIPS_INSTANCES, benchmark_prefix='benchmarks')
+    metafunc.parametrize(argnames, argvalues)
 
 
 def test_pddl_instances(instance_file, domain_file):

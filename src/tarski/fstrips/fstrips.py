@@ -42,6 +42,7 @@ class Problem(object):
         self.init = None
         self.goal = None
         self.actions = OrderedDict()
+        self.metric = None
 
         # TODO Add axioms, state constraints, etc.
 
@@ -117,6 +118,12 @@ class FunctionalEffect(SingleEffect):
 
     def tostring(self):
         return "{} := {}".format(self.lhs, self.rhs)
+
+
+class OptimizationMetric(object):
+    def __init__(self, opt_expression, opt_type):
+        self.opt_expression = opt_expression
+        self.opt_type = opt_type
 
 
 def language(name="L", theories=None):
