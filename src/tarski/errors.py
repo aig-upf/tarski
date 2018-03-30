@@ -122,3 +122,8 @@ class IncorrectExtensionDefinition(SemanticError):
         msg = msg or 'Incorrect definition of extension of symbol "{}". Cannot assign value "{}" to point "{}"'.format(
             element, value, point)
         super().__init__(msg)
+
+
+class UnknownTheory(LanguageError):
+    def __init__(self, theory):
+        super().__init__('Unknown first-order theory "{}"'.format(theory))

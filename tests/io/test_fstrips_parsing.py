@@ -1,7 +1,9 @@
 
 import pytest
-from tarski.io import FstripsReader
 from tarski.io._fstrips.reader import ParsingError
+from tarski.theories import Theory
+
+from tests.io.common import reader
 
 
 def get_rule(name):
@@ -14,11 +16,6 @@ def get_rule(name):
         "init_atom": "initEl",
         "formula": "goalDesc"
     }.get(name, name)
-
-
-def reader():
-    """ Return a reader configured to raise exceptions on syntax errors """
-    return FstripsReader(raise_on_error=True)
 
 
 def _test_input(string, rule, reader_):
@@ -85,12 +82,6 @@ def test_init():
     ], r=reader())
 
 
-def test_blocksworld_reading():
-    instance_file = "/home/frances/projects/code/downward-benchmarks/visitall-sat11-strips/problem12.pddl"
-    domain_file = "/home/frances/projects/code/downward-benchmarks/visitall-sat11-strips/domain.pddl"
-    _ = reader().read_problem(domain_file, instance_file)
-
-
 def test_domain_name_parsing():
     r = reader()
 
@@ -138,7 +129,7 @@ def test_predicate_effects():
 
 
 def test_functional_effects():
-    read = _setup_function_environment()
+    read = _setup_function_environment(theories=[Theory.EQUALITY, Theory.ARITHMETIC])
     _test_inputs([
         ("(assign (f o1) o1)", "effect"),
         ("(assign (f o1) 10)", "effect"),
@@ -152,8 +143,8 @@ def test_functional_effects():
         ], r=read)
 
 
-def _setup_function_environment():
-    read = reader()
+def _setup_function_environment(theories=None):
+    read = reader(theories=theories)
     # Set up a few declarations of types objects and functions/predicates
     _test_inputs([
         ("(:types t)", "declaration_of_types"),

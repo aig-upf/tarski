@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import itertools
-from tarski.errors import LanguageError
-from .sorts import Sort
+
 from tarski import errors as err
+from .terms import CompoundTerm
+from .sorts import Sort
 
 
 class Function(object):
@@ -18,7 +19,7 @@ class Function(object):
 
         for k, a in enumerate(itertools.chain(self.domain, [self.codomain])):
             if not isinstance(a, Sort):
-                raise LanguageError("Function.__init__() : arguments need \
+                raise err.LanguageError("Function.__init__() : arguments need \
                 to be of type 'Sort', argument #i: '{}' is of type '{}''".format(k + 1, a, type(a)))
 
             if self.language != a.language:
@@ -45,4 +46,4 @@ class Function(object):
                     codomain=self.codomain.name)
 
     def __call__(self, *args):
-        return self.language.CompoundTerm(self, args)
+        return CompoundTerm(self, args)

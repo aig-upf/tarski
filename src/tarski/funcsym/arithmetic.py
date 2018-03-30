@@ -2,16 +2,12 @@
 
 import math
 
-from ..syntax import Function
-from ..errors import LanguageError
+from ..syntax import Function, Constant
 
 
 class ArithmeticFunction(Function):
     def __init__(self, sym, lang, *args):
         super().__init__(sym, lang, *args)
-
-    def add(self, *args):
-        raise LanguageError("Addition function is a built-in and cannot be redefined")
 
 
 class Addition(ArithmeticFunction):
@@ -23,8 +19,8 @@ class Addition(ArithmeticFunction):
         _rhs = args[1].symbol
         assert self.domain[0].contains(_lhs)
         assert self.domain[1].contains(_rhs)
-        K = self.language.Constant
-        return K(_lhs + _rhs,self.codomain)
+        K = Constant
+        return K(_lhs + _rhs, self.codomain)
 
 
 class Subtraction(ArithmeticFunction):
@@ -36,8 +32,8 @@ class Subtraction(ArithmeticFunction):
         _rhs = args[1].symbol
         assert self.domain[0].contains(_lhs)
         assert self.domain[1].contains(_rhs)
-        K = self.language.Constant
-        return K(_lhs - _rhs,self.codomain)
+        K = Constant
+        return K(_lhs - _rhs, self.codomain)
 
 
 class Multiplication(ArithmeticFunction):
@@ -49,8 +45,8 @@ class Multiplication(ArithmeticFunction):
         _rhs = args[1].symbol
         assert self.domain[0].contains(_lhs)
         assert self.domain[1].contains(_rhs)
-        K = self.language.Constant
-        return K(_lhs * _rhs,self.codomain)
+        K = Constant
+        return K(_lhs * _rhs, self.codomain)
 
 
 class Division(ArithmeticFunction):
@@ -62,8 +58,8 @@ class Division(ArithmeticFunction):
         _rhs = args[1].symbol
         assert self.domain[0].contains(_lhs)
         assert self.domain[1].contains(_rhs)
-        K = self.language.Constant
-        return K(_lhs / _rhs,self.codomain)
+        K = Constant
+        return K(_lhs / _rhs, self.codomain)
 
 
 class Power(ArithmeticFunction):
@@ -75,8 +71,8 @@ class Power(ArithmeticFunction):
         _rhs = args[1].symbol
         assert self.domain[0].contains(_lhs)
         assert self.domain[1].contains(_rhs)
-        K = self.language.Constant
-        return K(_lhs ** _rhs,self.codomain)
+        K = Constant
+        return K(_lhs ** _rhs, self.codomain)
 
 
 class Max(ArithmeticFunction):
@@ -88,8 +84,9 @@ class Max(ArithmeticFunction):
         _rhs = args[1].symbol
         assert self.domain[0].contains(_lhs)
         assert self.domain[1].contains(_rhs)
-        K = self.language.Constant
-        return K( max(_lhs, _rhs),self.codomain)
+        K = Constant
+        return K(max(_lhs, _rhs), self.codomain)
+
 
 class Min(ArithmeticFunction):
     def __init__(self, lang, lhs_sort, rhs_sort):
@@ -100,8 +97,8 @@ class Min(ArithmeticFunction):
         _rhs = args[1].symbol
         assert self.domain[0].contains(_lhs)
         assert self.domain[1].contains(_rhs)
-        K = self.language.Constant
-        return K( min(_lhs, _rhs),self.codomain)
+        K = Constant
+        return K(min(_lhs, _rhs), self.codomain)
 
 
 class Modulo(ArithmeticFunction):
@@ -113,8 +110,8 @@ class Modulo(ArithmeticFunction):
         _rhs = args[1].symbol
         assert self.domain[0].contains(_lhs)
         assert self.domain[1].contains(_rhs)
-        K = self.language.Constant
-        return K(_lhs % _rhs,self.codomain)
+        K = Constant
+        return K(_lhs % _rhs, self.codomain)
 
 
 class ArcTangent2(ArithmeticFunction):
@@ -126,12 +123,11 @@ class ArcTangent2(ArithmeticFunction):
         _rhs = args[1].symbol
         assert self.domain[0].contains(_lhs)
         assert self.domain[1].contains(_rhs)
-        K = self.language.Constant
-        return K( math.atan2(_lhs, _rhs),self.codomain)
+        K = Constant
+        return K(math.atan2(_lhs, _rhs), self.codomain)
 
 
 # Unary arithmetic functions from the Standard Library
-
 class StandardLibFunction(ArithmeticFunction):
     def __init__(self, sym, lang, sort):
         super().__init__(sym, lang, sort, sort)
@@ -139,4 +135,4 @@ class StandardLibFunction(ArithmeticFunction):
     def __getitem__(self, args):
         _x = args.symbol
         assert self.domain[0].contains(_x)
-        return K(getattr(math, self.symbol)(_x), self.codomain )
+        return K(getattr(math, self.symbol)(_x), self.codomain)

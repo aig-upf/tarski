@@ -12,13 +12,16 @@ from tarski.errors import SyntacticError
 from tarski.fol import FirstOrderLanguage
 from tarski.fstrips import DelEffect, AddEffect, FunctionalEffect, UniversalEffect, language
 from tarski.syntax import neg, land, lor, Tautology, implies, exists, forall, Term
-from tarski.syntax._meta import ArithmeticOperatorImplementation
-from tarski.syntax.builtins import eq
+from tarski.syntax.builtins import get_predicate_from_symbol, get_function_from_symbol
 from tarski.syntax.formulas import VariableBinding
 
 from .parser.visitor import fstripsVisitor
 from .parser.lexer import fstripsLexer
 from .parser.parser import fstripsParser
+
+
+builtin_binary_predicate_symbols = {"=": "add", "!=": "sub"}
+builtin_binary_function_symbols = {"+": "add", "-": "sub"}
 
 
 class ParsingError(SyntacticError):
@@ -64,9 +67,9 @@ class FStripsParser(fstripsVisitor):
             element.addErrorListener(self.error_handler)
         return element
 
-    def __init__(self, problem, raise_on_error=False):
+    def __init__(self, problem, raise_on_error=False, theories=None):
         self.problem = problem
-        self.problem.language = language()
+        self.problem.language = language(name="FSTRIPS Language", theories=theories)
         self.problem.init = model.create(problem.language)
         self.error_handler = ExceptionRaiserListener() if raise_on_error else None
 
@@ -243,10 +246,7 @@ class FStripsParser(fstripsVisitor):
         op = ctx.builtin_binary_function().getText().lower()
         subterms = [self.visit(t) for t in ctx.term()]
         lhs, rhs = subterms
-        # return self.language.dispatch_operator(op, Term, Term, lhs, rhs)
-        # TODO CHANGE THE LINE BELOW FOR THE ONE ABOVE, AS WE WANT THIS PARSING TO DEPEND ON THE PARTICULAR
-        # TODO LANGUAGE
-        return ArithmeticOperatorImplementation(op)(lhs, rhs)
+        return self.language.dispatch_operator(get_function_from_symbol(op), Term, Term, lhs, rhs)
 
     def visitUnaryArithmeticFunctionTerm(self, ctx):
         func_name = ctx.builtin_unary_function().getText().lower()
@@ -291,9 +291,7 @@ class FStripsParser(fstripsVisitor):
         op = ctx.builtin_binary_predicate().getText().lower()
         lhs = self.visit(ctx.term(0))
         rhs = self.visit(ctx.term(1))
-        # TODO: Map the string op to the real predicate object
-        assert False
-        return None
+        return self.language.dispatch_operator(get_predicate_from_symbol(op), Term, Term, lhs, rhs)
 
     def visitGoal(self, ctx):
         self.problem.goal = self.visit(ctx.goalDesc())

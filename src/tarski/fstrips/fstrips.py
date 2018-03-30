@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
 
-from .. import fol
-from ..syntax import Formula, Tautology
+from tarski import theories as tsk_theories
+from tarski.theories import Theory
+
+from ..syntax import Tautology, Term
 
 from ..errors import DuplicateActionDefinition, UndefinedAction
 
@@ -117,11 +119,13 @@ class FunctionalEffect(SingleEffect):
         return "{} := {}".format(self.lhs, self.rhs)
 
 
-def language(name="L"):
+def language(name="L", theories=None):
     """ Create an FSTRIPS-oriented First-Order Language.
         This is a standard FOL with a few convenient add-ons.
     """
-    lang = fol.language(name)
-    lang.register_operator_handler("<<", fol.Term, fol.Term, lambda lhs, rhs: FunctionalEffect(lhs, rhs))
-    lang.register_operator_handler("<<", fol.Term, fol.Term, lambda lhs, rhs: FunctionalEffect(rhs, lhs))  # Inverted
+    # By default, when defining a FSTRIPS problem we use a FOL with equality
+    theories = theories or [Theory.EQUALITY]
+    lang = tsk_theories.language(name, theories)
+    lang.register_operator_handler("<<", Term, Term, lambda lhs, rhs: FunctionalEffect(lhs, rhs))
+    lang.register_operator_handler(">>", Term, Term, lambda lhs, rhs: FunctionalEffect(rhs, lhs))  # Inverted
     return lang

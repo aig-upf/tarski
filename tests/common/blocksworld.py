@@ -2,10 +2,11 @@
     Generate blocksworld language elements
 """
 import tarski as tsk
+from tarski.theories import Theory
 
 
 def generate_small_bw_language():
-    lang = tsk.language()
+    lang = tsk.fstrips.language("blocksworld", theories=[Theory.EQUALITY])
 
     # The sorts
     place = lang.sort('place')

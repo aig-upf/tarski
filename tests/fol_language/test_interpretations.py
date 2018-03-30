@@ -7,6 +7,7 @@ from tarski.model import Model
 
 from ..common import blocksworld, numeric
 from tarski.evaluators.simple import evaluate
+from tarski.syntax import Constant
 
 
 def test_interpretation_instance():
@@ -25,7 +26,6 @@ def test_numeric_function_set():
 
 def test_numeric_builtin_addition():
     lang = numeric.generate_numeric_instance()
-    particle = lang.get_sort('particle')
     p1 = lang.get_constant('p1')
     x = lang.get_function('x')
     model = tarski.model.create(lang)
@@ -34,7 +34,7 @@ def test_numeric_builtin_addition():
 
     expr = model[x(p1) + 1.0]
 
-    assert isinstance(expr, lang.Constant)
+    assert isinstance(expr, Constant)
     assert expr.symbol == 2.0
 
 

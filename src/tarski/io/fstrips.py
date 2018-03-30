@@ -7,9 +7,9 @@ from ._fstrips.reader import FStripsParser
 
 class FstripsReader(object):
 
-    def __init__(self, raise_on_error=False):
+    def __init__(self, raise_on_error=False, theories=None):
         self.problem = Problem()
-        self.parser = FStripsParser(self.problem, raise_on_error)
+        self.parser = FStripsParser(self.problem, raise_on_error, theories)
 
     def read_problem(self, domain, instance):
         self.parse_domain(domain)

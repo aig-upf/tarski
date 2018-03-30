@@ -2,7 +2,7 @@
 from collections import OrderedDict
 
 from tarski import errors as err
-from .terms import Variable
+from .terms import Variable, Term
 from .predicate import Predicate
 
 import copy
@@ -163,7 +163,7 @@ def _quantified(quantifier, *args):
             lang = x.language
         except AttributeError :
             raise err.LanguageError('Ill-formed arguments for quantified formula: {}'.format(args))
-        if not isinstance(x, lang.Variable) :
+        if not isinstance(x, Variable) :
             raise err.LanguageError('Ill-formed arguments for quantified formula: {}'.format(args))
 
     return QuantifiedFormula(quantifier, args[:-1], args[-1])
@@ -192,7 +192,7 @@ class Atom(Formula):
 
         # Check arguments are all terms of the appropriate type and matching language
         for arg, expected_sort in zip(self.subterms, head.sort):
-            if not isinstance(arg, language.Term):
+            if not isinstance(arg, Term):
                 raise err.LanguageError("Wrong argument for atomic formula: '{}' ".format(arg))
 
             if arg.language != language:

@@ -5,18 +5,7 @@ from typing import List
 import scipy.constants
 
 from . import errors as err
-from .syntax import Function, Constant, Term, CompoundTerm, Variable, Sort, Interval, inclusion_closure, Predicate, \
-    bind_equality_to_language_components
-
-import tarski.syntax.builtins as syntax_builtins
-from . import funcsym
-
-
-def language(name='L'):
-    """ A helper to construct languages"""
-    lang = FirstOrderLanguage(name)
-    funcsym.initialize(lang)
-    return lang
+from .syntax import Function, Constant, Variable, Sort, Interval, inclusion_closure, Predicate
 
 
 class FirstOrderLanguage:
@@ -42,8 +31,6 @@ class FirstOrderLanguage:
         self._constants = {}
         self._variables = set()
 
-        # Allow default builtin predicates to be enabled dynamically
-        self._create_default_builtins = True
         self._symbol_table = {}
         self._operators = dict()
         self._build_builtin_sorts()
@@ -52,15 +39,8 @@ class FirstOrderLanguage:
                                     Function: self._functions,
                                     Predicate: self._predicates,
                                     Variable: self._variables}
-        # MRJ: https://stackoverflow.com/questions/9541025/how-to-copy-a-python-class
-        # see the second most voted answer
-        self.Term = type('{}_Term'.format(self.name), (Term,), {})
-        self.CompoundTerm = type('{}_CompoundTerm'.format(self.name), (self.Term,), CompoundTerm.__dict__.copy())
-        self.Variable = type('{}_Variable'.format(self.name), (self.Term,), Variable.__dict__.copy())
-        self.Constant = type('{}_Constant'.format(self.name), (self.Term,), Constant.__dict__.copy())
         self.language_components_frozen = False
         self.theories = []
-        bind_equality_to_language_components(self)
 
     @property
     def variables(self):
@@ -123,7 +103,6 @@ class FirstOrderLanguage:
     def _build_the_objects(self):
         sort = Sort('object', self)
         self._sorts['object'] = sort
-        self.create_builtin_predicates(sort)
 
     @property
     def Object(self):
@@ -168,7 +147,7 @@ class FirstOrderLanguage:
 
     def variable(self, name: str, sort: Sort):
         sort = self._retrieve_object(sort, Sort)
-        return self.Variable(name, sort)
+        return Variable(name, sort)
 
     def set_parent(self, lhs: Sort, rhs: Sort):
         if rhs.language is not self:
@@ -210,7 +189,7 @@ class FirstOrderLanguage:
                 # return a Constant object.
                 # TODO: I do no't see it is desirable to store constants of
                 # built in sorts.
-                return self.Constant(name, sort)
+                return Constant(name, sort)
             # MRJ: otherwise
             raise err.SemanticError(
                 "Cannot create constant term of sort '{}' from '{}' of Python type '{}'".format(sort.name, name,
@@ -219,7 +198,7 @@ class FirstOrderLanguage:
         if name in self._constants:
             raise err.DuplicateConstantDefinition(name, self._constants[name])
 
-        self._constants[name] = self.Constant(name, sort)
+        self._constants[name] = Constant(name, sort)
         return self._constants[name]
 
     def has_constant(self, name):
@@ -296,26 +275,6 @@ class FirstOrderLanguage:
     def are_vertically_related(self, t1, t2):
         return self.is_subtype(t1, t2) or self.is_subtype(t2, t1)
 
-    def load_theory(self, theory):
-        if self.language_components_frozen:
-            raise err.LanguageError("FOL.load_theory(): Cannot load theories once language elements have been defined")
-        if theory == 'arithmetic':
-            import tarski.syntax.arithmetic
-            tarski.syntax.arithmetic.bind_operators_to_language_components(self)
-            # MRJ: module funcsym needs to be refactored
-            tarski.funcsym.initialize(self)
-            self.theories.append(theory)
-            print("Loaded theory '{}'".format(theory))
-
-    def create_builtin_predicates(self, sort):
-        if self._create_default_builtins:
-            syntax_builtins.create_symbols_for_language(self)
-
-        # for s in builtins.Predicates:
-        #     # The name of the built-in predicate takes into account the type it is applied to, e.g. =_int
-        #     name = "{}_{}".format(s.value, sort._name)
-        #     self.predicate(name, sort, sort)
-
     def __str__(self):
         return "{}: Tarski language with {} sorts, {} function symbols, {} predicate symbols and {} variables".format(
             self.name, len(self._sorts), len(self._functions), len(self._predicates), len(self._variables))
@@ -324,10 +283,11 @@ class FirstOrderLanguage:
         self._operators[(operator, t1, t2)] = handler
 
     def dispatch_operator(self, operator, t1, t2, lhs, rhs):
-        assert isinstance(lhs, t1)
-        assert isinstance(rhs, t2)
+        # assert isinstance(lhs, t1)
+        # assert isinstance(rhs, t2)
         try:
             return self._operators[(operator, t1, t2)](lhs, rhs)
         except KeyError:
-            raise err.LanguageError("Operator '{}' not defined on domain ({}, {})".format(operator, t1, t2))
+            # raise err.LanguageError("Operator '{}' not defined on domain ({}, {})".format(operator, t1, t2))
+            raise err.LanguageError("Operator '{}' not defined on domain ({}, {})")
 
