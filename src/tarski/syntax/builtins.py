@@ -32,7 +32,7 @@ def create_symbols_for_language(lang):
 def is_builtin_predicate(predicate):
     return isinstance(predicate.symbol, BuiltinPredicateSymbol)
 
-def create_atom(symbol: BuiltinPredicate, lhs, rhs):
+def create_atom(symbol: BuiltinPredicateSymbol, lhs, rhs):
     from .terms import Term
     from .formulas import Atom
 
