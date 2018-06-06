@@ -7,7 +7,7 @@ import copy
 
 from tarski.syntax.temporal import ltl
 from tarski.syntax.formulas import *
-from tarski.syntax.builtins import BuiltinPredicate, create_atom
+from tarski.syntax.builtins import BuiltinPredicateSymbol, create_atom
 from . errors import TransformationError
 
 
@@ -33,7 +33,7 @@ class NegatedBuiltinAbsorption(object):
                 if isinstance(P,Atom):
                     if P.predicate.builtin:
                         try:
-                            c = BuiltinPredicate.complement(P.predicate.symbol)
+                            c = BuiltinPredicateSymbol.complement(P.predicate.symbol)
                             return create_atom(c, P.subterms[0],P.subterms[1])
                         except KeyError:
                             pass
