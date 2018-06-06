@@ -1,8 +1,8 @@
 from . import errors as err
 
-# class Action(abc.ABC):
 class Action(object):
     """ A (possibly lifted) planning action """
+
     def __init__(self, language, name, parameters, precondition, effects):
         self.name = name
         self.language = language
@@ -16,9 +16,8 @@ class Action(object):
                     precondition=self.precondition.dump(),
                     effects=[eff.dump() for eff in self.effects.dump()])
 
-
     def __str__(self):
-        tokens = [ 'action {}:'.format(self.name),\
-                    'pre=({})'.format(self.precondition),\
-                    'eff=({})'.format(' & '.join( str(eff) for eff in self.effects))]
-        return  '\n'.join(tokens)
+        tokens = ['action {}:'.format(self.name),
+                  'pre=({})'.format(self.precondition),
+                  'eff=({})'.format(' & '.join(str(eff) for eff in self.effects))]
+        return '\n'.join(tokens)
