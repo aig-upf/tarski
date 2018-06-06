@@ -1,16 +1,73 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
 
-from .. import fol
-from ..syntax import Formula, Tautology
+from tarski import theories as tsk_theories
+from tarski.theories import Theory
+
+from ..syntax import Tautology, Term
 
 from ..errors import DuplicateActionDefinition, UndefinedAction
 
-class Effect(object):
-    pass
+
+class Action(object):
+    """ A (possibly lifted) planning action """
+
+    def __init__(self, language, name, parameters, precondition, effects):
+        self.name = name
+        self.language = language
+        self.parameters = parameters
+        self.precondition = precondition
+        self.effects = effects
+
+    def dump(self):
+        return dict(name=self.name,
+                    params=[par.dump() for par in self.parameters],
+                    precondition=self.precondition.dump(),
+                    effects=[eff.dump() for eff in self.effects.dump()])
+
+    def __str__(self):
+        tokens = ['action {}:'.format(self.name),
+                  'pre=({})'.format(self.precondition),
+                  'eff=({})'.format(' & '.join(str(eff) for eff in self.effects))]
+        return '\n'.join(tokens)
 
 
-class UniversalEffect(Effect):
+class Problem(object):
+    """ A Functional STRIPS problem """
+
+    def __init__(self):
+        self.name = None
+        self.domain_name = None
+        self.language = None
+        self.init = None
+        self.goal = None
+        self.actions = OrderedDict()
+        self.metric = None
+
+        # TODO Add axioms, state constraints, etc.
+
+    def action(self, name, parameters, precondition, effects):
+        if name in self.actions:
+            raise DuplicateActionDefinition(name, self.actions[name])
+
+        self.actions[name] = Action(self.language, name, parameters, precondition, effects)
+        return self.actions[name]
+
+    def has_action(self, name):
+        return name in self.actions
+
+    def get_action(self, name):
+        if not self.has_action(name):
+            raise UndefinedAction(name)
+        return self.actions[name]
+
+    def __str__(self):
+        return 'FSTRIPS Problem "{}", domain "{}"'.format(self.name, self.domain_name)
+
+    __repr__ = __str__
+
+
+class UniversalEffect(object):
     """ A forall-effect """
     def __init__(self, variables, effects):
         self.variables = variables
@@ -22,7 +79,7 @@ class UniversalEffect(Effect):
     __repr__ = __str__
 
 
-class SingleEffect(Effect):
+class SingleEffect(object):
     def __init__(self, condition):
         self.condition = condition
 
@@ -63,10 +120,19 @@ class FunctionalEffect(SingleEffect):
         return "{} := {}".format(self.lhs, self.rhs)
 
 
-def language(name="L"):
+class OptimizationMetric(object):
+    def __init__(self, opt_expression, opt_type):
+        self.opt_expression = opt_expression
+        self.opt_type = opt_type
+
+
+def language(name="L", theories=None):
     """ Create an FSTRIPS-oriented First-Order Language.
         This is a standard FOL with a few convenient add-ons.
     """
-    lang = fol.language(name)
-    lang.register_operator_handler("<<", fol.Term, fol.Term, lambda lhs, rhs: FunctionalEffect(lhs, rhs))
+    # By default, when defining a FSTRIPS problem we use a FOL with equality
+    theories = theories or [Theory.EQUALITY]
+    lang = tsk_theories.language(name, theories)
+    lang.register_operator_handler("<<", Term, Term, lambda lhs, rhs: FunctionalEffect(lhs, rhs))
+    lang.register_operator_handler(">>", Term, Term, lambda lhs, rhs: FunctionalEffect(rhs, lhs))  # Inverted
     return lang

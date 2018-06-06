@@ -38,8 +38,13 @@ class Predicate(object):
     def arity(self):
         return len(self.sort)
 
+    # def __str__(self):
+    #     return '{}({})'.format(self.symbol, ','.join([a.name for a in self.sort]))
+
     def __str__(self):
-        return '{}({})'.format(self.symbol, ','.join([a.name for a in self.sort]))
+        return "{}/{}".format(self.symbol, self.arity)
+
+    __repr__ = __str__
 
     def dump(self):
         return dict(symbol=self.symbol, sort=[a.name for a in self.sort])

@@ -83,6 +83,12 @@ class DuplicateActionDefinition(DuplicateDefinition):
     pass
 
 
+class DuplicateVariableDefinition(DuplicateDefinition):
+    def __init__(self, variable, other, msg=None):
+        msg = "Variable with name '{}' already defined in binding: {}".format(variable.symbol, other)
+        super().__init__(variable, other, msg)
+
+
 class UndefinedSort(UndefinedElement):
     pass
 
@@ -102,6 +108,10 @@ class UndefinedAction(UndefinedElement):
     pass
 
 
+class UndefinedVariable(UndefinedElement):
+    pass
+
+
 class UnboundVariable(SemanticError):
     def __init__(self, var, msg=None):
         msg = msg or 'Attempted to evaluate open formula with free variable {}'.format(var)
@@ -113,3 +123,8 @@ class IncorrectExtensionDefinition(SemanticError):
         msg = msg or 'Incorrect definition of extension of symbol "{}". Cannot assign value "{}" to point "{}"'.format(
             element, value, point)
         super().__init__(msg)
+
+
+class UnknownTheory(LanguageError):
+    def __init__(self, theory):
+        super().__init__('Unknown first-order theory "{}"'.format(theory))

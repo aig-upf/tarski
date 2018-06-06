@@ -15,24 +15,24 @@ import tarski.errors as err
 
 
 def test_object_type():
-    lang = tsk.language()
+    lang = tsk.fstrips.language()
     lang.get_sort("object")
 
 
 def test_type_retrieval():
-    lang = tsk.language()
+    lang = tsk.fstrips.language()
     s = lang.sort("foobar")
     assert s == lang.get_sort("foobar")
 
 
 def test_nonexisting_type():
-    lang = tsk.language()
+    lang = tsk.fstrips.language()
     with pytest.raises(err.UndefinedSort):
         lang.get_sort('foobar')
 
 
 def test_duplicate_type():
-    lang = tsk.language()
+    lang = tsk.fstrips.language()
     lang.sort('person')
 
     # Adding two sorts with the same name should raise some type of error
@@ -58,7 +58,7 @@ def test_is_subtype_of():
 
 
 def get_children_parent_types():
-    lang = tsk.language()
+    lang = tsk.fstrips.language()
     being = lang.sort('being')
     animal = lang.sort('animal', [being])
     human = lang.sort('human', [animal])
@@ -66,7 +66,7 @@ def get_children_parent_types():
 
 
 def test_ints():
-    lang = tsk.language()
+    lang = tsk.fstrips.language()
     ints = lang.Integer
     assert ints.contains(1)
     assert ints.contains(0)
@@ -76,7 +76,7 @@ def test_ints():
 
 
 def test_naturals():
-    lang = tsk.language()
+    lang = tsk.fstrips.language()
     nats = lang.Natural
     assert nats.contains(999)
     assert not nats.contains(-12)
@@ -84,7 +84,14 @@ def test_naturals():
 
 
 def test_reals():
-    lang = tsk.language()
+    lang = tsk.fstrips.language()
     reals = lang.Real
     assert reals.contains(1000.36)
     assert reals.contains(-17)
+
+
+def test_integer_subtypes():
+    lang = tsk.fstrips.language()
+    nats = lang.Natural
+
+    counter_t = lang.sort("counter", [nats])

@@ -1,10 +1,11 @@
 
 import pytest
-from tarski.errors import SyntacticError
 from tarski.io import FstripsReader
 from tarski.io._fstrips.reader import ParsingError
-from tarski.funcsym import Addition
-import tarski.fstrips as fs
+from tarski.theories import Theory
+
+from tests.io.common import reader
+
 
 def get_rule(name):
     return {  # TODO Move this somewhere compiling common rule names
@@ -13,14 +14,9 @@ def get_rule(name):
         "action_body": "actionDefBody",
         "predicate_definition": "single_predicate_definition",
         "function_definition": "single_function_definition",
-        "init_atom": "initEl",
+        "init_atom": "init_element",
         "formula": "goalDesc"
     }.get(name, name)
-
-
-def reader():
-    """ Return a reader configured to raise exceptions on syntax errors """
-    return FstripsReader(raise_on_error=True)
 
 
 def _test_input(string, rule, reader_):
@@ -87,12 +83,6 @@ def test_init():
     ], r=reader())
 
 
-def test_blocksworld_reading():
-    instance_file = "tests/data/pddl/ipc/visitall-sat11-strips/problem12.pddl"
-    domain_file = "tests/data/pddl/ipc/visitall-sat11-strips/domain.pddl"
-    _ = reader().read_problem(domain_file, instance_file)
-
-
 def test_domain_name_parsing():
     r = reader()
 
@@ -140,14 +130,22 @@ def test_predicate_effects():
 
 
 def test_functional_effects():
-    read = _setup_function_environment()
+    read = _setup_function_environment(theories=[Theory.EQUALITY, Theory.ARITHMETIC])
     _test_inputs([
         ("(assign (f o1) o1)", "effect"),
+        ("(assign (f o1) 10)", "effect"),
+        ("(assign (f o1) (+ 5 15))", "effect"),
+        ("(assign (f o1) (- 10 2))", "effect"),
     ], r=read)
 
+    with pytest.raises(ParsingError):
+        _test_inputs([
+            ("(assign (+ 5 4) 0)", "effect"),  # Cannot redefine fixed built-in functions
+        ], r=read)
 
-def _setup_function_environment():
-    read = reader()
+
+def _setup_function_environment(theories=None):
+    read = reader(theories=theories)
     # Set up a few declarations of types objects and functions/predicates
     _test_inputs([
         ("(:types t)", "declaration_of_types"),
@@ -164,21 +162,6 @@ def _setup_predicate_environment():
         ("(:types t)", "declaration_of_types"),
         ("(:constants o1 o2 - t)", "constant_declaration"),
         ("(p ?o - t)", "predicate_definition"),
-    ], r=read)
-    return read
-
-def _setup_numeric_environment():
-    read = reader()
-    read.problem.language.load_theory('arithmetic')
-    # Set up a few declaration of numeric functions and objects
-    _test_inputs([
-        ("(:types vehicle obstacle - object)", "declaration_of_types"),
-        ("(:constants v1 v2 - vehicle o1 o2 o3 - obstacle)", "constant_declaration"),
-        ("(x ?o - object) - number", "function_definition"),
-        ("(y ?o - object) - number", "function_definition"),
-        ("(a ?o - obstacle) - number", "function_definition"),
-        ("(b ?o - obstacle) - number", "function_definition"),
-        ("(c ?o - obstacle) - number", "function_definition"),
     ], r=read)
     return read
 
@@ -202,125 +185,3 @@ def test_strips_atoms():
         ("(forall (?x - t) (p ?x))", "formula"),
         ("(exists (?x - t) (p ?x))", "formula"),
     ], r=read)
-
-def test_geometric_precondition():
-    read = _setup_numeric_environment()
-    _test_inputs([
-        ("(>= (x o1) (x o2))", "formula"),
-        ("(>= (+ (^ (-(x o1) (x o2)) 2.0) (^ (- (y o1) (y o2)) 2.0)) 1.5)", "formula"),
-    ], r=read)
-
-def test_geometric_constraint_syntax_error():
-    read = _setup_numeric_environment()
-    text = """
-    (:constraint foo
-        :parameters (?v1 ?v2 - vehicle)
-        :condition (>= (- (x o1) (x o2)) 0.0)
-    )
-    """
-    with pytest.raises(ParsingError):
-        _test_inputs([
-            ( text, "constraintDef"),
-        ], r=read)
-
-def test_geometric_constraint_good():
-    read = _setup_numeric_environment()
-    text = """
-    (:constraint foo
-        :parameters (?v1 ?v2 - vehicle)
-        :condition (>= (- (x ?v1) (x ?v2)) 0.0)
-    )
-    """
-    _test_inputs([
-        ( text, "constraintDef"),
-    ], r=read)
-
-
-def test_geometric_action_syntax_error():
-    read = _setup_numeric_environment()
-    text = """
-    (:action move_north
-        :parameters (?v - vehicle)
-        :precondition (<= (y ?o) 10.0)
-        :effect (and
-            (assign (x ?o) (+ (x ?o) 0.25))
-        )
-    )
-    """
-    from tarski.io._fstrips.reader import UnresolvedVariableError
-    with pytest.raises(UnresolvedVariableError):
-        _test_inputs([
-            (text, "actionDef"),
-        ], r=read)
-
-def test_geometric_action_good():
-    read = _setup_numeric_environment()
-    text = """
-    (:action move_north
-        :parameters (?v - vehicle)
-        :precondition (<= (y ?v) 10.0)
-        :effect (and
-            (assign (x ?v) (+ (x ?v) 0.25))
-        )
-    )
-    """
-    _test_inputs([
-        (text, "actionDef"),
-    ], r=read)
-
-    assert len(read.problem.actions) == 1
-    a = list(read.problem.actions.values())[0]
-    assert len(a.effects) == 1
-    assert isinstance(a.effects[0], fs.FunctionalEffect)
-    assert a.effects[0].lhs.symbol.symbol == 'x'
-    assert isinstance( a.effects[0].rhs.symbol, Addition )
-
-def test_geometric_action_increase_effect():
-    read = _setup_numeric_environment()
-    text = """
-    (:action move_north
-        :parameters (?v - vehicle)
-        :precondition (<= (y ?v) 10.0)
-        :effect (and
-            (increase (x ?v) 0.25)
-        )
-    )
-    """
-    _test_inputs([
-        (text, "actionDef"),
-    ], r=read)
-
-    assert len(read.problem.actions) == 1
-    a = list(read.problem.actions.values())[0]
-    assert len(a.effects) == 1
-    assert isinstance(a.effects[0], fs.FunctionalEffect)
-    assert a.effects[0].lhs.symbol.symbol == 'x'
-    assert isinstance( a.effects[0].rhs.symbol, Addition )
-
-def test_geometric_action_cond_effect():
-    read = _setup_numeric_environment()
-    text = """
-    (:action move_north
-        :parameters (?v - vehicle)
-        :precondition (<= (y ?v) 10.0)
-        :effect (and
-            (when (= ?v v1) (assign (x ?v) (+ (x ?v) 0.25)))
-            (when (= ?v v2) (assign (x ?v) (+ (x ?v) 0.5)))
-        )
-    )
-    """
-    _test_inputs([
-        (text, "actionDef"),
-    ], r=read)
-
-    assert len(read.problem.actions) == 1
-    a = list(read.problem.actions.values())[0]
-    assert len(a.effects) == 2
-    print(a.effects[0])
-    print(a.effects[1])
-    assert isinstance(a.effects[0], fs.FunctionalEffect)
-    assert isinstance(a.effects[1], fs.FunctionalEffect)
-    assert a.effects[0].lhs.symbol.symbol == 'x'
-    assert a.effects[0].rhs.symbol.symbol == '+'
-    assert a.effects[1].lhs.symbol.symbol == 'x'
-    assert a.effects[1].rhs.symbol.symbol == '+'

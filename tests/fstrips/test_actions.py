@@ -25,7 +25,4 @@ def test_effect_creation():
     t1 = lang.constant('x', 'object')
     t2 = lang.constant('y', 'object')
     eff = t1 << t2  # i.e. x := y
-    assert isinstance(eff, fs.Effect)
-    # MRJ: note how we're comparing pointers
-    assert id(eff.lhs) == id(t1)
-    assert id(eff.rhs) == id(t2)
+    assert isinstance(eff, fs.FunctionalEffect)

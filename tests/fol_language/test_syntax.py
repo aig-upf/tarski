@@ -1,21 +1,24 @@
 import pytest
 import tarski as tsk
+from tarski import theories, Constant
+from tarski.theories import Theory
+from tarski import errors as err
 
 from ..common import numeric
 
 
 def test_builtin_constants():
-    lang = tsk.language()
+    lang = tsk.fstrips.language()
     ints = lang.Integer
     two = lang.constant(2, ints)
-    assert isinstance(two, lang.Constant), "two should be the constant 2, not the integer value 2"
+    assert isinstance(two, Constant), "two should be the constant 2, not the integer value 2"
 
 
 def test_arithmetic_terms_fails_without_import():
-    lang = tsk.language()
+    lang = tsk.fstrips.language()
     ints = lang.Integer
     two, three = lang.constant(2, ints), lang.constant(3, ints)
-    with pytest.raises(TypeError):
+    with pytest.raises(err.LanguageError):
         # This should raise TypeError as the arithmetic module has not been loaded
         sum_ = two + three
 
@@ -32,8 +35,7 @@ def test_arithmetic_term_plus_float_lit_is_term():
 
 
 def test_arithmetic_terms_does_not_fail_with_load_theory():
-    lang = tsk.language()
-    lang.load_theory('arithmetic')
+    lang = tsk.fstrips.language(theories=[Theory.ARITHMETIC])
     ints = lang.Integer
     two, three = lang.constant(2, ints), lang.constant(3, ints)
     sum_ = two + three
@@ -42,11 +44,11 @@ def test_arithmetic_terms_does_not_fail_with_load_theory():
 
 def test_load_arithmetic_module_fails_when_language_frozen():
     import tarski.errors as err
-    lang = tsk.language()
+    lang = tsk.fstrips.language()
     ints = lang.Integer
     two, three = lang.constant(2, ints), lang.constant(3, ints)
 
     with pytest.raises(err.LanguageError):
         # load_theory() should raise LanguageError as we have created two constants
-        lang.load_theory('arithmetic')
+        theories.load_theory(lang, Theory.ARITHMETIC)
         sum_ = two + three
