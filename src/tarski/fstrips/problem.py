@@ -18,11 +18,6 @@ class Problem(object):
 
         # TODO Add axioms, state constraints, etc.
 
-    def __str__(self):
-        return 'FSTRIPS Problem "{}", domain "{}"'.format(self.name, self.domain_name)
-
-    __repr__ = __str__
-
     def action(self, name, parameters, precondition, effects):
         if name in self.actions:
             raise DuplicateActionDefinition(name, self.actions[name])
