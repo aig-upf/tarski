@@ -2,7 +2,7 @@
 from tarski import fstrips as fs
 from tarski.syntax import *
 
-from ..common import blocksworld
+from tests.fstrips import blocksworld
 
 
 def test_task_index_constructor():

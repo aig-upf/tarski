@@ -4,8 +4,8 @@ from tarski.grounding.naive import state_variables as sv
 from tarski.syntax import *
 from tarski.util import IndexDictionary
 
-from tests.common import blocksworld
-from tests.common import parcprinter
+from tests.fstrips import blocksworld
+from tests.fstrips import parcprinter
 
 def test_task_static_symbol_detection():
     prob = parcprinter.create_small_task()
