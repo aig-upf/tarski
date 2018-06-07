@@ -57,7 +57,7 @@ class FirstOrderLanguage:
 
     @property
     def sorts(self):
-        for s in self.sorts:
+        for s in self._sorts.items():
             yield s
 
     @property
@@ -292,4 +292,3 @@ class FirstOrderLanguage:
             return self._operators[(operator, t1, t2)](lhs, rhs)
         except KeyError:
             raise err.LanguageError("Operator '{}' not defined on domain ({}, {})".format(operator, t1, t2))
-
