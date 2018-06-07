@@ -5,8 +5,7 @@ from tarski.syntax import *
 from tarski.util import IndexDictionary
 from tarski.grounding.naive.actions import ActionGrounder
 from tarski.grounding.naive.constraints import ConstraintGrounder
-
-from tests.common import blocksworld
+from tests.fstrips import blocksworld
 
 def create_small_bw_with_index():
     prob = blocksworld.create_small_task()

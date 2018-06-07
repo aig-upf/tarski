@@ -31,7 +31,7 @@ SAMPLE_FSTRIPS_INSTANCES = [
 def add_domains_from(metafunc, envvar, domains, benchmark_prefix=None):
     db = get_benchmark_dir_if_exists(envvar)
     if db is None:  # Benchmarks dir not installed on the machine
-        return
+        return []
 
     db = db if benchmark_prefix is None else os.path.join(db, benchmark_prefix)
 
@@ -53,6 +53,11 @@ def pytest_generate_tests(metafunc):
     # @see http://pytest.org/latest/example/parametrize.html#parametrizing-test-methods-through-per-class-configuration
     if metafunc.function != test_pddl_instances:
         return
+
+    pddl_dirs = ["DOWNWARD_BENCHMARKS", "FSBENCHMARKS"]
+    if any(get_benchmark_dir_if_exists(d) is None for d in pddl_dirs):
+        print("Please install STRIPS/FSTRIPS benchmarks and set up environment variables ({})"
+              " appropriately to run the full suite of tests".format(', '.join(pddl_dirs)))
 
     argnames = ['instance_file', 'domain_file']
     argvalues = add_domains_from(metafunc, "DOWNWARD_BENCHMARKS", SAMPLE_STRIPS_INSTANCES)

@@ -213,6 +213,9 @@ class FirstOrderLanguage:
             raise err.UndefinedConstant(name)
         return self._constants[name]
 
+    def constants(self):
+        return list(self._constants.values())
+
     def predicate(self, name: str, *args):
         if name in self._predicates:
             raise err.DuplicatePredicateDefinition(name, self._predicates[name])
@@ -261,12 +264,18 @@ class FirstOrderLanguage:
             s.check_empty()
 
     def is_subtype(self, t, st):
+        t = self._retrieve_object(t, Sort)
+        st = self._retrieve_object(st, Sort)
         return t == st or self.is_strict_subtype(t, st)
 
     def is_strict_subtype(self, t, st):
+        t = self._retrieve_object(t, Sort)
+        st = self._retrieve_object(st, Sort)
         return st in self._possible_promotions[t._name]
 
     def are_vertically_related(self, t1, t2):
+        t1 = self._retrieve_object(t1, Sort)
+        t2 = self._retrieve_object(t2, Sort)
         return self.is_subtype(t1, t2) or self.is_subtype(t2, t1)
 
     def __str__(self):

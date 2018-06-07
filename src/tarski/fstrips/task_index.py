@@ -7,6 +7,7 @@ from collections import OrderedDict
 import itertools
 
 from tarski import util
+from tarski.fstrips import AddEffect, DelEffect, FunctionalEffect, LogicalEffect
 from .visitors import FluentSymbolCollector, FluentHeuristic
 
 class TaskIndex(object):
@@ -23,8 +24,8 @@ class TaskIndex(object):
     def _check_static_not_fluents(self):
         """
             Sorts fluent and static sets, so that the only
-            static expressions are those which haven't found
-            under the scope of a X operator at least once.
+            static expressions are those which haven't been flagged
+            as fluent by at least one of our heuristics.
         """
         #print('Fluents (before filtering): {}'.format(','.join([str(var) for var in self.fluent_symbols])))
         #print('Statics (before filtering): {}'.format(','.join([str(var) for var in self.static_symbols])))
@@ -48,12 +49,22 @@ class TaskIndex(object):
             for _, act in P.actions.items() :
                 act.precondition.accept(prec_visitor)
                 for eff in act.effects :
+                    if isinstance(eff, AddEffect):
+                        eff.atom.accept(eff_visitor)
+                    elif isinstance(eff,DelEffect):
+                        eff.atom.accept(eff_visitor)
+                    elif isinstance(eff,FunctionalEffect):
+                        eff.lhs.accept(eff_visitor)
+                    elif isinstance(eff,LogicalEffect):
+                        eff.formula.accept(eff_visitor)
+                    else:
+                        raise RuntimeError("Effect type '{}' cannot be analysed".format(type(eff)))
 
-                    eff.accept(eff_visitor)
             for const in P.constraints :
                 constraint_visitor.reset()
                 const.accept(constraint_visitor)
-
+            print('Fluents: {}'.format(','.join([str(x) for x in self.fluent_symbols])))
+            print('Statics: {}'.format(','.join([str(x) for x in self.static_symbols])))
             self._check_static_not_fluents()
             if len(self.fluent_symbols) == oF and\
                  len(self.static_symbols) == oS:

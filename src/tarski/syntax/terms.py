@@ -94,6 +94,11 @@ class Term(object):
     def __or__(self, rhs):
         return self.language.dispatch_operator('|', Term, Term, self, rhs)
 
+    def accept(self, visitor):
+        """
+            Visitor pattern
+        """
+        visitor.visit(self)
 
 class Variable(Term):
     def __init__(self, symbol: str, sort: Sort):
@@ -177,6 +182,9 @@ class CompoundTerm(Term):
         # MRJ: we don't want to print the symbol/signature
         # but rather the name.
         return '{}({})'.format(self.symbol.symbol, ', '.join([str(t) for t in self.subterms]))
+
+    def __hash__(self):
+        return hash(str(self))
 
 
 class Constant(Term):

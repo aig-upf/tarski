@@ -33,16 +33,19 @@ def load_theory(lang, theory):
     if theory == Theory.EQUALITY:
         for pred in builtins.get_equality_predicates():
             lang.register_operator_handler(pred, Term, Term, create_casting_handler(pred, create_atom))
-            lang.predicate(pred, object_t, object_t)
+            p = lang.predicate(pred, object_t, object_t)
+            p.builtin = True
 
     elif theory == Theory.ARITHMETIC:
         for pred in builtins.get_arithmetic_predicates():
             lang.register_operator_handler(pred, Term, Term, create_casting_handler(pred, create_atom))
-            lang.predicate(pred, object_t, object_t)
+            p = lang.predicate(pred, object_t, object_t)
+            p.builtin = True
 
         for fun in builtins.get_arithmetic_functions():
             lang.register_operator_handler(fun, Term, Term, create_casting_handler(fun, create_arithmetic_term))
-            lang.function(fun, object_t, object_t, object_t)
+            f = lang.function(fun, object_t, object_t, object_t)
+            f.builtin = True
 
         lang.theories.append(theory)
         # print("Loaded theory '{}'".format(theory))

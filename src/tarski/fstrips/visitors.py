@@ -7,6 +7,7 @@
 from tarski.syntax.temporal import ltl
 from tarski.syntax.formulas import *
 from tarski.syntax.visitors import SymbolReference
+from tarski.syntax.terms import CompoundTerm
 
 
 class FluentHeuristic(object):
@@ -33,36 +34,24 @@ class FluentSymbolCollector(object):
 
     def _visit_action_effect_formula(self, phi):
 
-        if isinstance(phi, ltl.TemporalCompoundFormula)\
-            and phi.connective == ltl.TemporalConnective.X:
-            old_value = self.under_next
-            self.under_next = True
-            for f in phi.subformulas: f.accept(self)
-            self.under_next = old_value
-        elif isinstance(phi, CompoundFormula):
+        if isinstance(phi, CompoundFormula):
             for f in phi.subformulas : f.accept(self)
         elif isinstance(phi, QuantifiedFormula):
             phi.formula.accept(self)
         elif isinstance(phi, Atom):
-            if self.under_next:
-                if not phi.predicate.builtin:
-                    self.fluents.add(SymbolReference(phi))
-                else:
-                    for t in phi.subterms:
-                        t.accept(self)
+            #print("Atom: {}".format(str(phi)))
+            if not phi.predicate.builtin:
+                self.fluents.add(SymbolReference(phi))
+            else:
+                for t in phi.subterms:
+                    t.accept(self)
+        elif isinstance(phi,CompoundTerm):
+            #print("Compound Term: {}, {}, {}".format(str(phi), phi.symbol, phi.symbol.builtin))
+            if not phi.symbol.builtin :
+                self.fluents.add(SymbolReference(phi))
             else :
-                if not phi.predicate.builtin:
-                    self.statics.add(SymbolReference(phi))
-        elif isinstance(phi,self.lang.CompoundTerm):
-            if self.under_next:
-                if not phi.symbol.builtin :
-                    self.fluents.add(SymbolReference(phi))
-                else :
-                    for t in phi.subterms :
-                        t.accept(self)
-            else :
-                if not phi.predicate.builtin:
-                    self.statics.add(SymbolReference(phi))
+                for t in phi.subterms :
+                    t.accept(self)
 
     def _visit_constraint_formula(self, phi):
         if isinstance(phi, ltl.TemporalCompoundFormula)\
@@ -93,7 +82,7 @@ class FluentSymbolCollector(object):
             for t in phi.subterms:
                 t.accept(self)
 
-        elif isinstance(phi,self.lang.CompoundTerm):
+        elif isinstance(phi,CompoundTerm):
             if not phi.symbol.builtin:
                 self.visited.add(SymbolReference(phi))
             if self.under_next:
@@ -111,7 +100,7 @@ class FluentSymbolCollector(object):
             phi.formula.accept(self)
         elif isinstance(phi, Atom):
             self.statics.add(SymbolReference(phi))
-        elif isinstance(phi,self.lang.CompoundTerm):
+        elif isinstance(phi,CompoundTerm):
             self.statics.add(SymbolReference(phi))
 
     def visit(self, phi):

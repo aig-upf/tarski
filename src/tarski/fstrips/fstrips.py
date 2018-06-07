@@ -34,7 +34,7 @@ class SingleEffect(object):
 
 
 class AddEffect(SingleEffect):
-    def __init__(self, atom, condition=Tautology):
+    def __init__(self, atom, condition=Tautology()):
         super().__init__(condition)
         self.atom = atom
 
@@ -43,7 +43,7 @@ class AddEffect(SingleEffect):
 
 
 class DelEffect(SingleEffect):
-    def __init__(self, atom, condition=Tautology):
+    def __init__(self, atom, condition=Tautology()):
         super().__init__(condition)
         self.atom = atom
 
@@ -52,7 +52,7 @@ class DelEffect(SingleEffect):
 
 
 class FunctionalEffect(SingleEffect):
-    def __init__(self, lhs, rhs, condition=Tautology):
+    def __init__(self, lhs, rhs, condition=Tautology()):
         super().__init__(condition)
         self.lhs = lhs
         self.rhs = rhs
@@ -60,6 +60,13 @@ class FunctionalEffect(SingleEffect):
     def tostring(self):
         return "{} := {}".format(self.lhs, self.rhs)
 
+class LogicalEffect(SingleEffect):
+    def __init__(self, phi, condition=Tautology()):
+        super().__init__(condition)
+        self.formula = phi
+
+    def tostring(self):
+        return "{}".format(self.formula)
 
 class OptimizationMetric(object):
     def __init__(self, opt_expression, opt_type):

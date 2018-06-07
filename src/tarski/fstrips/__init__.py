@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from .action import Action
 from .problem import Problem
-from .fstrips import AddEffect, DelEffect, FunctionalEffect, UniversalEffect, language, \
+from .action import Action
+from .fstrips import AddEffect, DelEffect, FunctionalEffect, UniversalEffect, LogicalEffect, language, \
     OptimizationMetric
+from .task_index import TaskIndex

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# * coding: utf8 *
 from collections import OrderedDict
 
 from tarski import errors as err
@@ -57,6 +57,12 @@ class Formula(object):
     def __gt__(self, rhs):
         return implies(self, rhs)
 
+    def accept(self, visitor):
+        """
+            Visitor pattern
+        """
+        visitor.visit(self)
+
 
 class Tautology(Formula):
     def __str__(self): return "T"
@@ -74,6 +80,20 @@ class CompoundFormula(Formula):
         self.connective = connective
         self.subformulas = subformulas
         self._check_well_formed()
+
+    def __deepcopy__(self, memo):
+        """
+            Deep copy constructor specific for this subclass.
+
+            The reason for needing this method is that the constructor
+            of this class is different from super()
+        """
+        # Dummy call to constructor
+        newone = type(self)(Connective.And, [top,top])
+        memo[id(self)] = newone
+        for k, v in self.__dict__.items():
+            setattr(newone, k, copy.deepcopy(v, memo))
+        return newone
 
     def _check_well_formed(self):
         if any(not isinstance(f, Formula) for f in self.subformulas):
@@ -101,6 +121,21 @@ class QuantifiedFormula(Formula):
         self.formula = formula
         self._check_well_formed()
 
+    def __deepcopy__(self,memo):
+        """
+            Deep copy constructor specific for this subclass.
+
+            The reason for needing this method is that the constructor
+            of this class is different from super()
+        """
+        # Dummy call to constructor
+        newone = type(self)(Quantifier.Forall, [None] , top)
+        memo[id(self)] = newone
+        for k, v in self.__dict__.items():
+            setattr(newone, k, copy.deepcopy(v, memo))
+        return newone
+
+
     def _check_well_formed(self):
         if len(self.variables) == 0:
             raise err.LanguageError("Quantified formula with no variable")
@@ -115,10 +150,24 @@ bot = Contradiction()
 
 
 def land(*args):
+    if len(args) > 2 :
+        args =list(args)
+        args.reverse()
+        phi = CompoundFormula(Connective.And, (args[1], args[0]))
+        for k in range(2,len(args)):
+            phi = CompoundFormula(Connective.And, (args[k], phi))
+        return phi
     return CompoundFormula(Connective.And, args)
 
 
 def lor(*args):
+    if len(args) > 2 :
+        args =list(args)
+        args.reverse()
+        phi = CompoundFormula(Connective.Or, (args[1], args[0]))
+        for k in range(2,len(args)):
+            phi = CompoundFormula(Connective.Or, (args[k], phi))
+        return phi
     return CompoundFormula(Connective.Or, args)
 
 
@@ -156,15 +205,15 @@ def _quantified(quantifier, *args):
         raise err.LanguageError('Quantified formula needs at least two arguments')
 
     if not isinstance(args[-1], Formula) :
-        raise err.LanguageError('Ill-formed arguments for quantified formula: {}'.format(args))
+        raise err.LanguageError('Illformed arguments for quantified formula: {}'.format(args))
 
-    for x in args[:-1] :
+    for x in args[:1] :
         try :
             lang = x.language
         except AttributeError :
-            raise err.LanguageError('Ill-formed arguments for quantified formula: {}'.format(args))
+            raise err.LanguageError('Illformed arguments for quantified formula: {}'.format(args))
         if not isinstance(x, Variable) :
-            raise err.LanguageError('Ill-formed arguments for quantified formula: {}'.format(args))
+            raise err.LanguageError('Illformed arguments for quantified formula: {}'.format(args))
 
     return QuantifiedFormula(quantifier, args[:-1], args[-1])
 
@@ -177,6 +226,14 @@ class Atom(Formula):
         self.predicate = predicate
         self.subterms = arguments
         self._check_well_formed()
+
+    def __deepcopy__(self,memo):
+        # Dummy call to constructor
+        newone = type(self)( self.predicate,self.subterms)
+        memo[id(self)] = newone
+        for k, v in self.__dict__.items():
+            setattr(newone, k, copy.deepcopy(v, memo))
+        return newone
 
     def _check_well_formed(self):
         head = self.predicate
@@ -201,6 +258,9 @@ class Atom(Formula):
             if not language.is_subtype(arg.sort, expected_sort):
                 raise err.SortMismatch(arg, arg.sort, expected_sort)
 
+    def __hash__(self):
+        return hash(str(self))
+
     def __str__(self):
         return '{}({})'.format(self.predicate.symbol, ','.join([str(t) for t in self.subterms]))
 
@@ -220,7 +280,7 @@ class Atom(Formula):
 #         self._body = body
 #
 #     def __str__(self):
-#         return '{} :- {}'.format(self._head, self._body)
+#         return '{} : {}'.format(self._head, self._body)
 #
 #     def satisfiable(self, s):
 #         return s.check_satisfiability(implies(self._head, self._body)) and \
@@ -262,5 +322,5 @@ class VariableBinding(object):
         return var
 
     def merge(self, binding):
-        """ Merge the given binding into the current binding, in-place """
+        """ Merge the given binding into the current binding, inplace """
         raise NotImplementedError()
