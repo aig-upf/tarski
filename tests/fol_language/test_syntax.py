@@ -3,6 +3,7 @@ import tarski as tsk
 from tarski import theories, Constant
 from tarski.theories import Theory
 from tarski import errors as err
+from tarski.syntax import *
 
 from ..common import numeric
 
@@ -52,3 +53,11 @@ def test_load_arithmetic_module_fails_when_language_frozen():
         # load_theory() should raise LanguageError as we have created two constants
         theories.load_theory(lang, Theory.ARITHMETIC)
         sum_ = two + three
+
+def test_equality_atom_from_expression():
+    lang = tsk.fstrips.language('artih', [Theory.EQUALITY,Theory.ARITHMETIC])
+    y = lang.function('y',lang.Integer)
+
+    atom = y == 4
+
+    assert isinstance(atom, Atom)
