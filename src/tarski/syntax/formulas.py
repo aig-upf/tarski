@@ -1,6 +1,8 @@
-# -*- coding: utf-8 -*-
+# * coding: utf8 *
+from collections import OrderedDict
+
 from tarski import errors as err
-from .terms import Term, Variable
+from .terms import Variable, Term
 from .predicate import Predicate
 
 import copy
@@ -61,6 +63,7 @@ class Formula(object):
         """
         visitor.visit(self)
 
+
 class Tautology(Formula):
     def __str__(self): return "T"
 
@@ -78,8 +81,13 @@ class CompoundFormula(Formula):
         self.subformulas = subformulas
         self._check_well_formed()
 
-
     def __deepcopy__(self, memo):
+        """
+            Deep copy constructor specific for this subclass.
+
+            The reason for needing this method is that the constructor
+            of this class is different from super()
+        """
         # Dummy call to constructor
         newone = type(self)(Connective.And, [top,top])
         memo[id(self)] = newone
@@ -114,12 +122,19 @@ class QuantifiedFormula(Formula):
         self._check_well_formed()
 
     def __deepcopy__(self,memo):
+        """
+            Deep copy constructor specific for this subclass.
+
+            The reason for needing this method is that the constructor
+            of this class is different from super()
+        """
         # Dummy call to constructor
         newone = type(self)(Quantifier.Forall, [None] , top)
         memo[id(self)] = newone
         for k, v in self.__dict__.items():
             setattr(newone, k, copy.deepcopy(v, memo))
         return newone
+
 
     def _check_well_formed(self):
         if len(self.variables) == 0:
@@ -142,19 +157,17 @@ def land(*args):
         for k in range(2,len(args)):
             phi = CompoundFormula(Connective.And, (args[k], phi))
         return phi
-
     return CompoundFormula(Connective.And, args)
 
 
 def lor(*args):
-    if len(args)> 2:
-        args = list(args)
+    if len(args) > 2 :
+        args =list(args)
         args.reverse()
         phi = CompoundFormula(Connective.Or, (args[1], args[0]))
         for k in range(2,len(args)):
             phi = CompoundFormula(Connective.Or, (args[k], phi))
         return phi
-
     return CompoundFormula(Connective.Or, args)
 
 
@@ -192,15 +205,15 @@ def _quantified(quantifier, *args):
         raise err.LanguageError('Quantified formula needs at least two arguments')
 
     if not isinstance(args[-1], Formula) :
-        raise err.LanguageError('Ill-formed arguments for quantified formula: {}'.format(args))
+        raise err.LanguageError('Illformed arguments for quantified formula: {}'.format(args))
 
-    for x in args[:-1] :
+    for x in args[:1] :
         try :
             lang = x.language
         except AttributeError :
-            raise err.LanguageError('Ill-formed arguments for quantified formula: {}'.format(args))
-        if not isinstance(x, lang.Variable) :
-            raise err.LanguageError('Ill-formed arguments for quantified formula: {}'.format(args))
+            raise err.LanguageError('Illformed arguments for quantified formula: {}'.format(args))
+        if not isinstance(x, Variable) :
+            raise err.LanguageError('Illformed arguments for quantified formula: {}'.format(args))
 
     return QuantifiedFormula(quantifier, args[:-1], args[-1])
 
@@ -216,17 +229,14 @@ class Atom(Formula):
 
     def __deepcopy__(self,memo):
         # Dummy call to constructor
-        newone = type(self)( None,[])
+        newone = type(self)( self.predicate,self.subterms)
         memo[id(self)] = newone
         for k, v in self.__dict__.items():
             setattr(newone, k, copy.deepcopy(v, memo))
         return newone
 
-
     def _check_well_formed(self):
         head = self.predicate
-
-        if head is None : return # check automatically passes
 
         if not isinstance(head, Predicate):
             raise err.LanguageError("Incorrect atom head: '{}' ".format(head))
@@ -239,7 +249,7 @@ class Atom(Formula):
 
         # Check arguments are all terms of the appropriate type and matching language
         for arg, expected_sort in zip(self.subterms, head.sort):
-            if not isinstance(arg, language.Term):
+            if not isinstance(arg, Term):
                 raise err.LanguageError("Wrong argument for atomic formula: '{}' ".format(arg))
 
             if arg.language != language:
@@ -248,11 +258,13 @@ class Atom(Formula):
             if not language.is_subtype(arg.sort, expected_sort):
                 raise err.SortMismatch(arg, arg.sort, expected_sort)
 
+    def __hash__(self):
+        return hash(str(self))
+
     def __str__(self):
         return '{}({})'.format(self.predicate.symbol, ','.join([str(t) for t in self.subterms]))
 
-    def __hash__(self):
-        return hash(self.predicate.symbol)
+    __repr__ = __str__
 
 
 # TODO (GFM) Revise this after the refactoring. The distinction between whether a formula is axiomatic, external, etc.
@@ -268,15 +280,13 @@ class Atom(Formula):
 #         self._body = body
 #
 #     def __str__(self):
-#         return '{} :- {}'.format(self._head, self._body)
+#         return '{} : {}'.format(self._head, self._body)
 #
 #     def satisfiable(self, s):
 #         return s.check_satisfiability(implies(self._head, self._body)) and \
 #                s.check_satisfiability(implies(self._body, self._head))
 
-
 # axiom = AxiomaticFormula
-
 
 # TODO (GFM) Revise this after the refactoring. The distinction between whether a formula is axiomatic, external, etc.
 # TODO should probably be done elsewhere, not here (possibly at the evaluation level)
@@ -290,3 +300,27 @@ class Atom(Formula):
 #
 #     def __str__(self):
 #         return '{}({})'.format(self.name, ','.join([str(t) for t in self._subterms]))
+
+
+class VariableBinding(object):
+    """ A VariableBinding contains a set of logical variables which are _bound_ in some formula or term """
+    def __init__(self, variables=None):
+        variables = variables or []
+        # An (ordered) map between variable name and the variable itself:
+        self.variables = OrderedDict((v.symbol, v) for v in variables)
+
+    def add(self, variable: Variable):
+        other = self.variables.get(variable.symbol, None)
+        if other is not None:
+            raise err.DuplicateVariableDefinition(variable, other)
+        self.variables[variable.symbol] = variable
+
+    def get(self, name):
+        var = self.variables.get(name, None)
+        if var is None:
+            raise err.UndefinedVariable(name)
+        return var
+
+    def merge(self, binding):
+        """ Merge the given binding into the current binding, inplace """
+        raise NotImplementedError()

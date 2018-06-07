@@ -5,7 +5,7 @@
 """
 from tarski.syntax.temporal import ltl
 from tarski.syntax.formulas import *
-
+from tarski.syntax.terms import CompoundTerm
 from . errors import SubstitutionError
 
 class TermSubstitution(object):
@@ -34,19 +34,19 @@ class TermSubstitution(object):
                 if rep is None :
                     t.accept(self)
                 else :
-                    if isinstance(rep, self.L.Variable):
+                    if isinstance(rep, Variable):
                         new_subterms[k] = rep
                     else:
                         new_subterms[k] = rep
             phi.subterms = tuple(new_subterms)
-        elif isinstance(phi, self.L.CompoundTerm):
+        elif isinstance(phi, CompoundTerm):
             new_subterms = list(phi.subterms)
             for k,t in enumerate(new_subterms):
                 rep = self.subst.get(t,None)
                 if rep is None :
                     t.accept(self)
                 else :
-                    if isinstance(rep, self.L.Variable):
+                    if isinstance(rep, Variable):
                         new_subterms[k] = rep
                     else:
                         new_subterms[k] = rep

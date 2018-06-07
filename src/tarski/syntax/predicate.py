@@ -10,7 +10,7 @@ class Predicate(object):
         self._symbol = name  # name, a string
         self.language = language  # fol the symbol belongs to
         self.sort = []
-        self.builtin = True
+        self.builtin = False
 
         # we validate the arguments now
         for k, a in enumerate(args):
@@ -38,8 +38,13 @@ class Predicate(object):
     def arity(self):
         return len(self.sort)
 
+    # def __str__(self):
+    #     return '{}({})'.format(self.symbol, ','.join([a.name for a in self.sort]))
+
     def __str__(self):
-        return '{}({})'.format(self.symbol, ','.join([a.name for a in self.sort]))
+        return "{}/{}".format(self.symbol, self.arity)
+
+    __repr__ = __str__
 
     def dump(self):
         return dict(symbol=self.symbol, sort=[a.name for a in self.sort])

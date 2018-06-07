@@ -1,6 +1,5 @@
 from . import errors as err
 
-# class Action(abc.ABC):
 class Action(object):
     """ A (possibly lifted) planning action """
     def __init__(self, language, name, parameters, precondition, effects):

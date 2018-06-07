@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 import sys
+
+from tarski import fstrips
+
 sys.path.append('../src')
 from src import tarski as tsk
 
 if __name__ == "__main__":
 
     # First we create the necessary elements of the FOL language
-    fol = tsk.language()  # i.e. create a (first-order) "language" object, which will act as facade to all things FOL
+    fol = fstrips.language()  # i.e. create a (first-order) "language" object, which will act as facade to all things FOL
 
     block = fol.sort('block')
     place = fol.sort('place')
@@ -24,7 +27,7 @@ if __name__ == "__main__":
     # on the first-order language we have created above
 
     # The goal
-    goal = (loc(b1) == b2) & (loc(b2) = table)
+    goal = (loc(b1) == b2) & (loc(b2) == table)
 
     # The initial state
     # ??? TODO How to cleanly specify the denotation of all symbols? To be though about.

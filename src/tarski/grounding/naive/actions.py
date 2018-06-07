@@ -4,6 +4,7 @@ import itertools, copy
 from . import instantiation
 from tarski import fstrips as fs
 from tarski.syntax.transform import TermSubstitution
+from tarski.syntax.visitors import CollectVariables
 from tarski.util import IndexDictionary
 from tarski.syntax import *
 
@@ -35,10 +36,31 @@ class ActionGrounder(object):
                 g_effs = []
                 for eff in act_schema.effects:
                     g_eff = copy.deepcopy(eff)
-                    g_eff.accept(op)
+                    g_eff.condition.accept(op)
+                    if isinstance(g_eff, fs.AddEffect):
+                        g_eff.atom.accept(op)
+                    elif isinstance(g_eff, fs.DelEffect):
+                        g_eff.atom.accept(op)
+                    elif isinstance(g_eff, fs.FunctionalEffect):
+                        g_eff.lhs.accept(op)
+                        g_eff.rhs.accept(op)
+                    elif isinstance(g_eff, fs.LogicalEffect):
+                        g_eff.formula.accept(op)
+
+                    # MRJ: invariant
                     var_collector = CollectVariables(self.L)
-                    g_eff.accept(var_collector)
+                    g_eff.condition.accept(var_collector)
+                    if isinstance(g_eff, fs.AddEffect):
+                        g_eff.atom.accept(var_collector)
+                    elif isinstance(g_eff, fs.DelEffect):
+                        g_eff.atom.accept(var_collector)
+                    elif isinstance(g_eff, fs.FunctionalEffect):
+                        g_eff.lhs.accept(var_collector)
+                        g_eff.rhs.accept(var_collector)
+                    elif isinstance(g_eff, fs.LogicalEffect):
+                        g_eff.formula.accept(var_collector)
                     assert len(var_collector.variables) == 0
+
                     g_effs.append(g_eff)
                 self.problem.ground_actions.add(fs.Action(self.L, act_schema.name, [], g_prec, g_effs))
             self.actions_generated += K

@@ -154,7 +154,7 @@ def test_builtin_negation_absorption():
     phi = neg(loc(b1) == b2)
     psi = loc(b1) != b2
 
-    r = NegatedBuiltinAbsorption.rewrite(phi)
+    r = NegatedBuiltinAbsorption.rewrite(bw,phi)
     assert str(r.formula) == str(psi)
 
 def test_cnf_conversion_easy():

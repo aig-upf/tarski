@@ -7,9 +7,10 @@ import tarski.model
 from tarski import fstrips as fs
 from tarski.syntax import *
 from tarski.syntax.temporal import ltl
+from tarski.theories import Theory
 
 def create_small_world():
-    lang = tsk.language()
+    lang = tsk.language("TarskiWorld", theories=[Theory.EQUALITY])
 
     lang.Cube = lang.predicate('Cube', lang.Object)
     lang.Tet = lang.predicate('Tet', lang.Object)

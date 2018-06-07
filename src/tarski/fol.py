@@ -5,10 +5,12 @@ from typing import List
 import scipy.constants
 
 from . import errors as err
-from .syntax import Function, Constant, Term, CompoundTerm, Variable, Sort, Interval, inclusion_closure, Predicate, \
-    bind_equality_to_language_components
+from .syntax import Function, Constant, Variable, Sort, Interval, inclusion_closure, Predicate
 
-import tarski.syntax.builtins as syntax_builtins
+def language(name='L'):
+    """ A helper to construct languages"""
+    lang = FirstOrderLanguage(name)
+    return lang
 
 
 class FirstOrderLanguage:
@@ -34,28 +36,15 @@ class FirstOrderLanguage:
         self._constants = {}
         self._variables = set()
 
-        # Allow default builtin predicates to be enabled dynamically
-        self._create_default_builtins = True
-        self._symbol_table = {}
+        self._operators = dict()
         self._build_builtin_sorts()
 
         self._element_containers = {Sort: self._sorts,
                                     Function: self._functions,
                                     Predicate: self._predicates,
                                     Variable: self._variables}
-        # MRJ: https://stackoverflow.com/questions/9541025/how-to-copy-a-python-class
-        # see the second most voted answer
-        self.Term = type('{}_Term'.format(self.name), (Term,), {})
-        self.CompoundTerm = type('{}_CompoundTerm'.format(self.name), (self.Term,), CompoundTerm.__dict__.copy())
-        self.Variable = type('{}_Variable'.format(self.name), (self.Term,), Variable.__dict__.copy())
-        self.Constant = type('{}_Constant'.format(self.name), (self.Term,), Constant.__dict__.copy())
         self.language_components_frozen = False
         self.theories = []
-        bind_equality_to_language_components(self)
-
-    def __deepcopy__(self,memo):
-        memo[id(self)]=self
-        return self
 
     @property
     def variables(self):
@@ -68,18 +57,16 @@ class FirstOrderLanguage:
 
     @property
     def sorts(self):
-        for _, s in self._sorts.items():
+        for s in self.sorts:
             yield s
 
     @property
     def predicates(self):
-        for _, p in self._predicates.items():
-            yield p
+        return self._predicates.values()
 
     @property
     def functions(self):
-        for _, f in self._functions.items():
-            yield f
+        return self._functions.values()
 
     def _build_builtin_sorts(self):
         self._build_the_objects()
@@ -120,7 +107,6 @@ class FirstOrderLanguage:
     def _build_the_objects(self):
         sort = Sort('object', self)
         self._sorts['object'] = sort
-        self.create_builtin_predicates(sort)
 
     @property
     def Object(self):
@@ -165,7 +151,7 @@ class FirstOrderLanguage:
 
     def variable(self, name: str, sort: Sort):
         sort = self._retrieve_object(sort, Sort)
-        return self.Variable(name, sort)
+        return Variable(name, sort)
 
     def set_parent(self, lhs: Sort, rhs: Sort):
         if rhs.language is not self:
@@ -207,7 +193,7 @@ class FirstOrderLanguage:
                 # return a Constant object.
                 # TODO: I do no't see it is desirable to store constants of
                 # built in sorts.
-                return self.Constant(name, sort)
+                return Constant(name, sort)
             # MRJ: otherwise
             raise err.SemanticError(
                 "Cannot create constant term of sort '{}' from '{}' of Python type '{}'".format(sort.name, name,
@@ -216,7 +202,7 @@ class FirstOrderLanguage:
         if name in self._constants:
             raise err.DuplicateConstantDefinition(name, self._constants[name])
 
-        self._constants[name] = self.Constant(name, sort)
+        self._constants[name] = Constant(name, sort)
         return self._constants[name]
 
     def has_constant(self, name):
@@ -224,15 +210,18 @@ class FirstOrderLanguage:
 
     def get_constant(self, name):
         if not self.has_constant(name):
-            raise err.UndefinedConstant(name, 'Language constants: {}'.format(self._constants))
+            raise err.UndefinedConstant(name)
         return self._constants[name]
+
+    def constants(self):
+        return list(self._constants.values())
 
     def predicate(self, name: str, *args):
         if name in self._predicates:
             raise err.DuplicatePredicateDefinition(name, self._predicates[name])
 
-        predicate = Predicate(name, self, *args)
-        predicate.builtin = False
+        types = [self._retrieve_object(a, Sort) for a in args]  # Convert possible strings into Sort objects
+        predicate = Predicate(name, self, *types)
         self._predicates[name] = predicate
         # self._predicates_by_sort[(name,) + tuple(*args)] = predicate
         return predicate
@@ -249,8 +238,8 @@ class FirstOrderLanguage:
         if name in self._functions:
             raise err.DuplicateFunctionDefinition(name, self._functions[name])
 
-        func = Function(name, self, *args)
-        func.builtin = False
+        types = [self._retrieve_object(a, Sort) for a in args]  # Convert possible strings into Sort objects
+        func = Function(name, self, *types)
         self._functions[name] = func
         # self._functions_by_sort[(name,) + tuple(*args)] = func
         return func
@@ -274,43 +263,33 @@ class FirstOrderLanguage:
         for _, s in self._sorts.items():
             s.check_empty()
 
-    def register_symbol(self, key, func_obj):
-        self._symbol_table[key] = func_obj
-
-    def resolve_function_symbol(self, sym: str, lhs: Sort, rhs: Sort):
-        try:
-            return self._symbol_table[(sym, lhs, rhs)]
-        except KeyError:
-            raise err.LanguageError("FOL.resolve_function_symbol(): function symbol '{}' not defined for domain ({},{})"
-                                    .format(sym, lhs, rhs))
-
     def is_subtype(self, t, st):
+        t = self._retrieve_object(t, Sort)
+        st = self._retrieve_object(st, Sort)
         return t == st or self.is_strict_subtype(t, st)
 
     def is_strict_subtype(self, t, st):
+        t = self._retrieve_object(t, Sort)
+        st = self._retrieve_object(st, Sort)
         return st in self._possible_promotions[t._name]
 
-    def load_theory(self, theory):
-        if self.language_components_frozen:
-            raise err.LanguageError("FOL.load_theory(): Cannot load theories once language elements have been defined")
-        if theory == 'arithmetic':
-            import tarski.syntax.arithmetic
-            tarski.syntax.arithmetic.bind_operators_to_language_components(self)
-            # MRJ: module funcsym needs to be refactored
-            tarski.funcsym.initialize(self)
-            self.theories.append(theory)
-            print("Loaded theory '{}'".format(theory))
-
-    def create_builtin_predicates(self, sort):
-        if not self._create_default_builtins:
-            return
-        syntax_builtins.create_symbols_for_language(self)
-
-        # for s in builtins.Predicates:
-        #     # The name of the built-in predicate takes into account the type it is applied to, e.g. =_int
-        #     name = "{}_{}".format(s.value, sort._name)
-        #     self.predicate(name, sort, sort)
+    def are_vertically_related(self, t1, t2):
+        t1 = self._retrieve_object(t1, Sort)
+        t2 = self._retrieve_object(t2, Sort)
+        return self.is_subtype(t1, t2) or self.is_subtype(t2, t1)
 
     def __str__(self):
         return "{}: Tarski language with {} sorts, {} function symbols, {} predicate symbols and {} variables".format(
             self.name, len(self._sorts), len(self._functions), len(self._predicates), len(self._variables))
+
+    def register_operator_handler(self, operator, t1, t2, handler):
+        self._operators[(operator, t1, t2)] = handler
+
+    def dispatch_operator(self, operator, t1, t2, lhs, rhs):
+        # assert isinstance(lhs, t1)
+        # assert isinstance(rhs, t2)
+        try:
+            return self._operators[(operator, t1, t2)](lhs, rhs)
+        except KeyError:
+            raise err.LanguageError("Operator '{}' not defined on domain ({}, {})".format(operator, t1, t2))
+

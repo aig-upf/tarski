@@ -7,7 +7,7 @@ import copy
 
 from tarski.syntax.temporal import ltl
 from tarski.syntax.formulas import *
-from tarski.syntax.builtins import BuiltinPredicate, create_atom
+from tarski.syntax.builtins import BuiltinPredicateSymbol, create_atom
 from . errors import TransformationError
 
 
@@ -17,7 +17,8 @@ class NegatedBuiltinAbsorption(object):
         absorbing the negation if the negated formula is a built-in
     """
 
-    def __init__(self,phi, do_copy = True):
+    def __init__(self, lang, phi, do_copy = True):
+        self.lang = lang
         self.blueprint = None
         if do_copy :
             self.blueprint = copy.deepcopy(phi)
@@ -33,9 +34,9 @@ class NegatedBuiltinAbsorption(object):
                 if isinstance(P,Atom):
                     if P.predicate.builtin:
                         try:
-                            c = BuiltinPredicate.complement(P.predicate.symbol)
-                            return create_atom(c, P.subterms[0],P.subterms[1])
-                        except KeyError:
+                            c = P.predicate.symbol.complement()
+                            return create_atom(self.lang, c, P.subterms[0],P.subterms[1])
+                        except (AttributeError, KeyError) as e:
                             pass
                 return phi
 
@@ -55,7 +56,7 @@ class NegatedBuiltinAbsorption(object):
         self.formula = self._convert(self.blueprint)
 
     @staticmethod
-    def rewrite( phi, do_copy = True):
-        trans =  NegatedBuiltinAbsorption(phi, do_copy)
+    def rewrite( lang, phi, do_copy = True):
+        trans =  NegatedBuiltinAbsorption(lang, phi, do_copy)
         trans.convert()
         return trans

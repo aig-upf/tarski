@@ -23,7 +23,7 @@ def _check_assignment(fun, point, value=None):
 
         if not isinstance(element, Constant):
             # Assume a literal value has been passed instead of its corresponding constant
-            element = language.Constant(expected_type.cast(element), expected_type)
+            element = Constant(expected_type.cast(element), expected_type)
             # raise err.IncorrectExtensionDefinition(fun, point, value)
 
         if element.language != language:
@@ -33,8 +33,12 @@ def _check_assignment(fun, point, value=None):
             raise err.SortMismatch(element, element.sort, expected_type)
 
         processed.append(element)
-    return tuple(processed) if value is None else tuple(processed[:-1]), \
-            processed[-1] if len(processed) > 0 else None
+
+    if value is None:
+        return tuple(processed)
+
+    assert len(processed) > 0
+    return tuple(processed[:-1]), processed[-1]
 
 
 class Model(object):
@@ -45,7 +49,7 @@ class Model(object):
     def __init__(self, language, **kwargs):
         self.evaluator = None
         self.language = language
-        self.function_extensions = defaultdict(dict)
+        self.function_extensions = dict()
         self.predicate_extensions = defaultdict(set)
 
     def set(self, fun: Function, point, value):
@@ -53,13 +57,19 @@ class Model(object):
             'point' needs to be a tuple of constants, and value a single constant.
         """
         point, value = _check_assignment(fun, point, value)
+        if fun.signature not in self.function_extensions:
+            definition = self.function_extensions[fun.signature] = ExtensionalFunctionDefinition()
+        else:
+            definition = self.function_extensions[fun.signature]
+            if not isinstance(definition, ExtensionalFunctionDefinition):
+                raise err.SemanticError("Cannot define extension of intensional definition")
 
-        self.function_extensions[fun.signature][point] = value
+        definition.set(point, value)
 
     def add(self, predicate: Predicate, *args):
-        _check_assignment(predicate, args)
+        point = _check_assignment(predicate, args)
 
-        entry = frozenset(a.symbol for a in args)
+        entry = frozenset(a.symbol for a in point)
         self.predicate_extensions[predicate.signature].add(entry)
 
     def remove(self, predicate: Predicate, *args):
@@ -78,12 +88,8 @@ class Model(object):
 
     def value(self, fun: Function, point):
         """ Return the value of the given function on the given point in the current model """
-        # print("[f({})]^s = {}".format(symbols, self.function_extensions[t.symbol.signature][symbols]))
-        assert not isinstance(point, list)
-        try:
-            return self.function_extensions[fun.signature][point]
-        except KeyError:
-            return fun[point]
+        definition = self.function_extensions[fun.signature]
+        return definition.get(point)
 
     def holds(self, predicate: Predicate, point):
         """ Return true iff the given predicate is true on the given point in the current model """
@@ -101,3 +107,20 @@ class Model(object):
 
 def create(lang):
     return Model(lang)
+
+
+class ExtensionalFunctionDefinition(object):
+    def __init__(self):
+        self.data = dict()
+
+    def set(self, point, value):
+        assert isinstance(point, tuple)
+        assert isinstance(value, Constant)
+        self.data[point] = value
+
+    def get(self, point):
+        return self.data[point]
+
+
+class IntensionalFunctionDefinition(object):
+    pass
