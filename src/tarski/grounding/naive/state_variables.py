@@ -9,6 +9,7 @@ import copy
 
 from tarski.util import IndexDictionary
 from tarski import Function, Predicate
+from tarski import Variable, Constant
 from tarski.syntax.transform.subst import TermSubstitution
 
 from .. errors import UnableToGroundError
@@ -62,9 +63,9 @@ def create_all_possible_state_variables(fluent_symbols):
         L = ref.language
         instantiations = []
         for st in ref.expr.subterms:
-            if isinstance(st,L.Constant):
+            if isinstance(st,Constant):
                 instantiations.append( [ st ])
-            elif isinstance(st,L.Variable):
+            elif isinstance(st,Variable):
                 if st.sort.builtin:
                     raise UnableToGroundError(st, "Term is of built-in sort '{}', domain is too large!".format(st.sort.name))
                 instantiations.append( list(st.sort.domain()) )

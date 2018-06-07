@@ -2,15 +2,16 @@
 
 from tarski.fol import FirstOrderLanguage
 from .. errors import UnableToGroundError
+from tarski.syntax.terms import Constant, Variable
 
 def enumerate( L : FirstOrderLanguage, symbols ):
     syms = []
     instantiations = []
     cardinality = 1
     for st in symbols:
-        if isinstance(st,L.Constant):
+        if isinstance(st,Constant):
             continue
-        elif isinstance(st,L.Variable):
+        elif isinstance(st,Variable):
 
             if st.sort.builtin:
                 raise UnableToGroundError(st, "Term is of built-in sort '{}', domain is too large!".format(st.sort.name))

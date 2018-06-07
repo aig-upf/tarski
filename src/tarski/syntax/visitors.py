@@ -2,6 +2,7 @@
 from tarski.syntax.temporal import ltl
 from tarski.syntax.formulas import *
 from tarski.syntax.sorts import inclusion_closure
+from tarski.syntax.terms import Constant, CompoundTerm
 
 def emvr(self, other):
     """
@@ -13,16 +14,16 @@ def emvr(self, other):
     if self.head.symbol != other.head.symbol: return False
 
     for lhs, rhs in zip(self.subterms,other.subterms):
-        if isinstance(lhs,self.language.Variable) and\
-            isinstance(rhs,self.language.Variable):
+        if isinstance(lhs,Variable) and\
+            isinstance(rhs,Variable):
             if lhs.sort.name != rhs.sort.name :
                 if not rhs.sort in inclusion_closure(lhs.sort):
                     return False
-        elif isinstance(lhs,self.language.Constant) and\
-            isinstance(rhs,self.language.Constant):
+        elif isinstance(lhs,Constant) and\
+            isinstance(rhs,Constant):
             if lhs.symbol != rhs.symbol: return False
-        elif isinstance(lhs,self.language.CompoundTerm) and\
-            isinstance(rhs,self.language.CompoundTerm):
+        elif isinstance(lhs,CompoundTerm) and\
+            isinstance(rhs,CompoundTerm):
             if not emvr(SymbolReference(lhs),SymbolReference(rhs)): return False
         else:
             return False
@@ -34,16 +35,16 @@ def esm(self,other):
     """
     lhs = self.expr
     rhs = other.expr
-    if isinstance(lhs, self.language.Variable):
-        if not isinstance(rhs,self.language.Variable):
+    if isinstance(lhs, Variable):
+        if not isinstance(rhs,Variable):
             return False
         if lhs.symbol != rhs.symbol: return False
         if lhs.sort.name != rhs.sort.name :
             if not rhs.sort in inclusion_closure(lhs.sort):
                 return False
         return True
-    if isinstance(lhs,self.language.Constant):
-        if not isinstance(rhs,self.language.Constant):
+    if isinstance(lhs,Constant):
+        if not isinstance(rhs,Constant):
             return False
         return lhs.symbol == rhs.symbol
     raise NotImplementedError()
@@ -94,13 +95,13 @@ class CollectVariables(object):
             phi.formula.accept(self)
         elif isinstance(phi, Atom):
             for k,t in enumerate(phi.subterms):
-                if isinstance(t, self.L.Variable):
+                if isinstance(t, Variable):
                     self.variables.add(t)
                 else :
                     t.accept(self)
-        elif isinstance(phi, self.L.CompoundTerm):
+        elif isinstance(phi, CompoundTerm):
             for k,t in enumerate(phi.subterms):
-                if isinstance(t, self.L.Variable):
+                if isinstance(t, Variable):
                     self.variables.add(t)
                 else :
                     t.accept(self)
@@ -130,15 +131,15 @@ class CollectFreeVariables(object):
 
         elif isinstance(phi, Atom):
             for k,t in enumerate(phi.subterms):
-                if isinstance(t, self.L.Variable):
+                if isinstance(t, Variable):
                     t_ref = SymbolReference(t,esm)
                     if t_ref not in self.quantified_vars :
                         self._free_variables.add(t_ref)
                 else :
                     t.accept(self)
-        elif isinstance(phi, self.L.CompoundTerm):
+        elif isinstance(phi, CompoundTerm):
             for k,t in enumerate(phi.subterms):
-                if isinstance(t, self.L.Variable):
+                if isinstance(t, Variable):
                     t_ref = SymbolReference(t,esm)
                     if t_ref not in self.quantified_vars :
                         self._free_variables.add(t_ref)
