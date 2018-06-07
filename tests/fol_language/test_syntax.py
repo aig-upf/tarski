@@ -61,3 +61,22 @@ def test_equality_atom_from_expression():
     atom = y == 4
 
     assert isinstance(atom, Atom)
+
+def test_complex_atom_from_expression_function_and_constants():
+    lang = tsk.fstrips.language('artih', [Theory.EQUALITY,Theory.ARITHMETIC])
+    y = lang.function('y',lang.Integer)
+
+    phi = (y <= 4) & (-4 <= y)
+
+    assert isinstance(phi, CompoundFormula)
+
+
+def test_complex_atom_from_expression_only_functions():
+    lang = tsk.fstrips.language('artih', [Theory.EQUALITY,Theory.ARITHMETIC])
+    x = lang.function('x',lang.Integer)
+    y = lang.function('y',lang.Integer)
+    z = lang.function('z',lang.Integer)
+
+    phi = (x <= y) & (y <= z)
+
+    assert isinstance(phi, CompoundFormula)
