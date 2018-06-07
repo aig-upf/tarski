@@ -17,10 +17,9 @@ language: python
 #  - pip install tox
 
 python:
-  - "3.3"
-  - "3.4"
   - "3.5"
   - "3.6"
+  - "3.7"
 
 # Install this package to easily run tox in all these environments on Travis
 install: pip install tox-travis
