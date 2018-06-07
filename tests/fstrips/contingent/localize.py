@@ -14,15 +14,15 @@ def create_small_task():
     x = nav.get_function('x')
     y = nav.get_function('y')
 
-    M0.set( x, 0 )
-    M0.set( y, 0 )
+    M0.set( x, tuple(), 0 )
+    M0.set( y, tuple(), 0 )
 
-    M1.set( x, 2)
-    M1.set( y, -2)
+    M1.set( x, tuple(), 2)
+    M1.set( y, tuple(), -2)
 
-    constraint = (-4 <= x ) & ( x <= 4) & (-4 <= y) & (y <= 4)
+    constraint = (-4 <= x() ) & ( x() <= 4) & (-4 <= y()) & (y() <= 4)
 
-    G = land( x==3, y==3 )
+    G = land( x()==3, y()==3 )
 
     P = contingent.Problem()
     P.name = "localize-4-4"
@@ -32,14 +32,14 @@ def create_small_task():
     P.goal = G
     P.constraints += [constraint]
 
-    P.action('move_up', [], Tautology(), [fs.FunctionalEffect(y, y + 1)])
-    P.action('move_down', [], Tautology(), [fs.FunctionalEffect(y, y - 1)])
-    P.action('move_left', [], Tautology(), [fs.FunctionalEffect(x, x - 1)])
-    P.action('move_right', [], Tautology(), [fs.FunctionalEffect(x, x + 1)])
+    P.action('move_up', [], Tautology(), [fs.FunctionalEffect(y(), y() + 1)])
+    P.action('move_down', [], Tautology(), [fs.FunctionalEffect(y(), y() - 1)])
+    P.action('move_left', [], Tautology(), [fs.FunctionalEffect(x(), x() - 1)])
+    P.action('move_right', [], Tautology(), [fs.FunctionalEffect(x(), x() + 1)])
 
-    P.sensor('sense_wall_up', [], Tautology(), y == 4)
-    P.sensor('sense_wall_down', [], Tautology(), y == -4)
-    P.sensor('sense_wall_left', [], Tautology(), x == -4)
-    P.sensor('sense_wall_right', [], Tautology(), x == 4)
+    P.sensor('sense_wall_up', [], Tautology(), y() == 4)
+    P.sensor('sense_wall_down', [], Tautology(), y() == -4)
+    P.sensor('sense_wall_left', [], Tautology(), x() == -4)
+    P.sensor('sense_wall_right', [], Tautology(), x() == 4)
 
     return P

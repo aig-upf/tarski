@@ -9,13 +9,12 @@ class ContingentProblem(Problem):
     """ A Functional STRIPS Contingent problem """
 
     def __init__(self):
-        super().__init()
-        self.sensors = []
+        super().__init__()
+        self.sensors = OrderedDict()
 
     def sensor(self, name, parameters, condition, obs):
         if name in self.sensors:
-            raise DuplicateActionDefinition(name, self.actions[name])
-
+            raise err.DuplicateSensorDefinition(name, self.sensors[name])
         self.sensors[name] = Sensor(self.language, name, parameters, condition, obs)
         return self.sensors[name]
 
@@ -24,7 +23,7 @@ class ContingentProblem(Problem):
 
     def get_sensor(self, name):
         if not self.has_sensor(name):
-            raise UndefinedAction(name)
+            raise err.UndefinedSensor(name)
         return self.sensors[name]
 
     def __str__(self):

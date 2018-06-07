@@ -26,11 +26,11 @@ class Sensor(object):
     def dump(self):
         return dict(name=self.name,
                     params=[par.dump() for par in self.parameters],
-                    condition=self.precondition.dump(),
+                    condition=self.condition.dump(),
                     obs=[eff.dump() for eff in self.effects.dump()])
 
     def __str__(self):
         tokens = ['action {}:'.format(self.name),
-                  'C=({})'.format(self.precondition),
-                  'L=({})'.format(str(obs))]
+                  'C=({})'.format(self.condition),
+                  'L=({})'.format(str(self.obs))]
         return '\n'.join(tokens)
