@@ -2,6 +2,10 @@ from enum import Enum
 
 from .. import errors as err
 
+# MRJ: Table with negated counterparts of builtin predicates. Used
+# by the method ```complement``` of enum class BuiltinPredicateSymbol.
+BuiltinPredicateSymbol_complement = { "=": "!=", "!=": "=", "<":">=", "<=" : ">", ">" : "<=", ">=" : "<" }
+
 class BuiltinPredicateSymbol(Enum):
     EQ = "="
     NE = "!="
@@ -12,6 +16,9 @@ class BuiltinPredicateSymbol(Enum):
 
     def __str__(self):
         return self.value.lower()
+
+    def complement(self):
+        return BuiltinPredicateSymbol(BuiltinPredicateSymbol_complement[self.value])
 
 
 class BuiltinFunctionSymbol(Enum):
@@ -32,9 +39,11 @@ def create_symbols_for_language(lang):
 def is_builtin_predicate(predicate):
     return isinstance(predicate.symbol, BuiltinPredicateSymbol)
 
-def create_atom(symbol: BuiltinPredicateSymbol, lhs, rhs):
+def create_atom(lang, symbol: BuiltinPredicateSymbol, lhs, rhs):
     from .terms import Term
     from .formulas import Atom
+    predicate = lang.get_predicate(symbol)
+    return Atom(predicate, [lhs, rhs])
 
 def is_builtin_function(fun):
     return isinstance(fun.symbol, BuiltinFunctionSymbol)

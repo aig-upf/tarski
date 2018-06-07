@@ -7,6 +7,7 @@ from tarski.syntax.transform import TermSubstitution
 from tarski.syntax.transform import UniversalQuantifierElimination
 from tarski.syntax.transform import NegatedBuiltinAbsorption
 from tarski.syntax.transform import CNFTransformation
+from tarski.syntax.visitors import CollectVariables
 from tarski.util import IndexDictionary
 from tarski.syntax import *
 
@@ -40,7 +41,7 @@ class ConstraintGrounder(object):
                 g_const.accept(op2)
                 assert len(op2.variables) == 0
                 # Simplification steps
-                s0 = NegatedBuiltinAbsorption.rewrite(g_const)
+                s0 = NegatedBuiltinAbsorption.rewrite(self.L, g_const)
                 # CNF
                 if isinstance(s0.formula,QuantifiedFormula):
                     assert s0.formula.quantifier == Quantifier.Exists
