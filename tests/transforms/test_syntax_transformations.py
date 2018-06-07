@@ -115,10 +115,10 @@ def test_universal_elimination_fails_due_to_no_constants():
     s1 = exists( y, land( tw.Dodec(y), tw.BackOf(x,y) ) )
     s2 = land( tw.Cube(x), exists( y, land(tw.Tet(y), tw.LeftOf(x,y)) ) )
     phi = forall( x, implies(s2,s1))
-    print(str(phi))
+    # print(str(phi))
     with pytest.raises(TransformationError):
         result = UniversalQuantifierElimination.rewrite(tw, phi)
-        print(str(result.universal_free))
+        # print(str(result.universal_free))
 
 def test_universal_elimination_works():
     tw = tarskiworld.create_small_world()
@@ -133,11 +133,11 @@ def test_universal_elimination_works():
     s1 = exists( y, land( tw.Dodec(y), tw.BackOf(x,y) ) )
     s2 = land( tw.Cube(x), exists( y, land(tw.Tet(y), tw.LeftOf(x,y)) ) )
     phi = forall( x, implies(s2,s1))
-    print(str(phi))
+    # print(str(phi))
     result = UniversalQuantifierElimination.rewrite(tw, phi)
-    print(str(result.universal_free))
+    # print(str(result.universal_free))
     result2 = UniversalQuantifierElimination.rewrite(tw, result.universal_free)
-    print(str(result2.universal_free))
+    # print(str(result2.universal_free))
     assert str(result.universal_free) == str(result2.universal_free)
 
 def test_builtin_negation_absorption():

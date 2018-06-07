@@ -63,8 +63,8 @@ class TaskIndex(object):
             for const in P.constraints :
                 constraint_visitor.reset()
                 const.accept(constraint_visitor)
-            print('Fluents: {}'.format(','.join([str(x) for x in self.fluent_symbols])))
-            print('Statics: {}'.format(','.join([str(x) for x in self.static_symbols])))
+            # print('Fluents: {}'.format(','.join([str(x) for x in self.fluent_symbols])))
+            # print('Statics: {}'.format(','.join([str(x) for x in self.static_symbols])))
             self._check_static_not_fluents()
             if len(self.fluent_symbols) == oF and\
                  len(self.static_symbols) == oS:
