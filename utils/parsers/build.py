@@ -11,7 +11,7 @@ import argparse
 import glob
 import os
 import shutil
-import tempfile # for temporary directories
+import tempfile  # for temporary directories
 
 GRAMMARS = {
     "fstrips": "fstrips.g4",
@@ -27,7 +27,7 @@ def parse_arguments():
                         .format(', '.join(GRAMMARS.keys())))
     args = parser.parse_args()
 
-    args.grammar_filename = os.path.join('.', 'grammars', '{}.g4'.format(args.grammar))
+    args.grammar_filename = os.path.join(CURRENT_DIR, 'grammars', '{}.g4'.format(args.grammar))
     if not os.path.exists(args.grammar_filename):
         raise RuntimeError("Could not find expected grammar file '{0}'".format(args.grammar_filename))
 
