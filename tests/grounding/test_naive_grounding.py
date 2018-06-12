@@ -4,8 +4,10 @@ from tarski.grounding.naive import instantiation
 from tarski.syntax import *
 from tarski.util import IndexDictionary
 from tarski.grounding.naive.actions import ActionGrounder
+from tarski.grounding.naive.sensors import SensorGrounder
 from tarski.grounding.naive.constraints import ConstraintGrounder
 from tests.fstrips import blocksworld
+from tests.fstrips.contingent import localize
 
 def create_small_bw_with_index():
     prob = blocksworld.create_small_task()
@@ -53,3 +55,13 @@ def test_ground_constraints_for_small_bw():
     grounder = ConstraintGrounder(prob,index)
     grounder.calculate_constraints()
     assert len(prob.ground_constraints) == 1
+
+def test_ground_sensors_for_small_contingent_problem():
+    prob = localize.create_small_task()
+    index = fs.TaskIndex(prob.language.name,prob.name)
+    index.process_symbols(prob)
+    index.state_variables = IndexDictionary()
+
+    grounder = SensorGrounder(prob,index)
+    grounder.calculate_sensors()
+    assert len(prob.ground_sensors) == 4

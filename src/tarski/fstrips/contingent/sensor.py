@@ -23,6 +23,10 @@ class Sensor(object):
         # We do not support anything other than literals
         raise err.ObservationExpressivenessMismatch(self)
 
+    def ident(self):
+        params = ', '.join([str(o) for o in self.parameters])
+        return '{}({})'.format(self.name,params)
+
     def dump(self):
         return dict(name=self.name,
                     params=[par.dump() for par in self.parameters],

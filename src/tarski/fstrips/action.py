@@ -16,6 +16,10 @@ class Action(object):
                     precondition=self.precondition.dump(),
                     effects=[eff.dump() for eff in self.effects.dump()])
 
+    def ident(self):
+        params = ', '.join([str(o) for o in self.parameters])
+        return '{}({})'.format(self.name,params)
+
     def __str__(self):
         tokens = ['action {}:'.format(self.name),
                   'pre=({})'.format(self.precondition),
