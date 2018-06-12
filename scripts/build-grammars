@@ -1,0 +1,11 @@
+#!/bin/sh
+
+set -ex
+ANTLR_RUNTIME=antlr-4.7.1-complete.jar
+DIR=`dirname $(readlink -f $0)`
+echo $DIR
+TMPDIR="/tmp/tarski"
+(mkdir -p $TMPDIR; cd $TMPDIR; curl -O http://www.antlr.org/download/$ANTLR_RUNTIME)
+CLASSPATH=".:$TMPDIR/$ANTLR_RUNTIME" $DIR/../utils/parsers/build.py
+
+

@@ -12,6 +12,7 @@ matrix:
       env: TOXENV=pypy3
 install:
   - pip install tox
+  - ./scripts/build-grammars
 
 script:
   - tox --version
