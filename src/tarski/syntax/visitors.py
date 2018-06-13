@@ -92,23 +92,23 @@ class MatchSymbol(object):
     def visit(self,phi):
         if isinstance(phi, CompoundFormula) and isinstance(self.psi,CompoundFormula):
             if str(phi) == self.target:
-                hits += 1
+                self.hits += 1
                 return
             for f in phi.subformulas: f.accept(self)
         elif isinstance(phi, QuantifiedFormula) and isinstance(self.psi,QuantifiedFormula):
             if str(phi) == self.target:
-                hits += 1
+                self.hits += 1
                 return
             phi.formula.accept(self)
         elif isinstance(phi, Atom) and isinstance(self.psi, Atom):
             if str(phi) == self.target:
-                hits += 1
+                self.hits += 1
                 return
             for k,t in enumerate(phi.subterms):
                 t.accept(self)
         elif isinstance(phi, CompoundTerm) and isinstance(self.psi, CompoundTerm):
             if str(phi) == self.target:
-                hits += 1
+                self.hits += 1
                 return
             for k,t in enumerate(phi.subterms):
                 t.accept(self)
