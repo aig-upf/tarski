@@ -78,6 +78,41 @@ class SymbolReference(object):
     def __str__(self):
         return str(self.expr)
 
+class MatchSymbol(object):
+    """
+        This Visitor traverses a formula/expression stopping when
+        finding an exact syntactic match for the target
+    """
+
+    def __init__(self, target):
+        self.psi = target
+        self.target = str(target)
+        self.hits = 0
+
+    def visit(self,phi):
+        if isinstance(phi, CompoundFormula) and isinstance(self.psi,CompoundFormula):
+            if str(phi) == self.target:
+                hits += 1
+                return
+            for f in phi.subformulas: f.accept(self)
+        elif isinstance(phi, QuantifiedFormula) and isinstance(self.psi,QuantifiedFormula):
+            if str(phi) == self.target:
+                hits += 1
+                return
+            phi.formula.accept(self)
+        elif isinstance(phi, Atom) and isinstance(self.psi, Atom):
+            if str(phi) == self.target:
+                hits += 1
+                return
+            for k,t in enumerate(phi.subterms):
+                t.accept(self)
+        elif isinstance(phi, CompoundTerm) and isinstance(self.psi, CompoundTerm):
+            if str(phi) == self.target:
+                hits += 1
+                return
+            for k,t in enumerate(phi.subterms):
+                t.accept(self)
+
 class CollectVariables(object):
     """
         This Visitor collects all Variables in a given formula
