@@ -17,3 +17,9 @@ At the moment, Tarski supports the following modeling languages:
 
 ### Software Requirements
 Tarski requires Python >= 3.5.
+
+
+
+## Modules
+
+* Description Logic (`tarski.dl`)
