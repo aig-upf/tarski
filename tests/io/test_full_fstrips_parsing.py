@@ -67,3 +67,9 @@ def pytest_generate_tests(metafunc):
 
 def test_pddl_instances(instance_file, domain_file):
     _ = reader().read_problem(domain_file, instance_file)
+
+
+if __name__ == "__main__":
+    benchmarks = add_domains_from(None, "DOWNWARD_BENCHMARKS", SAMPLE_STRIPS_INSTANCES)
+    for instance, domain in benchmarks:
+        test_pddl_instances(instance, domain)
