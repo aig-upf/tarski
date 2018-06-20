@@ -15,15 +15,20 @@ def get_benchmark_dir_if_exists(envvar):
 
 
 SAMPLE_STRIPS_INSTANCES = [
+    "visitall-sat11-strips:problem12.pddl",
     "trucks:p01.pddl",  # quantified formulas
-    # "visitall-sat11-strips:problem12.pddl",
-    # "blocks:probBLOCKS-4-1.pddl",
-    # "gripper:prob01.pddl",
-    # "parking-sat11-strips:pfile08-031.pddl",
+    "blocks:probBLOCKS-4-1.pddl",
+    "gripper:prob01.pddl",
+
+    # Currently failing because we're not supporting "number" keyword
+    # (Undefined element: number)
     # "sokoban-opt08-strips:p01.pddl",
+    # "parking-sat11-strips:pfile08-031.pddl",
 ]
 
 SAMPLE_FSTRIPS_INSTANCES = [
+    # Currently failing because we're not supporting "int" keyword
+    # (tarski.errors.UndefinedSort: Undefined element: int)
     # "counters-fn:instance_4.pddl",
 ]
 
