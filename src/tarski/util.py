@@ -1,10 +1,8 @@
 """
     Some basic utility methods.
 """
-import os
-import re
-import unicodedata
 from collections import OrderedDict
+
 
 class UninitializedAttribute(object):
     def __init__(self, name):
