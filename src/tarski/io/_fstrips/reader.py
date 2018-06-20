@@ -285,7 +285,7 @@ class FStripsParser(fstripsVisitor):
     def _visit_quantified_formula(self, ctx):
         variables = self.visit(ctx.possibly_typed_variable_list())
 
-        with self.push_variables(variables, root=True) as _:
+        with self.push_variables(variables, root=False) as _:
             formula = self.visit(ctx.goalDesc())
         return variables, formula
 
@@ -570,6 +570,7 @@ class ParserVariableContext(object):
         self.previous_binding = None
 
     def __enter__(self):
+        # Merge the new variable binding with the previous one, if it existed
         if self.root and self.parser.current_binding is not None:
             raise RuntimeError("Clean ParserVariableContext opened upon existing context")
 
