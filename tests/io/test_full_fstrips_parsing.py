@@ -33,7 +33,7 @@ SAMPLE_FSTRIPS_INSTANCES = [
 ]
 
 
-def add_domains_from(metafunc, envvar, domains, benchmark_prefix=None):
+def add_domains_from(envvar, domains, benchmark_prefix=None):
     db = get_benchmark_dir_if_exists(envvar)
     if db is None:  # Benchmarks dir not installed on the machine
         return []
@@ -59,15 +59,22 @@ def pytest_generate_tests(metafunc):
     if metafunc.function != test_pddl_instances:
         return
 
+    argnames = ['instance_file', 'domain_file']
+    argvalues = collect_benchmarks()
+    metafunc.parametrize(argnames, argvalues)
+
+
+def collect_benchmarks():
     pddl_dirs = ["DOWNWARD_BENCHMARKS", "FSBENCHMARKS"]
     if any(get_benchmark_dir_if_exists(d) is None for d in pddl_dirs):
-        print("Please install STRIPS/FSTRIPS benchmarks and set up environment variables ({})"
-              " appropriately to run the full suite of tests".format(', '.join(pddl_dirs)))
+        import pytest
+        pytest.skip("Please install STRIPS/FSTRIPS benchmarks and set up environment variables ({}) appropriately "
+                    "to run the full suite of tests".format(', '.join(pddl_dirs)), allow_module_level=True)
+        return []
 
-    argnames = ['instance_file', 'domain_file']
-    argvalues = add_domains_from(metafunc, "DOWNWARD_BENCHMARKS", SAMPLE_STRIPS_INSTANCES)
-    argvalues += add_domains_from(metafunc, "FSBENCHMARKS", SAMPLE_FSTRIPS_INSTANCES, benchmark_prefix='benchmarks')
-    metafunc.parametrize(argnames, argvalues)
+    argvalues = add_domains_from("DOWNWARD_BENCHMARKS", SAMPLE_STRIPS_INSTANCES)
+    argvalues += add_domains_from("FSBENCHMARKS", SAMPLE_FSTRIPS_INSTANCES, benchmark_prefix='benchmarks')
+    return argvalues
 
 
 def test_pddl_instances(instance_file, domain_file):
@@ -75,6 +82,5 @@ def test_pddl_instances(instance_file, domain_file):
 
 
 if __name__ == "__main__":
-    benchmarks = add_domains_from(None, "DOWNWARD_BENCHMARKS", SAMPLE_STRIPS_INSTANCES)
-    for instance, domain in benchmarks:
+    for instance, domain in collect_benchmarks():
         test_pddl_instances(instance, domain)
