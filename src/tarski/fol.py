@@ -2,7 +2,7 @@
 from collections import defaultdict
 from typing import List
 
-import scipy.constants
+# import scipy.constants
 
 from . import errors as err
 from .syntax import Function, Constant, Variable, Sort, Interval, inclusion_closure, Predicate
@@ -78,7 +78,7 @@ class FirstOrderLanguage:
     def _build_the_reals(self):
         the_reals = Interval(-3.40282e+38, 3.40282e+38, lambda x: float(x), 'Real', self)
         the_reals.builtin = True
-        the_reals.pi = scipy.constants.pi
+        # the_reals.pi = scipy.constants.pi
         self._sorts['Real'] = the_reals
         self.set_parent(the_reals, self.Object)
         # self.create_builtin_predicates(the_reals)
