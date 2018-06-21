@@ -1,0 +1,7 @@
+#!/bin/sh -ex
+
+pylint --version
+
+# Return something other than 0 only if the output of pylint signals 1 (fatal) or 2 (error)
+# See https://stackoverflow.com/q/6626351
+( pylint src/tarski; exit $(($? & 3)) )

@@ -1,6 +1,5 @@
-#!/bin/sh
+#!/bin/sh -ex
 
-set -ex
 ANTLR_RUNTIME=antlr-4.7.1-complete.jar
 DIR=`dirname $(readlink -f $0)`
 echo $DIR

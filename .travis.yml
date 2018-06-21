@@ -24,5 +24,4 @@ install:
 script:
   - tox --version
   - tox
-  - pylint --version
-  - pylint src/tarski
+  - ./scripts/linter
