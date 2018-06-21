@@ -17,8 +17,11 @@ matrix:
 #      env: TOXENV=pypy3
 install:
   - pip install tox
+  - pip install pylint
+  - pip install pycodestyle
   - if [ "$TARSKI_BUILD_GRAMMARS" = "true" ]; then ./scripts/build-grammars; fi
 
 script:
   - tox --version
   - tox
+#  - pylint src
