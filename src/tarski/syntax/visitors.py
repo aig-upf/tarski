@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from tarski.syntax.formulas import QuantifiedFormula, Variable, CompoundFormula, Atom
-from tarski.syntax.sorts import inclusion_closure
-from tarski.syntax.terms import Constant, CompoundTerm
+from .formulas import QuantifiedFormula, Variable, CompoundFormula, Atom
+from .sorts import inclusion_closure
+from .terms import Constant, CompoundTerm
 
 
 def emvr(self, other):

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from tarski import theories as tsk_theories
-from tarski.theories import Theory
+from .. import theories as tsk_theories
 from ..syntax import Tautology, Term
 
 
@@ -78,7 +77,7 @@ def language(name="L", theories=None):
         This is a standard FOL with a few convenient add-ons.
     """
     # By default, when defining a FSTRIPS problem we use a FOL with equality
-    theories = theories or [Theory.EQUALITY]
+    theories = theories or [tsk_theories.Theory.EQUALITY]
     lang = tsk_theories.language(name, theories)
     lang.register_operator_handler("<<", Term, Term, lambda lhs, rhs: FunctionalEffect(lhs, rhs))
     lang.register_operator_handler(">>", Term, Term, lambda lhs, rhs: FunctionalEffect(rhs, lhs))  # Inverted

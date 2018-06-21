@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import itertools
 
-from tarski import errors as err
+from .. import errors as err
 from .terms import CompoundTerm
 from .sorts import Sort
 

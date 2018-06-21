@@ -3,10 +3,10 @@
     Visitors implementing diverse aspects of FSTRIPS problems translation,
     analysis and compilation.
 """
-from tarski.syntax.temporal import ltl
-from tarski.syntax.formulas import CompoundFormula, Atom, QuantifiedFormula
-from tarski.syntax.visitors import SymbolReference
-from tarski.syntax.terms import CompoundTerm
+from ..syntax.temporal import ltl
+from ..syntax.formulas import CompoundFormula, Atom, QuantifiedFormula
+from ..syntax.visitors import SymbolReference
+from ..syntax.terms import CompoundTerm
 
 
 class FluentHeuristic(object):

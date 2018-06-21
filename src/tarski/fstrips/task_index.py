@@ -2,8 +2,8 @@
 """
     Creates a TaskIndex for a  planning task as given by Tarski's AST.
 """
-from tarski import util
-from tarski.fstrips import AddEffect, DelEffect, FunctionalEffect, LogicalEffect
+from .. import util
+from ..fstrips import AddEffect, DelEffect, FunctionalEffect, LogicalEffect
 from .visitors import FluentSymbolCollector, FluentHeuristic
 
 
