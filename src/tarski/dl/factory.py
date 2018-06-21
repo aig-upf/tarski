@@ -4,8 +4,8 @@ import logging
 from .. import FirstOrderLanguage
 from ..syntax import builtins
 
-from . import Concept, Role, UniversalConcept, BasicConcept, NotConcept, ExistsConcept, ForallConcept, \
-    EqualConcept, BasicRole, RestrictRole, AndConcept, EmptyConcept, CompositionRole, SingletonConcept
+from . import Concept, Role, UniversalConcept, PrimitiveConcept, NotConcept, ExistsConcept, ForallConcept, \
+    EqualConcept, PrimitiveRole, RestrictRole, AndConcept, EmptyConcept, CompositionRole, SingletonConcept
 
 
 def filter_subnodes(elem, t):
@@ -34,9 +34,9 @@ class SyntacticFactory(object):
             if predicate.arity == 0:
                 primitive_atoms.append(name)
             elif predicate.arity == 1:
-                concepts.append(BasicConcept(predicate))
+                concepts.append(PrimitiveConcept(predicate))
             elif predicate.arity == 2:
-                roles.append(BasicRole(predicate))
+                roles.append(PrimitiveRole(predicate))
             else:
                 logging.warning("Predicate {} with arity > 2 ignored".format(predicate))
 
@@ -148,8 +148,8 @@ class SyntacticFactory(object):
     def create_composition_role(self, r1: Role, r2: Role):
 
         # Compose only on primitives or their inversions
-        # if (not isinstance(r1, (BasicRole, InverseRole)) or
-        #    not isinstance(r2, (BasicRole, InverseRole))):
+        # if (not isinstance(r1, (PrimitiveRole, InverseRole)) or
+        #    not isinstance(r2, (PrimitiveRole, InverseRole))):
         #     return None
 
         result = CompositionRole(r1, r2)

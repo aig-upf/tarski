@@ -108,7 +108,7 @@ class SingletonConcept(Concept):
         return [self]
 
 
-class BasicConcept(Concept):
+class PrimitiveConcept(Concept):
     def __init__(self, predicate):
         assert isinstance(predicate, Predicate)
         _check_arity("concept", 1, predicate)
@@ -309,7 +309,7 @@ class EqualConcept(Concept):
         return [self] + self.r1.flatten() + self.r2.flatten()
 
 
-class BasicRole(Role):
+class PrimitiveRole(Role):
     def __init__(self, predicate):
         assert isinstance(predicate, Predicate)
         _check_arity("role", 2, predicate)
