@@ -5,7 +5,7 @@ from .. import FirstOrderLanguage
 from ..syntax import builtins
 
 from . import Concept, Role, UniversalConcept, PrimitiveConcept, NotConcept, ExistsConcept, ForallConcept, \
-    EqualConcept, PrimitiveRole, RestrictRole, AndConcept, EmptyConcept, CompositionRole, SingletonConcept
+    EqualConcept, PrimitiveRole, RestrictRole, AndConcept, EmptyConcept, CompositionRole, SingletonConcept, NullaryAtom
 
 
 def filter_subnodes(elem, t):
@@ -29,10 +29,8 @@ class SyntacticFactory(object):
                 # TODO We might want to revise this and allow for certain builtins
                 continue
 
-            name = predicate.symbol
-
             if predicate.arity == 0:
-                primitive_atoms.append(name)
+                primitive_atoms.append(NullaryAtom(predicate))
             elif predicate.arity == 1:
                 concepts.append(PrimitiveConcept(predicate))
             elif predicate.arity == 2:
@@ -42,14 +40,6 @@ class SyntacticFactory(object):
 
         for c in self.language.constants():
             concepts.append(SingletonConcept(c.symbol, c.sort))
-
-        logging.info('Primitive (nullary) atoms : {}'.format(", ".join(map(str, primitive_atoms))))
-        logging.info('Primitive (unary) concepts: {}'.format(", ".join(map(str, concepts))))
-        logging.info('Primitive (binary) roles  : {}'.format(", ".join(map(str, roles))))
-
-        # TODO At the moment we do nothing with nullary atoms (!!!)
-        # if primitive_atoms:
-        #     logging.critical("Support for primitive nullary atoms not yet implemented!!")
 
         return concepts, roles, primitive_atoms
 

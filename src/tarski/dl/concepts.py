@@ -6,6 +6,32 @@ from ..utils.algorithms import transitive_closure
 from .errors import ArityDLMismatch
 
 
+class NullaryAtom(object):
+    ARITY = 0
+
+    def __init__(self, predicate):
+        assert isinstance(predicate, Predicate)
+        _check_arity("nullary atom", 0, predicate)
+        self.name = predicate.symbol
+        self.depth = 0
+        self.hash = hash((self.__class__, self.name))
+
+    def __hash__(self):
+        return self.hash
+
+    def __eq__(self, other):
+        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
+                self.name == other.name)
+
+    def __repr__(self):
+        return "{}".format(self.name)
+
+    __str__ = __repr__
+
+    def extension(self, cache, state, substitution):
+        return cache.nullary_value(self, state)
+
+
 class Concept(object):
     ARITY = 1
 
@@ -14,7 +40,7 @@ class Concept(object):
         self.sort = sort
         self.depth = depth
 
-    def extension(self, cache, state, parameter_subst):
+    def extension(self, cache, state, substitution):
         raise NotImplementedError()
 
     def flatten(self):
@@ -155,7 +181,7 @@ class NotConcept(Concept):
         return ~ext_c
 
     def __repr__(self):
-        return 'Not(%s)'.format(self.c)
+        return 'Not({})'.format(self.c)
 
     __str__ = __repr__
 
@@ -186,7 +212,7 @@ class AndConcept(Concept):
         return ext_c1 & ext_c2
 
     def __repr__(self):
-        return 'And(%s, %s)'.format(self.c1, self.c2)
+        return 'And({}, {})'.format(self.c1, self.c2)
 
     __str__ = __repr__
 
@@ -220,7 +246,7 @@ class ExistsConcept(Concept):
         return cache.compress(result, self.ARITY)
 
     def __repr__(self):
-        return 'Exists(%s,%s)'.format(self.r, self.c)
+        return 'Exists({},{})'.format(self.r, self.c)
 
     __str__ = __repr__
 
@@ -260,7 +286,7 @@ class ForallConcept(Concept):
         return cache.compress(result, self.ARITY)
 
     def __repr__(self):
-        return 'Forall(%s,%s)'.format(self.r, self.c)
+        return 'Forall({},{})'.format(self.r, self.c)
 
     __str__ = __repr__
 
@@ -301,7 +327,7 @@ class EqualConcept(Concept):
         return cache.compress(result, self.ARITY)
 
     def __repr__(self):
-        return 'Equal(%s,%s)'.format(self.r1, self.r2)
+        return 'Equal({},{})'.format(self.r1, self.r2)
 
     __str__ = __repr__
 

@@ -3,7 +3,7 @@
 """
 from enum import Enum
 
-from .concepts import Concept, Role
+from .concepts import Concept, Role, NullaryAtom
 from ..utils.algorithms import compute_min_distance
 
 
@@ -35,6 +35,9 @@ class Feature(object):
 
     # def concept(self):
     #     raise NotImplementedError()
+
+    def weight(self):
+        raise NotImplementedError()
 
 
 def compute_int_feature_diff(x, y):
@@ -91,6 +94,9 @@ class ConceptCardinalityFeature(Feature):
     def weight(self):
         return self.concept().depth*2
 
+    def basename(self):
+        return str(self.c)
+
 
 class EmpiricalBinaryConcept(Feature):
     def __init__(self, f: ConceptCardinalityFeature):
@@ -107,7 +113,7 @@ class EmpiricalBinaryConcept(Feature):
         return compute_bool_feature_diff(x, y)
 
     def __repr__(self):
-        return 'bool[{}]'.format(self.f.c)
+        return 'bool[{}]'.format(self.f.basename())
 
     __str__ = __repr__
 
@@ -159,3 +165,35 @@ class MinDistanceFeature(Feature):
         return 'min-distance[{}, {}, {}]'.format(self.c1, self.r, self.c2)
 
     __str__ = __repr__
+
+    def weight(self):
+        return self.c1.depth + self.r.depth + self.c2.depth
+
+
+class NullaryAtomFeature(Feature):
+    def __init__(self, atom):
+        assert isinstance(atom, NullaryAtom)
+        self.atom = atom
+        self.hash = hash((self.__class__, self.atom))
+
+    def value(self, cache, state, substitution):
+        """ The feature evaluates to true iff the nullary atom is true in the given state """
+        return self.atom.extension(cache, state, substitution)
+
+    def diff(self, x, y):
+        return compute_bool_feature_diff(x, y)
+
+    def __repr__(self):
+        return 'bool[{}]'.format(self.atom)
+
+    __str__ = __repr__
+
+    def __hash__(self):
+        return self.hash
+
+    def __eq__(self, other):
+        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
+                self.atom == other.name)
+
+    def weight(self):
+        return 0
