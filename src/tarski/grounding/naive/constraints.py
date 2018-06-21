@@ -6,7 +6,7 @@ from ...syntax.transform import TermSubstitution, UniversalQuantifierElimination
 from ...syntax.transform import CNFTransformation
 from ...syntax.visitors import CollectVariables
 from ...util import IndexDictionary
-from ...syntax import QuantifiedFormula
+from ...syntax import QuantifiedFormula, Quantifier
 from . import instantiation
 
 
