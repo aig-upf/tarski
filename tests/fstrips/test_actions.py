@@ -6,7 +6,7 @@ from ..common import blocksworld
 
 
 def test_action_creation():
-    lang = blocksworld.generate_small_bw_language()
+    lang = blocksworld.generate_small_fstrips_bw_language()
 
     b = lang.variable('b', 'block')
     to = lang.variable('to', 'place')

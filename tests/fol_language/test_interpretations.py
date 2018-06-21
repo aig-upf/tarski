@@ -52,7 +52,7 @@ def test_numeric_rel_formula_evaluation():
 
 
 def test_blocksworld_set():
-    lang = blocksworld.generate_small_bw_language()
+    lang = blocksworld.generate_small_fstrips_bw_language()
     model = Model(lang)
     loc = lang.get_function('loc')
     b1, table = (lang.get_constant(s) for s in ('b1', 'table'))
@@ -62,7 +62,7 @@ def test_blocksworld_set():
 
 
 def test_blocksworld_set_via_square_brackets():
-    lang = blocksworld.generate_small_bw_language()
+    lang = blocksworld.generate_small_fstrips_bw_language()
     model = Model(lang)
     model.evaluator = evaluate
     loc = lang.get_function('loc')
@@ -73,7 +73,7 @@ def test_blocksworld_set_via_square_brackets():
 
 
 def test_blocksworld_add():
-    lang = blocksworld.generate_small_bw_language()
+    lang = blocksworld.generate_small_fstrips_bw_language()
     model = Model(lang)
     clear = lang.get_predicate('clear')
     b1 = lang.get_constant('b1')
@@ -82,7 +82,7 @@ def test_blocksworld_add():
 
 
 def test_blocksworld_add_and_remove():
-    lang = blocksworld.generate_small_bw_language()
+    lang = blocksworld.generate_small_fstrips_bw_language()
     model = Model(lang)
 
     clear = lang.get_predicate('clear')

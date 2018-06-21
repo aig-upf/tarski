@@ -4,10 +4,10 @@ from tarski import fstrips as fs
 from tarski.syntax import *
 from tarski.syntax.temporal import ltl
 
-from tests.common.blocksworld import generate_small_bw_language
+from tests.common.blocksworld import generate_small_fstrips_bw_language
 
 def create_small_task():
-    bw = generate_small_bw_language()
+    bw = generate_small_fstrips_bw_language()
     M = tarski.model.create(bw)
 
     block = bw.get_sort('block')

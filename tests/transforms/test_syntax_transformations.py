@@ -14,7 +14,7 @@ from tarski.syntax.transform.errors import TransformationError
 
 def test_nnf_conjunction():
 
-    bw = blocksworld.generate_small_bw_language()
+    bw = blocksworld.generate_small_fstrips_bw_language()
     block = bw.get_sort('block')
     place = bw.get_sort('place')
     loc = bw.get_function('loc')
@@ -30,7 +30,7 @@ def test_nnf_conjunction():
 
 def test_nnf_double_negation():
 
-    bw = blocksworld.generate_small_bw_language()
+    bw = blocksworld.generate_small_fstrips_bw_language()
     block = bw.get_sort('block')
     place = bw.get_sort('place')
     loc = bw.get_function('loc')
@@ -46,7 +46,7 @@ def test_nnf_double_negation():
 
 def test_nnf_quantifier_flips():
 
-    bw = blocksworld.generate_small_bw_language()
+    bw = blocksworld.generate_small_fstrips_bw_language()
     block = bw.get_sort('block')
     place = bw.get_sort('place')
     loc = bw.get_function('loc')
@@ -74,7 +74,7 @@ def test_nnf_LPL_page_321_antecedent():
 
 def test_prenex_idempotency():
 
-    bw = blocksworld.generate_small_bw_language()
+    bw = blocksworld.generate_small_fstrips_bw_language()
     block = bw.get_sort('block')
     place = bw.get_sort('place')
     loc = bw.get_function('loc')
@@ -141,7 +141,7 @@ def test_universal_elimination_works():
     assert str(result.universal_free) == str(result2.universal_free)
 
 def test_builtin_negation_absorption():
-    bw = blocksworld.generate_small_bw_language()
+    bw = blocksworld.generate_small_fstrips_bw_language()
     block = bw.get_sort('block')
     place = bw.get_sort('place')
     loc = bw.get_function('loc')
