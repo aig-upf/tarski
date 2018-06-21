@@ -26,7 +26,7 @@ def generate_small_strips_bw_language():
     lang = tsk.fstrips.language("blocksworld")
 
     # The sorts
-    object_t = lang.sort('object')
+    object_t = lang.get_sort('object')
 
     lang.predicate('handempty')
     lang.predicate('on', object_t, object_t)

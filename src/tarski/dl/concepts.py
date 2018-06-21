@@ -1,15 +1,16 @@
 """
 
 """
-
 from ..syntax import Predicate
 from ..utils.algorithms import transitive_closure
+from .errors import ArityDLMismatch
 
 
 class Concept(object):
     ARITY = 1
 
     def __init__(self, sort, depth):
+        assert isinstance(sort, str)
         self.sort = sort
         self.depth = depth
 
@@ -24,6 +25,7 @@ class Role(object):
     ARITY = 2
 
     def __init__(self, sort, depth):
+        assert len(sort) == self.ARITY
         self.sort = sort
         self.depth = depth
 
@@ -109,6 +111,8 @@ class SingletonConcept(Concept):
 class BasicConcept(Concept):
     def __init__(self, predicate):
         assert isinstance(predicate, Predicate)
+        _check_arity("concept", 1, predicate)
+
         Concept.__init__(self, predicate.sort[0].name, 0)
         self.name = predicate.symbol  # This is a bit aggressive, but we assume that predicate names are unique
         self.hash = hash((self.__class__, self.name))
@@ -308,6 +312,8 @@ class EqualConcept(Concept):
 class BasicRole(Role):
     def __init__(self, predicate):
         assert isinstance(predicate, Predicate)
+        _check_arity("role", 2, predicate)
+
         super().__init__([s.name for s in predicate.sort], 0)
         self.name = predicate.symbol
 
@@ -460,3 +466,9 @@ class RestrictRole(Role):
 
     def flatten(self):
         return [self] + self.r.flatten() + self.c.flatten()
+
+
+def _check_arity(term, expected_arity, predicate):
+    if expected_arity != predicate.arity:
+        raise ArityDLMismatch('Cannot create {} from arity-{} predicate "{}"'
+                              .format(term, predicate.arity, predicate))
