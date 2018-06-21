@@ -7,6 +7,7 @@ import scipy.constants
 from . import errors as err
 from .syntax import Function, Constant, Variable, Sort, Interval, inclusion_closure, Predicate
 
+
 def language(name='L'):
     """ A helper to construct languages"""
     lang = FirstOrderLanguage(name)

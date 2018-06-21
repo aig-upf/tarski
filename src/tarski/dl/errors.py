@@ -23,4 +23,3 @@ class ArityDLMismatch(SyntacticDLError):
     def __init__(self, msg=None):
         msg = msg or 'Mismatch between language element and DL element'
         super().__init__(msg)
-

@@ -26,8 +26,8 @@ class Function(object):
             if self.language != a.language:
                 raise err.LanguageMismatch(a, a.language, self.language)
 
-    def __deepcopy__(self,memo):
-        memo[id(self)]=self
+    def __deepcopy__(self, memo):
+        memo[id(self)] = self
         return self
 
     @property

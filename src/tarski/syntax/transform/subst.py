@@ -3,10 +3,10 @@
 """
     Substitution Operator
 """
-from tarski.syntax.temporal import ltl
-from tarski.syntax.formulas import *
-from tarski.syntax.terms import CompoundTerm
-from . errors import SubstitutionError
+from ..formulas import CompoundFormula, QuantifiedFormula, Variable, Atom
+from ..terms import CompoundTerm
+from .errors import SubstitutionError
+
 
 class TermSubstitution(object):
     """
@@ -15,25 +15,26 @@ class TermSubstitution(object):
         ```subst``` by the associated term.
     """
 
-    def __init__(self, L, subst):
-        self.L = L
+    def __init__(self, lang, subst):
+        self.L = lang
         self.subst = subst
 
     def visit(self, phi):
 
         if isinstance(phi, CompoundFormula):
-            for f in phi.subformulas: f.accept(self)
+            for f in phi.subformulas:
+                f.accept(self)
         elif isinstance(phi, QuantifiedFormula):
-            if any( x in self.subst for x in phi.variables):
+            if any(x in self.subst for x in phi.variables):
                 raise SubstitutionError(phi, self.subst, 'Attempted to substitute variable bound by quantifier')
             phi.formula.accept(self)
         elif isinstance(phi, Atom):
             new_subterms = list(phi.subterms)
-            for k,t in enumerate(new_subterms):
-                rep = self.subst.get(t,None)
-                if rep is None :
+            for k, t in enumerate(new_subterms):
+                rep = self.subst.get(t, None)
+                if rep is None:
                     t.accept(self)
-                else :
+                else:
                     if isinstance(rep, Variable):
                         new_subterms[k] = rep
                     else:
@@ -41,11 +42,11 @@ class TermSubstitution(object):
             phi.subterms = tuple(new_subterms)
         elif isinstance(phi, CompoundTerm):
             new_subterms = list(phi.subterms)
-            for k,t in enumerate(new_subterms):
-                rep = self.subst.get(t,None)
-                if rep is None :
+            for k, t in enumerate(new_subterms):
+                rep = self.subst.get(t, None)
+                if rep is None:
                     t.accept(self)
-                else :
+                else:
                     if isinstance(rep, Variable):
                         new_subterms[k] = rep
                     else:

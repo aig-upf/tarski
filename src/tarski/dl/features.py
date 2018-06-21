@@ -155,8 +155,7 @@ class MinDistanceFeature(Feature):
         ext_r = self.r.extension(cache, state, substitution)
         return compute_min_distance(cache.uncompress(ext_c1, self.c1.ARITY),
                                     cache.uncompress(ext_r, self.r.ARITY),
-                                    cache.uncompress(ext_c2, self.c2.ARITY),
-                                    )
+                                    cache.uncompress(ext_c2, self.c2.ARITY))
 
     def diff(self, x, y):
         return compute_int_feature_diff(x, y)

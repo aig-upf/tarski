@@ -15,8 +15,8 @@ class Sort:
     def __repr__(self):
         return self.name
 
-    def __deepcopy__(self,memo):
-        memo[id(self)]=self
+    def __deepcopy__(self, memo):
+        memo[id(self)] = self
         return self
 
     # MRJ: we define __hash__ and __eq__ so we can
@@ -29,8 +29,8 @@ class Sort:
         # @TODO: we're not checking the domains... it is kind of fragile,
         # but also reasonable? Or is this just wishful thinking?
         return self.name == other.name and \
-            self.language == other.language and \
-            self.builtin == other.builtin
+               self.language == other.language and \
+               self.builtin == other.builtin
 
     @property
     def name(self):
@@ -65,7 +65,8 @@ class Sort:
             p.extend(constant)
 
     def domain(self):
-        for v in self._domain : yield self.language.get_constant(v)
+        for v in self._domain:
+            yield self.language.get_constant(v)
 
 
 class Interval(Sort):

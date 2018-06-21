@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
-from collections import OrderedDict
-
 from tarski import theories as tsk_theories
 from tarski.theories import Theory
-
 from ..syntax import Tautology, Term
 
-from ..errors import DuplicateActionDefinition, UndefinedAction
 
 class UniversalEffect(object):
     """ A forall-effect """
+
     def __init__(self, variables, effects):
         self.variables = variables
         self.effects = effects
@@ -60,6 +57,7 @@ class FunctionalEffect(SingleEffect):
     def tostring(self):
         return "{} := {}".format(self.lhs, self.rhs)
 
+
 class LogicalEffect(SingleEffect):
     def __init__(self, phi, condition=Tautology()):
         super().__init__(condition)
@@ -67,6 +65,7 @@ class LogicalEffect(SingleEffect):
 
     def tostring(self):
         return "{}".format(self.formula)
+
 
 class OptimizationMetric(object):
     def __init__(self, opt_expression, opt_type):

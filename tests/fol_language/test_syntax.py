@@ -1,6 +1,6 @@
 import pytest
 import tarski as tsk
-from tarski import theories, Constant
+from tarski import theories
 from tarski.theories import Theory
 from tarski import errors as err
 from tarski.syntax import *
@@ -44,7 +44,6 @@ def test_arithmetic_terms_does_not_fail_with_load_theory():
 
 
 def test_load_arithmetic_module_fails_when_language_frozen():
-    import tarski.errors as err
     lang = tsk.fstrips.language()
     ints = lang.Integer
     two, three = lang.constant(2, ints), lang.constant(3, ints)
@@ -54,17 +53,19 @@ def test_load_arithmetic_module_fails_when_language_frozen():
         theories.load_theory(lang, Theory.ARITHMETIC)
         sum_ = two + three
 
+
 def test_equality_atom_from_expression():
-    lang = tsk.fstrips.language('artih', [Theory.EQUALITY,Theory.ARITHMETIC])
-    y = lang.function('y',lang.Integer)
+    lang = tsk.fstrips.language('artih', [Theory.EQUALITY, Theory.ARITHMETIC])
+    y = lang.function('y', lang.Integer)
 
     atom = y() == 4
 
     assert isinstance(atom, Atom)
 
+
 def test_complex_atom_from_expression_function_and_constants():
-    lang = tsk.fstrips.language('artih', [Theory.EQUALITY,Theory.ARITHMETIC])
-    y = lang.function('y',lang.Integer)
+    lang = tsk.fstrips.language('artih', [Theory.EQUALITY, Theory.ARITHMETIC])
+    y = lang.function('y', lang.Integer)
 
     phi = (y() <= 4) & (-4 <= y())
 
@@ -72,10 +73,10 @@ def test_complex_atom_from_expression_function_and_constants():
 
 
 def test_complex_atom_from_expression_only_functions():
-    lang = tsk.fstrips.language('artih', [Theory.EQUALITY,Theory.ARITHMETIC])
-    x = lang.function('x',lang.Integer)
-    y = lang.function('y',lang.Integer)
-    z = lang.function('z',lang.Integer)
+    lang = tsk.fstrips.language('arith', [Theory.EQUALITY, Theory.ARITHMETIC])
+    x = lang.function('x', lang.Integer)
+    y = lang.function('y', lang.Integer)
+    z = lang.function('z', lang.Integer)
 
     phi = (x() <= y()) & (y() <= z())
 

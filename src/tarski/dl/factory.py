@@ -47,7 +47,7 @@ class SyntacticFactory(object):
         # exists(R.C) = { x | exists y R(x,y) and C(y) }
 
         result = ExistsConcept(role, concept)
-        s1, s2 = role.sort
+        _, s2 = role.sort
 
         if concept == self.bot:
             logging.debug('Concept "{}" is statically empty'.format(result))
@@ -74,7 +74,7 @@ class SyntacticFactory(object):
         # forall(R.C) = { x | forall y R(x,y) implies C(y) }
 
         result = ForallConcept(role, concept)
-        s1, s2 = role.sort
+        _, s2 = role.sort
 
         if isinstance(concept, UniversalConcept):
             # logging.debug('Concept "{}" equivalent to simpler concept'.format(result))

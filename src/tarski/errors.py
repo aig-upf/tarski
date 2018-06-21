@@ -28,14 +28,14 @@ class LanguageMismatch(SyntacticError):
     def __init__(self, obj, l1, l2, msg=None):
         msg = msg or ('Language mismatch when operating on object {obj} of type {classname}.\n'
                       'Expected language: {l2}\n'
-                      'Actual language: : {l1}\n')\
+                      'Actual language: : {l1}\n') \
             .format(obj=obj, classname=type(obj).__name__, l1=l1, l2=l2)
         super().__init__(msg)
 
 
 class ArityMismatch(SyntacticError):
     def __init__(self, head, arguments, msg=None):
-        msg = msg or 'Arity mismatch applying element {} with arity {} to arguments {}'.\
+        msg = msg or 'Arity mismatch applying element {} with arity {} to arguments {}'. \
             format(head, head.arity, arguments)
         super().__init__(msg)
 
@@ -58,7 +58,7 @@ class DuplicateDefinition(SyntacticError):
 class UndefinedElement(SyntacticError):
     def __init__(self, name, msg=None):
         if msg is not None:
-            msg = 'Undefined element {}, {}'.format(name,msg)
+            msg = 'Undefined element {}, {}'.format(name, msg)
         else:
             msg = 'Undefined element: {}'.format(name)
         super().__init__(msg)
@@ -79,13 +79,14 @@ class DuplicateFunctionDefinition(DuplicateDefinition):
 class DuplicateConstantDefinition(DuplicateDefinition):
     pass
 
+
 class DuplicateActionDefinition(DuplicateDefinition):
     pass
 
 
 class DuplicateVariableDefinition(DuplicateDefinition):
     def __init__(self, variable, other, msg=None):
-        msg = "Variable with name '{}' already defined in binding: {}".format(variable.symbol, other)
+        msg = msg or "Variable with name '{}' already defined in binding: {}".format(variable.symbol, other)
         super().__init__(variable, other, msg)
 
 
@@ -103,6 +104,7 @@ class UndefinedFunction(UndefinedElement):
 
 class UndefinedConstant(UndefinedElement):
     pass
+
 
 class UndefinedAction(UndefinedElement):
     pass

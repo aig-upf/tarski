@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from tarski.syntax.temporal import ltl
-from tarski.syntax.formulas import *
+from tarski.syntax.formulas import QuantifiedFormula, Variable, CompoundFormula, Atom
 from tarski.syntax.sorts import inclusion_closure
 from tarski.syntax.terms import Constant, CompoundTerm
+
 
 def emvr(self, other):
     """
@@ -11,47 +11,53 @@ def emvr(self, other):
 
     # @TODO: the variable renaming should be maintained across the
     # whole sub-expression
-    if self.head.symbol != other.head.symbol: return False
+    if self.head.symbol != other.head.symbol:
+        return False
 
-    for lhs, rhs in zip(self.subterms,other.subterms):
-        if isinstance(lhs,Variable) and\
-            isinstance(rhs,Variable):
-            if lhs.sort.name != rhs.sort.name :
-                if not rhs.sort in inclusion_closure(lhs.sort):
+    for lhs, rhs in zip(self.subterms, other.subterms):
+        if isinstance(lhs, Variable) and \
+                isinstance(rhs, Variable):
+            if lhs.sort.name != rhs.sort.name:
+                if rhs.sort not in inclusion_closure(lhs.sort):
                     return False
-        elif isinstance(lhs,Constant) and\
-            isinstance(rhs,Constant):
-            if lhs.symbol != rhs.symbol: return False
-        elif isinstance(lhs,CompoundTerm) and\
-            isinstance(rhs,CompoundTerm):
-            if not emvr(SymbolReference(lhs),SymbolReference(rhs)): return False
+        elif isinstance(lhs, Constant) and \
+                isinstance(rhs, Constant):
+            if lhs.symbol != rhs.symbol:
+                return False
+        elif isinstance(lhs, CompoundTerm) and \
+                isinstance(rhs, CompoundTerm):
+            if not emvr(SymbolReference(lhs), SymbolReference(rhs)):
+                return False
         else:
             return False
     return True
 
-def esm(self,other):
+
+def esm(self, other):
     """
         Checks if two terms or atoms are exact syntactic matches
     """
     lhs = self.expr
     rhs = other.expr
     if isinstance(lhs, Variable):
-        if not isinstance(rhs,Variable):
+        if not isinstance(rhs, Variable):
             return False
-        if lhs.symbol != rhs.symbol: return False
-        if lhs.sort.name != rhs.sort.name :
-            if not rhs.sort in inclusion_closure(lhs.sort):
+        if lhs.symbol != rhs.symbol:
+            return False
+        if lhs.sort.name != rhs.sort.name:
+            if rhs.sort not in inclusion_closure(lhs.sort):
                 return False
         return True
-    if isinstance(lhs,Constant):
-        if not isinstance(rhs,Constant):
+    if isinstance(lhs, Constant):
+        if not isinstance(rhs, Constant):
             return False
         return lhs.symbol == rhs.symbol
     raise NotImplementedError()
 
+
 class SymbolReference(object):
 
-    def __init__(self, component, eq_fn = emvr):
+    def __init__(self, component, eq_fn=emvr):
         self.expr = component
         self.equality_fn = eq_fn
         try:
@@ -78,70 +84,74 @@ class SymbolReference(object):
     def __str__(self):
         return str(self.expr)
 
+
 class CollectVariables(object):
     """
         This Visitor collects all Variables in a given formula
     """
 
-    def __init__(self, L):
-        self.L = L
+    def __init__(self, lang):
+        self.L = lang
         self.variables = set()
 
     def visit(self, phi):
 
         if isinstance(phi, CompoundFormula):
-            for f in phi.subformulas: f.accept(self)
+            for f in phi.subformulas:
+                f.accept(self)
         elif isinstance(phi, QuantifiedFormula):
             phi.formula.accept(self)
         elif isinstance(phi, Atom):
-            for k,t in enumerate(phi.subterms):
+            for _, t in enumerate(phi.subterms):
                 if isinstance(t, Variable):
                     self.variables.add(t)
-                else :
+                else:
                     t.accept(self)
         elif isinstance(phi, CompoundTerm):
-            for k,t in enumerate(phi.subterms):
+            for _, t in enumerate(phi.subterms):
                 if isinstance(t, Variable):
                     self.variables.add(t)
-                else :
+                else:
                     t.accept(self)
 
+
 class CollectFreeVariables(object):
-    def __init__(self, L):
-        self.L = L
+    def __init__(self, lang):
+        self.L = lang
         self.quantified_vars = set()
         self._free_variables = set()
 
     @property
     def free_variables(self):
-        for ref in self._free_variables :
+        for ref in self._free_variables:
             yield ref.expr
 
-    def visit(self,phi):
+    def visit(self, phi):
         if isinstance(phi, CompoundFormula):
-            for f in phi.subformulas: f.accept(self)
+            for f in phi.subformulas:
+                f.accept(self)
         elif isinstance(phi, QuantifiedFormula):
             for x in phi.variables:
-                x_ref = SymbolReference(x,esm)
-                self.quantified_vars.add( x_ref )
+                x_ref = SymbolReference(x, esm)
+                self.quantified_vars.add(x_ref)
             phi.formula.accept(self)
             for x in phi.variables:
-                x_ref = SymbolReference(x,esm)
-                self.quantified_vars.remove( x_ref )
+                x_ref = SymbolReference(x, esm)
+                self.quantified_vars.remove(x_ref)
 
         elif isinstance(phi, Atom):
-            for k,t in enumerate(phi.subterms):
+            for _, t in enumerate(phi.subterms):
                 if isinstance(t, Variable):
-                    t_ref = SymbolReference(t,esm)
-                    if t_ref not in self.quantified_vars :
+                    t_ref = SymbolReference(t, esm)
+                    if t_ref not in self.quantified_vars:
                         self._free_variables.add(t_ref)
-                else :
+                else:
                     t.accept(self)
         elif isinstance(phi, CompoundTerm):
-            for k,t in enumerate(phi.subterms):
+            for k, t in enumerate(phi.subterms):
                 if isinstance(t, Variable):
-                    t_ref = SymbolReference(t,esm)
-                    if t_ref not in self.quantified_vars :
+                    t_ref = SymbolReference(t, esm)
+                    if t_ref not in self.quantified_vars:
                         self._free_variables.add(t_ref)
-                else :
+                else:
                     t.accept(self)

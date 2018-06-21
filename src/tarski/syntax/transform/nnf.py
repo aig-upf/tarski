@@ -5,61 +5,57 @@
 """
 import copy
 
-from tarski.syntax.temporal import ltl
-from tarski.syntax.formulas import *
-
-from . errors import TransformationError
+from ..formulas import neg, QuantifiedFormula, Quantifier, CompoundFormula, Connective
 
 
 class NNFTransformation(object):
     """
         This class rewrites the input formula phi into an equivalent formula
-        in NNF (referenced by the )
+        in NNF
     """
 
-    def __init__(self,phi, do_copy = True):
+    def __init__(self, phi, do_copy=True):
         self.blueprint = None
-        if do_copy :
+        if do_copy:
             self.blueprint = copy.deepcopy(phi)
-        else :
+        else:
             self.blueprint = phi
         self.nnf = None
 
-
     def _convert(self, phi):
         if isinstance(phi, CompoundFormula):
-            if phi.connective == Connective.Not :
-                P = phi.subformulas[0]
-                if isinstance(P,QuantifiedFormula):
-                    if P.quantifier == Quantifier.Exists:
-                        P.quantifier = Quantifier.Forall
+            if phi.connective == Connective.Not:
+                p = phi.subformulas[0]
+                if isinstance(p, QuantifiedFormula):
+                    if p.quantifier == Quantifier.Exists:
+                        p.quantifier = Quantifier.Forall
                     else:
-                        assert P.quantifier == Quantifier.Forall
-                        P.quantifier = Quantifier.Exists
-                    P.formula = self._convert(neg(P.formula))
-                    return P
-                elif isinstance(P,CompoundFormula): # De Morgan
-                    if P.connective == Connective.Not:
-                        return P.subformulas[0] # eliminate \neg \neg
-                    elif P.connective == Connective.And:
-                        P.connective = Connective.Or
+                        assert p.quantifier == Quantifier.Forall
+                        p.quantifier = Quantifier.Exists
+                    p.formula = self._convert(neg(p.formula))
+                    return p
+                elif isinstance(p, CompoundFormula):  # De Morgan
+                    if p.connective == Connective.Not:
+                        return p.subformulas[0]  # eliminate \neg \neg
+                    elif p.connective == Connective.And:
+                        p.connective = Connective.Or
                     else:
-                        assert P.connective == Connective.Or
-                        P.connective = Connective.And
+                        assert p.connective == Connective.Or
+                        p.connective = Connective.And
 
-                    new_sub = [self._convert(neg(P.subformulas[0])),\
-                                 self._convert(neg(P.subformulas[1]))]
-                    P.subformulas = tuple(new_sub)
-                    return P
-                else :
-                    return phi # nothing to do
-            else :
+                    new_sub = [self._convert(neg(p.subformulas[0])),
+                               self._convert(neg(p.subformulas[1]))]
+                    p.subformulas = tuple(new_sub)
+                    return p
+                else:
+                    return phi  # nothing to do
+            else:
                 assert phi.connective == Connective.And or phi.connective == Connective.Or
-                new_sub = [self._convert(phi.subformulas[0]),\
-                            self._convert(phi.subformulas[1])]
+                new_sub = [self._convert(phi.subformulas[0]),
+                           self._convert(phi.subformulas[1])]
                 phi.subformulas = tuple(new_sub)
                 return phi
-        elif isinstance(phi,QuantifiedFormula):
+        elif isinstance(phi, QuantifiedFormula):
             phi.formula = self._convert(phi.formula)
             return phi
         else:
@@ -69,7 +65,7 @@ class NNFTransformation(object):
         self.nnf = self._convert(self.blueprint)
 
     @staticmethod
-    def rewrite( phi, do_copy = True):
-        trans =  NNFTransformation(phi, do_copy)
+    def rewrite(phi, do_copy=True):
+        trans = NNFTransformation(phi, do_copy)
         trans.convert()
         return trans

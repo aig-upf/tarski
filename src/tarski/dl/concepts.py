@@ -28,7 +28,7 @@ class NullaryAtom(object):
 
     __str__ = __repr__
 
-    def extension(self, cache, state, substitution):
+    def extension(self, cache, state, _):
         return cache.nullary_value(self, state)
 
 

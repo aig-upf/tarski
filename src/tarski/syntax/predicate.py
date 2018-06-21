@@ -22,8 +22,8 @@ class Predicate(object):
                 belongs to a different language".format(k + 1))
             self.sort.append(a)
 
-    def __deepcopy__(self,memo):
-        memo[id(self)]=self
+    def __deepcopy__(self, memo):
+        memo[id(self)] = self
         return self
 
     @property

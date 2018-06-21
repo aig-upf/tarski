@@ -41,6 +41,5 @@ class FstripsWriter(object):
         self.filename = filename
 
     def write(self, element):
+        # pylint: disable=unused-argument
         raise RuntimeError("Unimplemented")
-
-

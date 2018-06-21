@@ -100,6 +100,7 @@ class Term(object):
         """
         visitor.visit(self)
 
+
 class Variable(Term):
     def __init__(self, symbol: str, sort: Sort):
         self.symbol = symbol
@@ -220,6 +221,7 @@ class Constant(Term):
 
 def create_term(symbol: BuiltinFunctionSymbol, lhs, rhs):
     assert isinstance(lhs, Term) and isinstance(rhs, Term)
+    from . import Atom
 
     language = lhs.language
     if language != rhs.language:
