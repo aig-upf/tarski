@@ -55,23 +55,19 @@ def create_sort(lang, typename, basename):
         lang.sort(typename, parents)
 
 
-class ParsingError(SyntacticError):
-    pass
-
-
-class ExceptionRaiserListener(ErrorListener):
-    """ An ANTLR ErrorListener that simply transforms any syntax error into a Tarski parsing error.
-        Useful at least for testing purposes.
-    """
-    def syntaxError(self, recognizer, offending_symbol, line, column, msg, e):
-        """ """
-        msg = "line " + str(line) + ":" + str(column) + " " + msg
-        raise ParsingError(msg)
+def create_number_type(lang):
+    """ Creates a sort corresponding to the PDDL "number" """
+    # For the moment being, we assume that PDDL "number"s are unbound integers
+    parent = lang.get_sort("Integer")
+    lower = parent.lower_bound
+    upper = parent.upper_bound
+    lang.interval("number", parent, lower, upper)
 
 
 def process_requirements(requirements, lang):
     if ':action-costs' in requirements:
         theories.load_theory(lang, Theory.ARITHMETIC)
+        create_number_type(lang)
     elif ':numeric-fluents' in requirements:
         theories.load_theory(lang, Theory.ARITHMETIC)
 
@@ -635,3 +631,17 @@ def parse_number(number, lang: FirstOrderLanguage):
     except ValueError:
         value = float(number)
         return lang.constant(lang.Real.cast(value), lang.Real)
+
+
+class ParsingError(SyntacticError):
+    pass
+
+
+class ExceptionRaiserListener(ErrorListener):
+    """ An ANTLR ErrorListener that simply transforms any syntax error into a Tarski parsing error.
+        Useful at least for testing purposes.
+    """
+    def syntaxError(self, recognizer, offending_symbol, line, column, msg, e):
+        """ """
+        msg = "line " + str(line) + ":" + str(column) + " " + msg
+        raise ParsingError(msg)

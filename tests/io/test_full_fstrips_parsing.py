@@ -20,16 +20,13 @@ SAMPLE_STRIPS_INSTANCES = [
     "blocks:probBLOCKS-4-1.pddl",
     "gripper:prob01.pddl",
 
-    # Currently failing because we're not supporting "number" keyword
-    # (Undefined element: number)
-    # "sokoban-opt08-strips:p01.pddl",
-    # "parking-sat11-strips:pfile08-031.pddl",
+    "sokoban-opt08-strips:p01.pddl", # action costs
+    "parking-sat11-strips:pfile08-031.pddl", # action costs
 ]
 
 SAMPLE_FSTRIPS_INSTANCES = [
-    # Currently failing because we're not supporting "int" keyword
-    # (tarski.errors.UndefinedSort: Undefined element: int)
-    "counters-fn:instance_4.pddl",
+    "counters-fn:instance_4.pddl",  # functions, ints
+    # "blocksworld-pattern-fn-ex:sample.pddl"  # @alldiff
 ]
 
 
