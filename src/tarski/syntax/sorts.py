@@ -3,6 +3,10 @@ from .. import errors as err
 
 
 class Sort:
+    """ A logical sort (aka type)
+        Sorts are uniquely identified by their name (i.e. we don't allow two sorts with different characteristics
+        but the same name). Hence, implementation-wise, we can hash and compare them based on name alone.
+    """
     def __init__(self, name, language, builtin=False):
         self._name = name
         self.language = language
@@ -19,30 +23,25 @@ class Sort:
         memo[id(self)] = self
         return self
 
-    # MRJ: we define __hash__ and __eq__ so we can
-    # use references to Sort instances in associative
-    # containers
     def __hash__(self):
         return hash(self.name)
 
     def __eq__(self, other):
-        # @TODO: we're not checking the domains... it is kind of fragile,
-        # but also reasonable? Or is this just wishful thinking?
-        return self.name == other.name and \
-               self.language == other.language and \
-               self.builtin == other.builtin
+        return self.name == other.name and self.language == other.language
 
     @property
     def name(self):
         return self._name
 
     def contains(self, x):
+        # TODO - Refactor this, we shouldn't be checking for two different ways of representing a value
         try:
             return x.symbol in self._domain
         except AttributeError:
             return x in self._domain
 
     def cast(self, x):
+        # TODO - Refactor this, we shouldn't be checking for two different ways of representing a value
         try:
             if x.symbol in self._domain:
                 return x.symbol
@@ -51,9 +50,8 @@ class Sort:
                 return x
         return None
 
-    def check_empty(self):
-        if len(self._domain) == 0:
-            raise err.LanguageError("Sort '{}' is empty!".format(self._name))
+    def cardinality(self):
+        return len(self._domain)
 
     def dump(self):
         return dict(name=self._name,
@@ -65,40 +63,46 @@ class Sort:
             p.extend(constant)
 
     def domain(self):
-        for v in self._domain:
-            yield self.language.get_constant(v)
+        return (self.language.get_constant(v) for v in self._domain)
 
 
 class Interval(Sort):
-    def __init__(self, lb, ub, encode_fn, name, lang):
-        super(Interval, self).__init__(name, lang)
-        self._lb = lb
-        self._ub = ub
-        self._encode = encode_fn
-        self._domain = lambda x: self._lb <= x <= self._ub
+    def __init__(self, name, lang, encode_fn, lower_bound=None, upper_bound=None):
+        super().__init__(name, lang)
+        self.lower_bound = lower_bound
+        self.upper_bound = upper_bound
+        self.encode = encode_fn
+
+    def is_within_bounds(self, x):
+        """ Check whether a given value is within the bounds of the interval """
+        if self.lower_bound is None or self.upper_bound is None:
+            raise err.SemanticError("Attempted to check for belonging to Interval type with no bounds set yet")
+        return self.lower_bound <= x <= self.upper_bound
+
+    def set_bounds(self, lower_bound, upper_bound):
+        self.lower_bound = lower_bound
+        self.upper_bound = upper_bound
 
     def extend(self, x):
-        pass
+        pass  # TODO ???
 
     def cast(self, x):
         if isinstance(x, str):
             try:
-                return getattr(self, x)
+                return getattr(self, x)  # TODO: WHAT IS THIS??
             except AttributeError:
                 pass
-        y = self._encode(x)  # can raise ValueError
-        if not self._domain(y):
-            raise ValueError(
-                "Interval.cast() : symbol '{}', encoded as '{}' does not belong to the domain!".format(x, y))
+        y = self.encode(x)  # can raise ValueError
+        if not self.is_within_bounds(y):
+            raise ValueError("Interval.cast(): Symbol '{}' (encoded '{}') does not belong to the domain".format(x, y))
         return y
 
-    def check_empty(self):
-        if self._lb > self._ub:
-            raise err.LanguageError("Sort '{}' is empty!".format(self._name))
+    def cardinality(self):
+        return self.upper_bound - self.lower_bound + 1
 
     def contains(self, x, raises_exceptions=False):
         try:
-            y = self._encode(x)
+            y = self.encode(x)
         except ValueError:
             if raises_exceptions:
                 raise err.SemanticError('Cannot encode "{}"'.format(x))
@@ -123,11 +127,11 @@ class Interval(Sort):
             for p2 in parents(p):
                 relevant_supers.add(p2)
 
-        return self._domain(y)
+        return self.is_within_bounds(y)
 
     def dump(self):
         return dict(name=self.name,
-                    domain=[self._lb, self._ub])
+                    domain=[self.lower_bound, self.upper_bound])
 
 
 def inclusion_closure(s: Sort) -> Set[Sort]:
@@ -162,3 +166,30 @@ def children(s: Sort) -> List[Sort]:
         if rhs == s:
             _children.append(s.language.sort(lhs))
     return _children
+
+
+def int_encode_fn(x):
+    return int(x)
+
+
+def float_encode_fn(x):
+    return float(x)
+
+
+def build_the_naturals(lang):
+    the_nats = Interval('Natural', lang, int_encode_fn, 0, 2 ** 32 - 1)
+    the_nats.builtin = True
+    return the_nats
+
+
+def build_the_integers(lang):
+    the_ints = Interval('Integer', lang, int_encode_fn, -(2 ** 31 - 1), 2 ** 31 - 1)
+    the_ints.builtin = True
+    return the_ints
+
+
+def build_the_reals(lang):
+    reals = Interval('Real', lang, float_encode_fn, -3.40282e+38, 3.40282e+38)
+    reals.builtin = True
+    # the_reals.pi = scipy.constants.pi
+    return reals

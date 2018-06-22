@@ -29,7 +29,7 @@ SAMPLE_STRIPS_INSTANCES = [
 SAMPLE_FSTRIPS_INSTANCES = [
     # Currently failing because we're not supporting "int" keyword
     # (tarski.errors.UndefinedSort: Undefined element: int)
-    # "counters-fn:instance_4.pddl",
+    "counters-fn:instance_4.pddl",
 ]
 
 
@@ -84,3 +84,4 @@ def test_pddl_instances(instance_file, domain_file):
 if __name__ == "__main__":
     for instance, domain in collect_benchmarks():
         test_pddl_instances(instance, domain)
+    print("Tests passed")

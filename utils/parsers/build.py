@@ -86,11 +86,12 @@ def run_antlr(args):
     tmpdir = tempfile.TemporaryDirectory()
     if os.name == 'nt':
         command = ('java -Xmx500M org.antlr.v4.Tool -visitor -Dlanguage=Python3 -o {} {}'.
-                    format(tmpdir.name, args.grammar_filename))
+                   format(tmpdir.name, args.grammar_filename))
     else:
         command = ('java -Xmx500M org.antlr.v4.Tool -visitor -Dlanguage=Python3 -o {} {}'.
                    format(tmpdir.name, args.grammar_filename))
     try:
+        print("Executing: {}".format(command))
         os.system(command)
 #        subprocess.call(command.split(" "), env=env)
     except Exception:

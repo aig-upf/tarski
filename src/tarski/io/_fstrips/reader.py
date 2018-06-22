@@ -11,7 +11,7 @@ from tarski import model, theories
 from tarski.errors import SyntacticError
 from tarski.fol import FirstOrderLanguage
 from tarski.fstrips import DelEffect, AddEffect, FunctionalEffect, UniversalEffect, language, OptimizationMetric
-from tarski.syntax import neg, land, lor, Tautology, implies, exists, forall, Term
+from tarski.syntax import neg, land, lor, Tautology, implies, exists, forall, Term, Interval
 from tarski.syntax.builtins import get_predicate_from_symbol, get_function_from_symbol
 from tarski.syntax.formulas import VariableBinding
 from tarski.theories import Theory
@@ -23,6 +23,36 @@ from .parser.parser import fstripsParser
 
 builtin_binary_predicate_symbols = {"=": "add", "!=": "sub"}
 builtin_binary_function_symbols = {"+": "add", "-": "sub"}
+
+
+def translate_pddl_type(typename):
+    """ Translate a few PDDL types into their corresponding Tarski names
+        (e.g. the FSTRIPS type "int" corresponds to the Tarski type "Integer"
+    """
+    translations = {"int": "Integer"}
+    return translations.get(typename, typename)
+
+
+def create_sort(lang, typename, basename):
+    """ Create a Tarski sort from a PDDL type, performing a few checks and translations to ensure consistency """
+    typename = translate_pddl_type(typename)
+    basename = translate_pddl_type(basename)
+
+    if basename in ("Natural", "Integer", "Real"):
+        # The new type will necesarily be an interval subset of it parent
+        parent = lang.get_sort(basename)
+        assert isinstance(parent, Interval)
+        # TODO This is a small hack: since we don't yet know the lower and upper bound (because they are declared in
+        # the instance file, not domain file), we put the widest possible range allowed by the parent. If we do not
+        # do that, then the processing of the instance file might raise some error, because when the initial state is
+        # parsed, we check that each assignment is within bounds - but that again might happen before knowing the real
+        # bounds. A better solution would be to parse the instance file one first pass looking only for the bounds.
+        lower = parent.lower_bound
+        upper = parent.upper_bound
+        lang.interval(typename, parent, lower, upper)
+    else:
+        parents = [lang.get_sort(basename)]
+        lang.sort(typename, parents)
 
 
 class ParsingError(SyntacticError):
@@ -42,6 +72,9 @@ class ExceptionRaiserListener(ErrorListener):
 def process_requirements(requirements, lang):
     if ':action-costs' in requirements:
         theories.load_theory(lang, Theory.ARITHMETIC)
+    elif ':numeric-fluents' in requirements:
+        theories.load_theory(lang, Theory.ARITHMETIC)
+
 
 
 class FStripsParser(fstripsVisitor):
@@ -120,11 +153,9 @@ class FStripsParser(fstripsVisitor):
 
         process_requirements(self.requirements, self.language)
 
-
     def visitDeclaration_of_types(self, ctx):
         for typename, basename in self.visit(ctx.possibly_typed_name_list()):
-            parents = [self.language.get_sort(basename)]
-            self.language.sort(typename, parents)
+            create_sort(self.language, typename, basename)
 
     def extract_namelist(self, ctx):
         return [name.getText().lower() for name in ctx.NAME()]
@@ -180,11 +211,15 @@ class FStripsParser(fstripsVisitor):
             self.type_bounds.append(self.visit(sub_ctx))
 
     def visitTypeBoundsDefinition(self, ctx):
+        typename = ctx.NAME().getText().lower()
+        sort = self.language.get_sort(typename)
+        if not isinstance(sort, Interval):
+            raise RuntimeError("Attempt at bounding symbolic non-interval sort '{}'".format(sort))
 
-        b = DomainBound(ctx.NAME().getText().lower(),
-                        '{0}[{1}..{2}]'.format(ctx.numericBuiltinType().getText().lower(), ctx.NUMBER(0),
-                                               ctx.NUMBER(1)))
-        return b
+        # Encode the bounds and set them into the sort
+        lower = sort.encode(ctx.NUMBER(0).getText())
+        upper = sort.encode(ctx.NUMBER(1).getText())
+        sort.set_bounds(lower, upper)
 
     def visitObject_declaration(self, ctx):
         for o, t in self.visit(ctx.possibly_typed_name_list()):
@@ -268,6 +303,10 @@ class FStripsParser(fstripsVisitor):
 
     def visitAndGoalDesc(self, ctx):
         conjuncts = [self.visit(sub_ctx) for sub_ctx in ctx.goalDesc()]
+        # The PDDL spec allows for and AND with a single conjunct (e.g. (and p), which Tarski does (rightly) not
+        # If we only have one conjunct, we thus return it as such, without creating any conjunction.
+        if len(conjuncts) == 1:
+            return conjuncts
         return land(*conjuncts)
 
     def visitOrGoalDesc(self, ctx):

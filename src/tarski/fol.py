@@ -2,10 +2,8 @@
 from collections import defaultdict
 from typing import List
 
-# import scipy.constants
-
 from . import errors as err
-from .syntax import Function, Constant, Variable, Sort, Interval, inclusion_closure, Predicate
+from .syntax import Function, Constant, Variable, Sort, inclusion_closure, Predicate, Interval, sorts
 
 
 def language(name='L'):
@@ -69,6 +67,23 @@ class FirstOrderLanguage:
     def functions(self):
         return self._functions.values()
 
+
+    @property
+    def Object(self):
+        return self._sorts['object']
+
+    @property
+    def Real(self):
+        return self._sorts['Real']
+
+    @property
+    def Integer(self):
+        return self._sorts['Integer']
+
+    @property
+    def Natural(self):
+        return self._sorts['Natural']
+
     def _build_builtin_sorts(self):
         self._build_the_objects()
         self._build_the_reals()
@@ -76,31 +91,19 @@ class FirstOrderLanguage:
         self._build_the_naturals()
 
     def _build_the_reals(self):
-        the_reals = Interval(-3.40282e+38, 3.40282e+38, lambda x: float(x), 'Real', self)
-        the_reals.builtin = True
-        # the_reals.pi = scipy.constants.pi
+        the_reals = sorts.build_the_reals(self)
         self._sorts['Real'] = the_reals
         self.set_parent(the_reals, self.Object)
         # self.create_builtin_predicates(the_reals)
 
-    @property
-    def Real(self):
-        return self._sorts['Real']
-
     def _build_the_integers(self):
-        the_ints = Interval(-(2 ** 31 - 1), 2 ** 31 - 1, lambda x: int(x), 'Integer', self)
-        the_ints.builtin = True
+        the_ints = sorts.build_the_integers(self)
         self._sorts['Integer'] = the_ints
         self.set_parent(the_ints, self.Real)
         # self.create_builtin_predicates(the_ints)
 
-    @property
-    def Integer(self):
-        return self._sorts['Integer']
-
     def _build_the_naturals(self):
-        the_nats = Interval(0, 2 ** 32 - 1, lambda x: int(x), 'Natural', self)
-        the_nats.builtin = True
+        the_nats = sorts.build_the_naturals(self)
         self._sorts['Natural'] = the_nats
         self.set_parent(the_nats, self.Integer)
         # self.create_builtin_predicates(the_nats)
@@ -109,17 +112,9 @@ class FirstOrderLanguage:
         sort = Sort('object', self)
         self._sorts['object'] = sort
 
-    @property
-    def Object(self):
-        return self._sorts['object']
-
-    @property
-    def Natural(self):
-        return self._sorts['Natural']
-
-    def sort(self, name: str, super_sorts: List[Sort] = None):
+    def sort(self, name: str, ancestors: List[Sort] = None):
         """
-            Create new sort with given name and ancestors
+            Create new sort with given name and ancestor list
 
             Raises err.DuplicateSortDefinition if sort already existed
         """
@@ -129,17 +124,13 @@ class FirstOrderLanguage:
         sort = Sort(name, self)
         self._sorts[name] = sort
 
-        # MRJ: setup promotions table
-        osort = self.get_sort("object")
-        super_sorts = super_sorts or []
-        if osort not in super_sorts:  # Make sure all sorts derive from "object"
-            super_sorts.append(osort)
-
-        for parent in super_sorts:
+        # Set up promotions table
+        ancestors = set(ancestors) if ancestors else set()
+        ancestors.add(self.get_sort("object"))  # Make sure all sorts derive from "object"
+        for parent in ancestors:
             self.set_parent(sort, parent)
 
         # self.create_builtin_predicates(sort)
-
         return sort
 
     def has_sort(self, name):
@@ -149,6 +140,26 @@ class FirstOrderLanguage:
         if not self.has_sort(name):
             raise err.UndefinedSort(name)
         return self._sorts[name]
+
+    def interval(self, name, parent: Interval, lower_bound=None, upper_bound=None):
+        """ Create a (bound) interval sort.
+
+        We allow only the new sort to derive from the built-in natural, integer or real sorts.
+        """
+        if self.has_sort(name):
+            raise err.DuplicateSortDefinition(name, self._sorts[name])
+
+        if parent not in (self.Real, self.Natural, self.Integer):
+            raise err.SemanticError("Cannot create interval that does not subclass one of "
+                                    "the real, integer or natural sort")
+
+        sort = Interval(name, self, parent.encode, lower_bound, upper_bound)
+        self._sorts[name] = sort
+
+        self.set_parent(sort, parent)
+        self.set_parent(sort, self.get_sort("object"))  # TODO: Not sure if we really need / want this
+
+        return sort
 
     def variable(self, name: str, sort: Sort):
         sort = self._retrieve_object(sort, Sort)
@@ -262,7 +273,8 @@ class FirstOrderLanguage:
 
     def check_well_formed(self):
         for _, s in self._sorts.items():
-            s.check_empty()
+            if s.cardinality() == 0:
+                raise err.LanguageError("Sort '{}' is empty!".format(s))
 
     def most_restricted_type(self, t1, t2):
         if self.is_subtype(t1, t2):
