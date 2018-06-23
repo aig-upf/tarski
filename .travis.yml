@@ -6,14 +6,22 @@ matrix:
       env: TOXENV=py35
     - python: 3.6
       env: TOXENV=py36
+
+    # We test the grammar-building scripts with Python 3.6 only
+    - python: 3.6
+      env: TOXENV=py36 TARSKI_BUILD_GRAMMARS=true
+
 #    - python: 3.7-dev
 #      env: TOXENV=py37
 #    - python: pypy3.5
 #      env: TOXENV=pypy3
 install:
   - pip install tox
-  - ./scripts/build-grammars
+  - pip install pylint
+  - pip install pycodestyle
+  - if [ "$TARSKI_BUILD_GRAMMARS" = "true" ]; then ./scripts/build-grammars; fi
 
 script:
   - tox --version
   - tox
+  - ./scripts/lint

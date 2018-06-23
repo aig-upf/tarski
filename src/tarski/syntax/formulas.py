@@ -1,13 +1,12 @@
 # * coding: utf8 *
 from collections import OrderedDict
-
-from tarski import errors as err
-from .terms import Variable, Term
-from .predicate import Predicate
-
 import copy
 from enum import Enum
 from typing import List
+
+from .. import errors as err
+from .terms import Variable, Term
+from .predicate import Predicate
 
 
 class Connective(Enum):
@@ -65,11 +64,13 @@ class Formula(object):
 
 
 class Tautology(Formula):
-    def __str__(self): return "T"
+    def __str__(self):
+        return "T"
 
 
 class Contradiction(Formula):
-    def __str__(self): return "F"
+    def __str__(self):
+        return "F"
 
 
 class CompoundFormula(Formula):
@@ -89,7 +90,7 @@ class CompoundFormula(Formula):
             of this class is different from super()
         """
         # Dummy call to constructor
-        newone = type(self)(Connective.And, [top,top])
+        newone = type(self)(Connective.And, [top, top])
         memo[id(self)] = newone
         for k, v in self.__dict__.items():
             setattr(newone, k, copy.deepcopy(v, memo))
@@ -121,7 +122,7 @@ class QuantifiedFormula(Formula):
         self.formula = formula
         self._check_well_formed()
 
-    def __deepcopy__(self,memo):
+    def __deepcopy__(self, memo):
         """
             Deep copy constructor specific for this subclass.
 
@@ -129,12 +130,11 @@ class QuantifiedFormula(Formula):
             of this class is different from super()
         """
         # Dummy call to constructor
-        newone = type(self)(Quantifier.Forall, [None] , top)
+        newone = type(self)(Quantifier.Forall, [None], top)
         memo[id(self)] = newone
         for k, v in self.__dict__.items():
             setattr(newone, k, copy.deepcopy(v, memo))
         return newone
-
 
     def _check_well_formed(self):
         if len(self.variables) == 0:
@@ -150,22 +150,22 @@ bot = Contradiction()
 
 
 def land(*args):
-    if len(args) > 2 :
-        args =list(args)
+    if len(args) > 2:
+        args = list(args)
         args.reverse()
         phi = CompoundFormula(Connective.And, (args[1], args[0]))
-        for k in range(2,len(args)):
+        for k in range(2, len(args)):
             phi = CompoundFormula(Connective.And, (args[k], phi))
         return phi
     return CompoundFormula(Connective.And, args)
 
 
 def lor(*args):
-    if len(args) > 2 :
-        args =list(args)
+    if len(args) > 2:
+        args = list(args)
         args.reverse()
         phi = CompoundFormula(Connective.Or, (args[1], args[0]))
-        for k in range(2,len(args)):
+        for k in range(2, len(args)):
             phi = CompoundFormula(Connective.Or, (args[k], phi))
         return phi
     return CompoundFormula(Connective.Or, args)
@@ -178,6 +178,7 @@ def neg(phi):
 def implies(phi, psi):
     return lor(neg(phi), psi)
 
+
 def equiv(phi, psi):
     # MRJ: I choose the form below in the code over
     #
@@ -185,7 +186,8 @@ def equiv(phi, psi):
     #
     # as I find it easier to transform into a
     # given normal form.
-    return land( implies(phi,psi), implies(psi,phi) )
+    return land(implies(phi, psi), implies(psi, phi))
+
 
 def forall(*args):
     return _quantified(Quantifier.Forall, *args)
@@ -204,15 +206,15 @@ def _quantified(quantifier, *args):
     if len(args) < 2:
         raise err.LanguageError('Quantified formula needs at least two arguments')
 
-    if not isinstance(args[-1], Formula) :
+    if not isinstance(args[-1], Formula):
         raise err.LanguageError('Illformed arguments for quantified formula: {}'.format(args))
 
-    for x in args[:1] :
-        try :
-            lang = x.language
-        except AttributeError :
+    for x in args[:1]:
+        try:
+            _ = x.language
+        except AttributeError:
             raise err.LanguageError('Illformed arguments for quantified formula: {}'.format(args))
-        if not isinstance(x, Variable) :
+        if not isinstance(x, Variable):
             raise err.LanguageError('Illformed arguments for quantified formula: {}'.format(args))
 
     return QuantifiedFormula(quantifier, args[:-1], args[-1])
@@ -227,9 +229,9 @@ class Atom(Formula):
         self.subterms = arguments
         self._check_well_formed()
 
-    def __deepcopy__(self,memo):
+    def __deepcopy__(self, memo):
         # Dummy call to constructor
-        newone = type(self)( self.predicate,self.subterms)
+        newone = type(self)(self.predicate, self.subterms)
         memo[id(self)] = newone
         for k, v in self.__dict__.items():
             setattr(newone, k, copy.deepcopy(v, memo))
@@ -273,10 +275,12 @@ class Atom(Formula):
 #     def __init__(self, head, body):
 #         super().__init__()
 #         if not isinstance(head, Formula):
-#             raise err.LanguageError("The head of an axiomatic formulae can only be a Formula, was '{}'".format(type(head)))
+#             raise err.LanguageError("The head of an axiomatic formulae can only be a Formula, was '{}'".
+# format(type(head)))
 #         self._head = head
 #         if not isinstance(body, Formula):
-#             raise err.LanguageError("The body of an axiomatic formulae can only be a Formula, was '{}'".format(type(body)))
+#             raise err.LanguageError("The body of an axiomatic formulae can only be a Formula, was '{}'".
+# format(type(body)))
 #         self._body = body
 #
 #     def __str__(self):
@@ -304,6 +308,7 @@ class Atom(Formula):
 
 class VariableBinding(object):
     """ A VariableBinding contains a set of logical variables which are _bound_ in some formula or term """
+
     def __init__(self, variables=None):
         variables = variables or []
         # An (ordered) map between variable name and the variable itself:

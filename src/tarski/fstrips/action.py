@@ -18,7 +18,7 @@ class Action(object):
 
     def ident(self):
         params = ', '.join([str(o) for o in self.parameters])
-        return '{}({})'.format(self.name,params)
+        return '{}({})'.format(self.name, params)
 
     def __str__(self):
         tokens = ['action {}:'.format(self.name),

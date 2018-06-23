@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 from collections import defaultdict
 
-from tarski.syntax.predicate import Predicate
-
 from . import errors as err
 from .syntax import Function, Constant
+from .syntax.predicate import Predicate
 
 
 def _check_assignment(fun, point, value=None):
@@ -42,11 +41,9 @@ def _check_assignment(fun, point, value=None):
 
 
 class Model(object):
-    """
-        A First Order Language Model
-    """
+    """ A First Order Language Model """
 
-    def __init__(self, language, **kwargs):
+    def __init__(self, language):
         self.evaluator = None
         self.language = language
         self.function_extensions = dict()
@@ -83,7 +80,8 @@ class Model(object):
         #     elif isinstance(point, Constant):
         #         entry = frozenset([point.symbol])
         #     else :
-        #         raise err.LanguageError('Model.remove() : arguments of tuple to add for predicate needs to be a tuple of constants or a constant')
+        #         raise err.LanguageError('Model.remove() : arguments of tuple to add for predicate
+        #  needs to be a tuple of constants or a constant')
         self.predicate_extensions[predicate.signature].remove(entry)
 
     def value(self, fun: Function, point):
@@ -122,5 +120,5 @@ class ExtensionalFunctionDefinition(object):
         return self.data[point]
 
 
-class IntensionalFunctionDefinition(object):
-    pass
+# class IntensionalFunctionDefinition(object):
+#     pass

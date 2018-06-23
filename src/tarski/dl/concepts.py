@@ -1,19 +1,59 @@
 """
 
 """
+<<<<<<< HEAD
 
 from ..syntax import Predicate
 from ..utils.algorithms import transitive_closure
+=======
+from ..syntax import Predicate
+from ..utils.algorithms import transitive_closure
+from .errors import ArityDLMismatch
+
+
+class NullaryAtom(object):
+    ARITY = 0
+
+    def __init__(self, predicate):
+        assert isinstance(predicate, Predicate)
+        _check_arity("nullary atom", 0, predicate)
+        self.name = predicate.symbol
+        self.depth = 0
+        self.hash = hash((self.__class__, self.name))
+
+    def __hash__(self):
+        return self.hash
+
+    def __eq__(self, other):
+        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
+                self.name == other.name)
+
+    def __repr__(self):
+        return "{}".format(self.name)
+
+    __str__ = __repr__
+
+    def extension(self, cache, state, _):
+        return cache.nullary_value(self, state)
+>>>>>>> master
 
 
 class Concept(object):
     ARITY = 1
 
     def __init__(self, sort, depth):
+<<<<<<< HEAD
         self.sort = sort
         self.depth = depth
 
     def extension(self, cache, state, parameter_subst):
+=======
+        assert isinstance(sort, str)
+        self.sort = sort
+        self.depth = depth
+
+    def extension(self, cache, state, substitution):
+>>>>>>> master
         raise NotImplementedError()
 
     def flatten(self):
@@ -24,6 +64,10 @@ class Role(object):
     ARITY = 2
 
     def __init__(self, sort, depth):
+<<<<<<< HEAD
+=======
+        assert len(sort) == self.ARITY
+>>>>>>> master
         self.sort = sort
         self.depth = depth
 
@@ -34,6 +78,7 @@ class Role(object):
         raise NotImplementedError()
 
 
+<<<<<<< HEAD
 class Atom:
     def __init__(self, name):
         self.name = name
@@ -44,6 +89,8 @@ class Atom:
     __str__ = __repr__
 
 
+=======
+>>>>>>> master
 class UniversalConcept(Concept):
     def __init__(self, universal_sort):
         Concept.__init__(self, universal_sort, 0)
@@ -116,9 +163,17 @@ class SingletonConcept(Concept):
         return [self]
 
 
+<<<<<<< HEAD
 class BasicConcept(Concept):
     def __init__(self, predicate):
         assert isinstance(predicate, Predicate)
+=======
+class PrimitiveConcept(Concept):
+    def __init__(self, predicate):
+        assert isinstance(predicate, Predicate)
+        _check_arity("concept", 1, predicate)
+
+>>>>>>> master
         Concept.__init__(self, predicate.sort[0].name, 0)
         self.name = predicate.symbol  # This is a bit aggressive, but we assume that predicate names are unique
         self.hash = hash((self.__class__, self.name))
@@ -161,7 +216,11 @@ class NotConcept(Concept):
         return ~ext_c
 
     def __repr__(self):
+<<<<<<< HEAD
         return 'Not(%s)'.format(self.c)
+=======
+        return 'Not({})'.format(self.c)
+>>>>>>> master
 
     __str__ = __repr__
 
@@ -192,7 +251,11 @@ class AndConcept(Concept):
         return ext_c1 & ext_c2
 
     def __repr__(self):
+<<<<<<< HEAD
         return 'And(%s, %s)'.format(self.c1, self.c2)
+=======
+        return 'And({}, {})'.format(self.c1, self.c2)
+>>>>>>> master
 
     __str__ = __repr__
 
@@ -226,7 +289,11 @@ class ExistsConcept(Concept):
         return cache.compress(result, self.ARITY)
 
     def __repr__(self):
+<<<<<<< HEAD
         return 'Exists(%s,%s)'.format(self.r, self.c)
+=======
+        return 'Exists({},{})'.format(self.r, self.c)
+>>>>>>> master
 
     __str__ = __repr__
 
@@ -266,7 +333,11 @@ class ForallConcept(Concept):
         return cache.compress(result, self.ARITY)
 
     def __repr__(self):
+<<<<<<< HEAD
         return 'Forall(%s,%s)'.format(self.r, self.c)
+=======
+        return 'Forall({},{})'.format(self.r, self.c)
+>>>>>>> master
 
     __str__ = __repr__
 
@@ -307,7 +378,11 @@ class EqualConcept(Concept):
         return cache.compress(result, self.ARITY)
 
     def __repr__(self):
+<<<<<<< HEAD
         return 'Equal(%s,%s)'.format(self.r1, self.r2)
+=======
+        return 'Equal({},{})'.format(self.r1, self.r2)
+>>>>>>> master
 
     __str__ = __repr__
 
@@ -315,9 +390,17 @@ class EqualConcept(Concept):
         return [self] + self.r1.flatten() + self.r2.flatten()
 
 
+<<<<<<< HEAD
 class BasicRole(Role):
     def __init__(self, predicate):
         assert isinstance(predicate, Predicate)
+=======
+class PrimitiveRole(Role):
+    def __init__(self, predicate):
+        assert isinstance(predicate, Predicate)
+        _check_arity("role", 2, predicate)
+
+>>>>>>> master
         super().__init__([s.name for s in predicate.sort], 0)
         self.name = predicate.symbol
 
@@ -470,3 +553,12 @@ class RestrictRole(Role):
 
     def flatten(self):
         return [self] + self.r.flatten() + self.c.flatten()
+<<<<<<< HEAD
+=======
+
+
+def _check_arity(term, expected_arity, predicate):
+    if expected_arity != predicate.arity:
+        raise ArityDLMismatch('Cannot create {} from arity-{} predicate "{}"'
+                              .format(term, predicate.arity, predicate))
+>>>>>>> master

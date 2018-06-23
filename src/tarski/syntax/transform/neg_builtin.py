@@ -5,10 +5,8 @@
 """
 import copy
 
-from tarski.syntax.temporal import ltl
-from tarski.syntax.formulas import *
-from tarski.syntax.builtins import BuiltinPredicateSymbol, create_atom
-from . errors import TransformationError
+from ..formulas import Connective, Atom, QuantifiedFormula, CompoundFormula
+from ..builtins import create_atom
 
 
 class NegatedBuiltinAbsorption(object):
@@ -17,36 +15,35 @@ class NegatedBuiltinAbsorption(object):
         absorbing the negation if the negated formula is a built-in
     """
 
-    def __init__(self, lang, phi, do_copy = True):
+    def __init__(self, lang, phi, do_copy=True):
         self.lang = lang
         self.blueprint = None
-        if do_copy :
+        if do_copy:
             self.blueprint = copy.deepcopy(phi)
-        else :
+        else:
             self.blueprint = phi
         self.formula = None
 
-
     def _convert(self, phi):
         if isinstance(phi, CompoundFormula):
-            if phi.connective == Connective.Not :
-                P = phi.subformulas[0]
-                if isinstance(P,Atom):
-                    if P.predicate.builtin:
+            if phi.connective == Connective.Not:
+                p = phi.subformulas[0]
+                if isinstance(p, Atom):
+                    if p.predicate.builtin:
                         try:
-                            c = P.predicate.symbol.complement()
-                            return create_atom(self.lang, c, P.subterms[0],P.subterms[1])
-                        except (AttributeError, KeyError) as e:
+                            c = p.predicate.symbol.complement()
+                            return create_atom(self.lang, c, p.subterms[0], p.subterms[1])
+                        except (AttributeError, KeyError):
                             pass
                 return phi
 
-            else :
+            else:
                 assert phi.connective == Connective.And or phi.connective == Connective.Or
-                new_sub = [self._convert(phi.subformulas[0]),\
-                            self._convert(phi.subformulas[1])]
+                new_sub = [self._convert(phi.subformulas[0]),
+                           self._convert(phi.subformulas[1])]
                 phi.subformulas = tuple(new_sub)
                 return phi
-        elif isinstance(phi,QuantifiedFormula):
+        elif isinstance(phi, QuantifiedFormula):
             phi.formula = self._convert(phi.formula)
             return phi
         else:
@@ -56,7 +53,7 @@ class NegatedBuiltinAbsorption(object):
         self.formula = self._convert(self.blueprint)
 
     @staticmethod
-    def rewrite( lang, phi, do_copy = True):
-        trans =  NegatedBuiltinAbsorption(lang, phi, do_copy)
+    def rewrite(lang, phi, do_copy=True):
+        trans = NegatedBuiltinAbsorption(lang, phi, do_copy)
         trans.convert()
         return trans

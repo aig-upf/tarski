@@ -1,3 +1,4 @@
+""" Management of the theories (e.g. equality, etc.) associated to the FO languages """
 from enum import Enum
 
 from .fol import FirstOrderLanguage
@@ -8,6 +9,7 @@ from . import errors as err
 
 
 class Theory(Enum):
+    """ """
     EQUALITY = "equality"
     ARITHMETIC = "arithmetic"
 
@@ -19,11 +21,12 @@ def language(name='L', theories=None):
     """ Build a language with the given name and configure it with the given theories """
     theories = theories or []
     lang = FirstOrderLanguage(name)
-    [load_theory(lang, t) for t in theories]
+    _ = [load_theory(lang, t) for t in theories]
     return lang
 
 
 def load_theory(lang, theory):
+    """ """
     if lang.language_components_frozen:
         raise err.LanguageError("Cannot load theories once language elements have been defined")
 
@@ -54,6 +57,7 @@ def load_theory(lang, theory):
 
 
 def create_casting_handler(symbol, factory_method):
+    """ """
     def handler(lhs, rhs):
         lhs, rhs = cast_to_closest_common_ancestor(lhs, rhs)
         return factory_method(symbol, lhs, rhs)

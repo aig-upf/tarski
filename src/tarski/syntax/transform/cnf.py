@@ -1,16 +1,12 @@
 # -*- coding: utf-8 -*-
-
 """
     CNF Transformation
 """
-import copy
-import itertools
+from ..formulas import CompoundFormula, Connective, QuantifiedFormula
+from ..transform import NNFTransformation
 
-from tarski.syntax.temporal import ltl
-from tarski.syntax.formulas import *
-from tarski.syntax.transform import NNFTransformation
+from .errors import TransformationError
 
-from . errors import TransformationError
 
 class CNFTransformation(object):
     """
@@ -19,52 +15,47 @@ class CNFTransformation(object):
 
     """
 
-    def __init__(self, L, phi, do_copy = True):
-        self.L = L
-        self.blueprint = NNFTransformation.rewrite(phi,do_copy).nnf
+    def __init__(self, lang, phi, do_copy=True):
+        """ Distribute w.r.t. disjunction, see Huth & Ryan, pp. 60-62 """
+        self.L = lang
+        self.blueprint = NNFTransformation.rewrite(phi, do_copy).nnf
         self.cnf = None
         self.clauses = []
         self.current_clause = []
 
-    """
-        Distribute w.r.t. disjunction, see Huth & Ryan, pp. 60-62
-    """
     def distribute(self, n1, n2):
-        if isinstance(n1,CompoundFormula) and n1.connective == Connective.And:
+        if isinstance(n1, CompoundFormula) and n1.connective == Connective.And:
             lhs = self.distribute(n1.subformulas[0], n2)
             rhs = self.distribute(n1.subformulas[1], n2)
-            return CompoundFormula( Connective.And, (lhs,rhs) )
-        elif isinstance(n2,CompoundFormula) and n2.connective == Connective.And:
+            return CompoundFormula(Connective.And, (lhs, rhs))
+        elif isinstance(n2, CompoundFormula) and n2.connective == Connective.And:
             lhs = self.distribute(n1, n2.subformulas[0])
             rhs = self.distribute(n1, n2.subformulas[1])
-            return CompoundFormula( Connective.And, (lhs,rhs) )
+            return CompoundFormula(Connective.And, (lhs, rhs))
         else:
-            return CompoundFormula( Connective.Or, (n1, n2))
+            return CompoundFormula(Connective.Or, (n1, n2))
 
+    def _convert(self, phi):
 
-    def _convert(self, phi) :
-
-        if isinstance(phi,QuantifiedFormula):
+        if isinstance(phi, QuantifiedFormula):
             raise TransformationError("cnf transformation", phi, "Formula is not quantifier free!")
-        elif isinstance(phi,CompoundFormula):
+        elif isinstance(phi, CompoundFormula):
             if phi.connective == Connective.Not:
-                return phi # already CNF
+                return phi  # already CNF
             elif phi.connective == Connective.And:
-                lhs, rhs = self._convert(phi.subformulas[0]),\
-                           self._convert(phi.subformulas[1])
-                return CompoundFormula(Connective.And, (lhs,rhs))
+                lhs, rhs = self._convert(phi.subformulas[0]), self._convert(phi.subformulas[1])
+                return CompoundFormula(Connective.And, (lhs, rhs))
             else:
                 assert phi.connective == Connective.Or
-                lhs, rhs = self._convert(phi.subformulas[0]),\
-                           self._convert(phi.subformulas[1])
-                return self.distribute(lhs,rhs)
+                lhs, rhs = self._convert(phi.subformulas[0]), self._convert(phi.subformulas[1])
+                return self.distribute(lhs, rhs)
 
         return phi
 
-    def collect_clauses(self,phi):
-        if isinstance(phi,QuantifiedFormula):
+    def collect_clauses(self, phi):
+        if isinstance(phi, QuantifiedFormula):
             raise TransformationError("cnf transformation", phi, "Formula is not quantifier free!")
-        elif isinstance(phi,CompoundFormula):
+        elif isinstance(phi, CompoundFormula):
             if phi.connective == Connective.Not:
                 self.current_clause.append(phi)
                 return
@@ -88,7 +79,7 @@ class CNFTransformation(object):
         self.collect_clauses(self.cnf)
 
     @staticmethod
-    def rewrite(L, phi, do_copy = True):
-        trans = CNFTransformation(L, phi, do_copy)
+    def rewrite(lang, phi, do_copy=True):
+        trans = CNFTransformation(lang, phi, do_copy)
         trans.convert()
         return trans

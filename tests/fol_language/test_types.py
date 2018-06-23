@@ -93,5 +93,4 @@ def test_reals():
 def test_integer_subtypes():
     lang = tsk.fstrips.language()
     nats = lang.Natural
-
-    counter_t = lang.sort("counter", [nats])
+    _ = lang.sort("counter", [nats])

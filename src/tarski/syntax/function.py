@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import itertools
 
-from tarski import errors as err
+from .. import errors as err
 from .terms import CompoundTerm
 from .sorts import Sort
 
@@ -20,14 +20,14 @@ class Function(object):
 
         for k, a in enumerate(itertools.chain(self.domain, [self.codomain])):
             if not isinstance(a, Sort):
-                raise err.LanguageError("Function.__init__() : arguments need \
-                to be of type 'Sort', argument #i: '{}' is of type '{}''".format(k + 1, a, type(a)))
+                raise err.LanguageError("Function: argument #{} ('{}') is of type '{}' instead of Sort"
+                                        .format(k + 1, a, type(a)))
 
             if self.language != a.language:
                 raise err.LanguageMismatch(a, a.language, self.language)
 
-    def __deepcopy__(self,memo):
-        memo[id(self)]=self
+    def __deepcopy__(self, memo):
+        memo[id(self)] = self
         return self
 
     @property

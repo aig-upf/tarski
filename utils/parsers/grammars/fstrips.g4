@@ -473,6 +473,9 @@ REQUIRE_KEY
     | ':action-costs'
     ;
 
+/* NOTE: The order of the lexer rules matters, esp. when there might be overlapping
+ * See e.g. https://stackoverflow.com/q/29777778
+ */
 K_AND: A N D;
 K_NOT: N O T;
 K_OR:  O R;
@@ -488,8 +491,12 @@ K_DECREASE: D E C R E A S E;
 K_SCALEUP: 'scale-up';
 K_SCALEDOWN: 'scale-down';
 
-NAME:    LETTER ANY_CHAR* ;
+INT_T:    'int';
+FLOAT_T:  'float';
+OBJECT_T: 'object';
+NUMBER_T: 'number';
 
+NAME:    LETTER ANY_CHAR* ;
 EXTNAME: '@' LETTER ANY_CHAR* ;
 
 
@@ -524,10 +531,6 @@ K_INIT: ':' I N I T;
 K_PRECONDITION: ':' P R E C O N D I T I O N;
 K_EFFECT : ':' E F F E C T;
 
-INT_T:    'int';
-FLOAT_T:  'float';
-OBJECT_T: 'object';
-NUMBER_T: 'number';
 
 // Case-insensitive lexing, see e.g. https://github.com/antlr/antlr4/blob/master/doc/case-insensitive-lexing.md
 fragment A : [aA];

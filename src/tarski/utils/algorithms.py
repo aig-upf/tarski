@@ -26,7 +26,8 @@ def compute_min_distance(c1s, relation, c2s):
 
     # index the adjacency relation
     adjacencies = defaultdict(list)
-    [adjacencies[s].append(t) for s, t in relation]
+    for s, t in relation:
+        adjacencies[s].append(t)
 
     # initialize table of distances
     min_distances = defaultdict(lambda: sys.maxsize)

@@ -1,4 +1,3 @@
-
 import operator
 
 from ..syntax import ops, Connective, Atom, Formula, CompoundFormula, QuantifiedFormula, builtins, Variable, \
@@ -29,7 +28,7 @@ def evaluate(element, m: Model, sigma=None):
     if isinstance(element, (Constant, CompoundTerm)):
         return evaluate_term(element, m, sigma)
 
-    raise RuntimeError("Unknown logical element type: {}, {}".format(element,type(element)))
+    raise RuntimeError("Unknown logical element type: {}, {}".format(element, type(element)))
 
 
 _compound_evaluators = {
@@ -49,6 +48,7 @@ def evaluate_atom(atom: Atom, m: Model, sigma):
 
 
 def evaluate_quantified(formula: Formula, m: Model, sigma):
+    # pylint: disable=unused-argument
     raise NotImplementedError()
 
 

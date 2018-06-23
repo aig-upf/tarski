@@ -1,6 +1,5 @@
 
 import pytest
-from tarski.io import FstripsReader
 from tarski.io._fstrips.reader import ParsingError
 from tarski.theories import Theory
 

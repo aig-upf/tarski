@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
-from . action import Action
+from .action import Action
 from . import errors as err
+
 
 class Problem(object):
     """ A Functional STRIPS problem """
@@ -20,7 +21,7 @@ class Problem(object):
 
     def action(self, name, parameters, precondition, effects):
         if name in self.actions:
-            raise DuplicateActionDefinition(name, self.actions[name])
+            raise err.DuplicateActionDefinition(name, self.actions[name])
 
         self.actions[name] = Action(self.language, name, parameters, precondition, effects)
         return self.actions[name]
@@ -30,7 +31,7 @@ class Problem(object):
 
     def get_action(self, name):
         if not self.has_action(name):
-            raise UndefinedAction(name)
+            raise err.UndefinedAction(name)
         return self.actions[name]
 
     def __str__(self):

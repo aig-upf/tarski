@@ -1,15 +1,11 @@
 # -*- coding: utf-8 -*-
-from collections import OrderedDict
-
-from tarski import theories as tsk_theories
-from tarski.theories import Theory
-
+from .. import theories as tsk_theories
 from ..syntax import Tautology, Term
 
-from ..errors import DuplicateActionDefinition, UndefinedAction
 
 class UniversalEffect(object):
     """ A forall-effect """
+
     def __init__(self, variables, effects):
         self.variables = variables
         self.effects = effects
@@ -60,6 +56,7 @@ class FunctionalEffect(SingleEffect):
     def tostring(self):
         return "{} := {}".format(self.lhs, self.rhs)
 
+
 class LogicalEffect(SingleEffect):
     def __init__(self, phi, condition=Tautology()):
         super().__init__(condition)
@@ -67,6 +64,7 @@ class LogicalEffect(SingleEffect):
 
     def tostring(self):
         return "{}".format(self.formula)
+
 
 class OptimizationMetric(object):
     def __init__(self, opt_expression, opt_type):
@@ -79,7 +77,7 @@ def language(name="L", theories=None):
         This is a standard FOL with a few convenient add-ons.
     """
     # By default, when defining a FSTRIPS problem we use a FOL with equality
-    theories = theories or [Theory.EQUALITY]
+    theories = theories or [tsk_theories.Theory.EQUALITY]
     lang = tsk_theories.language(name, theories)
     lang.register_operator_handler("<<", Term, Term, lambda lhs, rhs: FunctionalEffect(lhs, rhs))
     lang.register_operator_handler(">>", Term, Term, lambda lhs, rhs: FunctionalEffect(rhs, lhs))  # Inverted
