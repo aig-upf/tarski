@@ -96,6 +96,8 @@ def evaluate_builtin_function(term, model, sigma):
         bif.SUB: lambda f, m, s: _arithmetic_evaluator(operator.sub, f.subterms[0], f.subterms[1], model, sigma),
         bif.MUL: lambda f, m, s: _arithmetic_evaluator(operator.mul, f.subterms[0], f.subterms[1], model, sigma),
         bif.DIV: lambda f, m, s: _arithmetic_evaluator(operator.truediv, f.subterms[0], f.subterms[1], model, sigma),
+        bif.POW: lambda f, m, s: _arithmetic_evaluator(operator.pow, f.subterms[0], f.subterms[1], model, sigma),
+        bif.MOD: lambda f, m, s: _arithmetic_evaluator(operator.mod, f.subterms[0], f.subterms[1], model, sigma),
     }
 
     return _evaluators[term.symbol.symbol](term, model, sigma)

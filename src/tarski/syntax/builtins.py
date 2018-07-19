@@ -25,6 +25,9 @@ class BuiltinFunctionSymbol(Enum):
     SUB = "-"
     MUL = "*"
     DIV = "/"
+    POW = "**"
+    MOD = "%"
+
 
     # ...
 
@@ -61,7 +64,11 @@ def get_arithmetic_predicates():
 
 
 def get_arithmetic_functions():
-    return [BuiltinFunctionSymbol.ADD, BuiltinFunctionSymbol.SUB, BuiltinFunctionSymbol.MUL, BuiltinFunctionSymbol.DIV]
+    return [BuiltinFunctionSymbol.ADD, BuiltinFunctionSymbol.SUB, BuiltinFunctionSymbol.MUL, BuiltinFunctionSymbol.DIV,\
+            BuiltinFunctionSymbol.POW, BuiltinFunctionSymbol.MOD]
+
+def get_special_functions():
+    return []
 
 
 def get_predicate_from_symbol(symbol: str):
