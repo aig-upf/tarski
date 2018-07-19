@@ -69,6 +69,12 @@ class Term(object):
     def __truediv__(self, rhs):
         return self.language.dispatch_operator(BuiltinFunctionSymbol.DIV, Term, Term, self, rhs)
 
+    def __pow__(self, rhs):
+        return self.language.dispatch_operator(BuiltinFunctionSymbol.POW, Term, Term, self, rhs)
+
+    def __mod__(self, rhs):
+        return self.language.dispatch_operator(BuiltinFunctionSymbol.MOD, Term, Term, self, rhs)
+
     # TODO - THE OPERATORS BELOW PROBABLY NEED TO BE REFACTORED
     def __matmul__(self, rhs):
         return self.language.dispatch_operator('@', Term, Term, self, rhs)
@@ -82,8 +88,6 @@ class Term(object):
     def __divmod__(self, rhs):
         return self.language.dispatch_operator('divmod', Term, Term, self, rhs)
 
-    def __pow__(self, rhs):
-        return self.language.dispatch_operator('**', Term, Term, self, rhs)
 
     def __and__(self, rhs):
         return self.language.dispatch_operator('&', Term, Term, self, rhs)
