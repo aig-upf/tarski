@@ -1,13 +1,19 @@
-# Generated from /home/frances/projects/code/tarski/utils/parsers/grammars/fstrips.g4 by ANTLR 4.7.1
+# Generated from java-escape by ANTLR 4.5
 # encoding: utf-8
 from antlr4 import *
 from io import StringIO
-from typing.io import TextIO
-import sys
+package = globals().get("__package__", None)
+ischild = len(package)>0 if package is not None else False
+if ischild:
+    from .listener import fstripsListener
+    from .visitor import fstripsVisitor
+else:
+    from listener import fstripsListener
+    from visitor import fstripsVisitor
 
 def serializedATN():
     with StringIO() as buf:
-        buf.write("\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\u008c")
+        buf.write("\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\u008c")
         buf.write("\u0349\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7")
         buf.write("\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t\13\4\f\t\f\4\r\t\r\4\16")
         buf.write("\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22\4\23\t\23")
@@ -81,46 +87,46 @@ def serializedATN():
         buf.write("\30\32\34\36 \"$&(*,.\60\62\64\668:<>@BDFHJLNPRTVXZ\\")
         buf.write("^`bdfhjlnprtvxz|~\u0080\u0082\u0084\u0086\u0088\u008a")
         buf.write("\2\b\3\2UV\5\2\t\t\24\24\26\32\4\2\t\t\33#\3\2$(\3\2M")
-        buf.write("P\3\2\64\65\2\u0364\2\u008e\3\2\2\2\4\u0090\3\2\2\2\6")
-        buf.write("\u00aa\3\2\2\2\b\u00af\3\2\2\2\n\u00b8\3\2\2\2\f\u00c0")
-        buf.write("\3\2\2\2\16\u00c4\3\2\2\2\20\u00d7\3\2\2\2\22\u00da\3")
-        buf.write("\2\2\2\24\u00f2\3\2\2\2\26\u00f5\3\2\2\2\30\u0106\3\2")
-        buf.write("\2\2\32\u010a\3\2\2\2\34\u010c\3\2\2\2\36\u0118\3\2\2")
-        buf.write("\2 \u011a\3\2\2\2\"\u0121\3\2\2\2$\u0126\3\2\2\2&\u0128")
-        buf.write("\3\2\2\2(\u012d\3\2\2\2*\u0137\3\2\2\2,\u013c\3\2\2\2")
-        buf.write(".\u013e\3\2\2\2\60\u0144\3\2\2\2\62\u0146\3\2\2\2\64\u0150")
-        buf.write("\3\2\2\2\66\u015b\3\2\2\28\u0165\3\2\2\2:\u0167\3\2\2")
-        buf.write("\2<\u0169\3\2\2\2>\u016b\3\2\2\2@\u0173\3\2\2\2B\u01a9")
-        buf.write("\3\2\2\2D\u01ab\3\2\2\2F\u01ba\3\2\2\2H\u01d1\3\2\2\2")
-        buf.write("J\u01d3\3\2\2\2L\u01e8\3\2\2\2N\u01ef\3\2\2\2P\u01f5\3")
-        buf.write("\2\2\2R\u01fb\3\2\2\2T\u0207\3\2\2\2V\u0226\3\2\2\2X\u023a")
-        buf.write("\3\2\2\2Z\u023c\3\2\2\2\\\u023e\3\2\2\2^\u0240\3\2\2\2")
-        buf.write("`\u0242\3\2\2\2b\u0244\3\2\2\2d\u025b\3\2\2\2f\u025d\3")
-        buf.write("\2\2\2h\u0262\3\2\2\2j\u0267\3\2\2\2l\u026c\3\2\2\2n\u0275")
-        buf.write("\3\2\2\2p\u0280\3\2\2\2r\u0296\3\2\2\2t\u0298\3\2\2\2")
-        buf.write("v\u02a2\3\2\2\2x\u02ae\3\2\2\2z\u02b0\3\2\2\2|\u02b5\3")
-        buf.write("\2\2\2~\u02d8\3\2\2\2\u0080\u02da\3\2\2\2\u0082\u02e0")
-        buf.write("\3\2\2\2\u0084\u02ee\3\2\2\2\u0086\u02f0\3\2\2\2\u0088")
-        buf.write("\u02f5\3\2\2\2\u008a\u0346\3\2\2\2\u008c\u008f\5\4\3\2")
-        buf.write("\u008d\u008f\5b\62\2\u008e\u008c\3\2\2\2\u008e\u008d\3")
-        buf.write("\2\2\2\u008f\3\3\2\2\2\u0090\u0091\7\3\2\2\u0091\u0092")
-        buf.write("\7\4\2\2\u0092\u0094\5\6\4\2\u0093\u0095\5\b\5\2\u0094")
-        buf.write("\u0093\3\2\2\2\u0094\u0095\3\2\2\2\u0095\u0097\3\2\2\2")
-        buf.write("\u0096\u0098\5\n\6\2\u0097\u0096\3\2\2\2\u0097\u0098\3")
-        buf.write("\2\2\2\u0098\u009a\3\2\2\2\u0099\u009b\5&\24\2\u009a\u0099")
-        buf.write("\3\2\2\2\u009a\u009b\3\2\2\2\u009b\u009d\3\2\2\2\u009c")
-        buf.write("\u009e\5(\25\2\u009d\u009c\3\2\2\2\u009d\u009e\3\2\2\2")
-        buf.write("\u009e\u00a0\3\2\2\2\u009f\u00a1\5\34\17\2\u00a0\u009f")
-        buf.write("\3\2\2\2\u00a0\u00a1\3\2\2\2\u00a1\u00a5\3\2\2\2\u00a2")
-        buf.write("\u00a4\5\60\31\2\u00a3\u00a2\3\2\2\2\u00a4\u00a7\3\2\2")
-        buf.write("\2\u00a5\u00a3\3\2\2\2\u00a5\u00a6\3\2\2\2\u00a6\u00a8")
-        buf.write("\3\2\2\2\u00a7\u00a5\3\2\2\2\u00a8\u00a9\7\5\2\2\u00a9")
-        buf.write("\5\3\2\2\2\u00aa\u00ab\7\3\2\2\u00ab\u00ac\7\6\2\2\u00ac")
-        buf.write("\u00ad\7U\2\2\u00ad\u00ae\7\5\2\2\u00ae\7\3\2\2\2\u00af")
-        buf.write("\u00b0\7\3\2\2\u00b0\u00b2\7\7\2\2\u00b1\u00b3\7D\2\2")
-        buf.write("\u00b2\u00b1\3\2\2\2\u00b3\u00b4\3\2\2\2\u00b4\u00b2\3")
-        buf.write("\2\2\2\u00b4\u00b5\3\2\2\2\u00b5\u00b6\3\2\2\2\u00b6\u00b7")
-        buf.write("\7\5\2\2\u00b7\t\3\2\2\2\u00b8\u00b9\7\3\2\2\u00b9\u00ba")
+        buf.write("P\3\2\64\65\u0364\2\u008e\3\2\2\2\4\u0090\3\2\2\2\6\u00aa")
+        buf.write("\3\2\2\2\b\u00af\3\2\2\2\n\u00b8\3\2\2\2\f\u00c0\3\2\2")
+        buf.write("\2\16\u00c4\3\2\2\2\20\u00d7\3\2\2\2\22\u00da\3\2\2\2")
+        buf.write("\24\u00f2\3\2\2\2\26\u00f5\3\2\2\2\30\u0106\3\2\2\2\32")
+        buf.write("\u010a\3\2\2\2\34\u010c\3\2\2\2\36\u0118\3\2\2\2 \u011a")
+        buf.write("\3\2\2\2\"\u0121\3\2\2\2$\u0126\3\2\2\2&\u0128\3\2\2\2")
+        buf.write("(\u012d\3\2\2\2*\u0137\3\2\2\2,\u013c\3\2\2\2.\u013e\3")
+        buf.write("\2\2\2\60\u0144\3\2\2\2\62\u0146\3\2\2\2\64\u0150\3\2")
+        buf.write("\2\2\66\u015b\3\2\2\28\u0165\3\2\2\2:\u0167\3\2\2\2<\u0169")
+        buf.write("\3\2\2\2>\u016b\3\2\2\2@\u0173\3\2\2\2B\u01a9\3\2\2\2")
+        buf.write("D\u01ab\3\2\2\2F\u01ba\3\2\2\2H\u01d1\3\2\2\2J\u01d3\3")
+        buf.write("\2\2\2L\u01e8\3\2\2\2N\u01ef\3\2\2\2P\u01f5\3\2\2\2R\u01fb")
+        buf.write("\3\2\2\2T\u0207\3\2\2\2V\u0226\3\2\2\2X\u023a\3\2\2\2")
+        buf.write("Z\u023c\3\2\2\2\\\u023e\3\2\2\2^\u0240\3\2\2\2`\u0242")
+        buf.write("\3\2\2\2b\u0244\3\2\2\2d\u025b\3\2\2\2f\u025d\3\2\2\2")
+        buf.write("h\u0262\3\2\2\2j\u0267\3\2\2\2l\u026c\3\2\2\2n\u0275\3")
+        buf.write("\2\2\2p\u0280\3\2\2\2r\u0296\3\2\2\2t\u0298\3\2\2\2v\u02a2")
+        buf.write("\3\2\2\2x\u02ae\3\2\2\2z\u02b0\3\2\2\2|\u02b5\3\2\2\2")
+        buf.write("~\u02d8\3\2\2\2\u0080\u02da\3\2\2\2\u0082\u02e0\3\2\2")
+        buf.write("\2\u0084\u02ee\3\2\2\2\u0086\u02f0\3\2\2\2\u0088\u02f5")
+        buf.write("\3\2\2\2\u008a\u0346\3\2\2\2\u008c\u008f\5\4\3\2\u008d")
+        buf.write("\u008f\5b\62\2\u008e\u008c\3\2\2\2\u008e\u008d\3\2\2\2")
+        buf.write("\u008f\3\3\2\2\2\u0090\u0091\7\3\2\2\u0091\u0092\7\4\2")
+        buf.write("\2\u0092\u0094\5\6\4\2\u0093\u0095\5\b\5\2\u0094\u0093")
+        buf.write("\3\2\2\2\u0094\u0095\3\2\2\2\u0095\u0097\3\2\2\2\u0096")
+        buf.write("\u0098\5\n\6\2\u0097\u0096\3\2\2\2\u0097\u0098\3\2\2\2")
+        buf.write("\u0098\u009a\3\2\2\2\u0099\u009b\5&\24\2\u009a\u0099\3")
+        buf.write("\2\2\2\u009a\u009b\3\2\2\2\u009b\u009d\3\2\2\2\u009c\u009e")
+        buf.write("\5(\25\2\u009d\u009c\3\2\2\2\u009d\u009e\3\2\2\2\u009e")
+        buf.write("\u00a0\3\2\2\2\u009f\u00a1\5\34\17\2\u00a0\u009f\3\2\2")
+        buf.write("\2\u00a0\u00a1\3\2\2\2\u00a1\u00a5\3\2\2\2\u00a2\u00a4")
+        buf.write("\5\60\31\2\u00a3\u00a2\3\2\2\2\u00a4\u00a7\3\2\2\2\u00a5")
+        buf.write("\u00a3\3\2\2\2\u00a5\u00a6\3\2\2\2\u00a6\u00a8\3\2\2\2")
+        buf.write("\u00a7\u00a5\3\2\2\2\u00a8\u00a9\7\5\2\2\u00a9\5\3\2\2")
+        buf.write("\2\u00aa\u00ab\7\3\2\2\u00ab\u00ac\7\6\2\2\u00ac\u00ad")
+        buf.write("\7U\2\2\u00ad\u00ae\7\5\2\2\u00ae\7\3\2\2\2\u00af\u00b0")
+        buf.write("\7\3\2\2\u00b0\u00b2\7\7\2\2\u00b1\u00b3\7D\2\2\u00b2")
+        buf.write("\u00b1\3\2\2\2\u00b3\u00b4\3\2\2\2\u00b4\u00b2\3\2\2\2")
+        buf.write("\u00b4\u00b5\3\2\2\2\u00b5\u00b6\3\2\2\2\u00b6\u00b7\7")
+        buf.write("\5\2\2\u00b7\t\3\2\2\2\u00b8\u00b9\7\3\2\2\u00b9\u00ba")
         buf.write("\7\b\2\2\u00ba\u00bb\5\20\t\2\u00bb\u00bc\7\5\2\2\u00bc")
         buf.write("\13\3\2\2\2\u00bd\u00c1\7Q\2\2\u00be\u00c1\7R\2\2\u00bf")
         buf.write("\u00c1\7T\2\2\u00c0\u00bd\3\2\2\2\u00c0\u00be\3\2\2\2")
@@ -398,7 +404,7 @@ def serializedATN():
 
 class fstripsParser ( Parser ):
 
-    grammarFileName = "fstrips.g4"
+    grammarFileName = "java-escape"
 
     atn = ATNDeserializer().deserialize(serializedATN())
 
@@ -406,59 +412,62 @@ class fstripsParser ( Parser ):
 
     sharedContextCache = PredictionContextCache()
 
-    literalNames = [ "<INVALID>", "'('", "'define'", "')'", "'domain'", 
-                     "':requirements'", "':types'", "'-'", "'either'", "':functions'", 
-                     "':constants'", "':predicates'", "':parameters'", "':constraint'", 
-                     "':condition'", "':event'", "'#t'", "':derived'", "'*'", 
-                     "'assign'", "'+'", "'/'", "'^'", "'max'", "'min'", 
-                     "'sin'", "'cos'", "'sqrt'", "'tan'", "'acos'", "'asin'", 
-                     "'atan'", "'exp'", "'abs'", "'>'", "'<'", "'='", "'>='", 
-                     "'<='", "'problem'", "':domain'", "':objects'", "':bounds'", 
-                     "'['", "'..'", "']'", "':goal'", "':constraints'", 
-                     "'preference'", "':metric'", "'minimize'", "'maximize'", 
-                     "'(total-time)'", "'is-violated'", "':terminal'", "':stage'", 
-                     "'at-end'", "'always'", "'sometime'", "'within'", "'at-most-once'", 
-                     "'sometime-after'", "'sometime-before'", "'always-within'", 
-                     "'hold-during'", "'hold-after'", "<INVALID>", "<INVALID>", 
-                     "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                     "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                     "<INVALID>", "'scale-up'", "'scale-down'", "'int'", 
-                     "'float'", "'object'", "'number'" ]
+    literalNames = [ u"<INVALID>", u"'('", u"'define'", u"')'", u"'domain'", 
+                     u"':requirements'", u"':types'", u"'-'", u"'either'", 
+                     u"':functions'", u"':constants'", u"':predicates'", 
+                     u"':parameters'", u"':constraint'", u"':condition'", 
+                     u"':event'", u"'#t'", u"':derived'", u"'*'", u"'assign'", 
+                     u"'+'", u"'/'", u"'^'", u"'max'", u"'min'", u"'sin'", 
+                     u"'cos'", u"'sqrt'", u"'tan'", u"'acos'", u"'asin'", 
+                     u"'atan'", u"'exp'", u"'abs'", u"'>'", u"'<'", u"'='", 
+                     u"'>='", u"'<='", u"'problem'", u"':domain'", u"':objects'", 
+                     u"':bounds'", u"'['", u"'..'", u"']'", u"':goal'", 
+                     u"':constraints'", u"'preference'", u"':metric'", u"'minimize'", 
+                     u"'maximize'", u"'(total-time)'", u"'is-violated'", 
+                     u"':terminal'", u"':stage'", u"'at-end'", u"'always'", 
+                     u"'sometime'", u"'within'", u"'at-most-once'", u"'sometime-after'", 
+                     u"'sometime-before'", u"'always-within'", u"'hold-during'", 
+                     u"'hold-after'", u"<INVALID>", u"<INVALID>", u"<INVALID>", 
+                     u"<INVALID>", u"<INVALID>", u"<INVALID>", u"<INVALID>", 
+                     u"<INVALID>", u"<INVALID>", u"<INVALID>", u"<INVALID>", 
+                     u"'scale-up'", u"'scale-down'", u"'int'", u"'float'", 
+                     u"'object'", u"'number'" ]
 
-    symbolicNames = [ "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "<INVALID>", "REQUIRE_KEY", "K_AND", 
-                      "K_NOT", "K_OR", "K_IMPLY", "K_EXISTS", "K_FORALL", 
-                      "K_WHEN", "K_ACTION", "K_INCREASE", "K_DECREASE", 
-                      "K_SCALEUP", "K_SCALEDOWN", "INT_T", "FLOAT_T", "OBJECT_T", 
-                      "NUMBER_T", "NAME", "EXTNAME", "VARIABLE", "NUMBER", 
-                      "LINE_COMMENT", "WHITESPACE", "K_INIT", "K_PRECONDITION", 
-                      "K_EFFECT", "DOMAIN", "DOMAIN_NAME", "REQUIREMENTS", 
-                      "TYPES", "EITHER_TYPE", "CONSTANTS", "FUNCTIONS", 
-                      "FREE_FUNCTIONS", "PREDICATES", "ACTION", "CONSTRAINT", 
-                      "EVENT", "GLOBAL_CONSTRAINT", "DURATIVE_ACTION", "PROBLEM", 
-                      "PROBLEM_NAME", "PROBLEM_DOMAIN", "OBJECTS", "INIT", 
-                      "FUNC_HEAD", "PRECONDITION", "EFFECT", "AND_GD", "OR_GD", 
-                      "NOT_GD", "IMPLY_GD", "EXISTS_GD", "FORALL_GD", "COMPARISON_GD", 
-                      "AND_EFFECT", "FORALL_EFFECT", "WHEN_EFFECT", "ASSIGN_EFFECT", 
-                      "NOT_EFFECT", "PRED_HEAD", "GOAL", "BINARY_OP", "EQUALITY_CON", 
-                      "MULTI_OP", "MINUS_OP", "UNARY_MINUS", "INIT_EQ", 
-                      "INIT_AT", "NOT_PRED_INIT", "PRED_INST", "PROBLEM_CONSTRAINT", 
-                      "PROBLEM_METRIC" ]
+    symbolicNames = [ u"<INVALID>", u"<INVALID>", u"<INVALID>", u"<INVALID>", 
+                      u"<INVALID>", u"<INVALID>", u"<INVALID>", u"<INVALID>", 
+                      u"<INVALID>", u"<INVALID>", u"<INVALID>", u"<INVALID>", 
+                      u"<INVALID>", u"<INVALID>", u"<INVALID>", u"<INVALID>", 
+                      u"<INVALID>", u"<INVALID>", u"<INVALID>", u"<INVALID>", 
+                      u"<INVALID>", u"<INVALID>", u"<INVALID>", u"<INVALID>", 
+                      u"<INVALID>", u"<INVALID>", u"<INVALID>", u"<INVALID>", 
+                      u"<INVALID>", u"<INVALID>", u"<INVALID>", u"<INVALID>", 
+                      u"<INVALID>", u"<INVALID>", u"<INVALID>", u"<INVALID>", 
+                      u"<INVALID>", u"<INVALID>", u"<INVALID>", u"<INVALID>", 
+                      u"<INVALID>", u"<INVALID>", u"<INVALID>", u"<INVALID>", 
+                      u"<INVALID>", u"<INVALID>", u"<INVALID>", u"<INVALID>", 
+                      u"<INVALID>", u"<INVALID>", u"<INVALID>", u"<INVALID>", 
+                      u"<INVALID>", u"<INVALID>", u"<INVALID>", u"<INVALID>", 
+                      u"<INVALID>", u"<INVALID>", u"<INVALID>", u"<INVALID>", 
+                      u"<INVALID>", u"<INVALID>", u"<INVALID>", u"<INVALID>", 
+                      u"<INVALID>", u"<INVALID>", u"REQUIRE_KEY", u"K_AND", 
+                      u"K_NOT", u"K_OR", u"K_IMPLY", u"K_EXISTS", u"K_FORALL", 
+                      u"K_WHEN", u"K_ACTION", u"K_INCREASE", u"K_DECREASE", 
+                      u"K_SCALEUP", u"K_SCALEDOWN", u"INT_T", u"FLOAT_T", 
+                      u"OBJECT_T", u"NUMBER_T", u"NAME", u"EXTNAME", u"VARIABLE", 
+                      u"NUMBER", u"LINE_COMMENT", u"WHITESPACE", u"K_INIT", 
+                      u"K_PRECONDITION", u"K_EFFECT", u"DOMAIN", u"DOMAIN_NAME", 
+                      u"REQUIREMENTS", u"TYPES", u"EITHER_TYPE", u"CONSTANTS", 
+                      u"FUNCTIONS", u"FREE_FUNCTIONS", u"PREDICATES", u"ACTION", 
+                      u"CONSTRAINT", u"EVENT", u"GLOBAL_CONSTRAINT", u"DURATIVE_ACTION", 
+                      u"PROBLEM", u"PROBLEM_NAME", u"PROBLEM_DOMAIN", u"OBJECTS", 
+                      u"INIT", u"FUNC_HEAD", u"PRECONDITION", u"EFFECT", 
+                      u"AND_GD", u"OR_GD", u"NOT_GD", u"IMPLY_GD", u"EXISTS_GD", 
+                      u"FORALL_GD", u"COMPARISON_GD", u"AND_EFFECT", u"FORALL_EFFECT", 
+                      u"WHEN_EFFECT", u"ASSIGN_EFFECT", u"NOT_EFFECT", u"PRED_HEAD", 
+                      u"GOAL", u"BINARY_OP", u"EQUALITY_CON", u"MULTI_OP", 
+                      u"MINUS_OP", u"UNARY_MINUS", u"INIT_EQ", u"INIT_AT", 
+                      u"NOT_PRED_INIT", u"PRED_INST", u"PROBLEM_CONSTRAINT", 
+                      u"PROBLEM_METRIC" ]
 
     RULE_pddlDoc = 0
     RULE_domain = 1
@@ -691,9 +700,9 @@ class fstripsParser ( Parser ):
     PROBLEM_CONSTRAINT=137
     PROBLEM_METRIC=138
 
-    def __init__(self, input:TokenStream, output:TextIO = sys.stdout):
-        super().__init__(input, output)
-        self.checkVersion("4.7.1")
+    def __init__(self, input:TokenStream):
+        super().__init__(input)
+        self.checkVersion("4.5")
         self._interp = ParserATNSimulator(self, self.atn, self.decisionsToDFA, self.sharedContextCache)
         self._predicates = None
 
@@ -717,15 +726,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_pddlDoc
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterPddlDoc" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterPddlDoc(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitPddlDoc" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitPddlDoc(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitPddlDoc" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitPddlDoc(self)
             else:
                 return visitor.visitChildren(self)
@@ -739,7 +748,6 @@ class fstripsParser ( Parser ):
         self.enterRule(localctx, 0, self.RULE_pddlDoc)
         try:
             self.state = 140
-            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,0,self._ctx)
             if la_ == 1:
                 self.enterOuterAlt(localctx, 1)
@@ -803,15 +811,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_domain
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterDomain" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterDomain(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitDomain" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitDomain(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitDomain" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitDomain(self)
             else:
                 return visitor.visitChildren(self)
@@ -833,7 +841,6 @@ class fstripsParser ( Parser ):
             self.state = 144
             self.domainName()
             self.state = 146
-            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,1,self._ctx)
             if la_ == 1:
                 self.state = 145
@@ -841,7 +848,6 @@ class fstripsParser ( Parser ):
 
 
             self.state = 149
-            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,2,self._ctx)
             if la_ == 1:
                 self.state = 148
@@ -849,7 +855,6 @@ class fstripsParser ( Parser ):
 
 
             self.state = 152
-            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,3,self._ctx)
             if la_ == 1:
                 self.state = 151
@@ -857,7 +862,6 @@ class fstripsParser ( Parser ):
 
 
             self.state = 155
-            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,4,self._ctx)
             if la_ == 1:
                 self.state = 154
@@ -865,7 +869,6 @@ class fstripsParser ( Parser ):
 
 
             self.state = 158
-            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,5,self._ctx)
             if la_ == 1:
                 self.state = 157
@@ -905,15 +908,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_domainName
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterDomainName" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterDomainName(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitDomainName" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitDomainName(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitDomainName" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitDomainName(self)
             else:
                 return visitor.visitChildren(self)
@@ -959,15 +962,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_requireDef
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterRequireDef" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterRequireDef(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitRequireDef" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitRequireDef(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitRequireDef" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitRequireDef(self)
             else:
                 return visitor.visitChildren(self)
@@ -1022,15 +1025,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_declaration_of_types
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterDeclaration_of_types" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterDeclaration_of_types(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitDeclaration_of_types" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitDeclaration_of_types(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitDeclaration_of_types" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitDeclaration_of_types(self)
             else:
                 return visitor.visitChildren(self)
@@ -1078,7 +1081,7 @@ class fstripsParser ( Parser ):
 
     class IntegerContext(NumericBuiltinTypeContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.NumericBuiltinTypeContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.NumericBuiltinTypeContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -1086,15 +1089,15 @@ class fstripsParser ( Parser ):
             return self.getToken(fstripsParser.INT_T, 0)
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterInteger" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterInteger(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitInteger" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitInteger(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitInteger" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitInteger(self)
             else:
                 return visitor.visitChildren(self)
@@ -1102,7 +1105,7 @@ class fstripsParser ( Parser ):
 
     class FloatContext(NumericBuiltinTypeContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.NumericBuiltinTypeContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.NumericBuiltinTypeContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -1110,15 +1113,15 @@ class fstripsParser ( Parser ):
             return self.getToken(fstripsParser.FLOAT_T, 0)
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterFloat" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterFloat(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitFloat" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitFloat(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitFloat" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitFloat(self)
             else:
                 return visitor.visitChildren(self)
@@ -1126,7 +1129,7 @@ class fstripsParser ( Parser ):
 
     class NumberContext(NumericBuiltinTypeContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.NumericBuiltinTypeContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.NumericBuiltinTypeContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -1134,15 +1137,15 @@ class fstripsParser ( Parser ):
             return self.getToken(fstripsParser.NUMBER_T, 0)
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterNumber" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterNumber(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitNumber" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitNumber(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitNumber" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitNumber(self)
             else:
                 return visitor.visitChildren(self)
@@ -1155,26 +1158,25 @@ class fstripsParser ( Parser ):
         self.enterRule(localctx, 10, self.RULE_numericBuiltinType)
         try:
             self.state = 190
-            self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [fstripsParser.INT_T]:
                 localctx = fstripsParser.IntegerContext(self, localctx)
                 self.enterOuterAlt(localctx, 1)
                 self.state = 187
                 self.match(fstripsParser.INT_T)
-                pass
+
             elif token in [fstripsParser.FLOAT_T]:
                 localctx = fstripsParser.FloatContext(self, localctx)
                 self.enterOuterAlt(localctx, 2)
                 self.state = 188
                 self.match(fstripsParser.FLOAT_T)
-                pass
+
             elif token in [fstripsParser.NUMBER_T]:
                 localctx = fstripsParser.NumberContext(self, localctx)
                 self.enterOuterAlt(localctx, 3)
                 self.state = 189
                 self.match(fstripsParser.NUMBER_T)
-                pass
+
             else:
                 raise NoViableAltException(self)
 
@@ -1204,7 +1206,7 @@ class fstripsParser ( Parser ):
 
     class ObjectBuiltinContext(BuiltinTypeContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.BuiltinTypeContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.BuiltinTypeContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -1212,15 +1214,15 @@ class fstripsParser ( Parser ):
             return self.getToken(fstripsParser.OBJECT_T, 0)
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterObjectBuiltin" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterObjectBuiltin(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitObjectBuiltin" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitObjectBuiltin(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitObjectBuiltin" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitObjectBuiltin(self)
             else:
                 return visitor.visitChildren(self)
@@ -1228,7 +1230,7 @@ class fstripsParser ( Parser ):
 
     class NumericBuiltinContext(BuiltinTypeContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.BuiltinTypeContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.BuiltinTypeContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -1237,15 +1239,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterNumericBuiltin" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterNumericBuiltin(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitNumericBuiltin" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitNumericBuiltin(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitNumericBuiltin" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitNumericBuiltin(self)
             else:
                 return visitor.visitChildren(self)
@@ -1258,20 +1260,19 @@ class fstripsParser ( Parser ):
         self.enterRule(localctx, 12, self.RULE_builtinType)
         try:
             self.state = 194
-            self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [fstripsParser.INT_T, fstripsParser.FLOAT_T, fstripsParser.NUMBER_T]:
                 localctx = fstripsParser.NumericBuiltinContext(self, localctx)
                 self.enterOuterAlt(localctx, 1)
                 self.state = 192
                 self.numericBuiltinType()
-                pass
+
             elif token in [fstripsParser.OBJECT_T]:
                 localctx = fstripsParser.ObjectBuiltinContext(self, localctx)
                 self.enterOuterAlt(localctx, 2)
                 self.state = 193
                 self.match(fstripsParser.OBJECT_T)
-                pass
+
             else:
                 raise NoViableAltException(self)
 
@@ -1301,7 +1302,7 @@ class fstripsParser ( Parser ):
 
     class SimpleNameListContext(Possibly_typed_name_listContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Possibly_typed_name_listContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Possibly_typed_name_listContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -1312,15 +1313,15 @@ class fstripsParser ( Parser ):
                 return self.getToken(fstripsParser.NAME, i)
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterSimpleNameList" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterSimpleNameList(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitSimpleNameList" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitSimpleNameList(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitSimpleNameList" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitSimpleNameList(self)
             else:
                 return visitor.visitChildren(self)
@@ -1328,7 +1329,7 @@ class fstripsParser ( Parser ):
 
     class ComplexNameListContext(Possibly_typed_name_listContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Possibly_typed_name_listContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Possibly_typed_name_listContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -1345,15 +1346,15 @@ class fstripsParser ( Parser ):
                 return self.getToken(fstripsParser.NAME, i)
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterComplexNameList" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterComplexNameList(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitComplexNameList" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitComplexNameList(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitComplexNameList" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitComplexNameList(self)
             else:
                 return visitor.visitChildren(self)
@@ -1367,7 +1368,6 @@ class fstripsParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.state = 213
-            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,13,self._ctx)
             if la_ == 1:
                 localctx = fstripsParser.SimpleNameListContext(self, localctx)
@@ -1442,15 +1442,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_name_list_with_type
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterName_list_with_type" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterName_list_with_type(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitName_list_with_type" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitName_list_with_type(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitName_list_with_type" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitName_list_with_type(self)
             else:
                 return visitor.visitChildren(self)
@@ -1507,7 +1507,7 @@ class fstripsParser ( Parser ):
 
     class UntypedVariableListContext(Possibly_typed_variable_listContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Possibly_typed_variable_listContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Possibly_typed_variable_listContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -1518,15 +1518,15 @@ class fstripsParser ( Parser ):
                 return self.getToken(fstripsParser.VARIABLE, i)
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterUntypedVariableList" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterUntypedVariableList(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitUntypedVariableList" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitUntypedVariableList(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitUntypedVariableList" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitUntypedVariableList(self)
             else:
                 return visitor.visitChildren(self)
@@ -1534,7 +1534,7 @@ class fstripsParser ( Parser ):
 
     class TypedVariableListContext(Possibly_typed_variable_listContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Possibly_typed_variable_listContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Possibly_typed_variable_listContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -1551,15 +1551,15 @@ class fstripsParser ( Parser ):
                 return self.getToken(fstripsParser.VARIABLE, i)
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterTypedVariableList" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterTypedVariableList(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitTypedVariableList" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitTypedVariableList(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitTypedVariableList" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitTypedVariableList(self)
             else:
                 return visitor.visitChildren(self)
@@ -1573,7 +1573,6 @@ class fstripsParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.state = 240
-            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,18,self._ctx)
             if la_ == 1:
                 localctx = fstripsParser.UntypedVariableListContext(self, localctx)
@@ -1648,15 +1647,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_variable_list_with_type
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterVariable_list_with_type" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterVariable_list_with_type(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitVariable_list_with_type" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitVariable_list_with_type(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitVariable_list_with_type" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitVariable_list_with_type(self)
             else:
                 return visitor.visitChildren(self)
@@ -1712,15 +1711,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_typename
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterTypename" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterTypename(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitTypename" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitTypename(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitTypename" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitTypename(self)
             else:
                 return visitor.visitChildren(self)
@@ -1735,7 +1734,6 @@ class fstripsParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.state = 260
-            self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [fstripsParser.T__0]:
                 self.enterOuterAlt(localctx, 1)
@@ -1757,12 +1755,12 @@ class fstripsParser ( Parser ):
 
                 self.state = 257
                 self.match(fstripsParser.T__2)
-                pass
+
             elif token in [fstripsParser.INT_T, fstripsParser.FLOAT_T, fstripsParser.OBJECT_T, fstripsParser.NUMBER_T, fstripsParser.NAME]:
                 self.enterOuterAlt(localctx, 2)
                 self.state = 259
                 self.primitive_type()
-                pass
+
             else:
                 raise NoViableAltException(self)
 
@@ -1791,15 +1789,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_primitive_type
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterPrimitive_type" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterPrimitive_type(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitPrimitive_type" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitPrimitive_type(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitPrimitive_type" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitPrimitive_type(self)
             else:
                 return visitor.visitChildren(self)
@@ -1813,18 +1811,17 @@ class fstripsParser ( Parser ):
         self.enterRule(localctx, 24, self.RULE_primitive_type)
         try:
             self.state = 264
-            self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [fstripsParser.NAME]:
                 self.enterOuterAlt(localctx, 1)
                 self.state = 262
                 self.match(fstripsParser.NAME)
-                pass
+
             elif token in [fstripsParser.INT_T, fstripsParser.FLOAT_T, fstripsParser.OBJECT_T, fstripsParser.NUMBER_T]:
                 self.enterOuterAlt(localctx, 2)
                 self.state = 263
                 self.builtinType()
-                pass
+
             else:
                 raise NoViableAltException(self)
 
@@ -1853,15 +1850,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_function_definition_block
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterFunction_definition_block" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterFunction_definition_block(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitFunction_definition_block" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitFunction_definition_block(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitFunction_definition_block" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitFunction_definition_block(self)
             else:
                 return visitor.visitChildren(self)
@@ -1918,15 +1915,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_single_function_definition
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterSingle_function_definition" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterSingle_function_definition(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitSingle_function_definition" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitSingle_function_definition(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitSingle_function_definition" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitSingle_function_definition(self)
             else:
                 return visitor.visitChildren(self)
@@ -1940,7 +1937,6 @@ class fstripsParser ( Parser ):
         self.enterRule(localctx, 28, self.RULE_single_function_definition)
         try:
             self.state = 278
-            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,24,self._ctx)
             if la_ == 1:
                 self.enterOuterAlt(localctx, 1)
@@ -1985,15 +1981,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_typed_function_definition
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterTyped_function_definition" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterTyped_function_definition(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitTyped_function_definition" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitTyped_function_definition(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitTyped_function_definition" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitTyped_function_definition(self)
             else:
                 return visitor.visitChildren(self)
@@ -2045,15 +2041,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_untyped_function_definition
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterUntyped_function_definition" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterUntyped_function_definition(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitUntyped_function_definition" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitUntyped_function_definition(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitUntyped_function_definition" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitUntyped_function_definition(self)
             else:
                 return visitor.visitChildren(self)
@@ -2099,15 +2095,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_logical_symbol_name
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterLogical_symbol_name" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterLogical_symbol_name(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitLogical_symbol_name" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitLogical_symbol_name(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitLogical_symbol_name" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitLogical_symbol_name(self)
             else:
                 return visitor.visitChildren(self)
@@ -2127,7 +2123,6 @@ class fstripsParser ( Parser ):
             if not(_la==fstripsParser.NAME or _la==fstripsParser.EXTNAME):
                 self._errHandler.recoverInline(self)
             else:
-                self._errHandler.reportMatch(self)
                 self.consume()
         except RecognitionException as re:
             localctx.exception = re
@@ -2151,15 +2146,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_constant_declaration
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterConstant_declaration" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterConstant_declaration(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitConstant_declaration" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitConstant_declaration(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitConstant_declaration" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitConstant_declaration(self)
             else:
                 return visitor.visitChildren(self)
@@ -2206,15 +2201,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_predicate_definition_block
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterPredicate_definition_block" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterPredicate_definition_block(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitPredicate_definition_block" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitPredicate_definition_block(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitPredicate_definition_block" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitPredicate_definition_block(self)
             else:
                 return visitor.visitChildren(self)
@@ -2271,15 +2266,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_single_predicate_definition
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterSingle_predicate_definition" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterSingle_predicate_definition(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitSingle_predicate_definition" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitSingle_predicate_definition(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitSingle_predicate_definition" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitSingle_predicate_definition(self)
             else:
                 return visitor.visitChildren(self)
@@ -2322,15 +2317,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_predicate
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterPredicate" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterPredicate(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitPredicate" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitPredicate(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitPredicate" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitPredicate(self)
             else:
                 return visitor.visitChildren(self)
@@ -2367,15 +2362,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_function_name
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterFunction_name" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterFunction_name(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitFunction_name" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitFunction_name(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitFunction_name" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitFunction_name(self)
             else:
                 return visitor.visitChildren(self)
@@ -2425,15 +2420,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_structureDef
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterStructureDef" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterStructureDef(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitStructureDef" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitStructureDef(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitStructureDef" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitStructureDef(self)
             else:
                 return visitor.visitChildren(self)
@@ -2447,7 +2442,6 @@ class fstripsParser ( Parser ):
         self.enterRule(localctx, 46, self.RULE_structureDef)
         try:
             self.state = 322
-            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,26,self._ctx)
             if la_ == 1:
                 self.enterOuterAlt(localctx, 1)
@@ -2507,15 +2501,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_actionDef
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterActionDef" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterActionDef(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitActionDef" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitActionDef(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitActionDef" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitActionDef(self)
             else:
                 return visitor.visitChildren(self)
@@ -2577,15 +2571,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_constraintDef
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterConstraintDef" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterConstraintDef(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitConstraintDef" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitConstraintDef(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitConstraintDef" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitConstraintDef(self)
             else:
                 return visitor.visitChildren(self)
@@ -2649,15 +2643,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_eventDef
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterEventDef" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterEventDef(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitEventDef" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitEventDef(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitEventDef" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitEventDef(self)
             else:
                 return visitor.visitChildren(self)
@@ -2713,15 +2707,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_actionName
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterActionName" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterActionName(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitActionName" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitActionName(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitActionName" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitActionName(self)
             else:
                 return visitor.visitChildren(self)
@@ -2741,7 +2735,6 @@ class fstripsParser ( Parser ):
             if not(_la==fstripsParser.NAME or _la==fstripsParser.EXTNAME):
                 self._errHandler.recoverInline(self)
             else:
-                self._errHandler.reportMatch(self)
                 self.consume()
         except RecognitionException as re:
             localctx.exception = re
@@ -2764,15 +2757,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_constraintSymbol
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterConstraintSymbol" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterConstraintSymbol(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitConstraintSymbol" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitConstraintSymbol(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitConstraintSymbol" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitConstraintSymbol(self)
             else:
                 return visitor.visitChildren(self)
@@ -2812,15 +2805,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_eventSymbol
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterEventSymbol" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterEventSymbol(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitEventSymbol" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitEventSymbol(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitEventSymbol" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitEventSymbol(self)
             else:
                 return visitor.visitChildren(self)
@@ -2840,7 +2833,6 @@ class fstripsParser ( Parser ):
             if not(_la==fstripsParser.NAME or _la==fstripsParser.EXTNAME):
                 self._errHandler.recoverInline(self)
             else:
-                self._errHandler.reportMatch(self)
                 self.consume()
         except RecognitionException as re:
             localctx.exception = re
@@ -2874,15 +2866,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_actionDefBody
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterActionDefBody" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterActionDefBody(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitActionDefBody" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitActionDefBody(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitActionDefBody" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitActionDefBody(self)
             else:
                 return visitor.visitChildren(self)
@@ -2930,7 +2922,7 @@ class fstripsParser ( Parser ):
 
     class RegularPreconditionContext(PreconditionContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.PreconditionContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.PreconditionContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -2939,15 +2931,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterRegularPrecondition" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterRegularPrecondition(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitRegularPrecondition" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitRegularPrecondition(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitRegularPrecondition" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitRegularPrecondition(self)
             else:
                 return visitor.visitChildren(self)
@@ -2955,21 +2947,21 @@ class fstripsParser ( Parser ):
 
     class TrivialPreconditionContext(PreconditionContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.PreconditionContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.PreconditionContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterTrivialPrecondition" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterTrivialPrecondition(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitTrivialPrecondition" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitTrivialPrecondition(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitTrivialPrecondition" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitTrivialPrecondition(self)
             else:
                 return visitor.visitChildren(self)
@@ -2982,7 +2974,6 @@ class fstripsParser ( Parser ):
         self.enterRule(localctx, 62, self.RULE_precondition)
         try:
             self.state = 369
-            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,27,self._ctx)
             if la_ == 1:
                 localctx = fstripsParser.TrivialPreconditionContext(self, localctx)
@@ -3027,7 +3018,7 @@ class fstripsParser ( Parser ):
 
     class BuiltinBinaryAtomContext(GoalDescContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.GoalDescContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.GoalDescContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -3042,15 +3033,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterBuiltinBinaryAtom" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterBuiltinBinaryAtom(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitBuiltinBinaryAtom" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitBuiltinBinaryAtom(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitBuiltinBinaryAtom" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitBuiltinBinaryAtom(self)
             else:
                 return visitor.visitChildren(self)
@@ -3058,7 +3049,7 @@ class fstripsParser ( Parser ):
 
     class AndGoalDescContext(GoalDescContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.GoalDescContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.GoalDescContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -3072,15 +3063,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterAndGoalDesc" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterAndGoalDesc(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitAndGoalDesc" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitAndGoalDesc(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitAndGoalDesc" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitAndGoalDesc(self)
             else:
                 return visitor.visitChildren(self)
@@ -3088,7 +3079,7 @@ class fstripsParser ( Parser ):
 
     class OrGoalDescContext(GoalDescContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.GoalDescContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.GoalDescContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -3102,15 +3093,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterOrGoalDesc" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterOrGoalDesc(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitOrGoalDesc" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitOrGoalDesc(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitOrGoalDesc" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitOrGoalDesc(self)
             else:
                 return visitor.visitChildren(self)
@@ -3118,7 +3109,7 @@ class fstripsParser ( Parser ):
 
     class UniversalGoalDescContext(GoalDescContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.GoalDescContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.GoalDescContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -3132,15 +3123,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterUniversalGoalDesc" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterUniversalGoalDesc(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitUniversalGoalDesc" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitUniversalGoalDesc(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitUniversalGoalDesc" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitUniversalGoalDesc(self)
             else:
                 return visitor.visitChildren(self)
@@ -3148,7 +3139,7 @@ class fstripsParser ( Parser ):
 
     class TermGoalDescContext(GoalDescContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.GoalDescContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.GoalDescContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -3157,15 +3148,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterTermGoalDesc" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterTermGoalDesc(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitTermGoalDesc" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitTermGoalDesc(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitTermGoalDesc" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitTermGoalDesc(self)
             else:
                 return visitor.visitChildren(self)
@@ -3173,7 +3164,7 @@ class fstripsParser ( Parser ):
 
     class ExistentialGoalDescContext(GoalDescContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.GoalDescContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.GoalDescContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -3187,15 +3178,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterExistentialGoalDesc" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterExistentialGoalDesc(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitExistentialGoalDesc" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitExistentialGoalDesc(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitExistentialGoalDesc" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitExistentialGoalDesc(self)
             else:
                 return visitor.visitChildren(self)
@@ -3203,7 +3194,7 @@ class fstripsParser ( Parser ):
 
     class NotGoalDescContext(GoalDescContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.GoalDescContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.GoalDescContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -3214,15 +3205,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterNotGoalDesc" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterNotGoalDesc(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitNotGoalDesc" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitNotGoalDesc(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitNotGoalDesc" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitNotGoalDesc(self)
             else:
                 return visitor.visitChildren(self)
@@ -3230,7 +3221,7 @@ class fstripsParser ( Parser ):
 
     class ImplyGoalDescContext(GoalDescContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.GoalDescContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.GoalDescContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -3244,15 +3235,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterImplyGoalDesc" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterImplyGoalDesc(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitImplyGoalDesc" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitImplyGoalDesc(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitImplyGoalDesc" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitImplyGoalDesc(self)
             else:
                 return visitor.visitChildren(self)
@@ -3266,7 +3257,6 @@ class fstripsParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.state = 423
-            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,30,self._ctx)
             if la_ == 1:
                 localctx = fstripsParser.TermGoalDescContext(self, localctx)
@@ -3428,15 +3418,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_atomicTermFormula
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterAtomicTermFormula" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterAtomicTermFormula(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitAtomicTermFormula" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitAtomicTermFormula(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitAtomicTermFormula" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitAtomicTermFormula(self)
             else:
                 return visitor.visitChildren(self)
@@ -3493,7 +3483,7 @@ class fstripsParser ( Parser ):
 
     class TermObjectContext(TermContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.TermContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.TermContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -3501,15 +3491,15 @@ class fstripsParser ( Parser ):
             return self.getToken(fstripsParser.NAME, 0)
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterTermObject" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterTermObject(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitTermObject" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitTermObject(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitTermObject" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitTermObject(self)
             else:
                 return visitor.visitChildren(self)
@@ -3517,21 +3507,21 @@ class fstripsParser ( Parser ):
 
     class TermTimeStepContext(TermContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.TermContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.TermContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterTermTimeStep" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterTermTimeStep(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitTermTimeStep" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitTermTimeStep(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitTermTimeStep" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitTermTimeStep(self)
             else:
                 return visitor.visitChildren(self)
@@ -3539,7 +3529,7 @@ class fstripsParser ( Parser ):
 
     class TermFunctionContext(TermContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.TermContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.TermContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -3548,15 +3538,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterTermFunction" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterTermFunction(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitTermFunction" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitTermFunction(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitTermFunction" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitTermFunction(self)
             else:
                 return visitor.visitChildren(self)
@@ -3564,7 +3554,7 @@ class fstripsParser ( Parser ):
 
     class TermVariableContext(TermContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.TermContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.TermContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -3572,15 +3562,15 @@ class fstripsParser ( Parser ):
             return self.getToken(fstripsParser.VARIABLE, 0)
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterTermVariable" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterTermVariable(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitTermVariable" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitTermVariable(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitTermVariable" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitTermVariable(self)
             else:
                 return visitor.visitChildren(self)
@@ -3588,7 +3578,7 @@ class fstripsParser ( Parser ):
 
     class TermNumberContext(TermContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.TermContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.TermContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -3596,15 +3586,15 @@ class fstripsParser ( Parser ):
             return self.getToken(fstripsParser.NUMBER, 0)
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterTermNumber" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterTermNumber(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitTermNumber" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitTermNumber(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitTermNumber" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitTermNumber(self)
             else:
                 return visitor.visitChildren(self)
@@ -3617,38 +3607,37 @@ class fstripsParser ( Parser ):
         self.enterRule(localctx, 68, self.RULE_term)
         try:
             self.state = 440
-            self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [fstripsParser.NAME]:
                 localctx = fstripsParser.TermObjectContext(self, localctx)
                 self.enterOuterAlt(localctx, 1)
                 self.state = 435
                 self.match(fstripsParser.NAME)
-                pass
+
             elif token in [fstripsParser.NUMBER]:
                 localctx = fstripsParser.TermNumberContext(self, localctx)
                 self.enterOuterAlt(localctx, 2)
                 self.state = 436
                 self.match(fstripsParser.NUMBER)
-                pass
+
             elif token in [fstripsParser.VARIABLE]:
                 localctx = fstripsParser.TermVariableContext(self, localctx)
                 self.enterOuterAlt(localctx, 3)
                 self.state = 437
                 self.match(fstripsParser.VARIABLE)
-                pass
+
             elif token in [fstripsParser.T__15]:
                 localctx = fstripsParser.TermTimeStepContext(self, localctx)
                 self.enterOuterAlt(localctx, 4)
                 self.state = 438
                 self.match(fstripsParser.T__15)
-                pass
+
             elif token in [fstripsParser.T__0]:
                 localctx = fstripsParser.TermFunctionContext(self, localctx)
                 self.enterOuterAlt(localctx, 5)
                 self.state = 439
                 self.functionTerm()
-                pass
+
             else:
                 raise NoViableAltException(self)
 
@@ -3678,7 +3667,7 @@ class fstripsParser ( Parser ):
 
     class UnaryArithmeticFunctionTermContext(FunctionTermContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.FunctionTermContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.FunctionTermContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -3690,15 +3679,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterUnaryArithmeticFunctionTerm" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterUnaryArithmeticFunctionTerm(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitUnaryArithmeticFunctionTerm" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitUnaryArithmeticFunctionTerm(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitUnaryArithmeticFunctionTerm" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitUnaryArithmeticFunctionTerm(self)
             else:
                 return visitor.visitChildren(self)
@@ -3706,7 +3695,7 @@ class fstripsParser ( Parser ):
 
     class BinaryArithmeticFunctionTermContext(FunctionTermContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.FunctionTermContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.FunctionTermContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -3721,15 +3710,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterBinaryArithmeticFunctionTerm" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterBinaryArithmeticFunctionTerm(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitBinaryArithmeticFunctionTerm" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitBinaryArithmeticFunctionTerm(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitBinaryArithmeticFunctionTerm" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitBinaryArithmeticFunctionTerm(self)
             else:
                 return visitor.visitChildren(self)
@@ -3737,7 +3726,7 @@ class fstripsParser ( Parser ):
 
     class GenericFunctionTermContext(FunctionTermContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.FunctionTermContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.FunctionTermContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -3752,15 +3741,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterGenericFunctionTerm" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterGenericFunctionTerm(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitGenericFunctionTerm" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitGenericFunctionTerm(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitGenericFunctionTerm" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitGenericFunctionTerm(self)
             else:
                 return visitor.visitChildren(self)
@@ -3774,7 +3763,6 @@ class fstripsParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.state = 463
-            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,34,self._ctx)
             if la_ == 1:
                 localctx = fstripsParser.GenericFunctionTermContext(self, localctx)
@@ -3852,15 +3840,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_derivedDef
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterDerivedDef" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterDerivedDef(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitDerivedDef" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitDerivedDef(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitDerivedDef" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitDerivedDef(self)
             else:
                 return visitor.visitChildren(self)
@@ -3910,7 +3898,7 @@ class fstripsParser ( Parser ):
 
     class FunctionalProcessEffectExprContext(ProcessEffectExpContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.ProcessEffectExpContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.ProcessEffectExpContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -3919,15 +3907,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterFunctionalProcessEffectExpr" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterFunctionalProcessEffectExpr(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitFunctionalProcessEffectExpr" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitFunctionalProcessEffectExpr(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitFunctionalProcessEffectExpr" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitFunctionalProcessEffectExpr(self)
             else:
                 return visitor.visitChildren(self)
@@ -3935,7 +3923,7 @@ class fstripsParser ( Parser ):
 
     class ConstProcessEffectExprContext(ProcessEffectExpContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.ProcessEffectExpContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.ProcessEffectExpContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -3944,15 +3932,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterConstProcessEffectExpr" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterConstProcessEffectExpr(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitConstProcessEffectExpr" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitConstProcessEffectExpr(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitConstProcessEffectExpr" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitConstProcessEffectExpr(self)
             else:
                 return visitor.visitChildren(self)
@@ -3960,7 +3948,7 @@ class fstripsParser ( Parser ):
 
     class VariableProcessEffectExprContext(ProcessEffectExpContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.ProcessEffectExpContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.ProcessEffectExpContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -3969,15 +3957,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterVariableProcessEffectExpr" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterVariableProcessEffectExpr(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitVariableProcessEffectExpr" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitVariableProcessEffectExpr(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitVariableProcessEffectExpr" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitVariableProcessEffectExpr(self)
             else:
                 return visitor.visitChildren(self)
@@ -3990,7 +3978,6 @@ class fstripsParser ( Parser ):
         self.enterRule(localctx, 74, self.RULE_processEffectExp)
         try:
             self.state = 486
-            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,35,self._ctx)
             if la_ == 1:
                 localctx = fstripsParser.FunctionalProcessEffectExprContext(self, localctx)
@@ -4054,15 +4041,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_processFunctionEff
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterProcessFunctionEff" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterProcessFunctionEff(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitProcessFunctionEff" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitProcessFunctionEff(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitProcessFunctionEff" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitProcessFunctionEff(self)
             else:
                 return visitor.visitChildren(self)
@@ -4076,7 +4063,6 @@ class fstripsParser ( Parser ):
         self.enterRule(localctx, 76, self.RULE_processFunctionEff)
         try:
             self.state = 493
-            self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [fstripsParser.T__0]:
                 self.enterOuterAlt(localctx, 1)
@@ -4084,14 +4070,14 @@ class fstripsParser ( Parser ):
                 self.functionTerm()
                 self.state = 489
                 self.match(fstripsParser.T__15)
-                pass
+
             elif token in [fstripsParser.T__15]:
                 self.enterOuterAlt(localctx, 2)
                 self.state = 491
                 self.match(fstripsParser.T__15)
                 self.state = 492
                 self.functionTerm()
-                pass
+
             else:
                 raise NoViableAltException(self)
 
@@ -4116,15 +4102,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_processConstEff
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterProcessConstEff" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterProcessConstEff(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitProcessConstEff" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitProcessConstEff(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitProcessConstEff" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitProcessConstEff(self)
             else:
                 return visitor.visitChildren(self)
@@ -4138,7 +4124,6 @@ class fstripsParser ( Parser ):
         self.enterRule(localctx, 78, self.RULE_processConstEff)
         try:
             self.state = 499
-            self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [fstripsParser.NUMBER]:
                 self.enterOuterAlt(localctx, 1)
@@ -4146,14 +4131,14 @@ class fstripsParser ( Parser ):
                 self.match(fstripsParser.NUMBER)
                 self.state = 496
                 self.match(fstripsParser.T__15)
-                pass
+
             elif token in [fstripsParser.T__15]:
                 self.enterOuterAlt(localctx, 2)
                 self.state = 497
                 self.match(fstripsParser.T__15)
                 self.state = 498
                 self.match(fstripsParser.NUMBER)
-                pass
+
             else:
                 raise NoViableAltException(self)
 
@@ -4178,15 +4163,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_processVarEff
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterProcessVarEff" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterProcessVarEff(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitProcessVarEff" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitProcessVarEff(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitProcessVarEff" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitProcessVarEff(self)
             else:
                 return visitor.visitChildren(self)
@@ -4200,7 +4185,6 @@ class fstripsParser ( Parser ):
         self.enterRule(localctx, 80, self.RULE_processVarEff)
         try:
             self.state = 505
-            self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [fstripsParser.VARIABLE]:
                 self.enterOuterAlt(localctx, 1)
@@ -4208,14 +4192,14 @@ class fstripsParser ( Parser ):
                 self.match(fstripsParser.VARIABLE)
                 self.state = 502
                 self.match(fstripsParser.T__15)
-                pass
+
             elif token in [fstripsParser.T__15]:
                 self.enterOuterAlt(localctx, 2)
                 self.state = 503
                 self.match(fstripsParser.T__15)
                 self.state = 504
                 self.match(fstripsParser.VARIABLE)
-                pass
+
             else:
                 raise NoViableAltException(self)
 
@@ -4245,7 +4229,7 @@ class fstripsParser ( Parser ):
 
     class SingleEffectContext(EffectContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.EffectContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.EffectContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -4254,15 +4238,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterSingleEffect" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterSingleEffect(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitSingleEffect" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitSingleEffect(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitSingleEffect" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitSingleEffect(self)
             else:
                 return visitor.visitChildren(self)
@@ -4270,7 +4254,7 @@ class fstripsParser ( Parser ):
 
     class ConjunctiveEffectFormulaContext(EffectContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.EffectContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.EffectContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -4284,15 +4268,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterConjunctiveEffectFormula" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterConjunctiveEffectFormula(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitConjunctiveEffectFormula" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitConjunctiveEffectFormula(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitConjunctiveEffectFormula" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitConjunctiveEffectFormula(self)
             else:
                 return visitor.visitChildren(self)
@@ -4306,7 +4290,6 @@ class fstripsParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.state = 517
-            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,40,self._ctx)
             if la_ == 1:
                 localctx = fstripsParser.ConjunctiveEffectFormulaContext(self, localctx)
@@ -4363,7 +4346,7 @@ class fstripsParser ( Parser ):
 
     class SingleConditionalEffectContext(Single_effectContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Single_effectContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Single_effectContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -4377,15 +4360,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterSingleConditionalEffect" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterSingleConditionalEffect(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitSingleConditionalEffect" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitSingleConditionalEffect(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitSingleConditionalEffect" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitSingleConditionalEffect(self)
             else:
                 return visitor.visitChildren(self)
@@ -4393,7 +4376,7 @@ class fstripsParser ( Parser ):
 
     class MultipleConditionalEffectContext(Single_effectContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Single_effectContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Single_effectContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -4412,15 +4395,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterMultipleConditionalEffect" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterMultipleConditionalEffect(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitMultipleConditionalEffect" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitMultipleConditionalEffect(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitMultipleConditionalEffect" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitMultipleConditionalEffect(self)
             else:
                 return visitor.visitChildren(self)
@@ -4428,7 +4411,7 @@ class fstripsParser ( Parser ):
 
     class UniversallyQuantifiedEffectContext(Single_effectContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Single_effectContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Single_effectContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -4442,15 +4425,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterUniversallyQuantifiedEffect" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterUniversallyQuantifiedEffect(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitUniversallyQuantifiedEffect" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitUniversallyQuantifiedEffect(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitUniversallyQuantifiedEffect" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitUniversallyQuantifiedEffect(self)
             else:
                 return visitor.visitChildren(self)
@@ -4458,7 +4441,7 @@ class fstripsParser ( Parser ):
 
     class AtomicEffectContext(Single_effectContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Single_effectContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Single_effectContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -4467,15 +4450,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterAtomicEffect" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterAtomicEffect(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitAtomicEffect" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitAtomicEffect(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitAtomicEffect" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitAtomicEffect(self)
             else:
                 return visitor.visitChildren(self)
@@ -4489,7 +4472,6 @@ class fstripsParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.state = 548
-            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,42,self._ctx)
             if la_ == 1:
                 localctx = fstripsParser.UniversallyQuantifiedEffectContext(self, localctx)
@@ -4588,7 +4570,7 @@ class fstripsParser ( Parser ):
 
     class DeleteAtomEffectContext(Atomic_effectContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Atomic_effectContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Atomic_effectContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -4599,15 +4581,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterDeleteAtomEffect" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterDeleteAtomEffect(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitDeleteAtomEffect" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitDeleteAtomEffect(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitDeleteAtomEffect" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitDeleteAtomEffect(self)
             else:
                 return visitor.visitChildren(self)
@@ -4615,7 +4597,7 @@ class fstripsParser ( Parser ):
 
     class AssignEffectContext(Atomic_effectContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Atomic_effectContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Atomic_effectContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -4630,15 +4612,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterAssignEffect" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterAssignEffect(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitAssignEffect" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitAssignEffect(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitAssignEffect" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitAssignEffect(self)
             else:
                 return visitor.visitChildren(self)
@@ -4646,7 +4628,7 @@ class fstripsParser ( Parser ):
 
     class AssignConstantContext(Atomic_effectContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Atomic_effectContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Atomic_effectContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -4658,15 +4640,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterAssignConstant" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterAssignConstant(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitAssignConstant" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitAssignConstant(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitAssignConstant" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitAssignConstant(self)
             else:
                 return visitor.visitChildren(self)
@@ -4674,7 +4656,7 @@ class fstripsParser ( Parser ):
 
     class AddAtomEffectContext(Atomic_effectContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Atomic_effectContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Atomic_effectContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -4683,15 +4665,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterAddAtomEffect" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterAddAtomEffect(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitAddAtomEffect" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitAddAtomEffect(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitAddAtomEffect" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitAddAtomEffect(self)
             else:
                 return visitor.visitChildren(self)
@@ -4704,7 +4686,6 @@ class fstripsParser ( Parser ):
         self.enterRule(localctx, 86, self.RULE_atomic_effect)
         try:
             self.state = 568
-            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,43,self._ctx)
             if la_ == 1:
                 localctx = fstripsParser.AssignConstantContext(self, localctx)
@@ -4776,15 +4757,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_builtin_binary_function
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterBuiltin_binary_function" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterBuiltin_binary_function(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitBuiltin_binary_function" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitBuiltin_binary_function(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitBuiltin_binary_function" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitBuiltin_binary_function(self)
             else:
                 return visitor.visitChildren(self)
@@ -4804,7 +4785,6 @@ class fstripsParser ( Parser ):
             if not((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << fstripsParser.T__6) | (1 << fstripsParser.T__17) | (1 << fstripsParser.T__19) | (1 << fstripsParser.T__20) | (1 << fstripsParser.T__21) | (1 << fstripsParser.T__22) | (1 << fstripsParser.T__23))) != 0)):
                 self._errHandler.recoverInline(self)
             else:
-                self._errHandler.reportMatch(self)
                 self.consume()
         except RecognitionException as re:
             localctx.exception = re
@@ -4825,15 +4805,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_builtin_unary_function
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterBuiltin_unary_function" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterBuiltin_unary_function(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitBuiltin_unary_function" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitBuiltin_unary_function(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitBuiltin_unary_function" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitBuiltin_unary_function(self)
             else:
                 return visitor.visitChildren(self)
@@ -4853,7 +4833,6 @@ class fstripsParser ( Parser ):
             if not((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << fstripsParser.T__6) | (1 << fstripsParser.T__24) | (1 << fstripsParser.T__25) | (1 << fstripsParser.T__26) | (1 << fstripsParser.T__27) | (1 << fstripsParser.T__28) | (1 << fstripsParser.T__29) | (1 << fstripsParser.T__30) | (1 << fstripsParser.T__31) | (1 << fstripsParser.T__32))) != 0)):
                 self._errHandler.recoverInline(self)
             else:
-                self._errHandler.reportMatch(self)
                 self.consume()
         except RecognitionException as re:
             localctx.exception = re
@@ -4874,15 +4853,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_builtin_binary_predicate
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterBuiltin_binary_predicate" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterBuiltin_binary_predicate(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitBuiltin_binary_predicate" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitBuiltin_binary_predicate(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitBuiltin_binary_predicate" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitBuiltin_binary_predicate(self)
             else:
                 return visitor.visitChildren(self)
@@ -4902,7 +4881,6 @@ class fstripsParser ( Parser ):
             if not((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << fstripsParser.T__33) | (1 << fstripsParser.T__34) | (1 << fstripsParser.T__35) | (1 << fstripsParser.T__36) | (1 << fstripsParser.T__37))) != 0)):
                 self._errHandler.recoverInline(self)
             else:
-                self._errHandler.reportMatch(self)
                 self.consume()
         except RecognitionException as re:
             localctx.exception = re
@@ -4934,15 +4912,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_assignOp
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterAssignOp" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterAssignOp(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitAssignOp" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitAssignOp(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitAssignOp" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitAssignOp(self)
             else:
                 return visitor.visitChildren(self)
@@ -4962,7 +4940,6 @@ class fstripsParser ( Parser ):
             if not(((((_la - 75)) & ~0x3f) == 0 and ((1 << (_la - 75)) & ((1 << (fstripsParser.K_INCREASE - 75)) | (1 << (fstripsParser.K_DECREASE - 75)) | (1 << (fstripsParser.K_SCALEUP - 75)) | (1 << (fstripsParser.K_SCALEDOWN - 75)))) != 0)):
                 self._errHandler.recoverInline(self)
             else:
-                self._errHandler.reportMatch(self)
                 self.consume()
         except RecognitionException as re:
             localctx.exception = re
@@ -5013,15 +4990,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_problem
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterProblem" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterProblem(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitProblem" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitProblem(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitProblem" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitProblem(self)
             else:
                 return visitor.visitChildren(self)
@@ -5045,7 +5022,6 @@ class fstripsParser ( Parser ):
             self.state = 581
             self.problemDomain()
             self.state = 583
-            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,44,self._ctx)
             if la_ == 1:
                 self.state = 582
@@ -5053,7 +5029,6 @@ class fstripsParser ( Parser ):
 
 
             self.state = 586
-            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,45,self._ctx)
             if la_ == 1:
                 self.state = 585
@@ -5106,15 +5081,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_problemMeta
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterProblemMeta" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterProblemMeta(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitProblemMeta" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitProblemMeta(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitProblemMeta" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitProblemMeta(self)
             else:
                 return visitor.visitChildren(self)
@@ -5128,7 +5103,6 @@ class fstripsParser ( Parser ):
         self.enterRule(localctx, 98, self.RULE_problemMeta)
         try:
             self.state = 601
-            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,47,self._ctx)
             if la_ == 1:
                 self.enterOuterAlt(localctx, 1)
@@ -5170,15 +5144,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_problemDecl
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterProblemDecl" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterProblemDecl(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitProblemDecl" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitProblemDecl(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitProblemDecl" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitProblemDecl(self)
             else:
                 return visitor.visitChildren(self)
@@ -5221,15 +5195,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_problemDomain
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterProblemDomain" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterProblemDomain(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitProblemDomain" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitProblemDomain(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitProblemDomain" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitProblemDomain(self)
             else:
                 return visitor.visitChildren(self)
@@ -5273,15 +5247,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_object_declaration
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterObject_declaration" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterObject_declaration(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitObject_declaration" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitObject_declaration(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitObject_declaration" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitObject_declaration(self)
             else:
                 return visitor.visitChildren(self)
@@ -5328,15 +5302,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_boundsDecl
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterBoundsDecl" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterBoundsDecl(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitBoundsDecl" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitBoundsDecl(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitBoundsDecl" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitBoundsDecl(self)
             else:
                 return visitor.visitChildren(self)
@@ -5400,15 +5374,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_typeBoundsDefinition
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterTypeBoundsDefinition" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterTypeBoundsDefinition(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitTypeBoundsDefinition" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitTypeBoundsDefinition(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitTypeBoundsDefinition" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitTypeBoundsDefinition(self)
             else:
                 return visitor.visitChildren(self)
@@ -5470,15 +5444,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_init
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterInit" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterInit(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitInit" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitInit(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitInit" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitInit(self)
             else:
                 return visitor.visitChildren(self)
@@ -5535,7 +5509,7 @@ class fstripsParser ( Parser ):
 
     class InitFunctionAssignmentContext(Init_elementContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Init_elementContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Init_elementContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -5547,15 +5521,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterInitFunctionAssignment" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterInitFunctionAssignment(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitInitFunctionAssignment" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitInitFunctionAssignment(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitInitFunctionAssignment" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitInitFunctionAssignment(self)
             else:
                 return visitor.visitChildren(self)
@@ -5563,7 +5537,7 @@ class fstripsParser ( Parser ):
 
     class InitNegativeLiteralContext(Init_elementContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Init_elementContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Init_elementContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -5574,15 +5548,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterInitNegativeLiteral" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterInitNegativeLiteral(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitInitNegativeLiteral" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitInitNegativeLiteral(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitInitNegativeLiteral" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitInitNegativeLiteral(self)
             else:
                 return visitor.visitChildren(self)
@@ -5590,7 +5564,7 @@ class fstripsParser ( Parser ):
 
     class InitPositiveLiteralContext(Init_elementContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Init_elementContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Init_elementContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -5599,15 +5573,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterInitPositiveLiteral" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterInitPositiveLiteral(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitInitPositiveLiteral" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitInitPositiveLiteral(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitInitPositiveLiteral" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitInitPositiveLiteral(self)
             else:
                 return visitor.visitChildren(self)
@@ -5620,7 +5594,6 @@ class fstripsParser ( Parser ):
         self.enterRule(localctx, 112, self.RULE_init_element)
         try:
             self.state = 660
-            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,50,self._ctx)
             if la_ == 1:
                 localctx = fstripsParser.InitPositiveLiteralContext(self, localctx)
@@ -5687,15 +5660,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_flat_term
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterFlat_term" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterFlat_term(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitFlat_term" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitFlat_term(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitFlat_term" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitFlat_term(self)
             else:
                 return visitor.visitChildren(self)
@@ -5755,15 +5728,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_flat_atom
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterFlat_atom" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterFlat_atom(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitFlat_atom" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitFlat_atom(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitFlat_atom" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitFlat_atom(self)
             else:
                 return visitor.visitChildren(self)
@@ -5820,7 +5793,7 @@ class fstripsParser ( Parser ):
 
     class Numeric_constantContext(Constant_nameContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Constant_nameContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Constant_nameContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -5828,15 +5801,15 @@ class fstripsParser ( Parser ):
             return self.getToken(fstripsParser.NUMBER, 0)
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterNumeric_constant" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterNumeric_constant(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitNumeric_constant" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitNumeric_constant(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitNumeric_constant" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitNumeric_constant(self)
             else:
                 return visitor.visitChildren(self)
@@ -5844,7 +5817,7 @@ class fstripsParser ( Parser ):
 
     class Symbolic_constantContext(Constant_nameContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Constant_nameContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.Constant_nameContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -5852,15 +5825,15 @@ class fstripsParser ( Parser ):
             return self.getToken(fstripsParser.NAME, 0)
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterSymbolic_constant" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterSymbolic_constant(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitSymbolic_constant" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitSymbolic_constant(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitSymbolic_constant" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitSymbolic_constant(self)
             else:
                 return visitor.visitChildren(self)
@@ -5873,20 +5846,19 @@ class fstripsParser ( Parser ):
         self.enterRule(localctx, 118, self.RULE_constant_name)
         try:
             self.state = 684
-            self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [fstripsParser.NAME]:
                 localctx = fstripsParser.Symbolic_constantContext(self, localctx)
                 self.enterOuterAlt(localctx, 1)
                 self.state = 682
                 self.match(fstripsParser.NAME)
-                pass
+
             elif token in [fstripsParser.NUMBER]:
                 localctx = fstripsParser.Numeric_constantContext(self, localctx)
                 self.enterOuterAlt(localctx, 2)
                 self.state = 683
                 self.match(fstripsParser.NUMBER)
-                pass
+
             else:
                 raise NoViableAltException(self)
 
@@ -5912,15 +5884,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_goal
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterGoal" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterGoal(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitGoal" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitGoal(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitGoal" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitGoal(self)
             else:
                 return visitor.visitChildren(self)
@@ -5964,15 +5936,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_probConstraints
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterProbConstraints" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterProbConstraints(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitProbConstraints" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitProbConstraints(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitProbConstraints" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitProbConstraints(self)
             else:
                 return visitor.visitChildren(self)
@@ -6020,7 +5992,7 @@ class fstripsParser ( Parser ):
 
     class UniversallyQuantifiedConstraintContext(PrefConGDContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.PrefConGDContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.PrefConGDContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -6034,15 +6006,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterUniversallyQuantifiedConstraint" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterUniversallyQuantifiedConstraint(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitUniversallyQuantifiedConstraint" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitUniversallyQuantifiedConstraint(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitUniversallyQuantifiedConstraint" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitUniversallyQuantifiedConstraint(self)
             else:
                 return visitor.visitChildren(self)
@@ -6050,7 +6022,7 @@ class fstripsParser ( Parser ):
 
     class PlainConstraintListContext(PrefConGDContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.PrefConGDContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.PrefConGDContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -6062,15 +6034,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterPlainConstraintList" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterPlainConstraintList(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitPlainConstraintList" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitPlainConstraintList(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitPlainConstraintList" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitPlainConstraintList(self)
             else:
                 return visitor.visitChildren(self)
@@ -6078,7 +6050,7 @@ class fstripsParser ( Parser ):
 
     class ConjunctionOfConstraintsContext(PrefConGDContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.PrefConGDContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.PrefConGDContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -6092,15 +6064,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterConjunctionOfConstraints" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterConjunctionOfConstraints(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitConjunctionOfConstraints" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitConjunctionOfConstraints(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitConjunctionOfConstraints" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitConjunctionOfConstraints(self)
             else:
                 return visitor.visitChildren(self)
@@ -6108,7 +6080,7 @@ class fstripsParser ( Parser ):
 
     class PreferenceConstraintContext(PrefConGDContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.PrefConGDContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.PrefConGDContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -6119,15 +6091,15 @@ class fstripsParser ( Parser ):
             return self.getToken(fstripsParser.NAME, 0)
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterPreferenceConstraint" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterPreferenceConstraint(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitPreferenceConstraint" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitPreferenceConstraint(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitPreferenceConstraint" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitPreferenceConstraint(self)
             else:
                 return visitor.visitChildren(self)
@@ -6141,7 +6113,6 @@ class fstripsParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.state = 726
-            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,57,self._ctx)
             if la_ == 1:
                 localctx = fstripsParser.ConjunctionOfConstraintsContext(self, localctx)
@@ -6191,7 +6162,6 @@ class fstripsParser ( Parser ):
                 self.state = 714
                 self.match(fstripsParser.T__47)
                 self.state = 716
-                self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==fstripsParser.NAME:
                     self.state = 715
@@ -6250,7 +6220,7 @@ class fstripsParser ( Parser ):
 
     class ProblemMetricContext(MetricSpecContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.MetricSpecContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.MetricSpecContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -6262,15 +6232,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterProblemMetric" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterProblemMetric(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitProblemMetric" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitProblemMetric(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitProblemMetric" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitProblemMetric(self)
             else:
                 return visitor.visitChildren(self)
@@ -6313,15 +6283,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_optimization
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterOptimization" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterOptimization(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitOptimization" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitOptimization(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitOptimization" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitOptimization(self)
             else:
                 return visitor.visitChildren(self)
@@ -6341,7 +6311,6 @@ class fstripsParser ( Parser ):
             if not(_la==fstripsParser.T__49 or _la==fstripsParser.T__50):
                 self._errHandler.recoverInline(self)
             else:
-                self._errHandler.reportMatch(self)
                 self.consume()
         except RecognitionException as re:
             localctx.exception = re
@@ -6369,7 +6338,7 @@ class fstripsParser ( Parser ):
 
     class FunctionalExprMetricContext(MetricFExpContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.MetricFExpContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.MetricFExpContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -6378,15 +6347,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterFunctionalExprMetric" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterFunctionalExprMetric(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitFunctionalExprMetric" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitFunctionalExprMetric(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitFunctionalExprMetric" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitFunctionalExprMetric(self)
             else:
                 return visitor.visitChildren(self)
@@ -6394,7 +6363,7 @@ class fstripsParser ( Parser ):
 
     class CompositeMetricContext(MetricFExpContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.MetricFExpContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.MetricFExpContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -6406,15 +6375,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterCompositeMetric" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterCompositeMetric(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitCompositeMetric" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitCompositeMetric(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitCompositeMetric" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitCompositeMetric(self)
             else:
                 return visitor.visitChildren(self)
@@ -6422,7 +6391,7 @@ class fstripsParser ( Parser ):
 
     class IsViolatedMetricContext(MetricFExpContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.MetricFExpContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.MetricFExpContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -6430,15 +6399,15 @@ class fstripsParser ( Parser ):
             return self.getToken(fstripsParser.NAME, 0)
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterIsViolatedMetric" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterIsViolatedMetric(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitIsViolatedMetric" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitIsViolatedMetric(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitIsViolatedMetric" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitIsViolatedMetric(self)
             else:
                 return visitor.visitChildren(self)
@@ -6446,21 +6415,21 @@ class fstripsParser ( Parser ):
 
     class TotalTimeMetricContext(MetricFExpContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.MetricFExpContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.MetricFExpContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterTotalTimeMetric" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterTotalTimeMetric(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitTotalTimeMetric" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitTotalTimeMetric(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitTotalTimeMetric" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitTotalTimeMetric(self)
             else:
                 return visitor.visitChildren(self)
@@ -6473,7 +6442,6 @@ class fstripsParser ( Parser ):
         self.enterRule(localctx, 130, self.RULE_metricFExp)
         try:
             self.state = 748
-            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,58,self._ctx)
             if la_ == 1:
                 localctx = fstripsParser.FunctionalExprMetricContext(self, localctx)
@@ -6543,15 +6511,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_terminalCost
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterTerminalCost" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterTerminalCost(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitTerminalCost" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitTerminalCost(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitTerminalCost" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitTerminalCost(self)
             else:
                 return visitor.visitChildren(self)
@@ -6595,15 +6563,15 @@ class fstripsParser ( Parser ):
             return fstripsParser.RULE_stageCost
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterStageCost" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterStageCost(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitStageCost" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitStageCost(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitStageCost" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitStageCost(self)
             else:
                 return visitor.visitChildren(self)
@@ -6651,7 +6619,7 @@ class fstripsParser ( Parser ):
 
     class ForallConstraintContext(ConGDContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.ConGDContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.ConGDContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -6665,15 +6633,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterForallConstraint" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterForallConstraint(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitForallConstraint" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitForallConstraint(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitForallConstraint" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitForallConstraint(self)
             else:
                 return visitor.visitChildren(self)
@@ -6681,7 +6649,7 @@ class fstripsParser ( Parser ):
 
     class AlwaysConstraintContext(ConGDContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.ConGDContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.ConGDContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -6690,15 +6658,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterAlwaysConstraint" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterAlwaysConstraint(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitAlwaysConstraint" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitAlwaysConstraint(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitAlwaysConstraint" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitAlwaysConstraint(self)
             else:
                 return visitor.visitChildren(self)
@@ -6706,7 +6674,7 @@ class fstripsParser ( Parser ):
 
     class AtEndConstraintContext(ConGDContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.ConGDContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.ConGDContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -6715,15 +6683,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterAtEndConstraint" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterAtEndConstraint(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitAtEndConstraint" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitAtEndConstraint(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitAtEndConstraint" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitAtEndConstraint(self)
             else:
                 return visitor.visitChildren(self)
@@ -6731,7 +6699,7 @@ class fstripsParser ( Parser ):
 
     class ConjunctiveConstraintContext(ConGDContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.ConGDContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.ConGDContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -6745,15 +6713,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterConjunctiveConstraint" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterConjunctiveConstraint(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitConjunctiveConstraint" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitConjunctiveConstraint(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitConjunctiveConstraint" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitConjunctiveConstraint(self)
             else:
                 return visitor.visitChildren(self)
@@ -6761,7 +6729,7 @@ class fstripsParser ( Parser ):
 
     class SometimeConstraintContext(ConGDContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.ConGDContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.ConGDContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -6770,15 +6738,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterSometimeConstraint" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterSometimeConstraint(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitSometimeConstraint" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitSometimeConstraint(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitSometimeConstraint" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitSometimeConstraint(self)
             else:
                 return visitor.visitChildren(self)
@@ -6786,7 +6754,7 @@ class fstripsParser ( Parser ):
 
     class WithinConstraintContext(ConGDContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.ConGDContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.ConGDContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -6797,15 +6765,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterWithinConstraint" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterWithinConstraint(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitWithinConstraint" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitWithinConstraint(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitWithinConstraint" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitWithinConstraint(self)
             else:
                 return visitor.visitChildren(self)
@@ -6813,7 +6781,7 @@ class fstripsParser ( Parser ):
 
     class HoldAfterConstraintContext(ConGDContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.ConGDContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.ConGDContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -6824,15 +6792,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterHoldAfterConstraint" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterHoldAfterConstraint(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitHoldAfterConstraint" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitHoldAfterConstraint(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitHoldAfterConstraint" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitHoldAfterConstraint(self)
             else:
                 return visitor.visitChildren(self)
@@ -6840,7 +6808,7 @@ class fstripsParser ( Parser ):
 
     class SometimeBeforeConstraintContext(ConGDContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.ConGDContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.ConGDContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -6852,15 +6820,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterSometimeBeforeConstraint" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterSometimeBeforeConstraint(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitSometimeBeforeConstraint" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitSometimeBeforeConstraint(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitSometimeBeforeConstraint" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitSometimeBeforeConstraint(self)
             else:
                 return visitor.visitChildren(self)
@@ -6868,7 +6836,7 @@ class fstripsParser ( Parser ):
 
     class SometimeAfterConstraintContext(ConGDContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.ConGDContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.ConGDContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -6880,15 +6848,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterSometimeAfterConstraint" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterSometimeAfterConstraint(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitSometimeAfterConstraint" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitSometimeAfterConstraint(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitSometimeAfterConstraint" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitSometimeAfterConstraint(self)
             else:
                 return visitor.visitChildren(self)
@@ -6896,7 +6864,7 @@ class fstripsParser ( Parser ):
 
     class HoldDuringConstraintContext(ConGDContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.ConGDContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.ConGDContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -6910,15 +6878,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterHoldDuringConstraint" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterHoldDuringConstraint(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitHoldDuringConstraint" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitHoldDuringConstraint(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitHoldDuringConstraint" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitHoldDuringConstraint(self)
             else:
                 return visitor.visitChildren(self)
@@ -6926,7 +6894,7 @@ class fstripsParser ( Parser ):
 
     class AlwaysWithinConstraintContext(ConGDContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.ConGDContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.ConGDContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -6940,15 +6908,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterAlwaysWithinConstraint" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterAlwaysWithinConstraint(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitAlwaysWithinConstraint" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitAlwaysWithinConstraint(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitAlwaysWithinConstraint" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitAlwaysWithinConstraint(self)
             else:
                 return visitor.visitChildren(self)
@@ -6956,7 +6924,7 @@ class fstripsParser ( Parser ):
 
     class AlternativeAlwaysConstraintContext(ConGDContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.ConGDContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.ConGDContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -6965,15 +6933,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterAlternativeAlwaysConstraint" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterAlternativeAlwaysConstraint(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitAlternativeAlwaysConstraint" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitAlternativeAlwaysConstraint(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitAlternativeAlwaysConstraint" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitAlternativeAlwaysConstraint(self)
             else:
                 return visitor.visitChildren(self)
@@ -6981,7 +6949,7 @@ class fstripsParser ( Parser ):
 
     class AtMostOnceConstraintContext(ConGDContext):
 
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.ConGDContext
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.ConGDContext)
             super().__init__(parser)
             self.copyFrom(ctx)
 
@@ -6990,15 +6958,15 @@ class fstripsParser ( Parser ):
 
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterAtMostOnceConstraint" ):
+            if isinstance( listener, fstripsListener ):
                 listener.enterAtMostOnceConstraint(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitAtMostOnceConstraint" ):
+            if isinstance( listener, fstripsListener ):
                 listener.exitAtMostOnceConstraint(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitAtMostOnceConstraint" ):
+            if isinstance( visitor, fstripsVisitor ):
                 return visitor.visitAtMostOnceConstraint(self)
             else:
                 return visitor.visitChildren(self)
@@ -7012,7 +6980,6 @@ class fstripsParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.state = 836
-            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,60,self._ctx)
             if la_ == 1:
                 localctx = fstripsParser.ConjunctiveConstraintContext(self, localctx)
@@ -7217,7 +7184,6 @@ class fstripsParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
-
 
 
 
