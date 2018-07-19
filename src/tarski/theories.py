@@ -38,7 +38,6 @@ def load_theory(lang, theory):
             lang.register_operator_handler(pred, Term, Term, create_casting_handler(pred, create_atom))
             p = lang.predicate(pred, object_t, object_t)
             p.builtin = True
-
     elif theory == Theory.ARITHMETIC:
         for pred in builtins.get_arithmetic_predicates():
             lang.register_operator_handler(pred, Term, Term, create_casting_handler(pred, create_atom))
@@ -50,10 +49,20 @@ def load_theory(lang, theory):
             f = lang.function(fun, object_t, object_t, object_t)
             f.builtin = True
 
-        lang.theories.append(theory)
-        # print("Loaded theory '{}'".format(theory))
+    elif theory == Theory.SPECIAL:
+        for fun in builtins.get_special_binary_functions():
+            lang.register_operator_handler(fun, Term, Term, create_casting_handler(fun, create_arithmetic_term))
+            f = lang.function(fun, object_t, object_t, object_t)
+            f.builtin = True
+        for fun in builtins.get_special_unary_functions():
+            lang.register_unary_operator_handler(fun, Term, create_casting_handler(fun, create_arithmetic_term))
+            f = lang.function(fun, object_t, object_t)
+            f.builtin = True
+
     else:
         raise err.UnknownTheory(theory)
+    lang.theories.append(theory)
+    # print("Loaded theory '{}'".format(theory))
 
 
 def create_casting_handler(symbol, factory_method):

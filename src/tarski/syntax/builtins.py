@@ -27,7 +27,16 @@ class BuiltinFunctionSymbol(Enum):
     DIV = "/"
     POW = "**"
     MOD = "%"
-
+    MIN = "min"
+    MAX = "max"
+    SIN = "sin"
+    COS = "cos"
+    TAN = "tan"
+    ATAN = "atan"
+    EXP = "exp"
+    LOG = "log"
+    ERF = "erf"
+    ERFC = "erfc"
 
     # ...
 
@@ -67,8 +76,13 @@ def get_arithmetic_functions():
     return [BuiltinFunctionSymbol.ADD, BuiltinFunctionSymbol.SUB, BuiltinFunctionSymbol.MUL, BuiltinFunctionSymbol.DIV,\
             BuiltinFunctionSymbol.POW, BuiltinFunctionSymbol.MOD]
 
-def get_special_functions():
-    return []
+def get_special_binary_functions():
+    BFS = BuiltinFunctionSymbol
+    return [BFS.MIN, BFS.MAX]
+
+def get_special_unary_functions():
+    BFS = BuiltinFunctionSymbol
+    return [BFS.SIN, BFS.COS, BFS.TAN, BFS.ATAN, BFS.EXP, BFS.LOG, BFS.ERF, BFS.ERFC]
 
 
 def get_predicate_from_symbol(symbol: str):

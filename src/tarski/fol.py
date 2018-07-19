@@ -312,6 +312,16 @@ class FirstOrderLanguage:
     def register_operator_handler(self, operator, t1, t2, handler):
         self._operators[(operator, t1, t2)] = handler
 
+    def register_unary_operator_handler(self, operator, t, handler):
+        self._operators[(operator, t)] = handler
+
+    def dispatch_unary_operator(self, operator, t, term):
+        try:
+            return self._operators[(operator, t)](term)
+        except KeyError:
+            raise err.LanguageError("Operator '{}' not defined on domain ({})".format(operator, t))
+
+
     def dispatch_operator(self, operator, t1, t2, lhs, rhs):
         # assert isinstance(lhs, t1)
         # assert isinstance(rhs, t2)
