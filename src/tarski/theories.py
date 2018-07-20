@@ -12,6 +12,7 @@ class Theory(Enum):
     """ """
     EQUALITY = "equality"
     ARITHMETIC = "arithmetic"
+    SPECIAL = "special"
 
     def __str__(self):
         return self.value
@@ -58,7 +59,6 @@ def load_theory(lang, theory):
             lang.register_unary_operator_handler(fun, Term, create_casting_handler(fun, create_arithmetic_term))
             f = lang.function(fun, object_t, object_t)
             f.builtin = True
-
     else:
         raise err.UnknownTheory(theory)
     lang.theories.append(theory)

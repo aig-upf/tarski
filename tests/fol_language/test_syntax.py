@@ -53,6 +53,20 @@ def test_load_arithmetic_module_fails_when_language_frozen():
         theories.load_theory(lang, Theory.ARITHMETIC)
         sum_ = two + three
 
+def test_special_terms_does_not_fail_with_load_theory():
+    from tarski.syntax.builtins import BuiltinFunctionSymbol
+    lang = tsk.fstrips.language(theories=[Theory.ARITHMETIC,Theory.SPECIAL])
+    assert Theory.SPECIAL in lang.theories
+    max_func = lang.get_function(BuiltinFunctionSymbol.MAX)
+
+
+def test_special_term_construction():
+    from tarski.syntax.arithmetic.special import max
+    lang = tsk.fstrips.language(theories=[Theory.ARITHMETIC,Theory.SPECIAL])
+    ints = lang.Integer
+    two, three = lang.constant(2, ints), lang.constant(3, ints)
+    max_ = max(two,three)
+    assert isinstance(max_, tsk.Term), "max_ should be the term max(Const(2), Const(3)), not the integer value 3"
 
 def test_equality_atom_from_expression():
     lang = tsk.fstrips.language('artih', [Theory.EQUALITY, Theory.ARITHMETIC])

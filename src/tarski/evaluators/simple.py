@@ -1,8 +1,10 @@
 import operator
+import tarski.funcsym as funcsym
 
 from ..syntax import ops, Connective, Atom, Formula, CompoundFormula, QuantifiedFormula, builtins, Variable, \
     Constant, CompoundTerm
 from ..model import Model
+
 
 
 # TODO We will need to extend this so that the interpretation depends on a certain, given sigma of values to
@@ -92,18 +94,37 @@ def evaluate_builtin_predicate(atom, model, sigma):
 def evaluate_builtin_function(term, model, sigma):
     bif = builtins.BuiltinFunctionSymbol
     _evaluators = {
-        bif.ADD: lambda f, m, s: _arithmetic_evaluator(operator.add, f.subterms[0], f.subterms[1], model, sigma),
-        bif.SUB: lambda f, m, s: _arithmetic_evaluator(operator.sub, f.subterms[0], f.subterms[1], model, sigma),
-        bif.MUL: lambda f, m, s: _arithmetic_evaluator(operator.mul, f.subterms[0], f.subterms[1], model, sigma),
-        bif.DIV: lambda f, m, s: _arithmetic_evaluator(operator.truediv, f.subterms[0], f.subterms[1], model, sigma),
-        bif.POW: lambda f, m, s: _arithmetic_evaluator(operator.pow, f.subterms[0], f.subterms[1], model, sigma),
-        bif.MOD: lambda f, m, s: _arithmetic_evaluator(operator.mod, f.subterms[0], f.subterms[1], model, sigma),
+        bif.ADD: lambda f, m, s: _arithmetic_evaluator_2(operator.add, f.subterms[0], f.subterms[1], model, sigma),
+        bif.SUB: lambda f, m, s: _arithmetic_evaluator_2(operator.sub, f.subterms[0], f.subterms[1], model, sigma),
+        bif.MUL: lambda f, m, s: _arithmetic_evaluator_2(operator.mul, f.subterms[0], f.subterms[1], model, sigma),
+        bif.DIV: lambda f, m, s: _arithmetic_evaluator_2(operator.truediv, f.subterms[0], f.subterms[1], model, sigma),
+        bif.POW: lambda f, m, s: _arithmetic_evaluator_2(operator.pow, f.subterms[0], f.subterms[1], model, sigma),
+        bif.MOD: lambda f, m, s: _arithmetic_evaluator_2(operator.mod, f.subterms[0], f.subterms[1], model, sigma),
+        bif.MIN: lambda f, m, s: _arithmetic_evaluator_2(funcsym.impl[bif.MIN.value], f.subterms[0], f.subterms[1], model, sigma),
+        bif.MAX: lambda f, m, s: _arithmetic_evaluator_2(funcsym.impl[bif.MAX.value], f.subterms[0], f.subterms[1], model, sigma),
+        bif.SIN: lambda f, m, s: _arithmetic_evaluator_1(funcsym.impl[bif.SIN.value], f.subterms[0], model, sigma),
+        bif.COS: lambda f, m, s: _arithmetic_evaluator_1(funcsym.impl[bif.COS.value], f.subterms[0], model, sigma),
+        bif.TAN: lambda f, m, s: _arithmetic_evaluator_1(funcsym.impl[bif.TAN.value], f.subterms[0], model, sigma),
+        bif.ATAN: lambda f, m, s: _arithmetic_evaluator_1(funcsym.impl[bif.ATAN.value], f.subterms[0], model, sigma),
+        bif.EXP: lambda f, m, s: _arithmetic_evaluator_1(funcsym.impl[bif.EXP.value], f.subterms[0], model, sigma),
+        bif.LOG: lambda f, m, s: _arithmetic_evaluator_1(funcsym.impl[bif.LOG.value], f.subterms[0], model, sigma),
+        bif.ERF: lambda f, m, s: _arithmetic_evaluator_1(funcsym.impl[bif.ERF.value], f.subterms[0], model, sigma),
+        bif.ERFC: lambda f, m, s: _arithmetic_evaluator_1(funcsym.impl[bif.ERFC.value], f.subterms[0], model, sigma),
     }
 
     return _evaluators[term.symbol.symbol](term, model, sigma)
 
+def _arithmetic_evaluator_1(operation, expr, model, sigma):
+    # _lhs = args[0].symbol
+    # _rhs = args[1].symbol
+    # assert self.domain[0].contains(_lhs)
+    # assert self.domain[1].contains(_rhs)
+    expr = evaluate_term(expr, model, sigma)
+    value = operation(ops.cast_to_number(expr))
+    sort = ops.infer_numeric_sort(value, expr.language)
+    return Constant(value, sort)
 
-def _arithmetic_evaluator(operation, lhs, rhs, model, sigma):
+def _arithmetic_evaluator_2(operation, lhs, rhs, model, sigma):
     # _lhs = args[0].symbol
     # _rhs = args[1].symbol
     # assert self.domain[0].contains(_lhs)

@@ -8,7 +8,7 @@ from tarski.model import Model
 from ..common import blocksworld, numeric
 from tarski.evaluators.simple import evaluate
 from tarski.syntax import Constant
-
+from tarski.theories import Theory
 
 def test_interpretation_instance():
     lang = numeric.generate_numeric_instance()
@@ -71,6 +71,104 @@ def test_blocksworld_set_via_square_brackets():
 
     assert model[loc(b1)] == table
 
+def test_special_function_max():
+    from tarski.syntax.arithmetic.special import max
+    lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL])
+    model = Model(lang)
+    model.evaluator = evaluate
+    reals = lang.Real
+    a, b = lang.constant(3.14, reals), lang.constant(1.24, reals)
+
+    assert model[max(a,b)].symbol == 3.14
+
+def test_special_function_min():
+    from tarski.syntax.arithmetic.special import min
+    lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL])
+    model = Model(lang)
+    model.evaluator = evaluate
+    reals = lang.Real
+    a, b = lang.constant(3.14, reals), lang.constant(1.24, reals)
+    assert model[min(a,b)].symbol == 1.24
+
+def test_special_function_sin():
+    import numpy as np
+    from tarski.syntax.arithmetic.special import sin
+    lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL])
+    model = Model(lang)
+    model.evaluator = evaluate
+    reals = lang.Real
+    alpha = lang.constant(0.5, reals)
+    assert model[sin(alpha)].symbol == np.sin(0.5)
+
+def test_special_function_cos():
+    import numpy as np
+    from tarski.syntax.arithmetic.special import cos
+    lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL])
+    model = Model(lang)
+    model.evaluator = evaluate
+    reals = lang.Real
+    alpha = lang.constant(0.5, reals)
+    assert model[cos(alpha)].symbol == np.cos(0.5)
+
+def test_special_function_tan():
+    import numpy as np
+    from tarski.syntax.arithmetic.special import tan
+    lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL])
+    model = Model(lang)
+    model.evaluator = evaluate
+    reals = lang.Real
+    alpha = lang.constant(0.5, reals)
+    assert model[tan(alpha)].symbol == np.tan(0.5)
+
+def test_special_function_atan():
+    import numpy as np
+    from tarski.syntax.arithmetic.special import atan
+    lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL])
+    model = Model(lang)
+    model.evaluator = evaluate
+    reals = lang.Real
+    alpha = lang.constant(0.5, reals)
+    assert model[atan(alpha)].symbol == np.arctan(0.5)
+
+def test_special_function_exp():
+    import numpy as np
+    from tarski.syntax.arithmetic.special import exp
+    lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL])
+    model = Model(lang)
+    model.evaluator = evaluate
+    reals = lang.Real
+    alpha = lang.constant(0.5, reals)
+    assert model[exp(alpha)].symbol == np.exp(0.5)
+
+def test_special_function_log():
+    import numpy as np
+    from tarski.syntax.arithmetic.special import log
+    lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL])
+    model = Model(lang)
+    model.evaluator = evaluate
+    reals = lang.Real
+    alpha = lang.constant(0.5,reals)
+    assert model[log(alpha)].symbol == np.log(0.5)
+
+def test_special_function_erf():
+    import scipy.special as sci
+    from tarski.syntax.arithmetic.special import erf
+    lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL])
+    model = Model(lang)
+    model.evaluator = evaluate
+    reals = lang.Real
+    x = lang.constant(0.5,reals)
+    assert model[erf(x)].symbol == sci.erf(0.5)
+
+def test_special_function_erfc():
+    import scipy.special as sci
+    from tarski.syntax.arithmetic.special import erfc
+    lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL])
+    model = Model(lang)
+    model.evaluator = evaluate
+    reals = lang.Real
+    x = lang.constant(0.5,reals)
+    assert model[erfc(x)].symbol == sci.erfc(0.5)
 
 def test_blocksworld_add():
     lang = blocksworld.generate_small_fstrips_bw_language()
