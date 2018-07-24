@@ -33,7 +33,7 @@ def main():
         author='Miquel Ramírez and Guillem Francès',
         author_email='-',
 
-        keywords='planning logic',
+        keywords='planning logic STRIPS',
         classifiers=[
             'Development Status :: 3 - Alpha',
 
@@ -90,6 +90,10 @@ def main():
         #         'sample=sample:main',
         #     ],
         # },
+
+        # This will include non-code files specified in the manifest, see e.g.
+        # http://python-packaging.readthedocs.io/en/latest/non-code-files.html
+        include_package_data=True
     )
 
 

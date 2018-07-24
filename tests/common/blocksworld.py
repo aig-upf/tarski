@@ -2,7 +2,14 @@
     Generate blocksworld language elements
 """
 import tarski as tsk
+from tarski.fstrips import create_fstrips_problem
 from tarski.theories import Theory
+
+
+def generate_small_fstrips_bw_problem():
+    return create_fstrips_problem(domain_name='blocksworld',
+                                  problem_name='test-instance',
+                                  language=generate_small_fstrips_bw_language())
 
 
 def generate_small_fstrips_bw_language():
