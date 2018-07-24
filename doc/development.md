@@ -13,7 +13,7 @@ Many Python IDEs support on-the-fly PEP 8 style checks; we additionally use
 [pycodestyle](https://pycodestyle.readthedocs.io/en/latest/).
 You can check code compliance by running e.g.:
 ```
-pylint src
+tox -e pylint
 ```
 
 Down the road we might consider using other tools such as [Google's YAPF](https://github.com/google/yapf).
@@ -37,7 +37,7 @@ installed first:
 ```
 virtualenv -p python3 venv
 source venv/bin/activate
-pip install pytest scipy tox detox
+pip install pytest tox detox
 ```
 
 Once this has been done, running `pytest` will work the same, but we avoid the need for

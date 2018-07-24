@@ -11,17 +11,18 @@ matrix:
     - python: 3.6
       env: TOXENV=py36 TARSKI_BUILD_GRAMMARS=true
 
+    # We test the lint script with Python 3.6 only
+    - python: 3.6
+      env: TOXENV=pylint
+
 #    - python: 3.7-dev
 #      env: TOXENV=py37
 #    - python: pypy3.5
 #      env: TOXENV=pypy3
 install:
   - pip install tox
-  - pip install pylint
-  - pip install pycodestyle
   - if [ "$TARSKI_BUILD_GRAMMARS" = "true" ]; then ./scripts/build-grammars; fi
 
 script:
   - tox --version
   - tox
-  - ./scripts/lint
