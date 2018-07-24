@@ -8,7 +8,7 @@ from ..terms import CompoundTerm
 from .errors import SubstitutionError
 
 
-class TermSubstitution(object):
+class TermSubstitution:
     """
         This Visitor applies a substitution operation on
         a given formula, replacing terms in the dictionary

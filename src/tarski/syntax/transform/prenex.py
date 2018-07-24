@@ -10,7 +10,7 @@ from ..transform.subst import TermSubstitution
 from .errors import TransformationError
 
 
-class PrenexTransformation(object):
+class PrenexTransformation:
     """
         This class rewrites the input formula phi into an equivalent formula
         in Prenex NNF

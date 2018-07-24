@@ -10,7 +10,7 @@ from ...syntax import QuantifiedFormula, Quantifier
 from . import instantiation
 
 
-class ConstraintGrounder(object):
+class ConstraintGrounder:
 
     def __init__(self, prob, index):
         self.problem = prob

@@ -40,7 +40,7 @@ def _check_assignment(fun, point, value=None):
     return tuple(processed[:-1]), processed[-1]
 
 
-class Model(object):
+class Model:
     """ A First Order Language Model """
 
     def __init__(self, language):
@@ -108,7 +108,7 @@ def create(lang):
     return Model(lang)
 
 
-class ExtensionalFunctionDefinition(object):
+class ExtensionalFunctionDefinition:
     def __init__(self):
         self.data = dict()
 
@@ -121,5 +121,5 @@ class ExtensionalFunctionDefinition(object):
         return self.data[point]
 
 
-# class IntensionalFunctionDefinition(object):
+# class IntensionalFunctionDefinition:
 #     pass

@@ -55,7 +55,7 @@ def esm(self, other):
     raise NotImplementedError()
 
 
-class SymbolReference(object):
+class SymbolReference:
 
     def __init__(self, component, eq_fn=emvr):
         self.expr = component
@@ -85,7 +85,7 @@ class SymbolReference(object):
         return str(self.expr)
 
 
-class CollectVariables(object):
+class CollectVariables:
     """
         This Visitor collects all Variables in a given formula
     """
@@ -115,7 +115,7 @@ class CollectVariables(object):
                     t.accept(self)
 
 
-class CollectFreeVariables(object):
+class CollectFreeVariables:
     def __init__(self, lang):
         self.L = lang
         self.quantified_vars = set()

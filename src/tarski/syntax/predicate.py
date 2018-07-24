@@ -4,7 +4,7 @@ from .sorts import Sort
 from .terms import Constant
 
 
-class Predicate(object):
+class Predicate:
     def __init__(self, name, language, *args):
 
         self._symbol = name  # name, a string

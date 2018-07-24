@@ -9,7 +9,7 @@ from ...util import IndexDictionary
 from . import instantiation
 
 
-class ActionGrounder(object):
+class ActionGrounder:
 
     def __init__(self, prob, index):
         self.problem = prob

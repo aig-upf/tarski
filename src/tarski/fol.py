@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from collections import defaultdict, OrderedDict
-from typing import List
 
 from . import errors as err
 from .syntax import Function, Constant, Variable, Sort, inclusion_closure, Predicate, Interval, sorts

@@ -522,7 +522,7 @@ class UndeclaredVariable(Exception):
         return 'in {} found undeclared variable {}'.format(self.component, repr(self.value))
 
 
-class ParserVariableContext(object):
+class ParserVariableContext:
     def __init__(self, parser: FStripsParser, pushed_variables, root=False):
         self.root = root
         self.parser = parser

@@ -9,13 +9,13 @@ from ..syntax.visitors import SymbolReference
 from ..syntax.terms import CompoundTerm
 
 
-class FluentHeuristic(object):
+class FluentHeuristic:
     action_effects = 1
     precondition = 2
     constraint = 3
 
 
-class FluentSymbolCollector(object):
+class FluentSymbolCollector:
     """
         This visitor collects CompoundTerms which are candidates to become
         state variables.

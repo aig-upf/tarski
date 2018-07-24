@@ -6,7 +6,7 @@ from ..utils.algorithms import transitive_closure
 from .errors import ArityDLMismatch
 
 
-class NullaryAtom(object):
+class NullaryAtom:
     ARITY = 0
 
     def __init__(self, predicate):
@@ -32,7 +32,7 @@ class NullaryAtom(object):
         return cache.nullary_value(self, state)
 
 
-class Concept(object):
+class Concept:
     ARITY = 1
 
     def __init__(self, sort, depth):
@@ -47,7 +47,7 @@ class Concept(object):
         raise NotImplementedError()
 
 
-class Role(object):
+class Role:
     ARITY = 2
 
     def __init__(self, sort, depth):

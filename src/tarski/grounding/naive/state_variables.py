@@ -13,7 +13,7 @@ from ...syntax.transform.subst import TermSubstitution
 from ..errors import UnableToGroundError
 
 
-class StateVariable(object):
+class StateVariable:
     """
     A state variable, a CompoundTerm or Atom which is expected to change its
     value, along with a particular instantiation of its subterms.

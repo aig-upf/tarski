@@ -11,7 +11,7 @@ from ..transform.subst import TermSubstitution
 from .errors import TransformationError
 
 
-class UniversalQuantifierElimination(object):
+class UniversalQuantifierElimination:
     """
         This class rewrites the input formula phi into an equivalent formula
         in Prenex NNF (referenced by the )

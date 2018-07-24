@@ -15,7 +15,7 @@ class FeatureValueChange(Enum):
     NIL = 5
 
 
-class Feature(object):
+class Feature:
     def value(self, cache, state, substitution):
         raise NotImplementedError()
 
@@ -106,7 +106,7 @@ class EmpiricalBinaryConcept(Feature):
     def value(self, cache, state, substitution):
         """ The feature value _is_ whether the cardinality of the extension of the represented concept is 0 or 1 """
         x = self.f.value(cache, state, substitution)
-        assert x == 0 or x == 1  # By definition of "empirical binary concept"
+        assert x in (0, 1)  # By definition of "empirical binary concept"
         return bool(x)
 
     def diff(self, x, y):

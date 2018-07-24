@@ -6,7 +6,7 @@ from .. import errors as err
 from .builtins import BuiltinPredicateSymbol, BuiltinFunctionSymbol
 
 
-class Term(object):
+class Term:
     """
         Term class
 
