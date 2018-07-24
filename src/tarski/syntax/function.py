@@ -47,6 +47,9 @@ class Function:
                     domain=[a.name for a in self.domain],
                     codomain=self.codomain.name)
 
+    def uniform_arity(self):
+        return len(self.domain) + 1
+
     def __call__(self, *args):
         return CompoundTerm(self, args)
 
