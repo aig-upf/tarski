@@ -5,6 +5,7 @@ from collections import defaultdict
 from tarski import Term, Variable, Constant, Formula
 from tarski.model import ExtensionalFunctionDefinition
 from tarski.syntax import Tautology, Contradiction, Atom, CompoundTerm, CompoundFormula, QuantifiedFormula
+from tarski.syntax.sorts import parent
 
 from ._fstrips.common import tarsky_to_pddl_type, get_requirements_string
 from ..fstrips import create_fstrips_problem, language, FunctionalEffect, AddEffect, DelEffect
@@ -155,9 +156,9 @@ class FstripsWriter(object):
             if t.builtin or t == self.lang.Object:
                 continue  # Don't declare builtin elements
             tname = tarsky_to_pddl_type(t)
-            parent = self.lang.get_parent(t)
-            if parent:
-                res.append("{} - {}".format(tname, tarsky_to_pddl_type(parent)))
+            p = parent(t)
+            if p:
+                res.append("{} - {}".format(tname, tarsky_to_pddl_type(p)))
             else:
                 res.append(tname)
         return ("\n" + _TAB*2).join(res)

@@ -19,15 +19,12 @@ class FirstOrderLanguage:
         self.name = name
         self._sorts = {}
 
-        # TODO (GFM) I would refactor all of the type information into some kind of TableInfo class that keeps
-        # TODO (GFM) all of the necessary data structures to retrieve parenthood, childhood, etc. information.
         # MRJ: let's represent this temporally as pairs of names of sorts,
         # lhs \sqsubseteq rhs, lhs is a subset of rhs
-        self._sort_hierarchy = set()
         self.immediate_parent = dict()
 
-        # _possible_promotions[t] is a set containing all supertypes of sort 't'
-        self._possible_promotions = defaultdict(set)
+        # ancestor_sorts[t] is a set containing all supertypes of sort 't', but NOT 't'
+        self.ancestor_sorts = defaultdict(set)
 
         self._functions = {}
         self._predicates = {}
@@ -50,10 +47,6 @@ class FirstOrderLanguage:
     def variables(self):
         for x in self._variables:
             yield x
-
-    @property
-    def sort_hierarchy(self):
-        return self._sort_hierarchy
 
     @property
     def sorts(self):
@@ -95,30 +88,30 @@ class FirstOrderLanguage:
         the_reals = sorts.build_the_reals(self)
         self._sorts['Real'] = the_reals
         self.set_parent(the_reals, self.Object)
-        self.immediate_parent[the_reals] = self.Object
         # self.create_builtin_predicates(the_reals)
 
     def _build_the_integers(self):
         the_ints = sorts.build_the_integers(self)
         self._sorts['Integer'] = the_ints
         self.set_parent(the_ints, self.Real)
-        self.immediate_parent[the_ints] = self.Real
         # self.create_builtin_predicates(the_ints)
 
     def _build_the_naturals(self):
         the_nats = sorts.build_the_naturals(self)
         self._sorts['Natural'] = the_nats
         self.set_parent(the_nats, self.Integer)
-        self.immediate_parent[the_nats] = self.Integer
         # self.create_builtin_predicates(the_nats)
 
     def _build_the_objects(self):
         sort = Sort('object', self)
         self._sorts['object'] = sort
+        self.immediate_parent[sort] = None
+        self.ancestor_sorts[sort] = set()
 
-    def sort(self, name: str, ancestors: List[Sort] = None):
+    def sort(self, name: str, parent: Sort = None):
         """
-            Create new sort with given name and ancestor list
+            Create new sort with given name and parent sort.
+            If no parent is specified, the topmost "object" sort is assumed as parent.
 
             Raises err.DuplicateSortDefinition if sort already existed
         """
@@ -128,17 +121,8 @@ class FirstOrderLanguage:
         sort = Sort(name, self)
         self._sorts[name] = sort
 
-        # Set up promotions table
-        ancestors = set(ancestors) if ancestors else set()
-
-        if len(ancestors) == 1:  # TODO This HACK should be elsewhere, and we should for single inheritance?
-            self.immediate_parent[sort] = next(iter(ancestors))
-        elif len(ancestors) == 0:
-            self.immediate_parent[sort] = self.get_sort("object")
-
-        ancestors.add(self.get_sort("object"))  # Make sure all sorts derive from "object"
-        for parent in ancestors:
-            self.set_parent(sort, parent)
+        parent = parent or self.get_sort("object")
+        self.set_parent(sort, parent)
 
         # self.create_builtin_predicates(sort)
         return sort
@@ -167,8 +151,6 @@ class FirstOrderLanguage:
         self._sorts[name] = sort
 
         self.set_parent(sort, parent)
-        self.immediate_parent[sort] = parent
-        self.set_parent(sort, self.get_sort("object"))  # TODO: Not sure if we really need / want this
 
         return sort
 
@@ -176,16 +158,16 @@ class FirstOrderLanguage:
         sort = self._retrieve_object(sort, Sort)
         return Variable(name, sort)
 
-    def set_parent(self, lhs: Sort, rhs: Sort):
-        if rhs.language is not self:
-            raise err.LanguageError("FOL.sort(): tried to set as parent a sort from a different language")
-        self._sort_hierarchy.add((lhs.name, rhs.name))
-        self._possible_promotions[lhs.name].update(inclusion_closure(rhs))
+    def set_parent(self, sort: Sort, parent: Sort):
+        if parent.language is not self:
+            raise err.LanguageError("Tried to set as parent a sort from a different language")
 
-    def get_parent(self, sort: Sort):
-        if sort.language is not self:
-            raise err.LanguageError("Language mismatch")
-        return self.immediate_parent[sort] if sort in self.immediate_parent else None
+        p = self.immediate_parent.get(sort, None)
+        if p is not None:
+            raise err.LanguageError('Tried to set parent of sort "{}", which has already parent {}'.format(sort, p))
+
+        self.immediate_parent[sort] = parent
+        self.ancestor_sorts[sort].update(inclusion_closure(parent))
 
     def _retrieve_object(self, obj, type_):
         """
@@ -307,7 +289,7 @@ class FirstOrderLanguage:
     def is_strict_subtype(self, t, st):
         t = self._retrieve_object(t, Sort)
         st = self._retrieve_object(st, Sort)
-        return st in self._possible_promotions[t._name]
+        return st in self.ancestor_sorts[t]
 
     def are_vertically_related(self, t1, t2):
         t1 = self._retrieve_object(t1, Sort)

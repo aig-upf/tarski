@@ -34,6 +34,7 @@ class Sort:
         return self._name
 
     def contains(self, x):
+        """ Return true iff the current sort contains a constant with the given value  """
         # TODO - Refactor this, we shouldn't be checking for two different ways of representing a value
         try:
             return x.symbol in self._domain
@@ -58,8 +59,9 @@ class Sort:
                     domain=list(self._domain))  # Copy the list
 
     def extend(self, constant):
+        """ Extend the domain of the current sort, and recursively of the parent sorts, with a new constant. """
         self._domain.add(constant.symbol)
-        for p in parents(self):
+        for p in ancestors(self):
             p.extend(constant)
 
     def domain(self):
@@ -108,14 +110,16 @@ class Interval(Sort):
                 raise err.SemanticError('Cannot encode "{}"'.format(x))
             return False
 
-        # Downcasting Python literals from their type to a subtype (i.e. Real
-        # to Integer) works whenever the resulting instance of the subtype belongs
+        # TODO (GFM) I am not sure we want / need this functionality at this low level.
+        # TODO       I don't think that Natural.contains(1.0) should return true, although
+        # TODO       I wouldn't be opposed to having this functionalty elsewhere, e.g. in a method "downcast", etc.
+        # Downcasting Python literals from their type to a subtype (i.e. Real to Integer) works
+        #  whenever the resulting instance of the subtype belongs
         # to the domain *and* Python equality over the subtype instance and the
         # supertype instance returns true. For instance, downcasting 1.0 to
         # integers is okay, but 1.2 will not.
-        relevant_supers = set(parents(self))
-        while len(relevant_supers) > 0:
-            p = relevant_supers.pop()
+        p = parent(self)
+        while p is not None:
             try:
                 z = p.cast(x)
             except ValueError:
@@ -124,8 +128,7 @@ class Interval(Sort):
                 if raises_exceptions:
                     raise err.SemanticError('{} casted into y: {} and z: {}, y!=z'.format(x, y, z))
                 return False
-            for p2 in parents(p):
-                relevant_supers.add(p2)
+            p = parent(p)
 
         return self.is_within_bounds(y)
 
@@ -137,35 +140,22 @@ class Interval(Sort):
 def inclusion_closure(s: Sort) -> Set[Sort]:
     """ Calculates the inclusion closure over given sort s """
     closure = set()
-    frontier = {s}
-    while len(frontier) > 0:
-        s = frontier.pop()
+    while s is not None:
         closure.add(s)
-        for p in parents(s):
-            frontier.add(p)
+        s = parent(s)
     return closure
 
 
-def parents(s: Sort) -> List[Sort]:
-    """ Returns direct parent sorts in the sort hierarchy associated with
-        the language
-    """
-    _parents = []
-    for lhs, rhs in s.language.sort_hierarchy:
-        if lhs == s.name:
-            _parents.append(s.language.get_sort(rhs))
-    return _parents
+def parent(s: Sort) -> Sort:
+    """ Returns the direct parent of the given sort, or None if it is the root sort "object" """
+    assert s in s.language.immediate_parent
+    return s.language.immediate_parent[s]
 
 
-def children(s: Sort) -> List[Sort]:
-    """ Return direct child sorts in the sort hierarchy associated with
-        the language
-    """
-    _children = []
-    for lhs, rhs in s.language.sort_hierarchy:
-        if rhs == s:
-            _children.append(s.language.sort(lhs))
-    return _children
+def ancestors(s: Sort) -> Set[Sort]:
+    """ Return all ancestor along the sort hierarchy of the given sort """
+    assert s in s.language.ancestor_sorts
+    return s.language.ancestor_sorts[s]
 
 
 def int_encode_fn(x):

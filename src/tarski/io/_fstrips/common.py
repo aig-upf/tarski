@@ -75,5 +75,4 @@ def create_sort(lang, typename, basename):
         upper = parent.upper_bound
         lang.interval(typename, parent, lower, upper)
     else:
-        parents = [lang.get_sort(basename)]
-        lang.sort(typename, parents)
+        lang.sort(typename, lang.get_sort(basename))

@@ -17,7 +17,7 @@ def generate_small_fstrips_bw_language():
 
     # The sorts
     place = lang.sort('place')
-    block = lang.sort('block', [place])
+    block = lang.sort('block', place)
 
     lang.predicate('clear', place)
     lang.function('loc', block, place)
