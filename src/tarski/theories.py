@@ -50,10 +50,11 @@ def load_theory(lang, theory):
             f = lang.function(fun, object_t, object_t, object_t)
             f.builtin = True
 
-        lang.theories.append(theory)
         # print("Loaded theory '{}'".format(theory))
     else:
         raise err.UnknownTheory(theory)
+
+    lang.theories.append(theory)
 
 
 def create_casting_handler(symbol, factory_method):

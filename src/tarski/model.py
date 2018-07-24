@@ -49,10 +49,11 @@ class Model(object):
         self.function_extensions = dict()
         self.predicate_extensions = defaultdict(set)
 
-    def set(self, fun: Function, point, value):
+    def set(self, fun, point, value):
         """ Set the value of function 'fun' at point 'point' to be equal to 'value'
             'point' needs to be a tuple of constants, and value a single constant.
         """
+        assert isinstance(fun, Function)
         point, value = _check_assignment(fun, point, value)
         if fun.signature not in self.function_extensions:
             definition = self.function_extensions[fun.signature] = ExtensionalFunctionDefinition()

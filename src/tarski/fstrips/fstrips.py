@@ -72,7 +72,7 @@ class OptimizationMetric(object):
         self.opt_type = opt_type
 
 
-def language(name="L", theories=None):
+def language(name="Unnamed FOL Language", theories=None):
     """ Create an FSTRIPS-oriented First-Order Language.
         This is a standard FOL with a few convenient add-ons.
     """
