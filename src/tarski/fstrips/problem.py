@@ -6,7 +6,7 @@ from .action import Action
 from . import errors as err
 
 
-class Problem(object):
+class Problem:
     """ A Functional STRIPS problem """
 
     def __init__(self, problem_name=None, domain_name=None):

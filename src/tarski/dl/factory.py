@@ -12,7 +12,7 @@ def filter_subnodes(elem, t):
     return list(filter(lambda x: type(x) == t, elem.flatten()))
 
 
-class SyntacticFactory(object):
+class SyntacticFactory:
     def __init__(self, language: FirstOrderLanguage):
         self.language = language
         self.universe_sort = language.get_sort('object')

@@ -8,7 +8,7 @@ from ..transform import NNFTransformation
 from .errors import TransformationError
 
 
-class CNFTransformation(object):
+class CNFTransformation:
     """
         This class rewrites an input quantifier free formula phi into an equivalent formula
         in CNF
@@ -58,7 +58,7 @@ class CNFTransformation(object):
         elif isinstance(phi, CompoundFormula):
             if phi.connective == Connective.Not:
                 self.current_clause.append(phi)
-                return
+                return None
             elif phi.connective == Connective.And:
                 self.current_clause = []
                 self.collect_clauses(phi.subformulas[0])
@@ -66,11 +66,11 @@ class CNFTransformation(object):
                 self.current_clause = []
                 self.collect_clauses(phi.subformulas[1])
                 self.clauses.append(self.current_clause)
-                return
+                return None
             else:
                 self.collect_clauses(phi.subformulas[0])
                 self.collect_clauses(phi.subformulas[1])
-                return
+                return None
         self.current_clause.append(phi)
         return phi
 

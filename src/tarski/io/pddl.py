@@ -1,6 +1,6 @@
 
 
-class PddlReader(object):
+class PddlReader:
 
     def __init__(self, filename):
         self.filename = filename
@@ -9,7 +9,7 @@ class PddlReader(object):
         raise RuntimeError("Unimplemented")
 
 
-class PddlWriter(object):
+class PddlWriter:
 
     def __init__(self, filename):
         self.filename = filename

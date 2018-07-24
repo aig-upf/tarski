@@ -1,4 +1,4 @@
-from typing import List, Set
+from typing import Set
 from .. import errors as err
 
 
@@ -85,7 +85,7 @@ class Interval(Sort):
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
 
-    def extend(self, x):
+    def extend(self, constant):
         pass  # TODO ???
 
     def cast(self, x):

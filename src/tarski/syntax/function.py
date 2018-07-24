@@ -6,7 +6,7 @@ from .terms import CompoundTerm
 from .sorts import Sort
 
 
-class Function(object):
+class Function:
     def __init__(self, symbol, language, *args):
         self.symbol = symbol
         self.language = language

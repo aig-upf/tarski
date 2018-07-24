@@ -9,7 +9,7 @@ from ..formulas import Connective, Atom, QuantifiedFormula, CompoundFormula
 from ..builtins import create_atom
 
 
-class NegatedBuiltinAbsorption(object):
+class NegatedBuiltinAbsorption:
     """
         This class rewrites the input formula phi into an equivalent formula
         absorbing the negation if the negated formula is a built-in

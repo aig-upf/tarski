@@ -26,7 +26,7 @@ class Quantifier(Enum):
         return self.name.lower()
 
 
-class Formula(object):
+class Formula:
 
     def __str__(self):
         raise RuntimeError("Abstract Method Formula.__str__ was called!")
@@ -306,7 +306,7 @@ class Atom(Formula):
 #         return '{}({})'.format(self.name, ','.join([str(t) for t in self._subterms]))
 
 
-class VariableBinding(object):
+class VariableBinding:
     """ A VariableBinding contains a set of logical variables which are _bound_ in some formula or term """
 
     def __init__(self, variables=None):

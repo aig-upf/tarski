@@ -1,6 +1,6 @@
 
 
-class JsonReader(object):
+class JsonReader:
 
     def __init__(self, filename):
         self.filename = filename
@@ -9,7 +9,7 @@ class JsonReader(object):
         raise NotImplementedError()
 
 
-class JsonWriter(object):
+class JsonWriter:
 
     def __init__(self, filename):
         self.filename = filename

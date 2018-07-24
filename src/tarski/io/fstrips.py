@@ -15,7 +15,7 @@ from ._fstrips.reader import FStripsParser
 _CURRENT_DIR_ = os.path.dirname(os.path.realpath(__file__))
 
 
-class FstripsReader(object):
+class FstripsReader:
 
     def __init__(self, raise_on_error=False, theories=None):
 
@@ -103,7 +103,7 @@ def print_goal(problem):
     return print_formula(problem.goal, 1)
 
 
-class FstripsWriter(object):
+class FstripsWriter:
 
     def __init__(self, problem):
         self.problem = problem
@@ -183,7 +183,7 @@ class FstripsWriter(object):
         return ("\n" + _TAB*2).join(res)
 
     def get_actions(self):
-        return "\n\n".join(self.get_action(a) for a in self.problem.actions.values())
+        return "\n".join(self.get_action(a) for a in self.problem.actions.values())
 
     def get_action(self, a):
         base_indentation = 1

@@ -4,7 +4,7 @@
 from collections import OrderedDict
 
 
-class UninitializedAttribute(object):
+class UninitializedAttribute:
     def __init__(self, name):
         object.__setattr__(self, 'name', name)
 
@@ -23,7 +23,7 @@ class UninitializedAttribute(object):
     __contains__ = _raise_error
 
 
-class IndexDictionary(object):
+class IndexDictionary:
     """
     A very basic indexing mechanism object that assigns consecutive indexes to the indexed objects.
     """
