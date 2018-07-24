@@ -191,6 +191,56 @@ class CompoundTerm(Term):
     def __hash__(self):
         return hash(str(self))
 
+class LiftedNestedTerm(Term):
+    """
+        Nested terms defined over a set of variables (e.g. summation)
+    """
+
+    def __init__(self, vars, symbol, term: Term):
+
+        self.symbol = symbol
+
+        if len(subterms) != self.symbol.arity:
+            raise err.ArityMismatch(symbol, subterms)
+        argument_sorts = list(self.symbol.sort)[:-1]
+        processed_st = []
+        for k, s in enumerate(argument_sorts):
+            # @TODO Implement upcasting for non built-in compound terms
+            try:
+                if subterms[k].sort.name != s.name and not self.symbol.language.is_subtype(subterms[k].sort, s):
+                    raise err.SortMismatch(self.symbol, subterms[k].sort, s)
+                processed_st.append(subterms[k])
+            except AttributeError:
+                s_k = s.cast(subterms[k])
+                if s_k is None:
+                    raise err.SortMismatch(self.symbol, subterms[k], s)
+                processed_st.append(s_k)
+        self.subterms = tuple(processed_st)
+        self.symbol.language.language_components_frozen = True
+
+    @property
+    def language(self):
+        return self.symbol.language
+
+    @property
+    def sort(self):
+        return self.symbol.codomain
+
+    # def __deepcopy__(self, memo):
+    #     newone = type(self)(self.symbol, self.sort, self.language)
+    #     memo[id(self)] = newone
+    #     for k, v in self.__dict__.items():
+    #         setattr(newone, k, copy.deepcopy(v, memo))
+    #     return newone
+
+    def __str__(self):
+        # MRJ: we don't want to print the symbol/signature
+        # but rather the name.
+        return '{}({})'.format(self.symbol.symbol, ', '.join([str(t) for t in self.subterms]))
+
+    def __hash__(self):
+        return hash(str(self))
+
 
 class Constant(Term):
     def __init__(self, symbol, sort: Sort):
