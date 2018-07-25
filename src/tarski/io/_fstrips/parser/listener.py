@@ -512,60 +512,6 @@ class fstripsListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by fstripsParser#FunctionalProcessEffectExpr.
-    def enterFunctionalProcessEffectExpr(self, ctx:fstripsParser.FunctionalProcessEffectExprContext):
-        pass
-
-    # Exit a parse tree produced by fstripsParser#FunctionalProcessEffectExpr.
-    def exitFunctionalProcessEffectExpr(self, ctx:fstripsParser.FunctionalProcessEffectExprContext):
-        pass
-
-
-    # Enter a parse tree produced by fstripsParser#ConstProcessEffectExpr.
-    def enterConstProcessEffectExpr(self, ctx:fstripsParser.ConstProcessEffectExprContext):
-        pass
-
-    # Exit a parse tree produced by fstripsParser#ConstProcessEffectExpr.
-    def exitConstProcessEffectExpr(self, ctx:fstripsParser.ConstProcessEffectExprContext):
-        pass
-
-
-    # Enter a parse tree produced by fstripsParser#VariableProcessEffectExpr.
-    def enterVariableProcessEffectExpr(self, ctx:fstripsParser.VariableProcessEffectExprContext):
-        pass
-
-    # Exit a parse tree produced by fstripsParser#VariableProcessEffectExpr.
-    def exitVariableProcessEffectExpr(self, ctx:fstripsParser.VariableProcessEffectExprContext):
-        pass
-
-
-    # Enter a parse tree produced by fstripsParser#processFunctionEff.
-    def enterProcessFunctionEff(self, ctx:fstripsParser.ProcessFunctionEffContext):
-        pass
-
-    # Exit a parse tree produced by fstripsParser#processFunctionEff.
-    def exitProcessFunctionEff(self, ctx:fstripsParser.ProcessFunctionEffContext):
-        pass
-
-
-    # Enter a parse tree produced by fstripsParser#processConstEff.
-    def enterProcessConstEff(self, ctx:fstripsParser.ProcessConstEffContext):
-        pass
-
-    # Exit a parse tree produced by fstripsParser#processConstEff.
-    def exitProcessConstEff(self, ctx:fstripsParser.ProcessConstEffContext):
-        pass
-
-
-    # Enter a parse tree produced by fstripsParser#processVarEff.
-    def enterProcessVarEff(self, ctx:fstripsParser.ProcessVarEffContext):
-        pass
-
-    # Exit a parse tree produced by fstripsParser#processVarEff.
-    def exitProcessVarEff(self, ctx:fstripsParser.ProcessVarEffContext):
-        pass
-
-
     # Enter a parse tree produced by fstripsParser#ConjunctiveEffectFormula.
     def enterConjunctiveEffectFormula(self, ctx:fstripsParser.ConjunctiveEffectFormulaContext):
         pass
