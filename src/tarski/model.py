@@ -66,12 +66,12 @@ class Model:
 
     def add(self, predicate: Predicate, *args):
         point = _check_assignment(predicate, args)
-
-        entry = tuple(a.symbol for a in point)
-        self.predicate_extensions[predicate.signature].add(entry)
+        # point = tuple(a.symbol for a in point)
+        self.predicate_extensions[predicate.signature].add(point)
 
     def remove(self, predicate: Predicate, *args):
-        entry = tuple(a.symbol for a in args)
+        # point = tuple(a.symbol for a in args)
+        point = args
 
         # try:
         #
@@ -83,7 +83,7 @@ class Model:
         #     else :
         #         raise err.LanguageError('Model.remove() : arguments of tuple to add for predicate
         #  needs to be a tuple of constants or a constant')
-        self.predicate_extensions[predicate.signature].remove(entry)
+        self.predicate_extensions[predicate.signature].remove(point)
 
     def value(self, fun: Function, point):
         """ Return the value of the given function on the given point in the current model """
@@ -92,7 +92,8 @@ class Model:
 
     def holds(self, predicate: Predicate, point):
         """ Return true iff the given predicate is true on the given point in the current model """
-        return  tuple(c.symbol for c in point) in self.predicate_extensions[predicate.signature]
+        # return tuple(c.symbol for c in point) in self.predicate_extensions[predicate.signature]
+        return point in self.predicate_extensions[predicate.signature]
 
     def __getitem__(self, arg):
         try:
