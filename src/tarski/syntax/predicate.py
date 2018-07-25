@@ -69,4 +69,5 @@ class Predicate:
                                     'was expected to be {}'.format(k + 1, arg.sort.name, self.sort[k].name))
 
     def satisfied(self, *args):
+        # pylint: disable=unused-argument
         raise ValueError("Extensionally defined")

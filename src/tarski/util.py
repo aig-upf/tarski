@@ -9,6 +9,7 @@ class UninitializedAttribute:
         object.__setattr__(self, 'name', name)
 
     def _raise_error(self, *args, **kwargs):
+        # pylint: disable=unused-argument
         raise AttributeError("Attempt to access object '{}', which has not yet been initialized. "
                              "Revise the application workflow.".format(object.__getattribute__(self, 'name')))
 
