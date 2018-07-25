@@ -148,7 +148,7 @@ class CollectFreeVariables:
                 else:
                     t.accept(self)
         elif isinstance(phi, CompoundTerm):
-            for k, t in enumerate(phi.subterms):
+            for _, t in enumerate(phi.subterms):
                 if isinstance(t, Variable):
                     t_ref = SymbolReference(t, esm)
                     if t_ref not in self.quantified_vars:

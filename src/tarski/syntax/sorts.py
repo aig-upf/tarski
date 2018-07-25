@@ -131,8 +131,6 @@ class Interval(Sort):
             except ValueError:
                 raise err.LanguageError()
             if z is not None and x != z:
-                if raises_exceptions:
-                    raise err.SemanticError('{} casted into y: {} and z: {}, y!=z'.format(x, y, z))
                 return None
             p = parent(p)
 

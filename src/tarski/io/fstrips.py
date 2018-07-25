@@ -65,7 +65,7 @@ def print_objects(problem):
         constants_by_sort[c.sort.name].append(c.symbol)
 
     elements = []
-    for i, sort in enumerate(sorted(constants_by_sort.keys()), 0):
+    for sort in sorted(constants_by_sort.keys()):
         sobjects = " ".join(sorted(constants_by_sort[sort]))
         elements.append("{} - {}".format(sobjects, sort))
 
@@ -125,10 +125,12 @@ def print_domain_bounds(problem):
 
 
 def print_problem_constraints(problem):
+    # pylint: disable=unused-argument
     return ""  # TODO
 
 
 def print_problem_metric(problem):
+    # pylint: disable=unused-argument
     return ""  # TODO
 
 
@@ -234,6 +236,7 @@ def print_variable_list(parameters):
 
 
 def print_formula(formula, indentation=0):
+    # pylint: disable=unused-argument
     assert isinstance(formula, Formula)
     if isinstance(formula, Tautology):
         return "(and )"
