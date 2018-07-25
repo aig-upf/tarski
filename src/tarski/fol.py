@@ -49,7 +49,7 @@ class FirstOrderLanguage:
 
     @property
     def sorts(self):
-        for s in self._sorts.items():
+        for s in self._sorts.values():
             yield s
 
     @property
