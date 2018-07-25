@@ -3,6 +3,8 @@
 """
 from enum import Enum
 
+from tarski import Function
+
 from .concepts import Concept, Role, NullaryAtom
 from ..utils.algorithms import compute_min_distance
 
@@ -63,6 +65,7 @@ def compute_bool_feature_diff(x, y):
 
 
 class ConceptCardinalityFeature(Feature):
+    """ A numeric feature that reflects the cardinality of a set of objects defined by a concept """
     def __init__(self, c):
         assert isinstance(c, Concept)
         self.c = c
@@ -129,6 +132,40 @@ class EmpiricalBinaryConcept(Feature):
 
     def weight(self):
         return self.concept().depth
+
+
+class IntegerVariableFeature(Feature):
+    """ A numeric feature that directly reflects the value of some integer variable of the problem """
+    def __init__(self, fun, point):
+        assert isinstance(fun, Function)
+        assert isinstance(point, tuple)
+        self.fun = fun
+        self.point = point
+        self.hash = hash((self.__class__, self.fun.symbol, point))
+
+    def value(self, cache, state, substitution):
+        """ The feature value _is_ the cardinality of the extension of the represented concept"""
+        raise RuntimeError("Unimplemented")
+        # ext = self.c.extension(cache, state, substitution)
+        # return ext.count()
+
+    def diff(self, x, y):
+        return compute_int_feature_diff(x, y)
+
+    def __repr__(self):
+        return 'int[{}]'.format(self.fun(*self.point))
+
+    __str__ = __repr__
+
+    def __hash__(self):
+        return self.hash
+
+    def __eq__(self, other):
+        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
+                self.fun == other.fun and self.point == other.point)
+
+    def weight(self):
+        return 0
 
 
 class MinDistanceFeature(Feature):
