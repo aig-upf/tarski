@@ -94,7 +94,10 @@ def print_init(problem):
 
     # e.g. (clear b1)
     for signature, definition in problem.init.predicate_extensions.items():
-        raise RuntimeError("Unimplemented")
+        assert isinstance(definition, set)
+        predname = signature[0]
+        for point in definition:
+            elements.append("({} {})".format(predname, print_term_list(point)))
 
     return linebreaks(elements, indentation=2, indent_first=False)
 
