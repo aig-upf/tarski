@@ -1,7 +1,7 @@
 """
 
 """
-from ..syntax import Predicate
+from ..syntax import Predicate, Function
 from ..utils.algorithms import transitive_closure
 from .errors import ArityDLMismatch
 
@@ -136,7 +136,7 @@ class SingletonConcept(Concept):
 
 class PrimitiveConcept(Concept):
     def __init__(self, predicate):
-        assert isinstance(predicate, Predicate)
+        assert isinstance(predicate, (Predicate, Function))
         _check_arity("concept", 1, predicate)
         Concept.__init__(self, predicate.sort[0].name, 0)
         self.name = predicate.symbol  # This is a bit aggressive, but we assume that predicate names are unique
@@ -336,7 +336,7 @@ class EqualConcept(Concept):
 
 class PrimitiveRole(Role):
     def __init__(self, predicate):
-        assert isinstance(predicate, Predicate)
+        assert isinstance(predicate, (Predicate, Function))
         _check_arity("role", 2, predicate)
         super().__init__([s.name for s in predicate.sort], 0)
         self.name = predicate.symbol
@@ -492,7 +492,6 @@ class RestrictRole(Role):
         return [self] + self.r.flatten() + self.c.flatten()
 
 
-def _check_arity(term, expected_arity, predicate):
-    if expected_arity != predicate.arity:
-        raise ArityDLMismatch('Cannot create {} from arity-{} predicate "{}"'
-                              .format(term, predicate.arity, predicate))
+def _check_arity(term, expected_arity, predfun):
+    if expected_arity != predfun.uniform_arity():
+        raise ArityDLMismatch('Cannot create {} from predicate "{}"'.format(term, predfun))

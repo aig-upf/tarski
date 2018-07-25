@@ -289,36 +289,6 @@ class fstripsVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by fstripsParser#FunctionalProcessEffectExpr.
-    def visitFunctionalProcessEffectExpr(self, ctx:fstripsParser.FunctionalProcessEffectExprContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by fstripsParser#ConstProcessEffectExpr.
-    def visitConstProcessEffectExpr(self, ctx:fstripsParser.ConstProcessEffectExprContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by fstripsParser#VariableProcessEffectExpr.
-    def visitVariableProcessEffectExpr(self, ctx:fstripsParser.VariableProcessEffectExprContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by fstripsParser#processFunctionEff.
-    def visitProcessFunctionEff(self, ctx:fstripsParser.ProcessFunctionEffContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by fstripsParser#processConstEff.
-    def visitProcessConstEff(self, ctx:fstripsParser.ProcessConstEffContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by fstripsParser#processVarEff.
-    def visitProcessVarEff(self, ctx:fstripsParser.ProcessVarEffContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by fstripsParser#ConjunctiveEffectFormula.
     def visitConjunctiveEffectFormula(self, ctx:fstripsParser.ConjunctiveEffectFormulaContext):
         return self.visitChildren(ctx)

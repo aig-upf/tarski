@@ -49,7 +49,7 @@ class Sort:
         except AttributeError:
             if x in self._domain:
                 return x
-        return None
+            raise ValueError("Cast: Symbol '{}' does not belong to domain {}".format(x, self))
 
     def cardinality(self):
         return len(self._domain)
@@ -88,49 +88,53 @@ class Interval(Sort):
     def extend(self, constant):
         pass  # TODO ???
 
-    def cast(self, x):
-        if isinstance(x, str):
-            try:
-                return getattr(self, x)  # TODO: WHAT IS THIS??
-            except AttributeError:
-                pass
-        y = self.encode(x)  # can raise ValueError
-        if not self.is_within_bounds(y):
-            raise ValueError("Interval.cast(): Symbol '{}' (encoded '{}') does not belong to the domain".format(x, y))
-        return y
-
     def cardinality(self):
         return self.upper_bound - self.lower_bound + 1
 
-    def contains(self, x, raises_exceptions=False):
+    def cast(self, x):
+        """ Casts the given value as an element of the current domain,
+        or raise ValueError if it does not belong to it """
+        # if isinstance(x, str):
+        #     try:
+        #         return getattr(self, x)  # TODO: WHAT IS THIS??
+        #     except AttributeError:
+        #         pass
+        y = self.encode(x)  # can raise ValueError
+        if not self.is_within_bounds(y):
+            raise ValueError("Cast: Symbol '{}' (encoded '{}') outside of defined interval bounds".format(x, y))
+        return y
+
+    def contains(self, x):
+        """ Returns true iff the given value belongs to the current domain """
         try:
             y = self.encode(x)
         except ValueError:
-            if raises_exceptions:
-                raise err.SemanticError('Cannot encode "{}"'.format(x))
             return False
+        return self.is_within_bounds(y)
 
-        # TODO (GFM) I am not sure we want / need this functionality at this low level.
-        # TODO       I don't think that Natural.contains(1.0) should return true, although
-        # TODO       I wouldn't be opposed to having this functionalty elsewhere, e.g. in a method "downcast", etc.
+    def _downcast(self, x):
+        """ Check whether the given value belongs to the current sort _or_ can be downcasted to it.
+        e.g. Integer.downcast(1.0) would return 1; whereas Integer.downcast(1.4) would return None. """
+        # TODO (GFM) - Not sure we need this, and not sure whether the method works as it is
+        # TODO (GFM) - If noone is using this we should remove it soon
+        if self.contains(x):
+            return self.encode(x)
+
         # Downcasting Python literals from their type to a subtype (i.e. Real to Integer) works
-        #  whenever the resulting instance of the subtype belongs
+        # whenever the resulting instance of the subtype belongs
         # to the domain *and* Python equality over the subtype instance and the
-        # supertype instance returns true. For instance, downcasting 1.0 to
-        # integers is okay, but 1.2 will not.
+        # supertype instance returns true.
         p = parent(self)
         while p is not None:
             try:
                 z = p.cast(x)
             except ValueError:
                 raise err.LanguageError()
-            if z is not None and y != z:
+            if z is not None and x != z:
                 if raises_exceptions:
                     raise err.SemanticError('{} casted into y: {} and z: {}, y!=z'.format(x, y, z))
-                return False
+                return None
             p = parent(p)
-
-        return self.is_within_bounds(y)
 
     def dump(self):
         return dict(name=self.name,
@@ -159,6 +163,8 @@ def ancestors(s: Sort) -> Set[Sort]:
 
 
 def int_encode_fn(x):
+    if isinstance(x, float) and not x.is_integer():
+        raise ValueError()  # We don't want 1.2 to get encoded as an int
     return int(x)
 
 

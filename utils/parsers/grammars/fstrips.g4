@@ -80,7 +80,7 @@ domainName
     ;
 
 requireDef
-	: '(' ':requirements' REQUIRE_KEY+ ')'
+	: '(' ':requirements' REQUIRE_KEY* ')'
 	;
 
 declaration_of_types

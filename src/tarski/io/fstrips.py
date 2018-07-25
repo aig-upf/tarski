@@ -5,7 +5,7 @@ from collections import defaultdict
 from tarski import Term, Variable, Constant, Formula
 from tarski.model import ExtensionalFunctionDefinition
 from tarski.syntax import Tautology, Contradiction, Atom, CompoundTerm, CompoundFormula, QuantifiedFormula
-from tarski.syntax.sorts import parent
+from tarski.syntax.sorts import parent, Interval, ancestors
 
 from ._fstrips.common import tarsky_to_pddl_type, get_requirements_string
 from ..fstrips import create_fstrips_problem, language, FunctionalEffect, AddEffect, DelEffect
@@ -94,13 +94,42 @@ def print_init(problem):
 
     # e.g. (clear b1)
     for signature, definition in problem.init.predicate_extensions.items():
-        raise RuntimeError("Unimplemented")
+        assert isinstance(definition, set)
+        predname = signature[0]
+        for point in definition:
+            elements.append("({} {})".format(predname, print_term_list(point)))
 
     return linebreaks(elements, indentation=2, indent_first=False)
 
 
 def print_goal(problem):
     return print_formula(problem.goal, 1)
+
+
+def print_domain_bounds(problem):
+    lang = problem.language
+    bounds = []
+    for sort in lang.sorts:
+        if not sort.builtin and isinstance(sort, Interval):
+            assert lang.has_sort('Integer')
+            if lang.Integer in ancestors(sort):
+                bounds.append("({} - int[{}..{}])".format(sort.name, sort.lower_bound, sort.upper_bound))
+            elif lang.Real in ancestors(sort):
+                pass  # TODO
+
+    if not bounds:  # No bounded type was found
+        return ""
+
+    inner = "\n".join(indent(b, 2) for b in bounds)
+    return "(:bounds\n{})".format(inner)
+
+
+def print_problem_constraints(problem):
+    return ""  # TODO
+
+
+def print_problem_metric(problem):
+    return ""  # TODO
 
 
 class FstripsWriter:
@@ -141,18 +170,16 @@ class FstripsWriter:
             objects=print_objects(self.problem),
             init=print_init(self.problem),
             goal=print_goal(self.problem),
-
-            # TODO
-            constraints="",
-            domain_bounds="",
-            metric="",
+            constraints=print_problem_constraints(self.problem),
+            domain_bounds=print_domain_bounds(self.problem),
+            metric=print_problem_metric(self.problem),
         )
         with open(filename, 'w') as file:
             file.write(content)
 
     def get_types(self):
         res = []
-        for _, t in self.lang.sorts:
+        for t in self.lang.sorts:
             if t.builtin or t == self.lang.Object:
                 continue  # Don't declare builtin elements
             tname = tarsky_to_pddl_type(t)

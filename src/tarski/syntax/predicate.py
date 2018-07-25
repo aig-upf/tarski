@@ -38,6 +38,9 @@ class Predicate:
     def arity(self):
         return len(self.sort)
 
+    def uniform_arity(self):
+        return len(self.sort)
+
     # def __str__(self):
     #     return '{}({})'.format(self.symbol, ','.join([a.name for a in self.sort]))
 
