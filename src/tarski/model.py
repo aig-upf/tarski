@@ -67,11 +67,11 @@ class Model:
     def add(self, predicate: Predicate, *args):
         point = _check_assignment(predicate, args)
 
-        entry = frozenset(a.symbol for a in point)
+        entry = tuple(a.symbol for a in point)
         self.predicate_extensions[predicate.signature].add(entry)
 
     def remove(self, predicate: Predicate, *args):
-        entry = frozenset(a.symbol for a in args)
+        entry = tuple(a.symbol for a in args)
 
         # try:
         #
@@ -92,9 +92,7 @@ class Model:
 
     def holds(self, predicate: Predicate, point):
         """ Return true iff the given predicate is true on the given point in the current model """
-
-        symbols = frozenset(tuple(c.symbol for c in point))
-        return symbols in self.predicate_extensions[predicate.signature]
+        return  tuple(c.symbol for c in point) in self.predicate_extensions[predicate.signature]
 
     def __getitem__(self, arg):
         try:

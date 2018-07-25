@@ -1,9 +1,11 @@
 """
  This tests the type-handling module
 """
+import pytest
 import tarski
 import tarski.model
 from tarski.model import Model
+from tarski import errors
 
 from ..common import blocksworld, numeric
 from tarski.evaluators.simple import evaluate
@@ -12,12 +14,12 @@ from tarski.syntax import Constant
 
 def test_interpretation_instance():
     lang = numeric.generate_numeric_instance()
-    s = tarski.model.create(lang)
+    tarski.model.create(lang)
 
 
 def test_numeric_function_set():
     lang = numeric.generate_numeric_instance()
-    particle = lang.get_sort('particle')
+    lang.get_sort('particle')
     p1 = lang.get_constant('p1')
     x = lang.get_function('x')
     model = tarski.model.create(lang)
@@ -102,3 +104,38 @@ def test_zero_ary_predicate_set():
     M.add(P)
 
     assert evaluate(P(), M) is True
+
+
+def test_predicate_extensions():
+    lang = tarski.language()
+    pred = lang.predicate('pred', lang.Object, lang.Object)
+
+    o1 = lang.constant("o1", lang.Object)
+    o2 = lang.constant("o2", lang.Object)
+
+    model = Model(lang)
+
+    with pytest.raises(errors.ArityMismatch):
+        # This should raise an error, as the predicate is binary
+        model.add(pred)
+
+    with pytest.raises(ValueError):
+        # This should raise an error, as the predicate sort does not coincide with the sort of the parameters
+        model.add(pred, 1, 2)
+
+    model.add(pred, o1, o2)
+    assert not model.holds(pred, (o2, o1))  # Make sure the order in which the elements were added is respected!
+    assert model.holds(pred, (o1, o2))
+
+    with pytest.raises(KeyError):
+        # This should raise an error, as the tuple does not belong to the predicate's extension
+        model.remove(pred, o2, o1)
+
+    model.remove(pred, o1, o2)
+    with pytest.raises(KeyError):
+        # This should raise an error, as the tuple has been removed
+        model.remove(pred, o1, o2)
+
+
+
+
