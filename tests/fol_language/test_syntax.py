@@ -95,3 +95,40 @@ def test_complex_atom_from_expression_only_functions():
     phi = (x() <= y()) & (y() <= z())
 
     assert isinstance(phi, CompoundFormula)
+
+def test_summation_generates_compound_term():
+    from tarski.syntax.arithmetic import summation
+    lang = numeric.generate_billiards_instance()
+    m, F, a, v, p = [lang.get_function(n) for n in ['m', 'F', 'a', 'v', 'p']]
+    x = lang.get_constant('x')
+    ball_1 = lang.get_constant('ball_1')
+
+    ftype = Variable('ftype', lang.get_sort('force'))
+    t = summation(ftype, F(ftype, x, ball_1))
+    print(t)
+    assert isinstance(t, CompoundTerm)
+
+def test_summation_in_predicate():
+    from tarski.syntax.arithmetic import summation
+    lang = numeric.generate_billiards_instance()
+    m, F, a, v, p = [lang.get_function(n) for n in ['m', 'F', 'a', 'v', 'p']]
+    x = lang.get_constant('x')
+    ball_1 = lang.get_constant('ball_1')
+
+    ftype = Variable('ftype', lang.get_sort('force'))
+    prop_ball =  a(x, ball_1) == (summation(ftype, F(ftype, x, ball_1)) / m(ball_1))
+    print(prop_ball)
+    assert isinstance(prop_ball, Formula)
+
+def test_summation_in_quantified_formula():
+    from tarski.syntax.arithmetic import summation
+    lang = numeric.generate_billiards_instance()
+    m, F, a, v, p = [lang.get_function(n) for n in ['m', 'F', 'a', 'v', 'p']]
+
+    b = Variable('b', lang.get_sort('ball'))
+    d = Variable('d', lang.get_sort('dimension'))
+    ftype = Variable('ftype', lang.get_sort('force'))
+    # The principle of superposition
+    pos =  forall(b, d, a(d, b) == (summation(ftype, F(ftype, d, b)) / m(b)) )
+    print(pos)
+    assert isinstance(pos, QuantifiedFormula)
