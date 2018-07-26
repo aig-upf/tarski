@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+import tarski.errors as err
+from .errors import InvalidEffectError
+from tarski.syntax import *
 from .. import theories as tsk_theories
-from ..syntax import Tautology, Term
 
 
 class UniversalEffect:
@@ -55,6 +57,29 @@ class FunctionalEffect(SingleEffect):
 
     def tostring(self):
         return "{} := {}".format(self.lhs, self.rhs)
+
+class ChoiceEffect(SingleEffect):
+
+    def __init__(self, lhs, rhs,):
+        super().__init__(Tautology())
+        # MRJ: verify the effect is well formed
+        self.lhs = lhs
+        self.rhs = rhs
+        self.check_well_formed()
+
+    def check_well_formed(self):
+        if not isinstance(self.lhs, CompoundTerm):
+            msg = "Error declaring effect: {}\n Invalid choice effect: \
+            left hand side needs to be a term!".format(self.tostring())
+            raise InvalidEffectError(self, msg)
+        if not isinstance(self.rhs, Variable):
+            msg = "Error declaring effect: {}\n Invalid choice effect: \
+            right hand side needs to be a variable!".format(self.tostring())
+            raise InvalidEffectError(self, msg)
+
+    def tostring(self):
+        return "{} := {}".format(self.lhs, self.rhs)
+
 
 
 class LogicalEffect(SingleEffect):
