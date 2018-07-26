@@ -66,3 +66,9 @@ alltests.bat
 
 # setup internals
 build/
+
+# parser generated files
+src/tarski/io/_fstrips/parser/lexer.py
+src/tarski/io/_fstrips/parser/listener.py
+src/tarski/io/_fstrips/parser/parser.py
+src/tarski/io/_fstrips/parser/visitor.py
