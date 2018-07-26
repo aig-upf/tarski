@@ -1,18 +1,21 @@
-from tarski.syntax import Variable, CompoundTerm
+import itertools
+import copy
+
+from tarski.syntax import Variable, Term
 from ... import errors as err
 from ... grounding.naive import instantiation
 from .. transform import TermSubstitution
 from .. builtins import BuiltinPredicateSymbol, BuiltinFunctionSymbol
 
-def sum( *args ):
+def summation( *args ):
     """
         Summation of a (nested) sequence of expressions defined over one or more
         variables.
     """
     expr = args[-1]
-    if not isinstance(expr, CompoundTerm):
+    if not isinstance(expr, Term):
         raise err.SyntacticError(msg='sum(x0,x1,...,xn,expr) requires last \
-        argument "expr" to be an instance of CompoundTerm')
+        argument "expr" to be an instance of Term')
     vars = []
     for x in args[:-1]:
         if not isinstance(x, Variable):
@@ -32,6 +35,6 @@ def sum( *args ):
 
     lhs = processed_expr[0]
     for k in range(1,len(processed_expr)):
-        lhs = L.dispatch_operator(BuiltinFunctionSymbol.ADD, CompoundTerm, CompoundTerm, lhs, processed_expr[k])
+        lhs = L.dispatch_operator(BuiltinFunctionSymbol.ADD, Term, Term, lhs, processed_expr[k])
 
     return lhs
