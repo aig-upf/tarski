@@ -12,6 +12,7 @@ class Theory(Enum):
     """ """
     EQUALITY = "equality"
     ARITHMETIC = "arithmetic"
+    SPECIAL = "special"
 
     def __str__(self):
         return self.value
