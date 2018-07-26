@@ -8,7 +8,7 @@ from tarski.syntax.transform import TermSubstitution
 from tarski.syntax.visitors import CollectVariables
 from tarski.util import IndexDictionary
 from . import instantiation
-
+from .elements import process_expression
 
 class DifferentialConstraintGrounder(object):
 
@@ -29,28 +29,12 @@ class DifferentialConstraintGrounder(object):
             k, syms, substs = instantiation.enumerate_groundings(self.L, ode_schema.parameters)
             for values in itertools.product(*substs):
                 subst = {syms[k]: v for k, v in enumerate(values)}
-                g_cond = copy.deepcopy(ode_schema.condition)
                 op = TermSubstitution(self.L, subst)
-                g_cond.accept(op)
-                var_collector = CollectVariables(self.L)
-                g_cond.accept(var_collector)
-                assert len(var_collector.variables) == 0
-
-                g_variate = copy.deepcopy(ode_schema.variate)
-                op = TermSubstitution(self.L, subst)
-                g_variate.accept(op)
-                var_collector = CollectVariables(self.L)
-                g_variate.accept(var_collector)
-                assert len(var_collector.variables) == 0
-
-                g_ode = copy.deepcopy(ode_schema.ode)
-                op = TermSubstitution(self.L, subst)
-                g_ode.accept(op)
-                var_collector = CollectVariables(self.L)
-                g_ode.accept(var_collector)
-                assert len(var_collector.variables) == 0
+                g_cond = process_expression(self.L, ode_schema.condition, op)
+                g_variate = process_expression(self.L, ode_schema.variate, op)
+                g_ode = process_expression(self.L, ode_schema.ode, op)
 
                 self.problem.ground_differential_constraints.add(\
-                    hybrid.DifferentialConstraint( self.L, ode_schema.name, [], \
+                    hybrid.DifferentialConstraint(self.L, ode_schema.name, [], \
                     g_cond, g_variate, g_ode))
             self.differential_constraints_generated += k

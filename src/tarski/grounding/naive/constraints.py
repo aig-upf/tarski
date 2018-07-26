@@ -8,6 +8,7 @@ from ...syntax.visitors import CollectVariables
 from ...util import IndexDictionary
 from ...syntax import QuantifiedFormula, Quantifier
 from . import instantiation
+from .elements import process_expression
 
 
 class ConstraintGrounder(object):
@@ -33,12 +34,8 @@ class ConstraintGrounder(object):
             K, syms, substs = instantiation.enumerate_groundings(self.L, list(var_collector.variables))
             for values in itertools.product(*substs):
                 subst = {syms[k]: v for k, v in enumerate(values)}
-                g_const = copy.deepcopy(const_schema)
                 op = TermSubstitution(self.L, subst)
-                g_const.accept(op)
-                op2 = CollectVariables(self.L)
-                g_const.accept(op2)
-                assert len(op2.variables) == 0
+                g_const = process_expression(self.L, const_schema, op)
                 # Simplification steps
                 s0 = NegatedBuiltinAbsorption.rewrite(self.L, g_const)
                 # CNF

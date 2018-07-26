@@ -9,7 +9,7 @@ from tarski.syntax.visitors import CollectVariables
 from tarski.util import IndexDictionary
 
 from . import instantiation
-
+from .elements import process_expression, process_effect
 
 class ReactionGrounder(object):
 
@@ -31,38 +31,13 @@ class ReactionGrounder(object):
             for values in itertools.product(*substs):
                 subst = {syms[k]: v for k, v in enumerate(values)}
 
-                g_cond = copy.deepcopy(react_schema.condition)
                 op = TermSubstitution(self.L, subst)
-                g_cond.accept(op)
-                var_collector = CollectVariables(self.L)
-                g_cond.accept(var_collector)
-                assert len(var_collector.variables) == 0
+
+                g_cond = process_expression(self.L, react_schema.condition, op)
 
                 g_eff = copy.deepcopy(react_schema.effect)
-                g_eff.condition.accept(op)
-                if isinstance(g_eff, fs.AddEffect):
-                    g_eff.atom.accept(op)
-                elif isinstance(g_eff, fs.DelEffect):
-                    g_eff.atom.accept(op)
-                elif isinstance(g_eff, fs.FunctionalEffect):
-                    g_eff.lhs.accept(op)
-                    g_eff.rhs.accept(op)
-                elif isinstance(g_eff, fs.LogicalEffect):
-                    g_eff.formula.accept(op)
-
-                # MRJ: invariant
-                var_collector = CollectVariables(self.L)
-                g_eff.condition.accept(var_collector)
-                if isinstance(g_eff, fs.AddEffect):
-                    g_eff.atom.accept(var_collector)
-                elif isinstance(g_eff, fs.DelEffect):
-                    g_eff.atom.accept(var_collector)
-                elif isinstance(g_eff, fs.FunctionalEffect):
-                    g_eff.lhs.accept(var_collector)
-                    g_eff.rhs.accept(var_collector)
-                elif isinstance(g_eff, fs.LogicalEffect):
-                    g_eff.formula.accept(var_collector)
-                assert len(var_collector.variables) == 0
+                g_eff.condition = process_expression(self.L, g_eff.condition, op, False)
+                g_eff = process_effect(self.L, g_eff, op)
 
                 self.problem.ground_reactions.add(hybrid.Reaction(self.L, \
                 react_schema.name, [], g_cond, g_eff))
