@@ -1,4 +1,4 @@
-from tarski.syntax import Variable, CompoundTerm, LiftedNestedTerm
+from tarski.syntax import Variable, CompoundTerm
 from ... import errors as err
 from ... grounding.naive import instantiation
 from .. transform import TermSubstitution
