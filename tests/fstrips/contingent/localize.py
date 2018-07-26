@@ -22,7 +22,7 @@ def create_small_task():
 
     constraint = (-4 <= x() ) & ( x() <= 4) & (-4 <= y()) & (y() <= 4)
 
-    G = land( x()==3, y()==3 )
+    G = land( x() == 3, y() == 3 )
 
     P = contingent.Problem()
     P.name = "localize-4-4"
