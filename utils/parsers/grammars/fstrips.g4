@@ -1,6 +1,8 @@
 
 /* Functional STRIPS grammar, adapted from PDDL 3.1
 
+  See https://helios.hud.ac.uk/scommv/IPC-14/repository/kovacs-pddl-3.1-2011.pdf
+
   To keep in mind: https://stackoverflow.com/a/29780284
 */
 
@@ -78,7 +80,7 @@ domainName
     ;
 
 requireDef
-	: '(' ':requirements' REQUIRE_KEY+ ')'
+	: '(' ':requirements' REQUIRE_KEY* ')'
 	;
 
 declaration_of_types
@@ -271,7 +273,7 @@ derivedDef
 	;
 
 /************* EXPRESSIONS ****************************/
-
+/*
 processEffectExp
     : '(' '*' processFunctionEff ')' #FunctionalProcessEffectExpr
     | '(' '*' processConstEff ')'    #ConstProcessEffectExpr
@@ -292,7 +294,7 @@ processVarEff
     : VARIABLE '#t'
     | '#t' VARIABLE
     ;
-
+*/
 
 effect
 	: '(' K_AND single_effect* ')'       # ConjunctiveEffectFormula

@@ -7,70 +7,17 @@ import logging
 
 from antlr4 import FileStream, CommonTokenStream, InputStream
 from antlr4.error.ErrorListener import ErrorListener
-from tarski import model, theories
-from tarski.errors import SyntacticError
-from tarski.fol import FirstOrderLanguage
-from tarski.fstrips import DelEffect, AddEffect, FunctionalEffect, UniversalEffect, language, OptimizationMetric
-from tarski.syntax import neg, land, lor, Tautology, implies, exists, forall, Term, Interval
-from tarski.syntax.builtins import get_predicate_from_symbol, get_function_from_symbol
-from tarski.syntax.formulas import VariableBinding
-from tarski.theories import Theory
+
+from .common import parse_number, process_requirements, create_sort
+from ...errors import SyntacticError
+from ...fstrips import DelEffect, AddEffect, FunctionalEffect, UniversalEffect, OptimizationMetric
+from ...syntax import neg, land, lor, Tautology, implies, exists, forall, Term, Interval
+from ...syntax.builtins import get_predicate_from_symbol, get_function_from_symbol
+from ...syntax.formulas import VariableBinding
 
 from .parser.visitor import fstripsVisitor
 from .parser.lexer import fstripsLexer
 from .parser.parser import fstripsParser
-
-
-builtin_binary_predicate_symbols = {"=": "add", "!=": "sub"}
-builtin_binary_function_symbols = {"+": "add", "-": "sub"}
-
-
-def translate_pddl_type(typename):
-    """ Translate a few PDDL types into their corresponding Tarski names
-        (e.g. the FSTRIPS type "int" corresponds to the Tarski type "Integer"
-    """
-    translations = {"int": "Integer"}
-    return translations.get(typename, typename)
-
-
-def create_sort(lang, typename, basename):
-    """ Create a Tarski sort from a PDDL type, performing a few checks and translations to ensure consistency """
-    typename = translate_pddl_type(typename)
-    basename = translate_pddl_type(basename)
-
-    if basename in ("Natural", "Integer", "Real"):
-        # The new type will necesarily be an interval subset of it parent
-        parent = lang.get_sort(basename)
-        assert isinstance(parent, Interval)
-        # TODO This is a small hack: since we don't yet know the lower and upper bound (because they are declared in
-        # the instance file, not domain file), we put the widest possible range allowed by the parent. If we do not
-        # do that, then the processing of the instance file might raise some error, because when the initial state is
-        # parsed, we check that each assignment is within bounds - but that again might happen before knowing the real
-        # bounds. A better solution would be to parse the instance file one first pass looking only for the bounds.
-        lower = parent.lower_bound
-        upper = parent.upper_bound
-        lang.interval(typename, parent, lower, upper)
-    else:
-        parents = [lang.get_sort(basename)]
-        lang.sort(typename, parents)
-
-
-def create_number_type(lang):
-    """ Creates a sort corresponding to the PDDL "number" """
-    # For the moment being, we assume that PDDL "number"s are unbound integers
-    parent = lang.get_sort("Integer")
-    lower = parent.lower_bound
-    upper = parent.upper_bound
-    lang.interval("number", parent, lower, upper)
-
-
-def process_requirements(requirements, lang):
-    if ':action-costs' in requirements:
-        theories.load_theory(lang, Theory.ARITHMETIC)
-        create_number_type(lang)
-    elif ':numeric-fluents' in requirements:
-        theories.load_theory(lang, Theory.ARITHMETIC)
-
 
 
 class FStripsParser(fstripsVisitor):
@@ -102,33 +49,16 @@ class FStripsParser(fstripsVisitor):
             element.addErrorListener(self.error_handler)
         return element
 
-    def __init__(self, problem, raise_on_error=False, theories=None):
-        self.problem = problem
-        self.problem.language = language(name="FSTRIPS Language", theories=theories)
-        self.problem.init = model.create(problem.language)
+    def __init__(self, problem, raise_on_error=False):
         self.error_handler = ExceptionRaiserListener() if raise_on_error else None
-
         self.current_binding = None
 
         # Shortcuts
+        self.problem = problem
         self.language = problem.language
-        self.init = self.problem.init
+        self.init = problem.init
 
         self.requirements = set()
-
-    # TODO GFM NOT REVISED YET
-
-    task_name = None
-    task_domain_name = None
-    init = []
-    goal = None
-    constraints = None
-    constraint_schemata = []
-    type_bounds = []
-    objects = []
-    metric = None
-
-    axioms = []
 
     def visitDomainName(self, ctx):
         self.problem.domain_name = ctx.NAME().getText().lower()
@@ -200,11 +130,6 @@ class FStripsParser(fstripsVisitor):
         
     def visitUnTyped_function_definition(self, ctx):
         return self.visitTyped_function_definition(ctx, 'object')
-
-    def visitBoundsDecl(self, ctx):
-
-        for sub_ctx in ctx.typeBoundsDefinition():
-            self.type_bounds.append(self.visit(sub_ctx))
 
     def visitTypeBoundsDefinition(self, ctx):
         typename = ctx.NAME().getText().lower()
@@ -597,7 +522,7 @@ class UndeclaredVariable(Exception):
         return 'in {} found undeclared variable {}'.format(self.component, repr(self.value))
 
 
-class ParserVariableContext(object):
+class ParserVariableContext:
     def __init__(self, parser: FStripsParser, pushed_variables, root=False):
         self.root = root
         self.parser = parser
@@ -620,17 +545,6 @@ class ParserVariableContext(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         # Restore the previous binding
         self.parser.current_binding = self.previous_binding
-
-
-# TODO MOVE THIS ELSEWHERE
-def parse_number(number, lang: FirstOrderLanguage):
-    # Because of the grammar, we know that number will be either an int or a float
-    try:
-        value = int(number)
-        return lang.constant(lang.Integer.cast(value), lang.Integer)
-    except ValueError:
-        value = float(number)
-        return lang.constant(lang.Real.cast(value), lang.Real)
 
 
 class ParsingError(SyntacticError):

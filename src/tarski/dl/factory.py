@@ -12,7 +12,7 @@ def filter_subnodes(elem, t):
     return list(filter(lambda x: type(x) == t, elem.flatten()))
 
 
-class SyntacticFactory(object):
+class SyntacticFactory:
     def __init__(self, language: FirstOrderLanguage):
         self.language = language
         self.universe_sort = language.get_sort('object')
@@ -20,23 +20,22 @@ class SyntacticFactory(object):
         self.bot = EmptyConcept(self.universe_sort.name)
 
     def generate_primitives_from_language(self):
-        assert len(self.language.functions) == 0
 
         concepts, roles, primitive_atoms = [], [], []
-        for predicate in self.language.predicates:
-            if builtins.is_builtin_predicate(predicate):
+        for predfun in list(self.language.predicates) + list(self.language.functions):
+            if builtins.is_builtin_predicate(predfun) or builtins.is_builtin_function(predfun):
                 # Skip "=" and other built-in symbols
                 # TODO We might want to revise this and allow for certain builtins
                 continue
 
-            if predicate.arity == 0:
-                primitive_atoms.append(NullaryAtom(predicate))
-            elif predicate.arity == 1:
-                concepts.append(PrimitiveConcept(predicate))
-            elif predicate.arity == 2:
-                roles.append(PrimitiveRole(predicate))
+            if predfun.uniform_arity() == 0:
+                primitive_atoms.append(NullaryAtom(predfun))
+            elif predfun.uniform_arity() == 1:
+                concepts.append(PrimitiveConcept(predfun))
+            elif predfun.uniform_arity() == 2:
+                roles.append(PrimitiveRole(predfun))
             else:
-                logging.warning("Predicate {} with arity > 2 ignored".format(predicate))
+                logging.warning('Predicate/Function "{}" with normalized arity > 2 ignored'.format(predfun))
 
         for c in self.language.constants():
             concepts.append(SingletonConcept(c.symbol, c.sort))

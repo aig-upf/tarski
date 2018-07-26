@@ -6,7 +6,7 @@ from .terms import CompoundTerm
 from .sorts import Sort
 
 
-class Function(object):
+class Function:
     def __init__(self, symbol, language, *args):
         self.symbol = symbol
         self.language = language
@@ -46,6 +46,9 @@ class Function(object):
         return dict(symbol=self.symbol,
                     domain=[a.name for a in self.domain],
                     codomain=self.codomain.name)
+
+    def uniform_arity(self):
+        return len(self.domain) + 1
 
     def __call__(self, *args):
         return CompoundTerm(self, args)

@@ -45,7 +45,7 @@ def evaluate_atom(atom: Atom, m: Model, sigma):
         return evaluate_builtin_predicate(atom, m, sigma)
 
     # Otherwise, the extension is given by the model
-    point = [evaluate(t, m, sigma) for t in atom.subterms]
+    point = tuple(evaluate(t, m, sigma) for t in atom.subterms)
     return m.holds(atom.predicate, point)
 
 

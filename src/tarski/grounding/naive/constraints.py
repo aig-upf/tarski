@@ -11,7 +11,7 @@ from . import instantiation
 from .elements import process_expression
 
 
-class ConstraintGrounder(object):
+class ConstraintGrounder:
 
     def __init__(self, prob, index):
         self.problem = prob

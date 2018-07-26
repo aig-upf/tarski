@@ -6,7 +6,7 @@ from .. import errors as err
 from .builtins import BuiltinPredicateSymbol, BuiltinFunctionSymbol
 
 
-class Term(object):
+class Term:
     """
         Term class
 
@@ -197,8 +197,7 @@ class Constant(Term):
         self._sort = sort
         # symbol validation
         if not self._sort.builtin:
-            # construction of constants extends the domain
-            # of sorts
+            # construction of constants extends the domain of sorts
             self._sort.extend(self)
         else:
             self.symbol = self._sort.cast(self.symbol)

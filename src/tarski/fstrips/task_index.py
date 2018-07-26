@@ -7,7 +7,7 @@ from ..fstrips import AddEffect, DelEffect, FunctionalEffect, LogicalEffect
 from .visitors import FluentSymbolCollector, FluentHeuristic
 
 
-class TaskIndex(object):
+class TaskIndex:
     def __init__(self, domain_name, instance_name):
         self.domain_name = domain_name
         self.instance_name = instance_name
@@ -26,7 +26,7 @@ class TaskIndex(object):
         """
         # print('Fluents (before filtering): {}'.format(','.join([str(var) for var in self.fluent_symbols])))
         # print('Statics (before filtering): {}'.format(','.join([str(var) for var in self.static_symbols])))
-        self.static_symbols = set([x for x in self.static_symbols if x not in self.fluent_symbols])
+        self.static_symbols = {x for x in self.static_symbols if x not in self.fluent_symbols}
         assert all([x not in self.static_symbols for x in self.fluent_symbols])
         # print('Fluents (after filtering): {}'.format(','.join([str(var) for var in self.fluent_symbols])))
         # print('Statics (after filtering): {}'.format(','.join([str(var) for var in self.static_symbols])))

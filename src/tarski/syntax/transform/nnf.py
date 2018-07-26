@@ -8,7 +8,7 @@ import copy
 from ..formulas import neg, QuantifiedFormula, Quantifier, CompoundFormula, Connective
 
 
-class NNFTransformation(object):
+class NNFTransformation:
     """
         This class rewrites the input formula phi into an equivalent formula
         in NNF

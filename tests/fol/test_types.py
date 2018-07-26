@@ -1,6 +1,8 @@
 import pytest
+
 import tarski as tsk
 import tarski.errors as err
+from tarski.syntax.sorts import parent, ancestors
 
 # TODO NOT SURE WE WANT TO DISALLOW EMPTY TYPES. I HAVE TEMPORARILY DISABLED THE CHECK
 # TODO ALSO, WE SHOULDN'T HAVE TO CALL ANY "CHECK WELL FORMED" METHOD EXPLICITLY
@@ -35,7 +37,7 @@ def test_duplicate_type():
     lang = tsk.fstrips.language()
     lang.sort('person')
 
-    # Adding two sorts with the same name should raise some type of error
+    # Adding two sorts with the same name raises an error
     with pytest.raises(err.LanguageError):
         lang.sort('person')
 
@@ -43,8 +45,18 @@ def test_duplicate_type():
 def test_parent_types():
     lang, human, animal, being = get_children_parent_types()
 
-    assert len(tsk.syntax.sorts.parents(human)) == 2  # i.e. including the top "object" sort
-    assert animal in tsk.syntax.sorts.parents(human)
+    assert parent(human) == animal
+    assert parent(animal) == being
+    assert parent(being) == lang.Object
+    assert parent(lang.Object) is None
+
+    assert len(ancestors(human)) == 3  # i.e. including the top "object" sort
+    assert being in ancestors(human)
+    assert lang.Object in ancestors(human)
+
+    # Adding two different parents to the same sort raises an error
+    with pytest.raises(err.LanguageError):
+        lang.set_parent(being, lang.Object)
 
 
 def test_is_subtype_of():
@@ -60,8 +72,8 @@ def test_is_subtype_of():
 def get_children_parent_types():
     lang = tsk.fstrips.language()
     being = lang.sort('being')
-    animal = lang.sort('animal', [being])
-    human = lang.sort('human', [animal])
+    animal = lang.sort('animal', being)
+    human = lang.sort('human', animal)
     return lang, human, animal, being
 
 
@@ -71,7 +83,7 @@ def test_ints():
     assert ints.contains(1)
     assert ints.contains(0)
     assert ints.contains(-999)
-    assert ints.contains(1.0)  # Implicity downcasting
+    assert ints.contains(1.0)  # Implicit downcasting
     assert not ints.contains(1.2)
 
 
@@ -93,4 +105,4 @@ def test_reals():
 def test_integer_subtypes():
     lang = tsk.fstrips.language()
     nats = lang.Natural
-    _ = lang.sort("counter", [nats])
+    _ = lang.sort("counter", nats)

@@ -1,4 +1,7 @@
 
-# Include the license file
+# License file and documentation
 include LICENSE
 include README.md
+
+# Model generation templates
+include src/tarski/io/templates/*.tpl

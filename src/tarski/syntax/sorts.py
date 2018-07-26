@@ -1,4 +1,4 @@
-from typing import List, Set
+from typing import Set
 from .. import errors as err
 
 
@@ -34,6 +34,7 @@ class Sort:
         return self._name
 
     def contains(self, x):
+        """ Return true iff the current sort contains a constant with the given value  """
         # TODO - Refactor this, we shouldn't be checking for two different ways of representing a value
         try:
             return x.symbol in self._domain
@@ -48,7 +49,7 @@ class Sort:
         except AttributeError:
             if x in self._domain:
                 return x
-        return None
+            raise ValueError("Cast: Symbol '{}' does not belong to domain {}".format(x, self))
 
     def cardinality(self):
         return len(self._domain)
@@ -58,8 +59,9 @@ class Sort:
                     domain=list(self._domain))  # Copy the list
 
     def extend(self, constant):
+        """ Extend the domain of the current sort, and recursively of the parent sorts, with a new constant. """
         self._domain.add(constant.symbol)
-        for p in parents(self):
+        for p in ancestors(self):
             p.extend(constant)
 
     def domain(self):
@@ -83,51 +85,54 @@ class Interval(Sort):
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
 
-    def extend(self, x):
+    def extend(self, constant):
         pass  # TODO ???
-
-    def cast(self, x):
-        if isinstance(x, str):
-            try:
-                return getattr(self, x)  # TODO: WHAT IS THIS??
-            except AttributeError:
-                pass
-        y = self.encode(x)  # can raise ValueError
-        if not self.is_within_bounds(y):
-            raise ValueError("Interval.cast(): Symbol '{}' (encoded '{}') does not belong to the domain".format(x, y))
-        return y
 
     def cardinality(self):
         return self.upper_bound - self.lower_bound + 1
 
-    def contains(self, x, raises_exceptions=False):
+    def cast(self, x):
+        """ Casts the given value as an element of the current domain,
+        or raise ValueError if it does not belong to it """
+        # if isinstance(x, str):
+        #     try:
+        #         return getattr(self, x)  # TODO: WHAT IS THIS??
+        #     except AttributeError:
+        #         pass
+        y = self.encode(x)  # can raise ValueError
+        if not self.is_within_bounds(y):
+            raise ValueError("Cast: Symbol '{}' (encoded '{}') outside of defined interval bounds".format(x, y))
+        return y
+
+    def contains(self, x):
+        """ Returns true iff the given value belongs to the current domain """
         try:
             y = self.encode(x)
         except ValueError:
-            if raises_exceptions:
-                raise err.SemanticError('Cannot encode "{}"'.format(x))
             return False
+        return self.is_within_bounds(y)
 
-        # Downcasting Python literals from their type to a subtype (i.e. Real
-        # to Integer) works whenever the resulting instance of the subtype belongs
+    def _downcast(self, x):
+        """ Check whether the given value belongs to the current sort _or_ can be downcasted to it.
+        e.g. Integer.downcast(1.0) would return 1; whereas Integer.downcast(1.4) would return None. """
+        # TODO (GFM) - Not sure we need this, and not sure whether the method works as it is
+        # TODO (GFM) - If noone is using this we should remove it soon
+        if self.contains(x):
+            return self.encode(x)
+
+        # Downcasting Python literals from their type to a subtype (i.e. Real to Integer) works
+        # whenever the resulting instance of the subtype belongs
         # to the domain *and* Python equality over the subtype instance and the
-        # supertype instance returns true. For instance, downcasting 1.0 to
-        # integers is okay, but 1.2 will not.
-        relevant_supers = set(parents(self))
-        while len(relevant_supers) > 0:
-            p = relevant_supers.pop()
+        # supertype instance returns true.
+        p = parent(self)
+        while p is not None:
             try:
                 z = p.cast(x)
             except ValueError:
                 raise err.LanguageError()
-            if z is not None and y != z:
-                if raises_exceptions:
-                    raise err.SemanticError('{} casted into y: {} and z: {}, y!=z'.format(x, y, z))
-                return False
-            for p2 in parents(p):
-                relevant_supers.add(p2)
-
-        return self.is_within_bounds(y)
+            if z is not None and x != z:
+                return None
+            p = parent(p)
 
     def dump(self):
         return dict(name=self.name,
@@ -137,38 +142,27 @@ class Interval(Sort):
 def inclusion_closure(s: Sort) -> Set[Sort]:
     """ Calculates the inclusion closure over given sort s """
     closure = set()
-    frontier = {s}
-    while len(frontier) > 0:
-        s = frontier.pop()
+    while s is not None:
         closure.add(s)
-        for p in parents(s):
-            frontier.add(p)
+        s = parent(s)
     return closure
 
 
-def parents(s: Sort) -> List[Sort]:
-    """ Returns direct parent sorts in the sort hierarchy associated with
-        the language
-    """
-    _parents = []
-    for lhs, rhs in s.language.sort_hierarchy:
-        if lhs == s.name:
-            _parents.append(s.language.get_sort(rhs))
-    return _parents
+def parent(s: Sort) -> Sort:
+    """ Returns the direct parent of the given sort, or None if it is the root sort "object" """
+    assert s in s.language.immediate_parent
+    return s.language.immediate_parent[s]
 
 
-def children(s: Sort) -> List[Sort]:
-    """ Return direct child sorts in the sort hierarchy associated with
-        the language
-    """
-    _children = []
-    for lhs, rhs in s.language.sort_hierarchy:
-        if rhs == s:
-            _children.append(s.language.sort(lhs))
-    return _children
+def ancestors(s: Sort) -> Set[Sort]:
+    """ Return all ancestor along the sort hierarchy of the given sort """
+    assert s in s.language.ancestor_sorts
+    return s.language.ancestor_sorts[s]
 
 
 def int_encode_fn(x):
+    if isinstance(x, float) and not x.is_integer():
+        raise ValueError()  # We don't want 1.2 to get encoded as an int
     return int(x)
 
 

@@ -12,7 +12,6 @@ class Theory(Enum):
     """ """
     EQUALITY = "equality"
     ARITHMETIC = "arithmetic"
-    SPECIAL = "special"
 
     def __str__(self):
         return self.value
@@ -39,6 +38,7 @@ def load_theory(lang, theory):
             lang.register_operator_handler(pred, Term, Term, create_casting_handler(pred, create_atom))
             p = lang.predicate(pred, object_t, object_t)
             p.builtin = True
+
     elif theory == Theory.ARITHMETIC:
         for pred in builtins.get_arithmetic_predicates():
             lang.register_operator_handler(pred, Term, Term, create_casting_handler(pred, create_atom))

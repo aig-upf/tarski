@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
+
+from .. import model
 from .action import Action
 from . import errors as err
 
 
-class Problem(object):
+class Problem:
     """ A Functional STRIPS problem """
 
-    def __init__(self):
-        self.name = None
-        self.domain_name = None
+    def __init__(self, problem_name=None, domain_name=None):
+        self.name = problem_name
+        self.domain_name = domain_name
         self.language = None
         self.init = None
         self.goal = None
@@ -38,3 +40,13 @@ class Problem(object):
         return 'FSTRIPS Problem "{}", domain "{}"'.format(self.name, self.domain_name)
 
     __repr__ = __str__
+
+
+def create_fstrips_problem(language, problem_name=None, domain_name=None):
+    """ """
+    problem_name = problem_name or "Unnamed FSTRIPS problem"
+    domain_name = domain_name or "Unnamed FSTRIPS domain"
+    problem = Problem(problem_name=problem_name, domain_name=domain_name)
+    problem.language = language
+    problem.init = model.create(language)
+    return problem

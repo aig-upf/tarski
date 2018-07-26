@@ -11,7 +11,7 @@ from ..transform.subst import TermSubstitution
 from .errors import TransformationError
 
 
-class UniversalQuantifierElimination(object):
+class UniversalQuantifierElimination:
     """
         This class rewrites the input formula phi into an equivalent formula
         in Prenex NNF (referenced by the )
@@ -24,26 +24,11 @@ class UniversalQuantifierElimination(object):
         # print(str(self.blueprint))
         self.universal_free = None
 
-    def _enumerate_instantations(self, phi):
-        syms = []
-        instantiations = []
-        cardinality = 1
-        for st in phi.variables:
-            if st.sort.builtin:
-                raise TransformationError("universal elimination", phi,
-                                          "Variable found of built-in sort '{}', domain is too large!".format(
-                                              st.sort.name))
-            syms.append(st)
-            instantiations.append(list(st.sort.domain()))
-            cardinality *= len(instantiations[-1])
-
-        return cardinality, syms, instantiations
-
     def _convert(self, phi):
 
         if isinstance(phi, QuantifiedFormula):
             if phi.quantifier == Quantifier.Forall:
-                card, syms, substs = self._enumerate_instantations(phi)
+                card, syms, substs = _enumerate_instantations(phi)
                 if card == 0:
                     raise TransformationError("universal elimination", phi, "No constants were defined!")
                 conjuncts = []
@@ -70,3 +55,19 @@ class UniversalQuantifierElimination(object):
         trans = UniversalQuantifierElimination(lang, phi, do_copy)
         trans.convert()
         return trans
+
+
+def _enumerate_instantations(phi):
+    syms = []
+    instantiations = []
+    cardinality = 1
+    for st in phi.variables:
+        if st.sort.builtin:
+            raise TransformationError("universal elimination", phi,
+                                      "Variable found of built-in sort '{}', domain is too large!".format(
+                                          st.sort.name))
+        syms.append(st)
+        instantiations.append(list(st.sort.domain()))
+        cardinality *= len(instantiations[-1])
+
+    return cardinality, syms, instantiations

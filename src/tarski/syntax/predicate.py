@@ -4,7 +4,7 @@ from .sorts import Sort
 from .terms import Constant
 
 
-class Predicate(object):
+class Predicate:
     def __init__(self, name, language, *args):
 
         self._symbol = name  # name, a string
@@ -38,6 +38,9 @@ class Predicate(object):
     def arity(self):
         return len(self.sort)
 
+    def uniform_arity(self):
+        return len(self.sort)
+
     # def __str__(self):
     #     return '{}({})'.format(self.symbol, ','.join([a.name for a in self.sort]))
 
@@ -66,4 +69,5 @@ class Predicate(object):
                                     'was expected to be {}'.format(k + 1, arg.sort.name, self.sort[k].name))
 
     def satisfied(self, *args):
+        # pylint: disable=unused-argument
         raise ValueError("Extensionally defined")

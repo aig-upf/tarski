@@ -40,7 +40,7 @@ def _check_assignment(fun, point, value=None):
     return tuple(processed[:-1]), processed[-1]
 
 
-class Model(object):
+class Model:
     """ A First Order Language Model """
 
     def __init__(self, language):
@@ -49,10 +49,11 @@ class Model(object):
         self.function_extensions = dict()
         self.predicate_extensions = defaultdict(set)
 
-    def set(self, fun: Function, point, value):
+    def set(self, fun, point, value):
         """ Set the value of function 'fun' at point 'point' to be equal to 'value'
             'point' needs to be a tuple of constants, and value a single constant.
         """
+        assert isinstance(fun, Function)
         point, value = _check_assignment(fun, point, value)
         if fun.signature not in self.function_extensions:
             definition = self.function_extensions[fun.signature] = ExtensionalFunctionDefinition()
@@ -65,12 +66,12 @@ class Model(object):
 
     def add(self, predicate: Predicate, *args):
         point = _check_assignment(predicate, args)
-
-        entry = frozenset(a.symbol for a in point)
-        self.predicate_extensions[predicate.signature].add(entry)
+        # point = tuple(a.symbol for a in point)
+        self.predicate_extensions[predicate.signature].add(point)
 
     def remove(self, predicate: Predicate, *args):
-        entry = frozenset(a.symbol for a in args)
+        # point = tuple(a.symbol for a in args)
+        point = args
 
         # try:
         #
@@ -82,7 +83,7 @@ class Model(object):
         #     else :
         #         raise err.LanguageError('Model.remove() : arguments of tuple to add for predicate
         #  needs to be a tuple of constants or a constant')
-        self.predicate_extensions[predicate.signature].remove(entry)
+        self.predicate_extensions[predicate.signature].remove(point)
 
     def value(self, fun: Function, point):
         """ Return the value of the given function on the given point in the current model """
@@ -91,9 +92,8 @@ class Model(object):
 
     def holds(self, predicate: Predicate, point):
         """ Return true iff the given predicate is true on the given point in the current model """
-
-        symbols = frozenset(tuple(c.symbol for c in point))
-        return symbols in self.predicate_extensions[predicate.signature]
+        # return tuple(c.symbol for c in point) in self.predicate_extensions[predicate.signature]
+        return point in self.predicate_extensions[predicate.signature]
 
     def __getitem__(self, arg):
         try:
@@ -107,7 +107,7 @@ def create(lang):
     return Model(lang)
 
 
-class ExtensionalFunctionDefinition(object):
+class ExtensionalFunctionDefinition:
     def __init__(self):
         self.data = dict()
 
@@ -120,5 +120,5 @@ class ExtensionalFunctionDefinition(object):
         return self.data[point]
 
 
-# class IntensionalFunctionDefinition(object):
+# class IntensionalFunctionDefinition:
 #     pass
