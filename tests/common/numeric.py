@@ -37,12 +37,12 @@ def generate_billiards_instance():
         lang.balls.append(bk)
 
     lang.dimensions = []
-    for d in ('x','y')
+    for d in ('x','y'):
         dk = lang.constant(d, dim)
         lang.dimensions.append(dk)
 
     lang.forces = []
-    for n in ('cue', 'friction'):
+    for n in ('cue', 'friction', 'resistance'):
         fk = lang.constant(n, force)
         lang.forces.append(fk)
 
