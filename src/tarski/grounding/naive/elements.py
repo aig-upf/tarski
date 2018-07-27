@@ -25,6 +25,9 @@ def process_effect(language, eff_schema, op):
     elif isinstance(eff_schema, fs.FunctionalEffect):
         eff_schema.lhs.accept(op)
         eff_schema.rhs.accept(op)
+    elif isinstance(eff_schema, fs.ChoiceEffect):
+        eff_schema.lhs.accept(op)
+        eff_schema.rhs.accept(op)
     elif isinstance(eff_schema, fs.LogicalEffect):
         eff_schema.formula.accept(op)
 
@@ -37,6 +40,8 @@ def process_effect(language, eff_schema, op):
     elif isinstance(eff_schema, fs.FunctionalEffect):
         eff_schema.lhs.accept(var_collector)
         eff_schema.rhs.accept(var_collector)
+    elif isinstance(eff_schema, fs.ChoiceEffect):
+        eff_schema.lhs.accept(var_collector)
     elif isinstance(eff_schema, fs.LogicalEffect):
         eff_schema.formula.accept(var_collector)
     assert len(var_collector.variables) == 0
