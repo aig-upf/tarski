@@ -80,6 +80,17 @@ class OptimizationType(Enum):
     def __str__(self):
         return self.value.lower()
 
+class ProceduralEffect(SingleEffect):
+
+    def __init__(self, input: List[CompoundTerm], output: List[CompoundTerm]):
+        super().__init__(Tautology())
+        self.input = input
+        self.output = output
+
+    def tostring(self):
+        return "in: {}, out: {}".format( ','.join([str(x) for x in self.input]),\
+            ','.join([str(x) for x in self.output]))
+
 class ChoiceEffect(SingleEffect):
 
     def __init__(self, obj_type: OptimizationType, obj, variables: List[CompoundTerm], constraints=Tautology()):
