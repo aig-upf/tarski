@@ -1,6 +1,8 @@
+import pytest
 
 from tarski import fstrips as fs
 from tarski.syntax import *
+from tests.fstrips.hybrid.tasks import create_billiards_world
 
 from ..common import blocksworld
 
@@ -20,9 +22,40 @@ def test_action_creation():
     fs.Action(lang, name='move', parameters=[b, to], precondition=precondition, effects=effects)
 
 
-def test_effect_creation():
+def test_functional_effect_invalid_creation():
+    import tarski.fstrips.errors as err
     lang = fs.language()
     t1 = lang.constant('x', 'object')
     t2 = lang.constant('y', 'object')
-    eff = t1 << t2  # i.e. x := y
+    with pytest.raises(err.InvalidEffectError):
+        eff = t1 << t2  # i.e. x := y
+
+def test_functional_effect_valid_creation():
+    import tarski.fstrips.errors as err
+    lang = fs.language()
+    t1 = lang.constant('x', lang.Object)
+    t2 = lang.constant('y', lang.Object)
+    f = lang.function('foo', lang.Object, lang.Object)
+
+    eff = f(t1) << t2
     assert isinstance(eff, fs.FunctionalEffect)
+
+def test_choice_effect_invalid_creation():
+    import tarski.fstrips.errors as err
+    prob = create_billiards_world()
+    x = prob.language.get_constant('x')
+    cue = prob.language.get_constant('cue')
+    b = prob.language.get_constant('ball_1')
+    F = prob.language.get_function('F')
+    with pytest.raises(err.InvalidEffectError):
+        eff = fs.ChoiceEffect(F(cue,x,b), prob.language.Real.cast(5.0))
+
+def test_choice_effect_valid_creation():
+    import tarski.fstrips.errors as err
+    prob = create_billiards_world()
+    x = prob.language.get_constant('x')
+    cue = prob.language.get_constant('cue')
+    b = prob.language.get_constant('ball_1')
+    F = prob.language.get_function('F')
+    eff = fs.ChoiceEffect(F(cue,x,b), Variable('ux',prob.language.Real))
+    assert isinstance(eff,fs.ChoiceEffect)

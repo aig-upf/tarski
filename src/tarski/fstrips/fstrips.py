@@ -54,6 +54,18 @@ class FunctionalEffect(SingleEffect):
         super().__init__(condition)
         self.lhs = lhs
         self.rhs = rhs
+        self.check_well_formed()
+
+    def check_well_formed(self):
+        if not isinstance(self.lhs, CompoundTerm):
+            msg = "Error declaring FunctionalEffect: {}\n Invalid effect expression: \
+            left hand side needs to be a functional term!".format(self.tostring())
+            raise InvalidEffectError(self, msg)
+
+        if not isinstance(self.lhs, CompoundTerm) and not isinstance(self.lhs, Constant) :
+            msg = "Error declaring FunctionalEffect: {}\n Invalid effect expression: \
+            right hand side needs to be a functional or constant term!".format(self.tostring())
+            raise InvalidEffectError(self, msg)
 
     def tostring(self):
         return "{} := {}".format(self.lhs, self.rhs)
@@ -69,11 +81,11 @@ class ChoiceEffect(SingleEffect):
 
     def check_well_formed(self):
         if not isinstance(self.lhs, CompoundTerm):
-            msg = "Error declaring effect: {}\n Invalid choice effect: \
-            left hand side needs to be a term!".format(self.tostring())
+            msg = "Error declaring Choice Effect: {}\n Invalid choice effect expression: \
+            left hand side needs to be a functional term!".format(self.tostring())
             raise InvalidEffectError(self, msg)
         if not isinstance(self.rhs, Variable):
-            msg = "Error declaring effect: {}\n Invalid choice effect: \
+            msg = "Error declaring Choice Effect: {}\n Invalid choice effect expression: \
             right hand side needs to be a variable!".format(self.tostring())
             raise InvalidEffectError(self, msg)
 
