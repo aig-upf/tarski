@@ -29,6 +29,7 @@ class BuiltinFunctionSymbol(Enum):
     MOD = "%"
     MIN = "min"
     MAX = "max"
+    ABS = "abs"
     SIN = "sin"
     COS = "cos"
     TAN = "tan"

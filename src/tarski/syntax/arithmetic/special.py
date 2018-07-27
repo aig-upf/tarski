@@ -8,6 +8,10 @@ def max(x, y):
     max_func = x.language.get_function(BFS.MAX)
     return max_func(x, y)
 
+def abs(x):
+    abs_func = x.language.get_function(BFS.ABS)
+    return abs_func
+
 def sin(x):
     sin_func = x.language.get_function(BFS.SIN)
     return sin_func(x)

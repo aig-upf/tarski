@@ -4,6 +4,7 @@ import scipy.special as sci
 impl = {
     "min": lambda x, y: np.min((x, y)),
     "max": lambda x, y: np.max((x, y)),
+    "abs": lambda x: np.abs(x),
     "sin": lambda x: np.sin(x),
     "cos": lambda x: np.cos(x),
     "tan": lambda x: np.tan(x),
