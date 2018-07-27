@@ -3,7 +3,8 @@
     Creates a TaskIndex for a  planning task as given by Tarski's AST.
 """
 from .. import util
-from ..fstrips import AddEffect, DelEffect, FunctionalEffect, LogicalEffect
+from ..fstrips import AddEffect, DelEffect, FunctionalEffect, LogicalEffect, \
+    ChoiceEffect
 from .visitors import FluentSymbolCollector, FluentHeuristic
 
 
@@ -54,6 +55,8 @@ class TaskIndex:
                     elif isinstance(eff, DelEffect):
                         eff.atom.accept(eff_visitor)
                     elif isinstance(eff, FunctionalEffect):
+                        eff.lhs.accept(eff_visitor)
+                    elif isinstance(eff, ChoiceEffect):
                         eff.lhs.accept(eff_visitor)
                     elif isinstance(eff, LogicalEffect):
                         eff.formula.accept(eff_visitor)
