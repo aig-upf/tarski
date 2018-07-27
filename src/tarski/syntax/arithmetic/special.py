@@ -10,7 +10,7 @@ def max(x, y):
 
 def abs(x):
     abs_func = x.language.get_function(BFS.ABS)
-    return abs_func
+    return abs_func(x)
 
 def sin(x):
     sin_func = x.language.get_function(BFS.SIN)

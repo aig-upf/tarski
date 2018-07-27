@@ -83,7 +83,7 @@ def get_special_binary_functions():
 
 def get_special_unary_functions():
     BFS = BuiltinFunctionSymbol
-    return [BFS.SIN, BFS.COS, BFS.TAN, BFS.ATAN, BFS.EXP, BFS.LOG, BFS.ERF, BFS.ERFC]
+    return [BFS.ABS, BFS.SIN, BFS.COS, BFS.TAN, BFS.ATAN, BFS.EXP, BFS.LOG, BFS.ERF, BFS.ERFC]
 
 
 def get_predicate_from_symbol(symbol: str):
