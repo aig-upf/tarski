@@ -4,6 +4,7 @@ from tarski.util import IndexDictionary
 
 from tests.fstrips import blocksworld
 from tests.fstrips import parcprinter
+from tests.fstrips.hybrid.tasks import create_billiards_world
 
 
 def test_task_static_symbol_detection():
@@ -47,3 +48,12 @@ def test_task_index_create_state_variables_blocksworld():
 
     # print(','.join([str(var) for var in index.state_variables]))
     assert len(index.state_variables) == 8
+
+def test_create_state_variables_for_hybrid_problem_with_reactions():
+    prob = create_billiards_world()
+    index = fs.TaskIndex(prob.language.name, prob.name)
+    index.process_symbols(prob)
+    index.state_variables = IndexDictionary()
+    for var in sv.create_all_possible_state_variables(index.fluent_symbols):
+        index.state_variables.add(var)
+    assert len(index.state_variables) == 4

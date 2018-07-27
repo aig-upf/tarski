@@ -26,6 +26,12 @@ class ContingentProblem(Problem):
             raise err.UndefinedSensor(name)
         return self.sensors[name]
 
+    def get_symbols(self, pv, ev, cv):
+        super().get_symbols(pv,ev,cv)
+        for _, sensor in self.sensors.items():
+            sensor.condition.accept(pv)
+            sensor.obs.accept(pv)
+
     def __str__(self):
         return 'FSTRIPS Contingent Problem "{}", domain "{}"'.format(self.name, self.domain_name)
 

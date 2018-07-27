@@ -47,25 +47,8 @@ class TaskIndex:
         o_f = len(self.fluent_symbols)
         o_s = len(self.static_symbols)
         while True:
-            for _, act in problem.actions.items():
-                act.precondition.accept(prec_visitor)
-                for eff in act.effects:
-                    if isinstance(eff, AddEffect):
-                        eff.atom.accept(eff_visitor)
-                    elif isinstance(eff, DelEffect):
-                        eff.atom.accept(eff_visitor)
-                    elif isinstance(eff, FunctionalEffect):
-                        eff.lhs.accept(eff_visitor)
-                    elif isinstance(eff, ChoiceEffect):
-                        eff.lhs.accept(eff_visitor)
-                    elif isinstance(eff, LogicalEffect):
-                        eff.formula.accept(eff_visitor)
-                    else:
-                        raise RuntimeError("Effect type '{}' cannot be analysed".format(type(eff)))
+            problem.get_symbols(prec_visitor, eff_visitor, constraint_visitor)
 
-            for const in problem.constraints:
-                constraint_visitor.reset()
-                const.accept(constraint_visitor)
             # print('Fluents: {}'.format(','.join([str(x) for x in self.fluent_symbols])))
             # print('Statics: {}'.format(','.join([str(x) for x in self.static_symbols])))
             self._check_static_not_fluents()

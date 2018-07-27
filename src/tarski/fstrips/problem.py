@@ -3,6 +3,7 @@ from collections import OrderedDict
 
 from .. import model
 from .action import Action
+from .fstrips import *
 from . import errors as err
 
 
@@ -35,6 +36,39 @@ class Problem:
         if not self.has_action(name):
             raise err.UndefinedAction(name)
         return self.actions[name]
+
+
+    def get_symbols(self, pv, ev, cv):
+        """
+            Applies visitors to syntactic elements matching the definitions for
+            preconditions, effects and constraints.
+
+            parameters:
+                - pv: FluentSymbolCollector tuned for preconditions
+                - ev: FluentSymbolCollector tuned for effects
+                - cv: FluentSymbolCollector tuned for constraints
+        """
+        for _, act in self.actions.items():
+            act.precondition.accept(pv)
+            for eff in act.effects:
+                eff.condition.accept(pv)
+                if isinstance(eff, AddEffect):
+                    eff.atom.accept(ev)
+                elif isinstance(eff, DelEffect):
+                    eff.atom.accept(ev)
+                elif isinstance(eff, FunctionalEffect):
+                    eff.lhs.accept(ev)
+                elif isinstance(eff, ChoiceEffect):
+                    eff.lhs.accept(ev)
+                elif isinstance(eff, LogicalEffect):
+                    eff.formula.accept(ev)
+                else:
+                    raise RuntimeError("Effect type '{}' cannot be analysed".format(type(eff)))
+
+        for const in self.constraints:
+            cv.reset()
+            const.accept(cv)
+
 
     def __str__(self):
         return 'FSTRIPS Problem "{}", domain "{}"'.format(self.name, self.domain_name)
