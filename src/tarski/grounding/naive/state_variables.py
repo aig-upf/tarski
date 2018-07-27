@@ -6,7 +6,7 @@
 import itertools
 import copy
 
-from ...util import IndexDictionary
+from ...util import IndexDictionary, DuplicateElementError
 from ... import Variable, Constant
 from ...syntax.transform.subst import TermSubstitution
 
@@ -75,7 +75,10 @@ def create_all_possible_state_variables(fluent_symbols):
             else:
                 raise UnableToGroundError(st, "Grounding of complex nested subterms is not implemented yet!")
         for instantiation in itertools.product(*instantiations):
-            variables.add(StateVariable(ref.expr, instantiation))
+            try:
+                variables.add(StateVariable(ref.expr, instantiation))
+            except DuplicateElementError:
+                pass
     return variables
 
 

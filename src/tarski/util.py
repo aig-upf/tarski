@@ -23,6 +23,9 @@ class UninitializedAttribute:
     __iter__ = _raise_error
     __contains__ = _raise_error
 
+class DuplicateElementError(Exception):
+    def __init__(self, msg):
+        super().__init__(msg)
 
 class IndexDictionary:
     """
@@ -43,7 +46,7 @@ class IndexDictionary:
 
     def add(self, obj):
         if obj in self.data:
-            raise RuntimeError("Duplicate element '{}'".format(obj))
+            raise DuplicateElementError("Duplicate element '{}'".format(obj))
         self.data[obj] = len(self.data)
         self.objects.append(obj)
 
