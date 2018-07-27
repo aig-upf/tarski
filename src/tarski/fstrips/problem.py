@@ -59,7 +59,9 @@ class Problem:
                 elif isinstance(eff, FunctionalEffect):
                     eff.lhs.accept(ev)
                 elif isinstance(eff, ChoiceEffect):
-                    eff.lhs.accept(ev)
+                    eff.obj.accept(ev)
+                    for x in eff.variables:
+                        x.accept(ev)
                 elif isinstance(eff, LogicalEffect):
                     eff.formula.accept(ev)
                 else:

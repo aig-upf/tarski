@@ -47,8 +47,9 @@ def test_choice_effect_invalid_creation():
     cue = prob.language.get_constant('cue')
     b = prob.language.get_constant('ball_1')
     F = prob.language.get_function('F')
+    v = prob.language.get_function('v')
     with pytest.raises(err.InvalidEffectError):
-        eff = fs.ChoiceEffect(F(cue,x,b), prob.language.Real.cast(5.0))
+        eff = fs.ChoiceEffect(fs.OptimizationType.MAXIMIZE, Variable(0.0, prob.language.Real), [F(cue, x, b)])
 
 def test_choice_effect_valid_creation():
     import tarski.fstrips.errors as err
@@ -57,5 +58,6 @@ def test_choice_effect_valid_creation():
     cue = prob.language.get_constant('cue')
     b = prob.language.get_constant('ball_1')
     F = prob.language.get_function('F')
-    eff = fs.ChoiceEffect(F(cue,x,b), Variable('ux',prob.language.Real))
+    v = prob.language.get_function('v')
+    eff = fs.ChoiceEffect(fs.OptimizationType.MAXIMIZE, v(x, b), [F(cue, x, b)])
     assert isinstance(eff,fs.ChoiceEffect)

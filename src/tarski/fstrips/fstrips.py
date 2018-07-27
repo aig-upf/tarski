@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from enum import Enum
+from typing import List
+
 import tarski.errors as err
 from .errors import InvalidEffectError
 from tarski.syntax import *
@@ -59,38 +62,43 @@ class FunctionalEffect(SingleEffect):
     def check_well_formed(self):
         if not isinstance(self.lhs, CompoundTerm):
             msg = "Error declaring FunctionalEffect: {}\n Invalid effect expression: \
-            left hand side needs to be a functional term!".format(self.tostring())
+            left hand side '{}' needs to be a functional term!".format(self.tostring(), self.lhs)
             raise InvalidEffectError(self, msg)
 
-        if not isinstance(self.lhs, CompoundTerm) and not isinstance(self.lhs, Constant) :
+        if not isinstance(self.rhs, Term):
             msg = "Error declaring FunctionalEffect: {}\n Invalid effect expression: \
-            right hand side needs to be a functional or constant term!".format(self.tostring())
+            right hand side '{}' needs to be a functional term!".format(self.tostring(), self.rhs)
             raise InvalidEffectError(self, msg)
 
     def tostring(self):
         return "{} := {}".format(self.lhs, self.rhs)
+
+class OptimizationType(Enum):
+    MINIMIZE = "minimize"
+    MAXIMIZE = "maximize"
+
+    def __str__(self):
+        return self.value.lower()
 
 class ChoiceEffect(SingleEffect):
 
-    def __init__(self, lhs, rhs,):
-        super().__init__(Tautology())
+    def __init__(self, obj_type: OptimizationType, obj, variables: List[CompoundTerm], constraints=Tautology()):
+        super().__init__(constraints)
         # MRJ: verify the effect is well formed
-        self.lhs = lhs
-        self.rhs = rhs
+        self.obj = obj
+        self.obj_type = obj_type
+        self.variables = variables
         self.check_well_formed()
 
     def check_well_formed(self):
-        if not isinstance(self.lhs, CompoundTerm):
-            msg = "Error declaring Choice Effect: {}\n Invalid choice effect expression: \
-            left hand side needs to be a functional term!".format(self.tostring())
-            raise InvalidEffectError(self, msg)
-        if not isinstance(self.rhs, Variable):
-            msg = "Error declaring Choice Effect: {}\n Invalid choice effect expression: \
-            right hand side needs to be a variable!".format(self.tostring())
+        if not isinstance(self.obj, CompoundTerm):
+            msg = "Error declaring Choice Effect: {}\n Invalid objective expression: \
+            expression to optimize needs to be a functional term!".format(self.tostring())
             raise InvalidEffectError(self, msg)
 
     def tostring(self):
-        return "{} := {}".format(self.lhs, self.rhs)
+        return "{} {}, vars: {} subject to: {}".format(self.obj_type, \
+            self.obj, ','.join([str(x) for x in self.variables]), self.condition)
 
 
 
