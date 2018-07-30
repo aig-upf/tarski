@@ -2,7 +2,7 @@ import operator
 import tarski.funcsym as funcsym
 
 from ..syntax import ops, Connective, Atom, Formula, CompoundFormula, QuantifiedFormula, builtins, Variable, \
-    Constant, CompoundTerm
+    Constant, CompoundTerm, Tautology, Contradiction
 from ..model import Model
 
 
@@ -14,6 +14,12 @@ def evaluate(element, m: Model, sigma=None):
     sigma = sigma if sigma is not None else {}
 
     # Formulas
+    if isinstance(element, Tautology):
+        return True
+
+    if isinstance(element, Contradiction):
+        return False
+
     if isinstance(element, Atom):
         return evaluate_atom(element, m, sigma)
 
