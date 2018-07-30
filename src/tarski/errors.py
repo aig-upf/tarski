@@ -90,6 +90,9 @@ class DuplicateVariableDefinition(DuplicateDefinition):
         super().__init__(variable, other, msg)
 
 
+class UndefinedTerm(UndefinedElement):
+    pass
+
 class UndefinedSort(UndefinedElement):
     pass
 

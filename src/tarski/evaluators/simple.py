@@ -1,5 +1,6 @@
 import operator
 import tarski.funcsym as funcsym
+import tarski.errors as err
 
 from ..syntax import ops, Connective, Atom, Formula, CompoundFormula, QuantifiedFormula, builtins, Variable, \
     Constant, CompoundTerm, Tautology, Contradiction
@@ -80,7 +81,10 @@ def evaluate_term(term, m: Model, sigma):
         # evaluate each of the arguments
         arguments = tuple(evaluate(a, m, sigma) for a in term.subterms)
 
-    return m.value(term.symbol, arguments)
+    try:
+        return m.value(term.symbol, arguments)
+    except KeyError:
+        raise err.UndefinedTerm(term)
 
 
 def evaluate_builtin_predicate(atom, model, sigma):
