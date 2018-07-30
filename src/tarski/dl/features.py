@@ -95,7 +95,7 @@ class ConceptCardinalityFeature(Feature):
         return self.c
 
     def weight(self):
-        return self.concept().depth*2
+        return 1 + self.concept().depth*2  # Penalize multivalued features more than binary features
 
     def basename(self):
         return str(self.c)
@@ -131,7 +131,7 @@ class EmpiricalBinaryConcept(Feature):
         return self.f.concept()
 
     def weight(self):
-        return self.concept().depth
+        return 1 + self.concept().depth
 
 
 class IntegerVariableFeature(Feature):
@@ -188,7 +188,7 @@ class MinDistanceFeature(Feature):
             on the extension of c2, moving only along r-edges.
         """
         ext_c1 = self.c1.extension(cache, state, substitution)
-        ext_c2 = self.c1.extension(cache, state, substitution)
+        ext_c2 = self.c2.extension(cache, state, substitution)
         ext_r = self.r.extension(cache, state, substitution)
         return compute_min_distance(cache.uncompress(ext_c1, self.c1.ARITY),
                                     cache.uncompress(ext_r, self.r.ARITY),
@@ -203,7 +203,7 @@ class MinDistanceFeature(Feature):
     __str__ = __repr__
 
     def weight(self):
-        return self.c1.depth + self.r.depth + self.c2.depth
+        return 1 + self.c1.depth + self.r.depth + self.c2.depth
 
 
 class NullaryAtomFeature(Feature):
@@ -232,4 +232,4 @@ class NullaryAtomFeature(Feature):
                 self.atom == other.atom)
 
     def weight(self):
-        return 0
+        return 1
