@@ -229,7 +229,7 @@ class NullaryAtomFeature(Feature):
 
     def __eq__(self, other):
         return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
-                self.atom == other.name)
+                self.atom == other.atom)
 
     def weight(self):
         return 0
