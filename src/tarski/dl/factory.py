@@ -5,7 +5,7 @@ from .. import FirstOrderLanguage
 from ..syntax import builtins
 
 from . import Concept, Role, UniversalConcept, PrimitiveConcept, NotConcept, ExistsConcept, ForallConcept, \
-    EqualConcept, PrimitiveRole, RestrictRole, AndConcept, EmptyConcept, CompositionRole, SingletonConcept, NullaryAtom
+    EqualConcept, PrimitiveRole, RestrictRole, AndConcept, EmptyConcept, CompositionRole, NominalConcept, NullaryAtom
 
 
 def filter_subnodes(elem, t):
@@ -38,7 +38,7 @@ class SyntacticFactory:
                 logging.warning('Predicate/Function "{}" with normalized arity > 2 ignored'.format(predfun))
 
         for c in self.language.constants():
-            concepts.append(SingletonConcept(c.symbol, c.sort))
+            concepts.append(NominalConcept(c.symbol, c.sort))
 
         return concepts, roles, primitive_atoms
 

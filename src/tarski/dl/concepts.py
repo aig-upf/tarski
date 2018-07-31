@@ -108,7 +108,7 @@ class EmptyConcept(Concept):
         return [self]
 
 
-class SingletonConcept(Concept):
+class NominalConcept(Concept):
     def __init__(self, name, sort):
         Concept.__init__(self, sort.name, 1)
         self.name = name
