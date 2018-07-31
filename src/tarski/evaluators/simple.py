@@ -90,12 +90,12 @@ def evaluate_term(term, m: Model, sigma):
 def evaluate_builtin_predicate(atom, model, sigma):
     bip = builtins.BuiltinPredicateSymbol
     _evaluators = {
-        bip.EQ: lambda f, m, s: evaluate(f.subterms[0], m, s) == evaluate(f.subterms[1], m, s),
-        bip.NE: lambda f, m, s: evaluate(f.subterms[0], m, s) != evaluate(f.subterms[1], m, s),
-        bip.LT: lambda f, m, s: evaluate(f.subterms[0], m, s) < evaluate(f.subterms[1], m, s),
-        bip.LE: lambda f, m, s: evaluate(f.subterms[0], m, s) <= evaluate(f.subterms[1], m, s),
-        bip.GT: lambda f, m, s: evaluate(f.subterms[0], m, s) > evaluate(f.subterms[1], m, s),
-        bip.GE: lambda f, m, s: evaluate(f.subterms[0], m, s) >= evaluate(f.subterms[1], m, s),
+        bip.EQ: lambda f, m, s: evaluate(f.subterms[0], m, s).symbol == evaluate(f.subterms[1], m, s).symbol,
+        bip.NE: lambda f, m, s: evaluate(f.subterms[0], m, s).symbol != evaluate(f.subterms[1], m, s).symbol,
+        bip.LT: lambda f, m, s: evaluate(f.subterms[0], m, s).symbol < evaluate(f.subterms[1], m, s).symbol,
+        bip.LE: lambda f, m, s: evaluate(f.subterms[0], m, s).symbol <= evaluate(f.subterms[1], m, s).symbol,
+        bip.GT: lambda f, m, s: evaluate(f.subterms[0], m, s).symbol > evaluate(f.subterms[1], m, s).symbol,
+        bip.GE: lambda f, m, s: evaluate(f.subterms[0], m, s).symbol >= evaluate(f.subterms[1], m, s).symbol,
     }
 
     return _evaluators[atom.predicate.symbol](atom, model, sigma)

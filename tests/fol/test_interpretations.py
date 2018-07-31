@@ -50,7 +50,7 @@ def test_numeric_rel_formula_evaluation():
     model.set(x, (p1,), 1.0)
     model.set(x, (p2,), 2.0)
 
-    assert model[x(p1) < x(p2)]
+    assert model[x(p1) < x(p2)] is True
 
 
 def test_blocksworld_set():
@@ -203,7 +203,6 @@ def test_zero_ary_predicate_set():
 
     assert evaluate(P(), M) is True
 
-
 def test_predicate_extensions():
     lang = tarski.language()
     pred = lang.predicate('pred', lang.Object, lang.Object)
@@ -233,7 +232,3 @@ def test_predicate_extensions():
     with pytest.raises(KeyError):
         # This should raise an error, as the tuple has been removed
         model.remove(pred, o1, o2)
-
-
-
-
