@@ -9,6 +9,7 @@ from . import Concept, Role, UniversalConcept, PrimitiveConcept, NotConcept, Exi
 
 
 def filter_subnodes(elem, t):
+    """ Return a list with all subnodes of a certain concept or role which conform to the given Python type """
     return list(filter(lambda x: type(x) == t, elem.flatten()))
 
 

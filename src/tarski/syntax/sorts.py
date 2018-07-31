@@ -50,6 +50,7 @@ class Sort:
             if x in self._domain:
                 return x
             raise ValueError("Cast: Symbol '{}' does not belong to domain {}".format(x, self))
+        return None
 
     def cardinality(self):
         return len(self._domain)
