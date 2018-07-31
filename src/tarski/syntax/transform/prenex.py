@@ -119,12 +119,10 @@ class PrenexTransformation:
         # \forall ( P \lor Q(x)) \equiv P \lor \forall x Q(x)
         # \exists (P \land Q(x)) \equiv P \land \exists x Q(x)
         elif is_quant_rhs:
-            return self._merge_mixed_subformulas(rhs.quantifier, rhs.variables, lhs, phi.connective,
-                                                 rhs.formula)
+            return _merge_mixed_subformulas(rhs.quantifier, rhs.variables, lhs, phi.connective, rhs.formula)
         else:  # is_quant_lhs
             assert is_quant_lhs
-            return self._merge_mixed_subformulas(lhs.quantifier, lhs.variables, lhs.formula, phi.connective,
-                                                 rhs)
+            return _merge_mixed_subformulas(lhs.quantifier, lhs.variables, lhs.formula, phi.connective, rhs)
 
     def convert_quantified(self, phi):
         assert isinstance(phi, QuantifiedFormula)
