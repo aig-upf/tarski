@@ -3,8 +3,6 @@
 """
 from enum import Enum
 
-from tarski import Function
-
 from .concepts import Concept, Role, NullaryAtom
 from ..utils.algorithms import compute_min_distance
 
@@ -38,7 +36,8 @@ class Feature:
     # def concept(self):
     #     raise NotImplementedError()
 
-    def weight(self):
+    def complexity(self):
+        """ Return feature complexity value """
         raise NotImplementedError()
 
 
@@ -94,21 +93,21 @@ class ConceptCardinalityFeature(Feature):
     def concept(self):
         return self.c
 
-    def weight(self):
-        return 1 + self.concept().depth*2  # Penalize multivalued features more than binary features
-
-    def basename(self):
-        return str(self.c)
+    def complexity(self):
+        # The complexity of a cardinality feature is the complexity of the underlying concept
+        return self.c.size
 
 
 class EmpiricalBinaryConcept(Feature):
-    def __init__(self, f: ConceptCardinalityFeature):
-        self.f = f
-        self.hash = hash((self.__class__, self.f))
+    def __init__(self, feature):
+        assert isinstance(feature, ConceptCardinalityFeature)
+        self.c = feature.c
+        self.hash = hash((self.__class__, self.c))
 
     def value(self, cache, state, substitution):
         """ The feature value _is_ whether the cardinality of the extension of the represented concept is 0 or 1 """
-        x = self.f.value(cache, state, substitution)
+        ext = self.c.extension(cache, state, substitution)
+        x = ext.count()
         assert x in (0, 1)  # By definition of "empirical binary concept"
         return bool(x)
 
@@ -116,7 +115,7 @@ class EmpiricalBinaryConcept(Feature):
         return compute_bool_feature_diff(x, y)
 
     def __repr__(self):
-        return 'bool[{}]'.format(self.f.basename())
+        return 'bool[{}]'.format(self.c)
 
     __str__ = __repr__
 
@@ -125,47 +124,47 @@ class EmpiricalBinaryConcept(Feature):
 
     def __eq__(self, other):
         return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
-                self.f == other.f)
+                self.c == other.c)
 
     def concept(self):
-        return self.f.concept()
+        return self.c
 
-    def weight(self):
-        return 1 + self.concept().depth
+    def complexity(self):
+        # The complexity of a binary feature is the complexity of the underlying concept
+        return self.c.size
 
-
-class IntegerVariableFeature(Feature):
-    """ A numeric feature that directly reflects the value of some integer variable of the problem """
-    def __init__(self, fun, point):
-        assert isinstance(fun, Function)
-        assert isinstance(point, tuple)
-        self.fun = fun
-        self.point = point
-        self.hash = hash((self.__class__, self.fun.symbol, point))
-
-    def value(self, cache, state, substitution):
-        """ The feature value _is_ the cardinality of the extension of the represented concept"""
-        raise RuntimeError("Unimplemented")
-        # ext = self.c.extension(cache, state, substitution)
-        # return ext.count()
-
-    def diff(self, x, y):
-        return compute_int_feature_diff(x, y)
-
-    def __repr__(self):
-        return 'int[{}]'.format(self.fun(*self.point))
-
-    __str__ = __repr__
-
-    def __hash__(self):
-        return self.hash
-
-    def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
-                self.fun == other.fun and self.point == other.point)
-
-    def weight(self):
-        return 0
+# NOT YET FULLY IMPLEMENTED:
+#
+# class IntegerVariableFeature(Feature):
+#     """ A numeric feature that directly reflects the value of some integer variable of the problem """
+#     def __init__(self, fun, point):
+#         assert isinstance(fun, Function)
+#         assert isinstance(point, tuple)
+#         self.fun = fun
+#         self.point = point
+#         self.hash = hash((self.__class__, self.fun.symbol, point))
+#
+#     def value(self, cache, state, substitution):
+#         """ The feature value _is_ the cardinality of the extension of the represented concept"""
+#         raise RuntimeError("Unimplemented")
+#         # ext = self.c.extension(cache, state, substitution)
+#         # return ext.count()
+#
+#     def diff(self, x, y):
+#         return compute_int_feature_diff(x, y)
+#
+#     def __repr__(self):
+#         return 'int[{}]'.format(self.fun(*self.point))
+#
+#     __str__ = __repr__
+#
+#     def __hash__(self):
+#         return self.hash
+#
+#     def __eq__(self, other):
+#         return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
+#                 self.fun == other.fun and self.point == other.point)
+#
 
 
 class MinDistanceFeature(Feature):
@@ -202,8 +201,8 @@ class MinDistanceFeature(Feature):
 
     __str__ = __repr__
 
-    def weight(self):
-        return 1 + self.c1.depth + self.r.depth + self.c2.depth
+    def complexity(self):
+        return self.c1.size + self.r.size + self.c2.size + 1
 
 
 class NullaryAtomFeature(Feature):
@@ -231,5 +230,5 @@ class NullaryAtomFeature(Feature):
         return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
                 self.atom == other.atom)
 
-    def weight(self):
+    def complexity(self):
         return 1

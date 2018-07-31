@@ -35,10 +35,10 @@ class NullaryAtom:
 class Concept:
     ARITY = 1
 
-    def __init__(self, sort, depth):
+    def __init__(self, sort, size):
         assert isinstance(sort, str)
         self.sort = sort
-        self.depth = depth
+        self.size = size
 
     def extension(self, cache, state, substitution):
         raise NotImplementedError()
@@ -50,10 +50,10 @@ class Concept:
 class Role:
     ARITY = 2
 
-    def __init__(self, sort, depth):
+    def __init__(self, sort, size):
         assert len(sort) == self.ARITY
         self.sort = sort
-        self.depth = depth
+        self.size = size
 
     def extension(self, cache, state, substitution):
         raise NotImplementedError()
@@ -110,7 +110,7 @@ class EmptyConcept(Concept):
 
 class SingletonConcept(Concept):
     def __init__(self, name, sort):
-        Concept.__init__(self, sort.name, 0)
+        Concept.__init__(self, sort.name, 1)
         self.name = name
         self.hash = hash((self.__class__, self.name))
 
@@ -139,7 +139,7 @@ class PrimitiveConcept(Concept):
         assert isinstance(predicate, (Predicate, Function))
         _check_arity("concept", 1, predicate)
 
-        Concept.__init__(self, predicate.sort[0].name, 0)
+        Concept.__init__(self, predicate.sort[0].name, 1)
         self.name = predicate.symbol  # This is a bit aggressive, but we assume that predicate names are unique
         self.hash = hash((self.__class__, self.name))
 
@@ -165,7 +165,7 @@ class PrimitiveConcept(Concept):
 class NotConcept(Concept):
     def __init__(self, c, universal_sort):
         assert isinstance(c, Concept)
-        Concept.__init__(self, universal_sort.name, 1 + c.depth)
+        Concept.__init__(self, universal_sort.name, 1 + c.size)
         self.c = c
         self.hash = hash((self.__class__, self.c))
 
@@ -193,7 +193,7 @@ class AndConcept(Concept):
     def __init__(self, c1, c2, sort):
         assert isinstance(c1, Concept)
         assert isinstance(c2, Concept)
-        Concept.__init__(self, sort, 1 + c1.depth + c2.depth)
+        Concept.__init__(self, sort, 1 + c1.size + c2.size)
         self.c1 = c1
         self.c2 = c2
         self.hash = hash((self.__class__, self.c1, self.c2))
@@ -225,7 +225,7 @@ class ExistsConcept(Concept):
         assert isinstance(r, Role)
         assert isinstance(c, Concept)
         # The sort of an exists-concept is that of the first element of the relation
-        Concept.__init__(self, r.sort[0], 1 + r.depth + c.depth)
+        Concept.__init__(self, r.sort[0], 1 + r.size + c.size)
         self.r = r
         self.c = c
         self.hash = hash((self.__class__, self.r, self.c))
@@ -259,7 +259,7 @@ class ForallConcept(Concept):
         assert isinstance(r, Role)
         assert isinstance(c, Concept)
         # The sort of a forall-concept is that of the first element of the relation # TODO Check this
-        Concept.__init__(self, r.sort[0], 1 + r.depth + c.depth)
+        Concept.__init__(self, r.sort[0], 1 + r.size + c.size)
         self.r = r
         self.c = c
         self.hash = hash((self.__class__, self.r, self.c))
@@ -298,7 +298,7 @@ class EqualConcept(Concept):
     def __init__(self, r1, r2, sort):
         assert isinstance(r1, Role)
         assert isinstance(r2, Role)
-        Concept.__init__(self, sort, 1 + r1.depth + r2.depth)
+        Concept.__init__(self, sort, 1 + r1.size + r2.size)
         self.r1 = r1
         self.r2 = r2
         self.hash = hash((self.__class__, self.r1, self.r2))
@@ -340,7 +340,7 @@ class PrimitiveRole(Role):
         assert isinstance(predicate, (Predicate, Function))
         _check_arity("role", 2, predicate)
 
-        super().__init__([s.name for s in predicate.sort], 0)
+        super().__init__([s.name for s in predicate.sort], 1)
         self.name = predicate.symbol
 
         # This is a bit aggressive, but we assume that predicate names are unique
@@ -369,7 +369,7 @@ class InverseRole(Role):
     def __init__(self, r):
         assert isinstance(r, Role)
         s1, s2 = r.sort
-        super().__init__([s2, s1], 1 + r.depth)
+        super().__init__([s2, s1], 1 + r.size)
         self.r = r
         self.hash = hash((self.__class__, self.r))
 
@@ -397,7 +397,7 @@ class InverseRole(Role):
 class StarRole(Role):
     def __init__(self, r):
         assert isinstance(r, Role)
-        Role.__init__(self, r.sort, 1 + r.depth)
+        Role.__init__(self, r.sort, 1 + r.size)
         self.r = r
         self.hash = hash((self.__class__, self.r))
 
@@ -426,7 +426,7 @@ class CompositionRole(Role):
     def __init__(self, r1, r2):
         assert isinstance(r1, Role)
         assert isinstance(r2, Role)
-        Role.__init__(self, [r1.sort[0], r2.sort[1]], 1 + r1.depth + r2.depth)
+        Role.__init__(self, [r1.sort[0], r2.sort[1]], 1 + r1.size + r2.size)
         self.r1 = r1
         self.r2 = r2
         self.hash = hash((self.__class__, self.r1, self.r2))
@@ -466,7 +466,7 @@ class RestrictRole(Role):
     def __init__(self, r, c):
         assert isinstance(r, Role)
         assert isinstance(c, Concept)
-        Role.__init__(self, r.sort, 1 + r.depth + c.depth)
+        Role.__init__(self, r.sort, 1 + r.size + c.size)
         self.r = r
         self.c = c
         self.hash = hash((self.__class__, self.r, self.c))
