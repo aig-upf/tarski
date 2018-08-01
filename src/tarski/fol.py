@@ -313,12 +313,13 @@ class FirstOrderLanguage:
         except KeyError:
             raise err.LanguageError("Operator '{}' not defined on domain ({}, {})".format(operator, t1, t2))
 
-    def get(self, name):
+    def get(self, what):
         """ Return the language element with given name.
         This can be a predicate or function symbol, including constants, or a sort name."""
+        if type(what) in (list, tuple):
+            return [self.get(x) for x in what]
+
         try:
-            return self._global_index[name]
+            return self._global_index[what]
         except KeyError:
-            raise err.UndefinedElement(name)
-
-
+            raise err.UndefinedElement(what)
