@@ -81,3 +81,38 @@ def test_complex_atom_from_expression_only_functions():
     phi = (x() <= y()) & (y() <= z())
 
     assert isinstance(phi, CompoundFormula)
+
+
+def test_duplicate_detection_and_global_getter():
+    lang = tsk.FirstOrderLanguage("test")
+
+    t1 = lang.sort('t1')
+    c1 = lang.constant('c1', lang.Object)
+    f1 = lang.function('f1', lang.Object)
+    p1 = lang.predicate('p1')
+
+    # Redeclaring things raises exceptions of appropriate types
+    with pytest.raises(err.DuplicateSortDefinition):
+        lang.sort('t1')
+    with pytest.raises(err.DuplicateConstantDefinition):
+        lang.constant('c1', lang.Object)
+    with pytest.raises(err.DuplicateFunctionDefinition):
+        lang.function('f1', lang.Object)
+    with pytest.raises(err.DuplicatePredicateDefinition):
+        lang.predicate('p1')
+
+    # Declaring any language element with same name as a language element of a different type also  raises exception
+    with pytest.raises(err.DuplicateDefinition):
+        lang.sort('p1')
+    with pytest.raises(err.DuplicateDefinition):
+        lang.constant('t1', lang.Object)
+    with pytest.raises(err.DuplicateDefinition):
+        lang.function('c1', lang.Object)
+    with pytest.raises(err.DuplicateDefinition):
+        lang.predicate('f1')
+
+    assert id(lang.get('t1')) == id(t1)
+    assert id(lang.get('c1')) == id(c1)
+    assert id(lang.get('f1')) == id(f1)
+    assert id(lang.get('p1')) == id(p1)
+
