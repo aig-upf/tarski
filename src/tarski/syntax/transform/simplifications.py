@@ -7,7 +7,7 @@ def unpack_atom(atom):
     assert isinstance(atom, Atom)
     # if atom.predicate.symbol == BuiltinPredicateSymbol.EQ:
     if atom.predicate.builtin:
-        raise NotImplemented("Yet to be implemented")
+        raise NotImplementedError("Yet to be implemented")
 
     elems = [atom.predicate.symbol]
     for c in atom.subterms:
