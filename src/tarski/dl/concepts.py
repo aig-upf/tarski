@@ -32,6 +32,13 @@ class NullaryAtom:
         return cache.nullary_value(self, state)
 
 
+class GoalNullaryAtom(NullaryAtom):
+    def __repr__(self):
+        return "{}_g".format(self.name)
+
+    __str__ = __repr__
+
+
 class Concept:
     ARITY = 1
 
@@ -160,6 +167,13 @@ class PrimitiveConcept(Concept):
 
     def flatten(self):
         return [self]
+
+
+class GoalConcept(PrimitiveConcept):
+    def __repr__(self):
+        return "{}_g".format(self.name)
+
+    __str__ = __repr__
 
 
 class NotConcept(Concept):
@@ -363,6 +377,13 @@ class PrimitiveRole(Role):
 
     def flatten(self):
         return [self]
+
+
+class GoalRole(PrimitiveRole):
+    def __repr__(self):
+        return "{}_g".format(self.name)
+
+    __str__ = __repr__
 
 
 class InverseRole(Role):
