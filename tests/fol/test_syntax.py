@@ -116,5 +116,6 @@ def test_duplicate_detection_and_global_getter():
     assert id(lang.get('f1')) == id(f1)
     assert id(lang.get('p1')) == id(p1)
 
-    assert(all(id(x) == id(y) for x, y in zip([t1, c1, f1, p1], lang.get(['t1', 'c1', 'f1', 'p1']))))
+    assert len(lang.get('t1', 'c1', 'f1', 'p1')) == 4
+    assert(all(id(x) == id(y) for x, y in zip([t1, c1, f1, p1], lang.get('t1', 'c1', 'f1', 'p1'))))
 

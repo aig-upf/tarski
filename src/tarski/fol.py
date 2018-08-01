@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import itertools
 from collections import defaultdict, OrderedDict
 
 from . import errors as err
@@ -313,13 +314,14 @@ class FirstOrderLanguage:
         except KeyError:
             raise err.LanguageError("Operator '{}' not defined on domain ({}, {})".format(operator, t1, t2))
 
-    def get(self, what):
-        """ Return the language element with given name.
+    def get(self, first, *args):
+        """ Return the language element with given name(s).
         This can be a predicate or function symbol, including constants, or a sort name."""
-        if type(what) in (list, tuple):
-            return [self.get(x) for x in what]
+        res = []
+        for what in itertools.chain([first], args):
+            try:
+                res.append(self._global_index[what])
+            except KeyError:
+                raise err.UndefinedElement(what)
 
-        try:
-            return self._global_index[what]
-        except KeyError:
-            raise err.UndefinedElement(what)
+        return res[0] if not args else res  # Unpack the result if only one element
