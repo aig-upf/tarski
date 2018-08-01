@@ -23,6 +23,8 @@ class PrenexTransformation:
         self.prenex = None
 
     def _merge_quantified_subformulas(self, lhs, rhs, renaming=True):
+        assert isinstance(lhs, QuantifiedFormula)
+        assert isinstance(rhs, QuantifiedFormula)
         new_variables = {(x.symbol, x.sort.name): x for x in lhs.variables}
         subst = {}
         for y in rhs.variables:

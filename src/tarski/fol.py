@@ -30,24 +30,17 @@ class FirstOrderLanguage:
         # self._predicates_by_sort = {}
         # self._functions_by_sort = {}
         self._constants = OrderedDict()
-        self._variables = set()
 
         self._operators = dict()
         self._global_index = dict()
         self._element_containers = {Sort: self._sorts,
                                     Function: self._functions,
-                                    Predicate: self._predicates,
-                                    Variable: self._variables}
+                                    Predicate: self._predicates}
 
         self.language_components_frozen = False
         self.theories = []
 
         self._build_builtin_sorts()
-
-    @property
-    def variables(self):
-        for x in self._variables:
-            yield x
 
     @property
     def sorts(self):
@@ -306,8 +299,8 @@ class FirstOrderLanguage:
         return self.is_subtype(t1, t2) or self.is_subtype(t2, t1)
 
     def __str__(self):
-        return "{}: Tarski language with {} sorts, {} function symbols, {} predicate symbols and {} variables".format(
-            self.name, len(self._sorts), len(self._functions), len(self._predicates), len(self._variables))
+        return "{}: Tarski language with {} sorts, {} function symbols, {} predicate symbols".format(
+            self.name, len(self._sorts), len(self._functions), len(self._predicates))
 
     def register_operator_handler(self, operator, t1, t2, handler):
         self._operators[(operator, t1, t2)] = handler
