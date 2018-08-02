@@ -3,6 +3,7 @@ import os
 from collections import defaultdict
 
 from tarski import Term, Variable, Constant, Formula
+from tarski.fstrips.fstrips import SingleEffect
 from tarski.model import ExtensionalFunctionDefinition
 from tarski.syntax import Tautology, Contradiction, Atom, CompoundTerm, CompoundFormula, QuantifiedFormula
 from tarski.syntax.sorts import parent, Interval, ancestors
@@ -259,6 +260,7 @@ def print_effects(effects, indentation=0):
 
 
 def print_effect(eff, indentation=0):
+    assert isinstance(eff, SingleEffect)  # Universal, etc. effects yet to be implemented
     conditional = not isinstance(eff.condition, Tautology)  # We have a conditional effect
     functional = isinstance(eff, FunctionalEffect)
 

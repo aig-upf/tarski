@@ -16,7 +16,7 @@ class FeatureValueChange(Enum):
 
 
 class Feature:
-    def value(self, cache, state, substitution):
+    def value(self, cache, state):
         raise NotImplementedError()
 
     def diff(self, x, y):
@@ -70,9 +70,9 @@ class ConceptCardinalityFeature(Feature):
         self.c = c
         self.hash = hash((self.__class__, self.c))
 
-    def value(self, cache, state, substitution):
+    def value(self, cache, state):
         """ The feature value _is_ the cardinality of the extension of the represented concept"""
-        ext = self.c.extension(cache, state, substitution)
+        ext = self.c.extension(cache, state)
         return ext.count()
 
     def diff(self, x, y):
@@ -104,9 +104,9 @@ class EmpiricalBinaryConcept(Feature):
         self.c = feature.c
         self.hash = hash((self.__class__, self.c))
 
-    def value(self, cache, state, substitution):
+    def value(self, cache, state):
         """ The feature value _is_ whether the cardinality of the extension of the represented concept is 0 or 1 """
-        ext = self.c.extension(cache, state, substitution)
+        ext = self.c.extension(cache, state)
         x = ext.count()
         assert x in (0, 1)  # By definition of "empirical binary concept"
         return bool(x)
@@ -144,10 +144,10 @@ class EmpiricalBinaryConcept(Feature):
 #         self.point = point
 #         self.hash = hash((self.__class__, self.fun.symbol, point))
 #
-#     def value(self, cache, state, substitution):
+#     def value(self, cache, state):
 #         """ The feature value _is_ the cardinality of the extension of the represented concept"""
 #         raise RuntimeError("Unimplemented")
-#         # ext = self.c.extension(cache, state, substitution)
+#         # ext = self.c.extension(cache, state)
 #         # return ext.count()
 #
 #     def diff(self, x, y):
@@ -182,13 +182,13 @@ class MinDistanceFeature(Feature):
         return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
                 self.c1 == other.c1 and self.r == other.r and self.c2 == other.c2)
 
-    def value(self, cache, state, substitution):
+    def value(self, cache, state):
         """ The value of the feature is the min distance between any object in the extension of c1 and any object
             on the extension of c2, moving only along r-edges.
         """
-        ext_c1 = self.c1.extension(cache, state, substitution)
-        ext_c2 = self.c2.extension(cache, state, substitution)
-        ext_r = self.r.extension(cache, state, substitution)
+        ext_c1 = self.c1.extension(cache, state)
+        ext_c2 = self.c2.extension(cache, state)
+        ext_r = self.r.extension(cache, state)
         return compute_min_distance(cache.uncompress(ext_c1, self.c1.ARITY),
                                     cache.uncompress(ext_r, self.r.ARITY),
                                     cache.uncompress(ext_c2, self.c2.ARITY))
@@ -211,9 +211,9 @@ class NullaryAtomFeature(Feature):
         self.atom = atom
         self.hash = hash((self.__class__, self.atom))
 
-    def value(self, cache, state, substitution):
+    def value(self, cache, state):
         """ The feature evaluates to true iff the nullary atom is true in the given state """
-        return self.atom.extension(cache, state, substitution)
+        return self.atom.extension(cache, state)
 
     def diff(self, x, y):
         return compute_bool_feature_diff(x, y)

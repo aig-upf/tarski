@@ -28,7 +28,7 @@ class NullaryAtom:
 
     __str__ = __repr__
 
-    def extension(self, cache, state, _):
+    def extension(self, cache, state):
         return cache.nullary_value(self, state)
 
 
@@ -47,7 +47,7 @@ class Concept:
         self.sort = sort
         self.size = size
 
-    def extension(self, cache, state, substitution):
+    def extension(self, cache, state):
         raise NotImplementedError()
 
     def flatten(self):
@@ -62,7 +62,7 @@ class Role:
         self.sort = sort
         self.size = size
 
-    def extension(self, cache, state, substitution):
+    def extension(self, cache, state):
         raise NotImplementedError()
 
     def flatten(self):
@@ -80,7 +80,7 @@ class UniversalConcept(Concept):
     def __eq__(self, other):
         return self.__class__ is other.__class__
 
-    def extension(self, cache, state, substitution):
+    def extension(self, cache, state):
         return cache.as_bitarray(self, state)
 
     def __repr__(self):
@@ -103,7 +103,7 @@ class EmptyConcept(Concept):
     def __eq__(self, other):
         return self.__class__ is other.__class__
 
-    def extension(self, cache, state, substitution):
+    def extension(self, cache, state):
         return cache.as_bitarray(self, state)
 
     def __repr__(self):
@@ -128,7 +128,7 @@ class NominalConcept(Concept):
         return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
                 self.name == other.name)
 
-    def extension(self, cache, state, substitution):
+    def extension(self, cache, state):
         singleton = {cache.universe.index(self.name)}
         return cache.compress(singleton, self.ARITY)
 
@@ -157,7 +157,7 @@ class PrimitiveConcept(Concept):
         return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
                 self.name == other.name)
 
-    def extension(self, cache, state, substitution):
+    def extension(self, cache, state):
         return cache.as_bitarray(self, state)
 
     def __repr__(self):
@@ -190,7 +190,7 @@ class NotConcept(Concept):
         return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
                 self.c == other.c)
 
-    def extension(self, cache, state, substitution):
+    def extension(self, cache, state):
         ext_c = cache.as_bitarray(self.c, state)
         return ~ext_c
 
@@ -220,7 +220,7 @@ class AndConcept(Concept):
                 self.c1 == other.c1 and
                 self.c2 == other.c2)
 
-    def extension(self, cache, state, substitution):
+    def extension(self, cache, state):
         ext_c1 = cache.as_bitarray(self.c1, state)
         ext_c2 = cache.as_bitarray(self.c2, state)
         return ext_c1 & ext_c2
@@ -252,7 +252,7 @@ class ExistsConcept(Concept):
                 self.c == other.c and
                 self.r == other.r)
 
-    def extension(self, cache, state, substitution):
+    def extension(self, cache, state):
         ext_c = cache.as_set(self.c, state)
         ext_r = cache.as_set(self.r, state)
         # result = [x for x in objects if [z for (y, z) in ext_r if y == x and z in ext_c]]
@@ -286,7 +286,7 @@ class ForallConcept(Concept):
                 self.c == other.c and
                 self.r == other.r)
 
-    def extension(self, cache, state, substitution):
+    def extension(self, cache, state):
         universe = cache.universe_set
         ext_c = cache.as_set(self.c, state)
         ext_r = cache.as_set(self.r, state)
@@ -325,7 +325,7 @@ class EqualConcept(Concept):
                 self.r1 == other.r1 and
                 self.r2 == other.r2)
 
-    def extension(self, cache, state, substitution):
+    def extension(self, cache, state):
         universe = cache.universe_set
         ext_r1 = cache.as_set(self.r1, state)
         ext_r2 = cache.as_set(self.r2, state)
@@ -367,7 +367,7 @@ class PrimitiveRole(Role):
         return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
                 self.name == other.name)
 
-    def extension(self, cache, state, substitution):
+    def extension(self, cache, state):
         return cache.as_bitarray(self, state)
 
     def __repr__(self):
@@ -401,7 +401,7 @@ class InverseRole(Role):
         return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
                 self.r == other.r)
 
-    def extension(self, cache, state, substitution):
+    def extension(self, cache, state):
         ext_r = cache.as_set(self.r, state)
         result = set((y, x) for (x, y) in ext_r)
         return cache.compress(result, self.ARITY)
@@ -429,7 +429,7 @@ class StarRole(Role):
         return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
                 self.r == other.r)
 
-    def extension(self, cache, state, substitution):
+    def extension(self, cache, state):
         ext_r = cache.as_set(self.r, state)
         result = set(transitive_closure(ext_r))
         return cache.compress(result, self.ARITY)
@@ -460,7 +460,7 @@ class CompositionRole(Role):
                 self.r1 == other.r1 and
                 self.r2 == other.r2)
 
-    def extension(self, cache, state, substitution):
+    def extension(self, cache, state):
         ext_r1 = cache.as_set(self.r1, state)
         ext_r2 = cache.as_set(self.r2, state)
         result = set()
@@ -500,7 +500,7 @@ class RestrictRole(Role):
                 self.c == other.c and
                 self.r == other.r)
 
-    def extension(self, cache, state, substitution):
+    def extension(self, cache, state):
         ext_c = cache.as_set(self.c, state)
         ext_r = cache.as_set(self.r, state)
         result = set((x, y) for (x, y) in ext_r if y in ext_c)
