@@ -92,6 +92,21 @@ def test_special_function_min():
     a, b = lang.constant(3.14, reals), lang.constant(1.24, reals)
     assert model[min(a,b)].symbol == 1.24
 
+
+def test_special_function_abs():
+    from tarski.syntax.arithmetic.special import abs
+    lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL])
+    model = Model(lang)
+    model.evaluator = evaluate
+    reals = lang.Real
+    a = lang.constant(5.01, reals)
+    b = lang.constant(-5.01, reals)
+    c = lang.constant(0.001, reals)
+    assert model[abs(a)].symbol == 5.01
+    assert model[abs(b)].symbol == 5.01
+    assert model[abs(a) > c] is True
+    assert model[abs(b) > c] is True
+
 def test_special_function_sin():
     import numpy as np
     from tarski.syntax.arithmetic.special import sin
