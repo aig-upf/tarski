@@ -172,6 +172,17 @@ def test_special_function_erfc():
     x = lang.constant(0.5,reals)
     assert model[erfc(x)].symbol == sci.erfc(0.5)
 
+def test_special_function_sgn():
+    import numpy as np
+    from tarski.syntax.arithmetic.special import sgn
+    lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL])
+    model = Model(lang)
+    model.evaluator = evaluate
+    reals = lang.Real
+    x = lang.constant(0.5,reals)
+    assert model[sgn(x)].symbol == np.sign(0.5)
+
+
 def test_blocksworld_add():
     lang = blocksworld.generate_small_fstrips_bw_language()
     model = Model(lang)

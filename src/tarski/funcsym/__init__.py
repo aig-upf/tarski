@@ -12,5 +12,6 @@ impl = {
     "exp": lambda x: np.exp(x),
     "log": lambda x: np.log(x),
     "erf": lambda x: sci.erf(x),
-    "erfc": lambda x: sci.erfc(x)
+    "erfc": lambda x: sci.erfc(x),
+    "sgn": lambda x: np.sign(x)
 }

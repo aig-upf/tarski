@@ -43,3 +43,7 @@ def erf(x):
 def erfc(x):
     erfc_func = x.language.get_function(BFS.ERFC)
     return erfc_func(x)
+
+def sgn(x):
+    sgn_func = x.language.get_function(BFS.SGN)
+    return sgn_func(x)

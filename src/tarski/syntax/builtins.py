@@ -38,6 +38,7 @@ class BuiltinFunctionSymbol(Enum):
     LOG = "log"
     ERF = "erf"
     ERFC = "erfc"
+    SGN = "sgn"
 
     # ...
 
@@ -83,7 +84,7 @@ def get_special_binary_functions():
 
 def get_special_unary_functions():
     BFS = BuiltinFunctionSymbol
-    return [BFS.ABS, BFS.SIN, BFS.COS, BFS.TAN, BFS.ATAN, BFS.EXP, BFS.LOG, BFS.ERF, BFS.ERFC]
+    return [BFS.ABS, BFS.SIN, BFS.COS, BFS.TAN, BFS.ATAN, BFS.EXP, BFS.LOG, BFS.ERF, BFS.ERFC, BFS.SGN]
 
 
 def get_predicate_from_symbol(symbol: str):
