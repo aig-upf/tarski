@@ -96,39 +96,40 @@ def test_complex_atom_from_expression_only_functions():
 
     assert isinstance(phi, CompoundFormula)
 
-def test_summation_generates_compound_term():
-    from tarski.syntax.arithmetic import summation
-    lang = numeric.generate_billiards_instance()
-    m, F, a, v, p = [lang.get_function(n) for n in ['m', 'F', 'a', 'v', 'p']]
-    x = lang.get_constant('x')
-    ball_1 = lang.get_constant('ball_1')
 
-    ftype = Variable('ftype', lang.get_sort('force'))
-    t = summation(ftype, F(ftype, x, ball_1))
-    print(t)
-    assert isinstance(t, CompoundTerm)
+def test_duplicate_detection_and_global_getter():
+    lang = tsk.FirstOrderLanguage("test")
 
-def test_summation_in_predicate():
-    from tarski.syntax.arithmetic import summation
-    lang = numeric.generate_billiards_instance()
-    m, F, a, v, p = [lang.get_function(n) for n in ['m', 'F', 'a', 'v', 'p']]
-    x = lang.get_constant('x')
-    ball_1 = lang.get_constant('ball_1')
+    t1 = lang.sort('t1')
+    c1 = lang.constant('c1', lang.Object)
+    f1 = lang.function('f1', lang.Object)
+    p1 = lang.predicate('p1')
 
-    ftype = Variable('ftype', lang.get_sort('force'))
-    prop_ball =  a(x, ball_1) == (summation(ftype, F(ftype, x, ball_1)) / m(ball_1))
-    print(prop_ball)
-    assert isinstance(prop_ball, Formula)
+    # Redeclaring things raises exceptions of appropriate types
+    with pytest.raises(err.DuplicateSortDefinition):
+        lang.sort('t1')
+    with pytest.raises(err.DuplicateConstantDefinition):
+        lang.constant('c1', lang.Object)
+    with pytest.raises(err.DuplicateFunctionDefinition):
+        lang.function('f1', lang.Object)
+    with pytest.raises(err.DuplicatePredicateDefinition):
+        lang.predicate('p1')
 
-def test_summation_in_quantified_formula():
-    from tarski.syntax.arithmetic import summation
-    lang = numeric.generate_billiards_instance()
-    m, F, a, v, p = [lang.get_function(n) for n in ['m', 'F', 'a', 'v', 'p']]
+    # Declaring any language element with same name as a language element of a different type also  raises exception
+    with pytest.raises(err.DuplicateDefinition):
+        lang.sort('p1')
+    with pytest.raises(err.DuplicateDefinition):
+        lang.constant('t1', lang.Object)
+    with pytest.raises(err.DuplicateDefinition):
+        lang.function('c1', lang.Object)
+    with pytest.raises(err.DuplicateDefinition):
+        lang.predicate('f1')
 
-    b = Variable('b', lang.get_sort('ball'))
-    d = Variable('d', lang.get_sort('dimension'))
-    ftype = Variable('ftype', lang.get_sort('force'))
-    # The principle of superposition
-    pos =  forall(b, d, a(d, b) == (summation(ftype, F(ftype, d, b)) / m(b)) )
-    print(pos)
-    assert isinstance(pos, QuantifiedFormula)
+    assert id(lang.get('t1')) == id(t1)
+    assert id(lang.get('c1')) == id(c1)
+    assert id(lang.get('f1')) == id(f1)
+    assert id(lang.get('p1')) == id(p1)
+
+    assert len(lang.get('t1', 'c1', 'f1', 'p1')) == 4
+    assert(all(id(x) == id(y) for x, y in zip([t1, c1, f1, p1], lang.get('t1', 'c1', 'f1', 'p1'))))
+

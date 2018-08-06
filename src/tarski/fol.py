@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import itertools
 from collections import defaultdict, OrderedDict
 
 from . import errors as err
@@ -30,22 +31,17 @@ class FirstOrderLanguage:
         # self._predicates_by_sort = {}
         # self._functions_by_sort = {}
         self._constants = OrderedDict()
-        self._variables = set()
 
         self._operators = dict()
-        self._build_builtin_sorts()
-
+        self._global_index = dict()
         self._element_containers = {Sort: self._sorts,
                                     Function: self._functions,
-                                    Predicate: self._predicates,
-                                    Variable: self._variables}
+                                    Predicate: self._predicates}
+
         self.language_components_frozen = False
         self.theories = []
 
-    @property
-    def variables(self):
-        for x in self._variables:
-            yield x
+        self._build_builtin_sorts()
 
     @property
     def sorts(self):
@@ -59,7 +55,6 @@ class FirstOrderLanguage:
     @property
     def functions(self):
         return self._functions.values()
-
 
     @property
     def Object(self):
@@ -88,18 +83,21 @@ class FirstOrderLanguage:
         self._sorts['Real'] = the_reals
         self.set_parent(the_reals, self.Object)
         # self.create_builtin_predicates(the_reals)
+        self._global_index['Real'] = the_reals
 
     def _build_the_integers(self):
         the_ints = sorts.build_the_integers(self)
         self._sorts['Integer'] = the_ints
         self.set_parent(the_ints, self.Real)
         # self.create_builtin_predicates(the_ints)
+        self._global_index['Integer'] = the_ints
 
     def _build_the_naturals(self):
         the_nats = sorts.build_the_naturals(self)
         self._sorts['Natural'] = the_nats
         self.set_parent(the_nats, self.Integer)
         # self.create_builtin_predicates(the_nats)
+        self._global_index['Natural'] = the_nats
 
     def _build_the_objects(self):
         sort = Sort('object', self)
@@ -112,13 +110,14 @@ class FirstOrderLanguage:
             Create new sort with given name and parent sort.
             If no parent is specified, the topmost "object" sort is assumed as parent.
 
-            Raises err.DuplicateSortDefinition if sort already existed
+            Raises err.DuplicateSortDefinition if a sort with the same name already existed,
+             or err.DuplicateDefinition if some non-sort element with the same name already existed.
         """
-        if self.has_sort(name):
-            raise err.DuplicateSortDefinition(name, self._sorts[name])
+        self._check_name_not_defined(name, self._sorts, err.DuplicateSortDefinition)
 
         sort = Sort(name, self)
         self._sorts[name] = sort
+        self._global_index[name] = sort
 
         parent = parent or self.get_sort("object")
         self.set_parent(sort, parent)
@@ -139,8 +138,7 @@ class FirstOrderLanguage:
 
         We allow only the new sort to derive from the built-in natural, integer or real sorts.
         """
-        if self.has_sort(name):
-            raise err.DuplicateSortDefinition(name, self._sorts[name])
+        self._check_name_not_defined(name, self._sorts, err.DuplicateSortDefinition)
 
         if parent not in (self.Real, self.Natural, self.Integer):
             raise err.SemanticError("Cannot create interval that does not subclass one of "
@@ -174,7 +172,7 @@ class FirstOrderLanguage:
         which has been correctly registered with the language, or the name of such an object, and return the object
         """
         if not isinstance(obj, (str, type_)):
-            raise err.LanguageError("Unknown type of language element {}".format(obj))
+            raise err.LanguageError('Unknown type of language element "{}"'.format(obj))
 
         if isinstance(obj, type_):
             if obj.language != self:
@@ -195,24 +193,21 @@ class FirstOrderLanguage:
         sort = self._retrieve_object(sort, Sort)
 
         if sort.builtin:
-            actual = sort.cast(name)
-            if actual is not None:
-                # MRJ: if name is a Python primitive type literal that can
-                # interpreted as the underlying type of the built in sort, we
-                # return a Constant object.
-                # TODO: I do no't see it is desirable to store constants of
-                # built in sorts.
-                return Constant(name, sort)
-            # MRJ: otherwise
-            raise err.SemanticError(
-                "Cannot create constant term of sort '{}' from '{}' of Python type '{}'".format(sort.name, name,
-                                                                                                type(name)))
+            if sort.cast(name) is None:
+                raise err.SemanticError("Cannot create constant with sort '{}' from '{}' of Python type '{}'".
+                                        format(sort.name, name, type(name)))
 
-        if name in self._constants:
-            raise err.DuplicateConstantDefinition(name, self._constants[name])
+            # MRJ: if name is a Python primitive type literal that can be interpreted as the underlying
+            # type of the built in sort, we return a Constant object.
+            # TODO: I don't see it is desirable to store constants of built in sorts.
+            return Constant(name, sort)
 
-        self._constants[name] = Constant(name, sort)
-        return self._constants[name]
+        self._check_name_not_defined(name, self._constants, err.DuplicateConstantDefinition)
+
+        c = Constant(name, sort)
+        self._constants[name] = c
+        self._global_index[name] = c
+        return c
 
     def has_constant(self, name):
         return name in self._constants
@@ -225,13 +220,22 @@ class FirstOrderLanguage:
     def constants(self):
         return list(self._constants.values())
 
+    def _check_name_not_defined(self, name, where, exception):
+        """ Check whether the given name is already defined in the given container, raising an exception of
+        the indicated type in case it is. If not, check it is not defined in any other container, raising a
+        more generic DuplicateDefinition exception if it is. """
+        if name in where:
+            raise exception(name, where[name])
+        elif name in self._global_index:
+            raise err.DuplicateDefinition(name, self._global_index[name])
+
     def predicate(self, name: str, *args):
-        if name in self._predicates:
-            raise err.DuplicatePredicateDefinition(name, self._predicates[name])
+        self._check_name_not_defined(name, self._predicates, err.DuplicatePredicateDefinition)
 
         types = [self._retrieve_object(a, Sort) for a in args]  # Convert possible strings into Sort objects
         predicate = Predicate(name, self, *types)
         self._predicates[name] = predicate
+        self._global_index[name] = predicate
         # self._predicates_by_sort[(name,) + tuple(*args)] = predicate
         return predicate
 
@@ -244,12 +248,12 @@ class FirstOrderLanguage:
         return self._predicates[name]
 
     def function(self, name: str, *args):
-        if name in self._functions:
-            raise err.DuplicateFunctionDefinition(name, self._functions[name])
+        self._check_name_not_defined(name, self._functions, err.DuplicateFunctionDefinition)
 
         types = [self._retrieve_object(a, Sort) for a in args]  # Convert possible strings into Sort objects
         func = Function(name, self, *types)
         self._functions[name] = func
+        self._global_index[name] = func
         # self._functions_by_sort[(name,) + tuple(*args)] = func
         return func
 
@@ -303,8 +307,8 @@ class FirstOrderLanguage:
         return self.is_subtype(t1, t2) or self.is_subtype(t2, t1)
 
     def __str__(self):
-        return "{}: Tarski language with {} sorts, {} function symbols, {} predicate symbols and {} variables".format(
-            self.name, len(self._sorts), len(self._functions), len(self._predicates), len(self._variables))
+        return "{}: Tarski language with {} sorts, {} function symbols, {} predicate symbols".format(
+            self.name, len(self._sorts), len(self._functions), len(self._predicates))
 
     def register_operator_handler(self, operator, t1, t2, handler):
         self._operators[(operator, t1, t2)] = handler
@@ -326,3 +330,15 @@ class FirstOrderLanguage:
             return self._operators[(operator, t1, t2)](lhs, rhs)
         except KeyError:
             raise err.LanguageError("Operator '{}' not defined on domain ({}, {})".format(operator, t1, t2))
+
+    def get(self, first, *args):
+        """ Return the language element with given name(s).
+        This can be a predicate or function symbol, including constants, or a sort name."""
+        res = []
+        for what in itertools.chain([first], args):
+            try:
+                res.append(self._global_index[what])
+            except KeyError:
+                raise err.UndefinedElement(what)
+
+        return res[0] if not args else res  # Unpack the result if only one element

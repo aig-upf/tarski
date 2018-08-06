@@ -1,14 +1,17 @@
 
 import logging
 
+from tarski.dl.concepts import GoalNullaryAtom, GoalConcept, GoalRole
+
 from .. import FirstOrderLanguage
 from ..syntax import builtins
 
 from . import Concept, Role, UniversalConcept, PrimitiveConcept, NotConcept, ExistsConcept, ForallConcept, \
-    EqualConcept, PrimitiveRole, RestrictRole, AndConcept, EmptyConcept, CompositionRole, SingletonConcept, NullaryAtom
+    EqualConcept, PrimitiveRole, RestrictRole, AndConcept, EmptyConcept, CompositionRole, NominalConcept, NullaryAtom
 
 
 def filter_subnodes(elem, t):
+    """ Return a list with all subnodes of a certain concept or role which conform to the given Python type """
     return list(filter(lambda x: type(x) == t, elem.flatten()))
 
 
@@ -19,7 +22,8 @@ class SyntacticFactory:
         self.top = UniversalConcept(self.universe_sort.name)
         self.bot = EmptyConcept(self.universe_sort.name)
 
-    def generate_primitives_from_language(self):
+    def generate_primitives_from_language(self, constants, goal_predicates):
+        """ Generate primitive concepts from the language taking into account only the given constants """
 
         concepts, roles, primitive_atoms = [], [], []
         for predfun in list(self.language.predicates) + list(self.language.functions):
@@ -30,15 +34,24 @@ class SyntacticFactory:
 
             if predfun.uniform_arity() == 0:
                 primitive_atoms.append(NullaryAtom(predfun))
+                if predfun.symbol in goal_predicates:
+                    primitive_atoms.append(GoalNullaryAtom(predfun))
+
             elif predfun.uniform_arity() == 1:
                 concepts.append(PrimitiveConcept(predfun))
+                if predfun.symbol in goal_predicates:
+                    concepts.append(GoalConcept(predfun))
+
             elif predfun.uniform_arity() == 2:
                 roles.append(PrimitiveRole(predfun))
+                if predfun.symbol in goal_predicates:
+                    roles.append(GoalRole(predfun))
+
             else:
                 logging.warning('Predicate/Function "{}" with normalized arity > 2 ignored'.format(predfun))
 
-        for c in self.language.constants():
-            concepts.append(SingletonConcept(c.symbol, c.sort))
+        for c in constants:
+            concepts.append(NominalConcept(c.symbol, c.sort))
 
         return concepts, roles, primitive_atoms
 

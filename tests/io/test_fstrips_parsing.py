@@ -1,6 +1,7 @@
 
 import pytest
 from tarski.io._fstrips.reader import ParsingError
+from tarski.syntax import Atom
 from tarski.theories import Theory
 
 from tests.io.common import reader
@@ -80,6 +81,18 @@ def test_init():
         ("(not (at))", "init_atom"),
         # ("(assign (at))", "init_atom"),
     ], r=reader())
+
+
+def test_single_atom_goal():
+    r = reader()
+    _test_inputs([
+        # First rule defines the predicate, necessary for the rest of rules not to raise an "UndefinedPredicate" error
+        ("(CLEAR ?A - object)", "predicate_definition"),
+        ("(:objects A B C D E)", "object_declaration"),
+        ("(:goal (AND (CLEAR A)))", "goal"),
+    ], r=r)
+    assert isinstance(r.problem.goal, Atom)
+    assert str(r.problem.goal) == "clear(a)"
 
 
 def test_domain_name_parsing():

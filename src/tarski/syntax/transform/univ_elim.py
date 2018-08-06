@@ -58,6 +58,7 @@ class UniversalQuantifierElimination:
 
 
 def _enumerate_instantations(phi):
+    assert isinstance(phi, QuantifiedFormula)
     syms = []
     instantiations = []
     cardinality = 1

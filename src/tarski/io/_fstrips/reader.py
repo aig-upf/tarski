@@ -227,7 +227,7 @@ class FStripsParser(fstripsVisitor):
         # The PDDL spec allows for and AND with a single conjunct (e.g. (and p), which Tarski does (rightly) not
         # If we only have one conjunct, we thus return it as such, without creating any conjunction.
         if len(conjuncts) == 1:
-            return conjuncts
+            return conjuncts[0]
         return land(*conjuncts)
 
     def visitOrGoalDesc(self, ctx):
