@@ -3,7 +3,7 @@
 """
 from enum import Enum
 
-from .concepts import Concept, Role, NullaryAtom
+from .concepts import Concept, Role, NullaryAtom, retrieve_possibly_cached_extension
 from ..utils.algorithms import compute_min_distance
 
 
@@ -72,7 +72,7 @@ class ConceptCardinalityFeature(Feature):
 
     def value(self, cache, state):
         """ The feature value _is_ the cardinality of the extension of the represented concept"""
-        ext = self.c.extension(cache, state)
+        ext = retrieve_possibly_cached_extension(self.c, cache, state)
         return ext.count()
 
     def diff(self, x, y):
@@ -100,13 +100,13 @@ class ConceptCardinalityFeature(Feature):
 
 class EmpiricalBinaryConcept(Feature):
     def __init__(self, feature):
-        assert isinstance(feature, ConceptCardinalityFeature)
+        assert isinstance(feature, (ConceptCardinalityFeature, ))
         self.c = feature.c
         self.hash = hash((self.__class__, self.c))
 
     def value(self, cache, state):
         """ The feature value _is_ whether the cardinality of the extension of the represented concept is 0 or 1 """
-        ext = self.c.extension(cache, state)
+        ext = retrieve_possibly_cached_extension(self.c, cache, state)
         x = ext.count()
         assert x in (0, 1)  # By definition of "empirical binary concept"
         return bool(x)
@@ -186,9 +186,9 @@ class MinDistanceFeature(Feature):
         """ The value of the feature is the min distance between any object in the extension of c1 and any object
             on the extension of c2, moving only along r-edges.
         """
-        ext_c1 = self.c1.extension(cache, state)
-        ext_c2 = self.c2.extension(cache, state)
-        ext_r = self.r.extension(cache, state)
+        ext_c1 = retrieve_possibly_cached_extension(self.c1, cache, state)
+        ext_c2 = retrieve_possibly_cached_extension(self.c2, cache, state)
+        ext_r = retrieve_possibly_cached_extension(self.r, cache, state)
         return compute_min_distance(cache.uncompress(ext_c1, self.c1.ARITY),
                                     cache.uncompress(ext_r, self.r.ARITY),
                                     cache.uncompress(ext_c2, self.c2.ARITY))

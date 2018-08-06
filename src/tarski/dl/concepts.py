@@ -518,3 +518,12 @@ class RestrictRole(Role):
 def _check_arity(term, expected_arity, predfun):
     if expected_arity != predfun.uniform_arity():
         raise ArityDLMismatch('Cannot create {} from predicate "{}"'.format(term, predfun))
+
+
+def retrieve_possibly_cached_extension(concept, cache, state):
+    try:
+        return cache.as_bitarray(concept, state)
+    except KeyError:
+        ext = concept.extension(cache, state)
+        cache.register_compressed_extension(concept, state, ext)
+        return ext
