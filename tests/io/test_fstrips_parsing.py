@@ -141,6 +141,14 @@ def test_predicate_effects():
     ], r=reader())  # This uses one single reader for all tests
 
 
+def test_empty_precs_and_effects():
+    _test_inputs([
+        ("(and )", "effect"),
+        ("()", "precondition"),
+        ("(and )", "precondition"),
+    ], r=reader())  # This uses one single reader for all tests
+
+
 def test_functional_effects():
     read = _setup_function_environment(theories=[Theory.EQUALITY, Theory.ARITHMETIC])
     _test_inputs([

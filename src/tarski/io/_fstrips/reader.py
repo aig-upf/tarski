@@ -224,9 +224,11 @@ class FStripsParser(fstripsVisitor):
 
     def visitAndGoalDesc(self, ctx):
         conjuncts = [self.visit(sub_ctx) for sub_ctx in ctx.goalDesc()]
-        # The PDDL spec allows for and AND with a single conjunct (e.g. (and p), which Tarski does (rightly) not
-        # If we only have one conjunct, we thus return it as such, without creating any conjunction.
-        if len(conjuncts) == 1:
+        # The PDDL spec allows for and AND with zero or a single conjunct (e.g. (and p), which Tarski does (rightly) not
+        # We thus treat those cases specially.
+        if len(conjuncts) == 0:
+            return Tautology
+        elif len(conjuncts) == 1:
             return conjuncts[0]
         return land(*conjuncts)
 

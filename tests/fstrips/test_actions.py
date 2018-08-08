@@ -26,3 +26,8 @@ def test_effect_creation():
     t2 = lang.constant('y', 'object')
     eff = t1 << t2  # i.e. x := y
     assert isinstance(eff, fs.FunctionalEffect)
+
+
+def create_noop_action():
+    lang = fs.language()
+    fs.Action(lang, name='noop', parameters=[], precondition=Tautology, effects=[])
