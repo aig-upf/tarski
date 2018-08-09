@@ -2,6 +2,8 @@
 import itertools
 import copy
 
+from collections import OrderedDict
+
 from ...syntax.transform import TermSubstitution, UniversalQuantifierElimination, NegatedBuiltinAbsorption
 from ...syntax.transform import CNFTransformation
 from ...syntax.visitors import CollectVariables
@@ -33,7 +35,7 @@ class ConstraintGrounder:
             const_schema.accept(var_collector)
             K, syms, substs = instantiation.enumerate_groundings(self.L, list(var_collector.variables))
             for values in itertools.product(*substs):
-                subst = {syms[k]: v for k, v in enumerate(values)}
+                subst = OrderedDict({syms[k]: v for k, v in enumerate(values)})
                 op = TermSubstitution(self.L, subst)
                 g_const = process_expression(self.L, const_schema, op)
                 # Simplification steps

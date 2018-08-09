@@ -2,6 +2,8 @@
 import itertools
 import copy
 
+from collections import OrderedDict
+
 import tarski.fstrips as fs
 import tarski.fstrips.hybrid as hybrid
 from tarski.syntax.transform import TermSubstitution
@@ -28,7 +30,7 @@ class DifferentialConstraintGrounder(object):
         for ode_schema in self.schemas:
             k, syms, substs = instantiation.enumerate_groundings(self.L, ode_schema.parameters)
             for values in itertools.product(*substs):
-                subst = {syms[k]: v for k, v in enumerate(values)}
+                subst = OrderedDict({syms[k]: v for k, v in enumerate(values)})
                 op = TermSubstitution(self.L, subst)
                 g_cond = process_expression(self.L, ode_schema.condition, op)
                 g_variate = process_expression(self.L, ode_schema.variate, op)

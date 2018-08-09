@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import itertools, copy
 
+from collections import OrderedDict
 
 import tarski.fstrips as fs
 from tarski.fstrips.contingent import Sensor
@@ -32,7 +33,7 @@ class SensorGrounder(object):
         for act_schema in self.schemas:
             K, syms, substs = instantiation.enumerate_groundings(self.L, act_schema.parameters)
             for values in itertools.product(*substs):
-                subst = {syms[k] : v for k, v in enumerate(values)}
+                subst = OrderedDict({syms[k] : v for k, v in enumerate(values)})
 
                 op = TermSubstitution(self.L, subst)
                 g_prec = process_expression(self.L, act_schema.condition, op)

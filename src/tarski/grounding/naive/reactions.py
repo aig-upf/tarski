@@ -2,6 +2,8 @@
 import itertools
 import copy
 
+from collections import OrderedDict
+
 import tarski.fstrips as fs
 import tarski.fstrips.hybrid as hybrid
 from tarski.syntax.transform import TermSubstitution
@@ -35,7 +37,7 @@ class ReactionGrounder(object):
 
             k, syms, substs = instantiation.enumerate_groundings(self.L, react_schema.parameters)
             for values in itertools.product(*substs):
-                subst = {syms[k]: v for k, v in enumerate(values)}
+                subst = OrderedDict({syms[k]: v for k, v in enumerate(values)})
 
                 op = TermSubstitution(self.L, subst)
 

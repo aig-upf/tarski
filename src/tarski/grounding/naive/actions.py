@@ -2,6 +2,8 @@
 import itertools
 import copy
 
+from collections import OrderedDict
+
 from ... import fstrips as fs
 from ...syntax.transform import TermSubstitution
 from ...syntax.visitors import CollectVariables
@@ -27,7 +29,7 @@ class ActionGrounder:
         for act_schema in self.schemas:
             k, syms, substs = instantiation.enumerate_groundings(self.L, act_schema.parameters)
             for values in itertools.product(*substs):
-                subst = {syms[k]: v for k, v in enumerate(values)}
+                subst = OrderedDict({syms[k]: v for k, v in enumerate(values)})
                 op = TermSubstitution(self.L, subst)
                 g_prec = process_expression(self.L, act_schema.precondition, op)
                 g_effs = []
