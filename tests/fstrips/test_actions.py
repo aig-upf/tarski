@@ -1,3 +1,4 @@
+import pytest
 
 from tarski import fstrips as fs
 from tarski.syntax import *
@@ -40,6 +41,7 @@ def test_functional_effect_valid_creation():
 
 def test_choice_effect_invalid_creation():
     import tarski.fstrips.errors as err
+    from tests.fstrips.hybrid.tasks import create_billiards_world
     prob = create_billiards_world()
     x = prob.language.get_constant('x')
     cue = prob.language.get_constant('cue')
@@ -51,6 +53,7 @@ def test_choice_effect_invalid_creation():
 
 def test_choice_effect_valid_creation():
     import tarski.fstrips.errors as err
+    from tests.fstrips.hybrid.tasks import create_billiards_world
     prob = create_billiards_world()
     x = prob.language.get_constant('x')
     cue = prob.language.get_constant('cue')

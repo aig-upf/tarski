@@ -7,6 +7,7 @@ from .errors import InvalidEffectError
 from tarski.syntax import *
 from .. import theories as tsk_theories
 
+from tarski.syntax.visitors import SymbolReference
 
 class UniversalEffect:
     """ A forall-effect """
@@ -120,6 +121,125 @@ class LogicalEffect(SingleEffect):
 
     def tostring(self):
         return "{}".format(self.formula)
+
+
+class VectorisedEffect(SingleEffect):
+    """
+        Action effects that modify the denotation of a vector (tuple) of terms
+    """
+
+
+    def __init__(self, lhs, rhs, condition=Tautology()):
+        super().__init__(condition)
+        self.lhs = lhs
+        self.rhs = rhs
+        self.check_well_formed()
+
+    def check_well_formed(self):
+        if not hasattr(self.lhs, 'shape'):
+            msg = "Error declaring VectorisedEffect, lhs needs needs to be\
+                vector or matrix like"
+            raise InvalidEffectError(self, msg)
+        if self.lhs.shape[0] > 1:
+            msg = "Error declaring VectorisedEffect, lhs needs needs to be\
+                a vector in column order"
+            raise InvalidEffectError(self, msg)
+        if not hasattr(self.rhs, 'shape'):
+            msg = "Error declaring VectorisedEffect, rhs needs needs to be\
+                vector or matrix like"
+            raise InvalidEffectError(self, msg)
+        if self.lhs.shape == self.rhs.shape:
+            msg = "Error declaring VectorisedEffect, lhs and rhs need to have\
+                same dimensions"
+            raise InvalidEffectError(self, msg)
+
+class LinearEffect(SingleEffect):
+    """
+        Action effects that modify the denotation of a vector of (terms)  with
+        the restriction of interactions between the expressions on the right hand
+        side to be of the form:
+
+            Ax + b
+    """
+    def __init__(self, y, A, x, b, condition=Tautology()):
+        super().__init__(condition)
+        self.y = y
+        self.A = A
+        self.x = x
+        self.b = b
+        self.check_well_formed()
+
+    def check_well_formed(self):
+        if not hasattr(self.y, 'shape'):
+            msg = "Error declaring VectorisedEffect, y needs needs to be\
+                vector or matrix like"
+            raise InvalidEffectError(self, msg)
+        if self.y.shape[0] > 1:
+            msg = "Error declaring VectorisedEffect, y needs needs to be\
+                a vector in column order"
+            raise InvalidEffectError(self, msg)
+        if not hasattr(self.x, 'shape'):
+            msg = "Error declaring VectorisedEffect, x needs needs to be\
+                vector or matrix like"
+            raise InvalidEffectError(self, msg)
+        if self.y.shape == self.x.shape:
+            msg = "Error declaring VectorisedEffect, y and x need to have\
+                same dimensions"
+            raise InvalidEffectError(self, msg)
+
+        if not hasattr(self.A, 'shape'):
+            msg = "Error declaring VectorisedEffect, coefficients matrix A needs to be\
+                vector or matrix like"
+            raise InvalidEffectError(self, msg)
+        if self.y.shape[1] == self.A.shape[0]:
+            msg = "Error declaring VectorisedEffect, y and x need to have\
+                same dimensions"
+            raise InvalidEffectError(self, msg)
+
+        if not hasattr(self.b, 'shape'):
+            msg = "Error declaring VectorisedEffect, coefficient vector b needs needs to be\
+                vector or matrix like"
+            raise InvalidEffectError(self, msg)
+        if self.x.shape == self.b.shape:
+            msg = "Error declaring VectorisedEffect, x and b need to have\
+                same dimensions"
+            raise InvalidEffectError(self, msg)
+
+class BlackBoxEffect(SingleEffect):
+    """
+        Black box functional effect
+    """
+    def __init__(self, lhs, f, condition=Tautology()):
+        super().__init__(condition)
+        self.lhs = lhs
+        self.function = f
+        self.check_well_formed()
+
+    def tostring(self):
+        return "{} := {}".format(self.lhs, 'some function')
+
+    def check_well_formed(self):
+        """
+            This method verifies
+        """
+        if not hasattr(self.lhs, 'shape'):
+            msg = "Error declaring BlackBoxEffect, lhs needs needs to be\
+                vector or matrix like"
+            raise InvalidEffectError(self, msg)
+        if self.lhs.shape[0] > 1:
+            msg = "Error declaring BlackBoxEffect, lhs needs needs to be\
+                a vector in column order"
+            raise InvalidEffectError(self, msg)
+
+        self.function.bind_to_language(self.lhs[0, 0].language)
+        for k, y in enumerate(self.lhs[0,:]):
+            ys = SymbolReference(y)
+            ok = SymbolReference(self.function.out_x[k].symbol)
+            if ys != ok:
+                msg = "Error declaring BlackBoxEffect, lhs {}-th symbol {} is not\
+                matched by corresponding function output, {}".format(k, str(y), str(ok))
+                raise InvalidEffectError(self, msg)
+
 
 
 class OptimizationMetric:

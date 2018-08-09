@@ -57,6 +57,9 @@ class HybridProblem(Problem):
                 eff.lhs.accept(ev)
             elif isinstance(eff, LogicalEffect):
                 eff.formula.accept(ev)
+            elif isinstance(eff, BlackBoxEffect):
+                for yk in eff.lhs[0, :]:
+                    yk.accept(ev)
             else:
                 raise RuntimeError("Effect type '{}' cannot be analysed".format(type(eff)))
         for _, dc in self.differential_constraints.items():
