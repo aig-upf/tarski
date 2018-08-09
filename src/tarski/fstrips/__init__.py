@@ -2,5 +2,6 @@
 from .problem import Problem, create_fstrips_problem
 from .action import Action
 from .fstrips import SingleEffect, AddEffect, DelEffect, FunctionalEffect, UniversalEffect, \
-    LogicalEffect, ChoiceEffect, language, OptimizationMetric, OptimizationType
+    LogicalEffect, ChoiceEffect, VectorisedEffect, LinearEffect, BlackBoxEffect,\
+    language, OptimizationMetric, OptimizationType
 from .task_index import TaskIndex
