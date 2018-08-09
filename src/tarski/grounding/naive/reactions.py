@@ -27,6 +27,12 @@ class ReactionGrounder(object):
     def calculate_reactions(self):
 
         for react_schema in self.schemas:
+            if len(react_schema.parameters) == 0:
+                self.problem.ground_reactions.add(hybrid.Reaction(self.L, \
+                react_schema.name, [], react_schema.condition, react_schema.effect))
+                self.reactions_generated += 1
+                continue
+
             k, syms, substs = instantiation.enumerate_groundings(self.L, react_schema.parameters)
             for values in itertools.product(*substs):
                 subst = {syms[k]: v for k, v in enumerate(values)}
