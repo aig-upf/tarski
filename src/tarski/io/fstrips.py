@@ -256,7 +256,9 @@ def print_formula(formula, indentation=0):
 
 
 def print_effects(effects, indentation=0):
-    return """(and\n{})""".format("\n".join(print_effect(e, indentation+1) for e in effects))
+    if not effects:
+        return "(and )"
+    return "(and\n{})".format("\n".join(print_effect(e, indentation+1) for e in effects))
 
 
 def print_effect(eff, indentation=0):

@@ -1,8 +1,6 @@
-import pytest
 
 from tarski import fstrips as fs
 from tarski.syntax import *
-from tests.fstrips.hybrid.tasks import create_billiards_world
 
 from ..common import blocksworld
 
