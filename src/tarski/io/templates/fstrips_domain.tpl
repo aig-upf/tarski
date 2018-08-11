@@ -10,6 +10,10 @@
         {types}
     )
 
+    (:constants
+        {constants}
+    )
+
     (:predicates
         {predicates}
     )
