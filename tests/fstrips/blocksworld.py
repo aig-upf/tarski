@@ -16,10 +16,10 @@ def create_small_task():
     b1, b2, b3, b4 = [bw.get_constant('b{}'.format(k)) for k in range(1, 5)]
     table = bw.get_constant('table')
 
-    M.set(loc, (b1,), b2)  # loc(b1) := b2
-    M.set(loc, (b2,), b3)  # loc(b2) := b3
-    M.set(loc, (b3,), table)  # loc(b3) := table
-    M.set(loc, (b4,), table)  # loc(b4) := table
+    M.set(loc, b1, b2)  # loc(b1) := b2
+    M.set(loc, b2, b3)  # loc(b2) := b3
+    M.set(loc, b3, table)  # loc(b3) := table
+    M.set(loc, b4, table)  # loc(b4) := table
 
     M.add(clear, b1)  # clear(b1)
     M.add(clear, b4)  # clear(b4)

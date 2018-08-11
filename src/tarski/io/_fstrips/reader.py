@@ -321,7 +321,7 @@ class FStripsParser(fstripsVisitor):
     def visitInitFunctionAssignment(self, ctx):
         fun, subterms = self.visit(ctx.flat_term())
         value = self.visit(ctx.constant_name())
-        self.init.set(fun, subterms, value)
+        self.init.set(fun, *subterms, value)
 
     def visitFlat_atom(self, ctx):
         predicate = self.language.get_predicate(ctx.predicate().getText().lower())
