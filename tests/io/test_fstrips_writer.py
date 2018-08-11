@@ -49,7 +49,7 @@ def test_effect_writing():
 
 def test_objects_writing():
     problem, _, _, _, _ = get_bw_elements()
-    assert print_objects(problem) == "b1 b2 b3 b4 - block\n        table - place"
+    assert print_objects(problem.language.constants()) == "b1 b2 b3 b4 - block\n        table - place"
 
 
 def test_gridworld_writing():
