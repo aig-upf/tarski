@@ -146,6 +146,7 @@ class FirstOrderLanguage:
 
         sort = Interval(name, self, parent.encode, lower_bound, upper_bound)
         self._sorts[name] = sort
+        self._global_index[name] = sort
 
         self.set_parent(sort, parent)
 

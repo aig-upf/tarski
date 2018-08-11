@@ -184,6 +184,8 @@ class CompoundTerm(Term):
         # but rather the name.
         return '{}({})'.format(self.symbol.symbol, ', '.join([str(t) for t in self.subterms]))
 
+    __repr__ = __str__
+
     def __hash__(self):
         return hash(str(self))
 
