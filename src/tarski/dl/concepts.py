@@ -29,7 +29,7 @@ class NullaryAtom:
     __str__ = __repr__
 
     def extension(self, cache, state):
-        return cache.nullary_value(self, state)
+        return cache.nullary_value(str(self), state)
 
 
 class GoalNullaryAtom(NullaryAtom):
@@ -81,7 +81,7 @@ class UniversalConcept(Concept):
         return self.__class__ is other.__class__
 
     def extension(self, cache, state):
-        return cache.as_bitarray(self, state)
+        return cache.as_bitarray(str(self), state)
 
     def __repr__(self):
         return '<universe>'
@@ -104,7 +104,7 @@ class EmptyConcept(Concept):
         return self.__class__ is other.__class__
 
     def extension(self, cache, state):
-        return cache.as_bitarray(self, state)
+        return cache.as_bitarray(str(self), state)
 
     def __repr__(self):
         return '<empty>'
@@ -158,7 +158,7 @@ class PrimitiveConcept(Concept):
                 self.name == other.name)
 
     def extension(self, cache, state):
-        return cache.as_bitarray(self, state)
+        return cache.as_bitarray(str(self), state)
 
     def __repr__(self):
         return "{}".format(self.name)
@@ -368,7 +368,7 @@ class PrimitiveRole(Role):
                 self.name == other.name)
 
     def extension(self, cache, state):
-        return cache.as_bitarray(self, state)
+        return cache.as_bitarray(str(self), state)
 
     def __repr__(self):
         return '{}'.format(self.name)

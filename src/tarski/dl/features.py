@@ -102,7 +102,7 @@ class ConceptCardinalityFeature(Feature):
 
 class EmpiricalBinaryConcept(Feature):
     def __init__(self, feature):
-        assert isinstance(feature, (ConceptCardinalityFeature, ))
+        assert isinstance(feature, (ConceptCardinalityFeature, EmpiricalBinaryConcept))
         self.c = feature.c
         self.hash = hash((self.__class__, self.c))
 
