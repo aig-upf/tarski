@@ -31,7 +31,6 @@ class FstripsReader:
     def parse_file(self, filename, start_rule):
         logging.info('Parsing filename "{}" from grammar rule "{}"'.format(filename, start_rule))
         domain_parse_tree, _ = self.parser.parse_file(filename, start_rule)
-        logging.info("Processing AST")
         self.parser.visit(domain_parse_tree)
 
     def parse_domain(self, filename):

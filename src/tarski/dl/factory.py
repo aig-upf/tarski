@@ -22,7 +22,7 @@ class SyntacticFactory:
         self.top = UniversalConcept(self.universe_sort.name)
         self.bot = EmptyConcept(self.universe_sort.name)
 
-    def generate_primitives_from_language(self, constants, goal_predicates):
+    def generate_primitives_from_language(self, constants, types, goal_predicates):
         """ Generate primitive concepts from the language taking into account only the given constants """
 
         concepts, roles, primitive_atoms = [], [], []
@@ -52,6 +52,10 @@ class SyntacticFactory:
 
         for c in constants:
             concepts.append(NominalConcept(c.symbol, c.sort))
+
+        # Temporally deactivated
+        # for t in types:
+        #     concepts.append(PrimitiveConcept(t))
 
         return concepts, roles, primitive_atoms
 
