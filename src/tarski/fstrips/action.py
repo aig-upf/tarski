@@ -10,6 +10,9 @@ class Action:
         self.precondition = precondition
         self.effects = effects
 
+    def __lt__(self, other):
+        return self.name < other.name
+
     def dump(self):
         return dict(name=self.name,
                     params=[par.dump() for par in self.parameters],
