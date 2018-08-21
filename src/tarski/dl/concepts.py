@@ -1,6 +1,8 @@
 """
 
 """
+from tarski.syntax import Sort
+
 from ..syntax import Predicate, Function
 from ..utils.algorithms import transitive_closure
 from .errors import ArityDLMismatch
@@ -29,7 +31,7 @@ class NullaryAtom:
     __str__ = __repr__
 
     def extension(self, cache, state):
-        return cache.nullary_value(self, state)
+        return cache.nullary_value(str(self), state)
 
 
 class GoalNullaryAtom(NullaryAtom):
@@ -81,7 +83,7 @@ class UniversalConcept(Concept):
         return self.__class__ is other.__class__
 
     def extension(self, cache, state):
-        return cache.as_bitarray(self, state)
+        return cache.as_bitarray(str(self), state)
 
     def __repr__(self):
         return '<universe>'
@@ -104,7 +106,7 @@ class EmptyConcept(Concept):
         return self.__class__ is other.__class__
 
     def extension(self, cache, state):
-        return cache.as_bitarray(self, state)
+        return cache.as_bitarray(str(self), state)
 
     def __repr__(self):
         return '<empty>'
@@ -143,12 +145,18 @@ class NominalConcept(Concept):
 
 class PrimitiveConcept(Concept):
     def __init__(self, predicate):
-        assert isinstance(predicate, (Predicate, Function))
-        _check_arity("concept", 1, predicate)
+        assert isinstance(predicate, (Predicate, Function, Sort))
 
-        Concept.__init__(self, predicate.sort[0].name, 1)
-        self.name = predicate.symbol  # This is a bit aggressive, but we assume that predicate names are unique
+        if isinstance(predicate, (Predicate, Function)):
+            _check_arity("concept", 1, predicate)
+            Concept.__init__(self, predicate.sort[0].name, 1)
+            self.name = predicate.symbol  # This is a bit aggressive, but we assume that uniqueness of names
+
+        else:
+            Concept.__init__(self, predicate.name, 1)
+            self.name = predicate.name
         self.hash = hash((self.__class__, self.name))
+
 
     def __hash__(self):
         return self.hash
@@ -158,7 +166,7 @@ class PrimitiveConcept(Concept):
                 self.name == other.name)
 
     def extension(self, cache, state):
-        return cache.as_bitarray(self, state)
+        return cache.as_bitarray(str(self), state)
 
     def __repr__(self):
         return "{}".format(self.name)
@@ -368,7 +376,7 @@ class PrimitiveRole(Role):
                 self.name == other.name)
 
     def extension(self, cache, state):
-        return cache.as_bitarray(self, state)
+        return cache.as_bitarray(str(self), state)
 
     def __repr__(self):
         return '{}'.format(self.name)

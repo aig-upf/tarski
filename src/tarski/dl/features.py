@@ -13,6 +13,8 @@ class FeatureValueChange(Enum):
     INC = 3
     DEC = 4
     NIL = 5
+    INC_OR_NIL = 6
+    ADD_OR_NIL = 7
 
 
 class Feature:
@@ -100,7 +102,7 @@ class ConceptCardinalityFeature(Feature):
 
 class EmpiricalBinaryConcept(Feature):
     def __init__(self, feature):
-        assert isinstance(feature, (ConceptCardinalityFeature, ))
+        assert isinstance(feature, (ConceptCardinalityFeature, EmpiricalBinaryConcept))
         self.c = feature.c
         self.hash = hash((self.__class__, self.c))
 
@@ -197,7 +199,7 @@ class MinDistanceFeature(Feature):
         return compute_int_feature_diff(x, y)
 
     def __repr__(self):
-        return 'min-distance[{}, {}, {}]'.format(self.c1, self.r, self.c2)
+        return 'min-dist[{}, {}, {}]'.format(self.c1, self.r, self.c2)
 
     __str__ = __repr__
 

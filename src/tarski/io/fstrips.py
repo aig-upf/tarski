@@ -31,7 +31,6 @@ class FstripsReader:
     def parse_file(self, filename, start_rule):
         logging.info('Parsing filename "{}" from grammar rule "{}"'.format(filename, start_rule))
         domain_parse_tree, _ = self.parser.parse_file(filename, start_rule)
-        logging.info("Processing AST")
         self.parser.visit(domain_parse_tree)
 
     def parse_domain(self, filename):
@@ -58,11 +57,11 @@ action_tpl = """
 """
 
 
-def print_objects(problem):
-    """ Print the PDDL object declaration, with objects sorted by name and grouped by type,
-    and types sorted by name as well"""
+def print_objects(constants):
+    """ Print a PDDL object declaration with the given objects.
+    Objects are sorted by name and grouped by type, and types sorted by name as well """
     constants_by_sort = defaultdict(list)
-    for c in problem.language.constants():
+    for c in constants:
         constants_by_sort[c.sort.name].append(c.symbol)
 
     elements = []
@@ -141,15 +140,16 @@ class FstripsWriter:
         self.problem = problem
         self.lang = problem.language
 
-    def write(self, domain_filename, instance_filename):
-        self.write_domain(domain_filename)
-        self.write_instance(instance_filename)
+    def write(self, domain_filename, instance_filename, domain_constants=None):
+        domain_constants = domain_constants or []
+        self.write_domain(domain_filename, domain_constants)
+        self.write_instance(instance_filename, domain_constants)
 
     def load_tpl(self, name):
         with open(os.path.join(_CURRENT_DIR_, "templates", name), 'r') as file:
             return file.read()
 
-    def write_domain(self, filename):
+    def write_domain(self, filename, constant_objects):
         tpl = self.load_tpl("fstrips_domain.tpl")
         content = tpl.format(
             header_info="",
@@ -158,19 +158,24 @@ class FstripsWriter:
             types=self.get_types(),
             functions=self.get_functions(),
             predicates=self.get_predicates(),
-            actions=self.get_actions()
+            actions=self.get_actions(),
+            constants=print_objects(constant_objects),
         )
         with open(filename, 'w') as file:
             file.write(content)
 
-    def write_instance(self, filename):
+    def write_instance(self, filename, constant_objects):
         tpl = self.load_tpl("fstrips_instance.tpl")
+
+        # Only objects which are not declared in the domain file need to be printed in the instance file
+        instance_objects = [c for c in self.problem.language.constants() if c not in set(constant_objects)]
+
         content = tpl.format(
             header_info="",
             domain_name=self.problem.domain_name,
             problem_name=self.problem.name,
 
-            objects=print_objects(self.problem),
+            objects=print_objects(instance_objects),
             init=print_init(self.problem),
             goal=print_goal(self.problem),
             constraints=print_problem_constraints(self.problem),

@@ -22,7 +22,7 @@ class SyntacticFactory:
         self.top = UniversalConcept(self.universe_sort.name)
         self.bot = EmptyConcept(self.universe_sort.name)
 
-    def generate_primitives_from_language(self, constants, goal_predicates):
+    def generate_primitives_from_language(self, constants, types, goal_predicates):
         """ Generate primitive concepts from the language taking into account only the given constants """
 
         concepts, roles, primitive_atoms = [], [], []
@@ -52,6 +52,10 @@ class SyntacticFactory:
 
         for c in constants:
             concepts.append(NominalConcept(c.symbol, c.sort))
+
+        # Temporally deactivated
+        # for t in types:
+        #     concepts.append(PrimitiveConcept(t))
 
         return concepts, roles, primitive_atoms
 
@@ -121,14 +125,11 @@ class SyntacticFactory:
         assert isinstance(r1, Role) and isinstance(r2, Role)
         # The sort of the resulting concept will be the most restricted sort between the left sorts of the two roles
         sort = self.language.most_restricted_type(r1.sort[0], r2.sort[0])
-        result = EqualConcept(r1, r2, sort)
 
-        if not self.language.are_vertically_related(r1.sort[0], r2.sort[0]) or \
-                not self.language.are_vertically_related(r1.sort[1], r2.sort[1]):
-            logging.debug('Concept "{}" pruned for type-inconsistency reasons'.format(result))
+        if sort is None:
+            logging.debug('Concept "EqualConcept({},{})" pruned for type-inconsistency reasons'.format(r1,r2))
             return None
-
-        return result
+        return EqualConcept(r1, r2, sort)
 
     def create_restrict_role(self, r: Role, c: Concept):
 

@@ -23,7 +23,7 @@ def test_numeric_function_set():
     p1 = lang.get_constant('p1')
     x = lang.get_function('x')
     model = tarski.model.create(lang)
-    model.set(x, (p1,), 1.0)
+    model.set(x, p1, 1.0)
 
 
 def test_numeric_builtin_addition():
@@ -32,7 +32,7 @@ def test_numeric_builtin_addition():
     x = lang.get_function('x')
     model = tarski.model.create(lang)
     model.evaluator = evaluate
-    model.set(x, (p1,), 1.0)
+    model.set(x, p1, 1.0)
 
     expr = model[x(p1) + 1.0]
 
@@ -47,8 +47,8 @@ def test_numeric_rel_formula_evaluation():
     x = lang.get_function('x')
     model = tarski.model.create(lang)
     model.evaluator = evaluate
-    model.set(x, (p1,), 1.0)
-    model.set(x, (p2,), 2.0)
+    model.set(x, p1, 1.0)
+    model.set(x, p2, 2.0)
 
     assert model[x(p1) < x(p2)] is True
 
@@ -58,7 +58,7 @@ def test_blocksworld_set():
     model = Model(lang)
     loc = lang.get_function('loc')
     b1, table = (lang.get_constant(s) for s in ('b1', 'table'))
-    model.set(loc, (b1,), table)
+    model.set(loc, b1, table)
 
     assert evaluate(loc(b1), model) == table
 
@@ -69,7 +69,7 @@ def test_blocksworld_set_via_square_brackets():
     model.evaluator = evaluate
     loc = lang.get_function('loc')
     b1, table = (lang.get_constant(s) for s in ('b1', 'table'))
-    model.set(loc, (b1,), table)
+    model.set(loc, b1, table)
 
     assert model[loc(b1)] == table
 
