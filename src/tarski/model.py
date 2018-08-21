@@ -2,7 +2,7 @@
 from collections import defaultdict
 
 from . import errors as err
-from .syntax import Function, Constant
+from .syntax import Function, Constant, CompoundTerm
 from .syntax.predicate import Predicate
 
 
@@ -49,8 +49,26 @@ class Model:
         self.function_extensions = dict()
         self.predicate_extensions = defaultdict(set)
 
-    def set(self, fun, *args):
-        """ Set the value of function 'fun' at point 'point' to be equal to 'value'
+    def setx( self, t: CompoundTerm, value: Constant):
+        if not isinstance(t.symbol, Function):
+            raise err.SemanticError("Model.set() can only set the value of functions")
+        if t.symbol.builtin:
+            raise err.SemanticError("Model.set() cannot redefine builtin symbols like '{}'".format(str(t.symbol)))
+        for st in t.subterms:
+            if not isinstance(st, Constant):
+                raise err.SemanticError("Model.set(): subterms of '{}' need to be constants".format(str(t)))
+        point, value = _check_assignment(t.symbol, tuple(t.subterms), value)
+        if t.symbol.signature not in self.function_extensions:
+            definition = self.function_extensions[t.symbol.signature] = ExtensionalFunctionDefinition()
+        else:
+            definition = self.function_extensions[t.symbol.signature]
+            if not isinstance(definition, ExtensionalFunctionDefinition):
+                raise err.SemanticError("Cannot define extension of intensional definition")
+
+        definition.set(point, value)
+
+    def set(self, fun, *args ):
+        """ Set the value of fucntion 'fun' at point 'point' to be equal to 'value'
             'point' needs to be a tuple of constants, and value a single constant.
         """
         if not isinstance(fun, Function):
