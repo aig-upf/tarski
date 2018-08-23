@@ -226,13 +226,13 @@ class BlackBoxEffect(SingleEffect):
             msg = "Error declaring BlackBoxEffect, lhs needs needs to be\
                 vector or matrix like"
             raise InvalidEffectError(self, msg)
-        if self.lhs.shape[0] > 1:
+        if self.lhs.shape[1] > 1:
             msg = "Error declaring BlackBoxEffect, lhs needs needs to be\
                 a vector in column order"
             raise InvalidEffectError(self, msg)
 
         self.function.bind_to_language(self.lhs[0, 0].language)
-        for k, y in enumerate(self.lhs[0,:]):
+        for k, y in enumerate(self.lhs[:,0]):
             ys = SymbolReference(y)
             ok = SymbolReference(self.function.out_x[k].symbol)
             if ys != ok:
