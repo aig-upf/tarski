@@ -52,7 +52,7 @@ def esm(self, other):
         if not isinstance(rhs, Constant):
             return False
         return lhs.symbol == rhs.symbol
-    raise NotImplementedError()
+    return str(lhs) == str(rhs)
 
 
 class SymbolReference:
