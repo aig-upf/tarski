@@ -3,6 +3,7 @@ import copy
 
 import tarski.fstrips as fs
 
+from tarski.syntax import Variable
 from tarski.syntax.transform import TermSubstitution
 from tarski.syntax.visitors import CollectVariables
 
@@ -24,7 +25,10 @@ def process_effect(language, eff_schema, op):
         eff_schema.atom.accept(op)
     elif isinstance(eff_schema, fs.FunctionalEffect):
         eff_schema.lhs.accept(op)
-        eff_schema.rhs.accept(op)
+        if isinstance(eff_schema.rhs, Variable):
+            eff_schema.rhs = op.subst.get(eff_schema.rhs, None)
+        else:
+            eff_schema.rhs.accept(op)
     elif isinstance(eff_schema, fs.ChoiceEffect):
         eff_schema.obj.accept(op)
         for x in eff_schema.variables:
