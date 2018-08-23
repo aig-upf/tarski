@@ -54,7 +54,6 @@ def esm(self, other):
         return lhs.symbol == rhs.symbol
     return str(lhs) == str(rhs)
 
-
 class SymbolReference:
 
     def __init__(self, component, eq_fn=emvr):
