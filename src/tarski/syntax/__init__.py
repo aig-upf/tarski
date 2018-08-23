@@ -9,4 +9,4 @@ from .builtins import BuiltinFunctionSymbol, BuiltinPredicateSymbol
 from .visitors import SymbolReference, esm
 
 def symref(sym):
-    return SymbolReference(syn, eq_fn=esm)
+    return SymbolReference(sym, eq_fn=esm)
