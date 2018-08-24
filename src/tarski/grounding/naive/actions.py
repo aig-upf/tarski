@@ -39,5 +39,5 @@ class ActionGrounder:
                     g_eff = process_effect(self.L, g_eff, op)
 
                     g_effs.append(g_eff)
-                self.problem.ground_actions.add(fs.Action(self.L, act_schema.name, [], g_prec, g_effs))
+                self.problem.ground_actions.add(fs.Action(self.L, act_schema.name, values, g_prec, g_effs))
             self.actions_generated += k
