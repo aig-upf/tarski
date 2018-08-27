@@ -9,6 +9,7 @@
 *.hpp text eol=lf
 *.c text eol=lf
 *.h text eol=lf
+*.py text eol=lf
 SCons* text eol=lf
 
 # Declare files that will always have CRLF line endings on checkout.
