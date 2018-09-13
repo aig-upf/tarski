@@ -149,6 +149,7 @@ class FirstOrderLanguage:
                                     "equal than the lower bound")
 
         sort = Interval(name, self, parent.encode, lower_bound, upper_bound)
+        sort.builtin = parent.builtin
         self._sorts[name] = sort
         self._global_index[name] = sort
 
