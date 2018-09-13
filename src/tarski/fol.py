@@ -144,6 +144,10 @@ class FirstOrderLanguage:
             raise err.SemanticError("Cannot create interval that does not subclass one of "
                                     "the real, integer or natural sort")
 
+        if upper_bound <= lower_bound:
+            raise err.SemanticError("Cannot create interval where the upper bound is greater or "
+                                    "equal than the lower bound")
+
         sort = Interval(name, self, parent.encode, lower_bound, upper_bound)
         self._sorts[name] = sort
         self._global_index[name] = sort
@@ -201,6 +205,8 @@ class FirstOrderLanguage:
             # MRJ: if name is a Python primitive type literal that can be interpreted as the underlying
             # type of the built in sort, we return a Constant object.
             # TODO: I don't see it is desirable to store constants of built in sorts.
+            # MRJ: We're not storing them anywhere, but we need the Python literals
+            # to be decorated so we can use them in our ASTs
             return Constant(name, sort)
 
         self._check_name_not_defined(name, self._constants, err.DuplicateConstantDefinition)

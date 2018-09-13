@@ -71,7 +71,7 @@ class Sort:
 
 class Interval(Sort):
     def __init__(self, name, lang, encode_fn, lower_bound=None, upper_bound=None):
-        super().__init__(name, lang)
+        super().__init__(name, lang, builtin=True)
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
         self.encode = encode_fn
@@ -97,7 +97,7 @@ class Interval(Sort):
         or raise ValueError if it does not belong to it """
         # if isinstance(x, str):
         #     try:
-        #         return getattr(self, x)  # TODO: WHAT IS THIS??
+        #         return getattr(self, x)  # TODO: WHAT IS THIS?? ANSWER: MADNESS
         #     except AttributeError:
         #         pass
         y = self.encode(x)  # can raise ValueError
