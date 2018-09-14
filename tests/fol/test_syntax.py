@@ -98,13 +98,19 @@ def test_copying_and_equality():
     deep = copy.deepcopy(c)
     # deep = copy.deepcopy(x)
 
-    # phi = (x() <= y()) & (y() <= x())
-    # shallow = copy.copy(phi)
-    # deep = copy.deepcopy(phi)
+    phi = (x() <= y()) & (y() <= x())
+    shallow = copy.copy(phi)
+    deep = copy.deepcopy(phi)
     # phi3 = (x() <= y()) & (y() <= x())
 
-    # assert id(shallow.connective) == id(phi.connective)
-    # assert id(deep.connective) != id(phi.connective)
+    assert shallow.connective == phi.connective
+    assert id(shallow.connective) == id(phi.connective)
+    assert id(shallow.subformulas) == id(phi.subformulas)
+    assert id(shallow.subformulas[0]) == id(phi.subformulas[0])
+
+    assert deep.connective == phi.connective
+    assert id(deep.subformulas) != id(phi.subformulas)
+    assert id(deep.subformulas[0]) != id(phi.subformulas[0])
 
     # TODO Test equality
 
