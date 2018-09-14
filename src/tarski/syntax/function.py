@@ -27,6 +27,7 @@ class Function:
                 raise err.LanguageMismatch(a, a.language, self.language)
 
     def __deepcopy__(self, memo):
+        # TODO BEWARE! THIS DOES A SHALLOW COPY!
         memo[id(self)] = self
         return self
 

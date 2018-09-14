@@ -116,13 +116,6 @@ class Variable(Term):
     def sort(self):
         return self._sort
 
-    # def __deepcopy__(self, memo):
-    #     newone = type(self)(self.symbol, self.sort, self.language)
-    #     memo[id(self)] = newone
-    #     for k, v in self.__dict__.items():
-    #         setattr(newone, k, copy.deepcopy(v, memo))
-    #     return newone
-
     def __hash__(self):
         return hash((self.symbol, self.sort))
 
@@ -171,13 +164,6 @@ class CompoundTerm(Term):
     @property
     def sort(self):
         return self.symbol.codomain
-
-    # def __deepcopy__(self, memo):
-    #     newone = type(self)(self.symbol, self.sort, self.language)
-    #     memo[id(self)] = newone
-    #     for k, v in self.__dict__.items():
-    #         setattr(newone, k, copy.deepcopy(v, memo))
-    #     return newone
 
     def __str__(self):
         # MRJ: we don't want to print the symbol/signature
