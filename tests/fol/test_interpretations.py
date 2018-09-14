@@ -203,8 +203,10 @@ def test_blocksworld_add():
     model = Model(lang)
     clear = lang.get_predicate('clear')
     b1 = lang.get_constant('b1')
+    b2 = lang.get_constant('b2')
     model.add(clear, b1)
     assert evaluate(clear(b1), model) is True
+    assert evaluate(clear(b2), model) is False
 
 
 def test_blocksworld_add_and_remove():
@@ -213,8 +215,10 @@ def test_blocksworld_add_and_remove():
 
     clear = lang.get_predicate('clear')
     b1 = lang.get_constant('b1')
+    b2 = lang.get_constant('b2')
 
     model.add(clear, b1)
+    model.add(clear, b2)
     model.remove(clear, b1)
     assert evaluate(clear(b1), model) is False
 
@@ -258,3 +262,24 @@ def test_predicate_extensions():
     with pytest.raises(KeyError):
         # This should raise an error, as the tuple has been removed
         model.remove(pred, o1, o2)
+
+def test_predicate_extensions2():
+    import numpy
+
+    lang = tarski.language(theories=[Theory.EQUALITY])
+    leq = lang.predicate('leq', lang.Real, lang.Real)
+    w = lang.function('w', lang.Object, lang.Real)
+    o1 = lang.constant("o1", lang.Object)
+    o2 = lang.constant("o2", lang.Object)
+
+    model = Model(lang)
+    model.evaluator = evaluate
+
+    model.setx(w(o1), 1.0)
+    model.setx(w(o2), 2.0)
+    for x in numpy.arange(0.0, 5.0):
+        for y in numpy.arange(x, 5.0):
+            model.add(leq, x, y)
+
+    assert model[leq(w(o1), w(o2))] == True
+    assert model[leq(w(o2), w(o1))] == False
