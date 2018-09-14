@@ -31,19 +31,6 @@ class Formula:
     def __str__(self):
         raise RuntimeError("Abstract Method Formula.__str__ was called!")
 
-    # MRJ: shallow and deep copy are implemented to cover all subclasses
-    def __copy__(self):
-        newone = type(self)()
-        newone.__dict__.update(self.__dict__)
-        return newone
-
-    def __deepcopy__(self, memo):
-        newone = type(self)()
-        memo[id(self)] = newone
-        for k, v in self.__dict__.items():
-            setattr(newone, k, copy.deepcopy(v, memo))
-        return newone
-
     def __and__(self, rhs):
         return land(self, rhs)
 
@@ -82,20 +69,6 @@ class CompoundFormula(Formula):
         self.subformulas = subformulas
         self._check_well_formed()
 
-    def __deepcopy__(self, memo):
-        """
-            Deep copy constructor specific for this subclass.
-
-            The reason for needing this method is that the constructor
-            of this class is different from super()
-        """
-        # Dummy call to constructor
-        newone = type(self)(Connective.And, [top, top])
-        memo[id(self)] = newone
-        for k, v in self.__dict__.items():
-            setattr(newone, k, copy.deepcopy(v, memo))
-        return newone
-
     def _check_well_formed(self):
         if any(not isinstance(f, Formula) for f in self.subformulas):
             raise err.LanguageError("Wrong argument types for compound formula: '{}' ".format(self.subformulas))
@@ -121,20 +94,6 @@ class QuantifiedFormula(Formula):
         self.variables = variables
         self.formula = formula
         self._check_well_formed()
-
-    def __deepcopy__(self, memo):
-        """
-            Deep copy constructor specific for this subclass.
-
-            The reason for needing this method is that the constructor
-            of this class is different from super()
-        """
-        # Dummy call to constructor
-        newone = type(self)(Quantifier.Forall, [None], top)
-        memo[id(self)] = newone
-        for k, v in self.__dict__.items():
-            setattr(newone, k, copy.deepcopy(v, memo))
-        return newone
 
     def _check_well_formed(self):
         if len(self.variables) == 0:
@@ -228,14 +187,6 @@ class Atom(Formula):
         self.predicate = predicate
         self.subterms = arguments
         self._check_well_formed()
-
-    def __deepcopy__(self, memo):
-        # Dummy call to constructor
-        newone = type(self)(self.predicate, self.subterms)
-        memo[id(self)] = newone
-        for k, v in self.__dict__.items():
-            setattr(newone, k, copy.deepcopy(v, memo))
-        return newone
 
     def _check_well_formed(self):
         head = self.predicate

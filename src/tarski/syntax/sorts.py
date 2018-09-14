@@ -20,6 +20,7 @@ class Sort:
         return self.name
 
     def __deepcopy__(self, memo):
+        # TODO BEWARE! THIS DOES A SHALLOW COPY!
         memo[id(self)] = self
         return self
 
@@ -136,8 +137,7 @@ class Interval(Sort):
             p = parent(p)
 
     def dump(self):
-        return dict(name=self.name,
-                    domain=[self.lower_bound, self.upper_bound])
+        return dict(name=self.name, domain=[self.lower_bound, self.upper_bound])
 
 
 def inclusion_closure(s: Sort) -> Set[Sort]:

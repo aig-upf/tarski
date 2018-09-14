@@ -23,6 +23,7 @@ class Predicate:
             self.sort.append(a)
 
     def __deepcopy__(self, memo):
+        # TODO BEWARE! THIS DOES A SHALLOW COPY!
         memo[id(self)] = self
         return self
 

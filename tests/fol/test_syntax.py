@@ -1,3 +1,6 @@
+
+import copy
+
 import pytest
 import tarski as tsk
 from tarski import theories
@@ -69,7 +72,7 @@ def test_special_term_construction():
     assert isinstance(max_, tsk.Term), "max_ should be the term max(Const(2), Const(3)), not the integer value 3"
 
 def test_equality_atom_from_expression():
-    lang = tsk.fstrips.language('artih', [Theory.EQUALITY, Theory.ARITHMETIC])
+    lang = tsk.fstrips.language('arith', [Theory.EQUALITY, Theory.ARITHMETIC])
     y = lang.function('y', lang.Integer)
 
     atom = y() == 4
@@ -95,6 +98,35 @@ def test_complex_atom_from_expression_only_functions():
     phi = (x() <= y()) & (y() <= z())
 
     assert isinstance(phi, CompoundFormula)
+
+
+def test_copying_and_equality():
+    lang = tsk.fstrips.language('arith', [Theory.EQUALITY, Theory.ARITHMETIC])
+
+    c = lang.constant(1, lang.Integer)
+
+    x = lang.function('x', lang.Integer)
+    y = lang.function('y', lang.Integer)
+    f = lang.function('f', lang.Integer, lang.Integer, lang.Integer)
+
+    deep = copy.deepcopy(c)
+    # deep = copy.deepcopy(x)
+
+    phi = (x() <= y()) & (y() <= x())
+    shallow = copy.copy(phi)
+    deep = copy.deepcopy(phi)
+    # phi3 = (x() <= y()) & (y() <= x())
+
+    assert shallow.connective == phi.connective
+    assert id(shallow.connective) == id(phi.connective)
+    assert id(shallow.subformulas) == id(phi.subformulas)
+    assert id(shallow.subformulas[0]) == id(phi.subformulas[0])
+
+    assert deep.connective == phi.connective
+    assert id(deep.subformulas) != id(phi.subformulas)
+    assert id(deep.subformulas[0]) != id(phi.subformulas[0])
+
+    # TODO Test equality
 
 
 def test_duplicate_detection_and_global_getter():
