@@ -16,11 +16,10 @@ class Sort:
     def __str__(self):
         return 'Sort({})'.format(self.name)
 
-    def __repr__(self):
-        return self.name
+    __repr__ = __str__()
 
     def __deepcopy__(self, memo):
-        # TODO BEWARE! THIS DOES A SHALLOW COPY!
+        """ At the moment we forbid deep copies of this class, as they might be too expensive"""
         memo[id(self)] = self
         return self
 

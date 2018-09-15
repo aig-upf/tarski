@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import copy
 import itertools
 from collections import defaultdict, OrderedDict
 
@@ -42,6 +43,20 @@ class FirstOrderLanguage:
         self.theories = []
 
         self._build_builtin_sorts()
+
+    def __deepcopy__(self, memo):
+        """ At the moment we forbid deep copies of this class, as they might be too expensive"""
+        memo[id(self)] = self
+        return self
+
+    def deepcopy(self):
+        """ Use this method instead of copy.deepcopy() if you need a true deep-copy of the language """
+        memo = dict()
+        newone = type(self)()
+        memo[id(self)] = newone
+        for k, v in self.__dict__.items():
+            setattr(newone, k, copy.deepcopy(v, memo))
+        return newone
 
     @property
     def sorts(self):

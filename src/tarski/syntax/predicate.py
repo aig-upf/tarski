@@ -22,11 +22,6 @@ class Predicate:
                 belongs to a different language".format(k + 1))
             self.sort.append(a)
 
-    def __deepcopy__(self, memo):
-        # TODO BEWARE! THIS DOES A SHALLOW COPY!
-        memo[id(self)] = self
-        return self
-
     @property
     def symbol(self):
         return self._symbol
