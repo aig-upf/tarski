@@ -7,13 +7,11 @@ from .builtins import BuiltinPredicateSymbol, BuiltinFunctionSymbol
 
 
 class Term:
-    """
-        Term class
+    """ A logical Term.
 
-        NOTE: since we are overloading operators like __eq__, etc. these objects
-        may invalidate the assumptions of standard Python containers like set()
-        or break methods like find(). Any container for Term and subclasses
-        will need to be implemented by comparing the return value of id()
+        Since we overload the equality operator `__eq__`, containers relying on that method
+        such as dictionaries or sets will not work correctly. In order to use them, terms
+        need to be wrapped within a `TermReference`.
     """
 
     @property
@@ -95,13 +93,15 @@ class Term:
         return self.language.dispatch_operator('|', Term, Term, self, rhs)
 
     def accept(self, visitor):
-        """
-            Visitor pattern
-        """
+        """ Visitor pattern """
         visitor.visit(self)
+
+    def is_syntactically_equal(self, other):
+        raise NotImplementedError()  # To be subclassed
 
 
 class Variable(Term):
+
     def __init__(self, symbol: str, sort: Sort):
         self.symbol = symbol
         self._sort = sort
@@ -116,16 +116,16 @@ class Variable(Term):
     def sort(self):
         return self._sort
 
-    def __hash__(self):
-        return hash((self.symbol, self.sort))
-
-    # def dump(self):
-    #     return dict(symbol=self.symbol)
-
     def __str__(self):
         return '{}/{}'.format(self.symbol, self.sort.name)
 
     __repr__ = __str__
+
+    def __hash__(self):
+        return hash((self.symbol, self.sort.name))
+
+    def is_syntactically_equal(self, other):
+        return self.__class__ is other.__class__ and self.symbol == other.symbol and self.sort.name == other.sort.name
 
 
 class CompoundTerm(Term):
@@ -166,14 +166,15 @@ class CompoundTerm(Term):
         return self.symbol.codomain
 
     def __str__(self):
-        # MRJ: we don't want to print the symbol/signature
-        # but rather the name.
         return '{}({})'.format(self.symbol.symbol, ', '.join([str(t) for t in self.subterms]))
 
     __repr__ = __str__
 
     def __hash__(self):
-        return hash(str(self))
+        return hash((self.symbol.symbol, tuple(x for x in self.subterms)))
+
+    def is_syntactically_equal(self, other):
+        return self.__class__ is other.__class__ and self.symbol == other.symbol and self.subterms == other.subterms
 
 
 class Constant(Term):
@@ -205,6 +206,9 @@ class Constant(Term):
     def __hash__(self):
         return hash((self.symbol, self.sort))
 
+    def is_syntactically_equal(self, other):
+        return self.__class__ is other.__class__ and self.symbol == other.symbol and self.sort == other.sort
+
 
 def create_term(symbol: BuiltinFunctionSymbol, lhs, rhs):
     assert isinstance(lhs, Term) and isinstance(rhs, Term)
@@ -222,3 +226,25 @@ def create_term(symbol: BuiltinFunctionSymbol, lhs, rhs):
 
     predicate = language.get_predicate(symbol)
     return Atom(predicate, [lhs, rhs])
+
+
+class TermReference:
+    """ A simple wrapper to provide a purely syntactic __eq__ operator for terms.
+     To be used whenever equality and hashing is required, e.g. in dictionaries, etc.,
+     since the __eq__ operator in the Term hierarchy is used for other purposes,
+     namely, to construct equality atoms in a user-readable manner. """
+
+    def __init__(self, term):
+        assert isinstance(term, Term)
+        self.term = term
+
+    def __hash__(self):
+        return hash(self.term)
+
+    def __eq__(self, other):
+        return self.__class__ is other.__class__ and self.term.is_syntactically_equal(other.term)
+
+    def __str__(self):
+        return "TermRef[{}]".format(self.term)
+
+    __repr__ = __str__
