@@ -97,6 +97,8 @@ class Term:
         visitor.visit(self)
 
     def is_syntactically_equal(self, other):
+        """ Strict syntactic equivalence, which would tipically be in `__eq__`,
+        but here we use `__eq__` for a different purpose """
         raise NotImplementedError()  # To be subclassed
 
 
@@ -174,7 +176,12 @@ class CompoundTerm(Term):
         return hash((self.symbol.symbol, tuple(x for x in self.subterms)))
 
     def is_syntactically_equal(self, other):
-        return self.__class__ is other.__class__ and self.symbol == other.symbol and self.subterms == other.subterms
+        if (self.__class__ is not other.__class__ or self.symbol != other.symbol
+                or len(self.subterms) != len(other.subterms)):
+            return False
+
+        # Else we just need to recursively check if all subterms are syntactically equal
+        return all(x.is_syntactically_equal(y) for x, y in zip(self.subterms, other.subterms))
 
 
 class Constant(Term):
