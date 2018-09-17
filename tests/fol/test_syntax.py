@@ -178,6 +178,26 @@ def test_term_refs():
     assert tr1 == tr2
     assert tr1 != tr3
 
+def test_term_refs_compound():
+    lang = tsk.language()
+    f = lang.function('f', lang.Object, lang.Integer)
+    o1 = lang.constant("o1", lang.Object)
+    o2 = lang.constant("o2", lang.Object)
+    g = lang.get('f')
+
+
+    t1 = f(o1)
+    t2 = f(o1)
+    t3 = f(o2)
+    assert t1.symbol == t2.symbol
+    tr1 = TermReference(t1)
+    tr2 = TermReference(t2)
+    tr3 = TermReference(t3)
+
+    assert tr1 == tr2
+    assert tr1 != tr3
+
+
 def test_formula_refs():
     lang = tsk.fstrips.language('arith', [Theory.EQUALITY, Theory.ARITHMETIC])
 

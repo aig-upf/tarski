@@ -12,28 +12,28 @@ class MatchSymbol(object):
         self.target = symref(target)
         self.hits = 0
 
-    def visit(self,phi):
-        if isinstance(phi, CompoundFormula) and isinstance(self.psi, CompoundFormula):
+    def visit(self, phi):
+        if isinstance(phi, CompoundFormula):
             if symref(phi) == self.target:
                 self.hits += 1
                 return
             for f in phi.subformulas: f.accept(self)
-        elif isinstance(phi, QuantifiedFormula) and isinstance(self.psi, QuantifiedFormula):
+        elif isinstance(phi, QuantifiedFormula):
             if symref(phi) == self.target:
                 self.hits += 1
                 return
             phi.formula.accept(self)
-        elif isinstance(phi, Atom) and isinstance(self.psi, Atom):
+        elif isinstance(phi, Atom):
             if symref(phi) == self.target:
                 self.hits += 1
                 return
             for k, t in enumerate(phi.subterms):
                 t.accept(self)
-        elif isinstance(phi, CompoundTerm) and isinstance(self.psi, CompoundTerm):
+        elif isinstance(phi, CompoundTerm):
             if symref(phi) == self.target:
                 self.hits += 1
                 return
-            for k,t in enumerate(phi.subterms):
+            for k, t in enumerate(phi.subterms):
                 t.accept(self)
 
 class CollectVariables:

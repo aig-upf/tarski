@@ -46,6 +46,9 @@ class Function:
     def uniform_arity(self):
         return len(self.domain) + 1
 
+    def __eq__(self, other):
+        return self.signature == other.signature
+
     def __call__(self, *args):
         return CompoundTerm(self, args)
 
