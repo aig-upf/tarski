@@ -9,7 +9,7 @@ from tarski import errors
 
 from ..common import blocksworld, numeric
 from tarski.evaluators.simple import evaluate
-from tarski.syntax import Constant, TermReference
+from tarski.syntax import Constant
 from tarski.theories import Theory
 
 def test_interpretation_instance():
@@ -263,6 +263,7 @@ def test_predicate_extensions():
     with pytest.raises(KeyError):
         # This should raise an error, as the tuple has been removed
         model.remove(pred, o1, o2)
+
 def test_predicate_without_equality():
     lang = tarski.language(theories=[])
     leq = lang.predicate('leq', lang.Integer, lang.Integer)
@@ -302,16 +303,3 @@ def test_predicate_without_equality_reals():
 
     assert model[leq(w(o1), w(o2))] == True
     assert model[leq(w(o2), w(o1))] == False
-
-def test_term_refs():
-    lang = tarski.language()
-    f = lang.function('f', lang.Object, lang.Integer)
-    o1 = lang.constant("o1", lang.Object)
-    o2 = lang.constant("o2", lang.Object)
-
-    tr1 = TermReference(o1)
-    tr2 = TermReference(o1)
-    tr3 = TermReference(o2)
-
-    assert tr1 == tr2
-    assert tr1 != tr3

@@ -5,7 +5,7 @@ from enum import Enum
 from typing import List
 
 from .. import errors as err
-from .terms import Variable, Term
+from .terms import Variable, Term, TermReference
 from .predicate import Predicate
 
 
@@ -49,16 +49,24 @@ class Formula:
         """
         visitor.visit(self)
 
+    def is_syntactically_equal(self, other):
+        """ Strict syntactic equivalence, which would tipically be in `__eq__`,
+        but here we use `__eq__` for a different purpose """
+        raise NotImplementedError()  # To be subclassed
 
 class Tautology(Formula):
     def __str__(self):
         return "T"
 
+    def is_syntactically_equal(self, other):
+        return self.__class__ is other.__class__
 
 class Contradiction(Formula):
     def __str__(self):
         return "F"
 
+    def is_syntactically_equal(self, other):
+        return self.__class__ is other.__class__
 
 class CompoundFormula(Formula):
     """ A set of formulas combined through some logical connective """
@@ -87,6 +95,11 @@ class CompoundFormula(Formula):
         inner = " {} ".format(self.connective).join(str(f) for f in self.subformulas)
         return "({})".format(inner)
 
+    def is_syntactically_equal(self, other):
+        return self.__class__ is other.__class__ \
+            and self.connective == other.connective \
+            and all(x.is_syntactically_equal(y) for x, y in zip(self.subformulas, other.subformulas))
+
 
 class QuantifiedFormula(Formula):
     def __init__(self, quantifier: Quantifier, variables: List[Variable], formula: Formula):
@@ -103,6 +116,11 @@ class QuantifiedFormula(Formula):
         vars_ = ', '.join(str(x) for x in self.variables)
         return '{} {} : ({})'.format(self.quantifier, vars_, self.formula)
 
+    def is_syntactically_equal(self, other):
+        return self.__class__ is other.__class__ \
+            and self.quantifier == other.quantifier \
+            and all(x.is_syntactically_equal(y) for x, y in zip(self.variables, other.variables)) \
+            and self.formula.is_syntactically_equal(other.formula)
 
 top = Tautology()
 bot = Contradiction()
@@ -217,6 +235,16 @@ class Atom(Formula):
     def __str__(self):
         return '{}({})'.format(self.predicate.symbol, ','.join([str(t) for t in self.subterms]))
 
+    def is_syntactically_equal(self, other):
+        if (self.__class__ is not other.__class__ or\
+            self.predicate != other.predicate or len(self.subterms) != len(other.subterms)):
+            return False
+
+        # Else we just need to recursively check if all subterms are syntactically equal
+        return all(x.is_syntactically_equal(y) for x, y in zip(self.subterms, other.subterms))
+
+
+
     __repr__ = __str__
 
 
@@ -280,3 +308,24 @@ class VariableBinding:
     def merge(self, binding):
         """ Merge the given binding into the current binding, inplace """
         raise NotImplementedError()
+
+class FormulaReference:
+    """ A simple wrapper to provide a purely syntactic __eq__ operator for formulas.
+     To be used whenever equality and hashing is required, e.g. in dictionaries, etc.,
+     since the __eq__ operator in the Term hierarchy is used for other purposes,
+     namely, to construct equality atoms in a user-readable manner. """
+
+    def __init__(self, phi):
+        assert isinstance(phi, Formula)
+        self.phi = phi
+
+    def __hash__(self):
+        return hash(self.phi)
+
+    def __eq__(self, other):
+        return self.__class__ is other.__class__ and self.phi.is_syntactically_equal(other.phi)
+
+    def __str__(self):
+        return "FormulaRef[{}]".format(self.phi)
+
+    __repr__ = __str__

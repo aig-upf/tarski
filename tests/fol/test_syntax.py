@@ -165,3 +165,34 @@ def test_duplicate_detection_and_global_getter():
     assert len(lang.get('t1', 'c1', 'f1', 'p1')) == 4
     assert(all(id(x) == id(y) for x, y in zip([t1, c1, f1, p1], lang.get('t1', 'c1', 'f1', 'p1'))))
 
+def test_term_refs():
+    lang = tsk.language()
+    f = lang.function('f', lang.Object, lang.Integer)
+    o1 = lang.constant("o1", lang.Object)
+    o2 = lang.constant("o2", lang.Object)
+
+    tr1 = TermReference(o1)
+    tr2 = TermReference(o1)
+    tr3 = TermReference(o2)
+
+    assert tr1 == tr2
+    assert tr1 != tr3
+
+def test_formula_refs():
+    lang = tsk.fstrips.language('arith', [Theory.EQUALITY, Theory.ARITHMETIC])
+
+    c = lang.constant(1, lang.Integer)
+
+    x = lang.function('x', lang.Integer)
+    y = lang.function('y', lang.Integer)
+
+    phi = (x() <= y()) & (y() <= x())
+    psi = (x() >= y()) & (y() <= x())
+    gamma = (x() <= y()) & (y() <= x())
+
+    fr1 = FormulaReference(phi)
+    fr2 = FormulaReference(psi)
+    fr3 = FormulaReference(gamma)
+
+    assert fr1 == fr3
+    assert fr1 != fr2
