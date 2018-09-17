@@ -9,7 +9,7 @@ from tarski import errors
 
 from ..common import blocksworld, numeric
 from tarski.evaluators.simple import evaluate
-from tarski.syntax import Constant, TermReference
+from tarski.syntax import Constant
 
 
 def test_interpretation_instance():
@@ -155,17 +155,3 @@ def test_predicate_without_equality():
 
     assert model[leq(f(o1), f(o2))] is True
     assert model[leq(f(o2), f(o1))] is False
-
-
-def test_term_refs():
-    lang = tarski.language()
-    f = lang.function('f', lang.Object, lang.Integer)
-    o1 = lang.constant("o1", lang.Object)
-    o2 = lang.constant("o2", lang.Object)
-
-    tr1 = TermReference(o1)
-    tr2 = TermReference(o1)
-    tr3 = TermReference(o2)
-
-    assert tr1 == tr2
-    assert tr1 != tr3
