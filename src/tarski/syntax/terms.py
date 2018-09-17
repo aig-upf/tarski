@@ -248,6 +248,13 @@ class TermReference:
         assert isinstance(term, Term)
         self.term = term
 
+    @property
+    def expr(self):
+        """
+            Property shared with FormulaReference, enabling static polymorphism
+        """
+        return self.term
+
     def __hash__(self):
         return hash(self.term)
 

@@ -5,8 +5,8 @@
 """
 from ..syntax.temporal import ltl
 from ..syntax.formulas import CompoundFormula, Atom, QuantifiedFormula
-from ..syntax.visitors import SymbolReference
 from ..syntax.terms import CompoundTerm
+from ..syntax import symref
 
 
 class FluentHeuristic:
@@ -42,14 +42,14 @@ class FluentSymbolCollector:
         elif isinstance(phi, Atom):
             # print("Atom: {}".format(str(phi)))
             if not phi.predicate.builtin:
-                self.fluents.add(SymbolReference(phi))
+                self.fluents.add(symref(phi))
             else:
                 for t in phi.subterms:
                     t.accept(self)
         elif isinstance(phi, CompoundTerm):
             # print("Compound Term: {}, {}, {}".format(str(phi), phi.symbol, phi.symbol.builtin))
             if not phi.symbol.builtin:
-                self.fluents.add(SymbolReference(phi))
+                self.fluents.add(symref(phi))
             else:
                 for t in phi.subterms:
                     t.accept(self)
@@ -76,23 +76,23 @@ class FluentSymbolCollector:
             phi.formula.accept(self)
         elif isinstance(phi, Atom):
             if not phi.predicate.builtin:
-                self.visited.add(SymbolReference(phi))
+                self.visited.add(symref(phi))
             if self.under_next:
                 if not phi.predicate.builtin:
-                    self.fluents.add(SymbolReference(phi))
+                    self.fluents.add(symref(phi))
             else:
-                self.statics.add(SymbolReference(phi))
+                self.statics.add(symref(phi))
             for t in phi.subterms:
                 t.accept(self)
 
         elif isinstance(phi, CompoundTerm):
             if not phi.symbol.builtin:
-                self.visited.add(SymbolReference(phi))
+                self.visited.add(symref(phi))
             if self.under_next:
                 if not phi.symbol.builtin:
-                    self.fluents.add(SymbolReference(phi))
+                    self.fluents.add(symref(phi))
             else:
-                self.statics.add(SymbolReference(phi))
+                self.statics.add(symref(phi))
             for t in phi.subterms:
                 t.accept(self)
 
@@ -103,9 +103,9 @@ class FluentSymbolCollector:
         elif isinstance(phi, QuantifiedFormula):
             phi.formula.accept(self)
         elif isinstance(phi, Atom):
-            self.statics.add(SymbolReference(phi))
+            self.statics.add(symref(phi))
         elif isinstance(phi, CompoundTerm):
-            self.statics.add(SymbolReference(phi))
+            self.statics.add(symref(phi))
 
     def visit(self, phi):
         """

@@ -328,4 +328,11 @@ class FormulaReference:
     def __str__(self):
         return "FormulaRef[{}]".format(self.phi)
 
+    @property
+    def expr(self):
+        """
+            Property shared with TermReference, enabling static polymorphism
+        """
+        return self.phi
+
     __repr__ = __str__

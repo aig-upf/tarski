@@ -44,3 +44,15 @@ def generate_small_strips_bw_language():
     # A few blocks
     [lang.constant('b{}'.format(k), object_t) for k in range(1, 5)]
     return lang
+
+def generate_bw_loc_and_clear(num_blocks):
+    lang = tsk.fstrips.language("blocksworld", theories=[Theory.EQUALITY])
+
+    lang.predicate('clear', lang.Object)
+    lang.function('loc', lang.Object, lang.Object)
+
+    # Table and blocks
+    lang.constant('table', lang.Object)
+    lang.constant('hand', lang.Object)
+    foo = [lang.constant('b{}'.format(k), lang.Object) for k in range(1,num_blocks+1)]
+    return lang

@@ -12,7 +12,7 @@ from tests.fstrips.contingent import localize
 from tests.fstrips.hybrid.tasks import create_particles_world, create_billiards_world
 
 def create_small_bw_with_index():
-    prob = blocksworld.create_small_task()
+    prob = blocksworld.create_4blocks_task()
     index = fs.TaskIndex(prob.language.name, prob.name)
     index.process_symbols(prob)
     index.state_variables = IndexDictionary()
@@ -28,9 +28,9 @@ def test_enumeration_of_action_parameters_for_small_bw():
     index.ground_actions = IndexDictionary()
     actions = list(prob.actions.values())
     card, syms, substs = instantiation.enumerate_groundings(prob.language, actions[0].parameters)
-    assert card == 20
-    assert len(syms) == 2
-    assert len(substs) == 2
+    assert card == 6
+    assert len(syms) == 1
+    assert len(substs) == 1
 
 
 def test_generate_substitutions_for_small_bw():
@@ -43,7 +43,7 @@ def test_generate_substitutions_for_small_bw():
     for values in itertools.product(*substs):
         assert (len(syms) == len(values))
         subst = {syms[k]: v for k, v in enumerate(values)}
-        assert len(subst) == 2
+        assert len(subst) == 1
 
 
 def test_ground_actions_for_small_bw():
@@ -52,14 +52,14 @@ def test_ground_actions_for_small_bw():
     prob, index = create_small_bw_with_index()
     grounder = ActionGrounder(prob, index)
     grounder.calculate_actions()
-    assert len(prob.ground_actions) == 20
+    assert len(prob.ground_actions) == 84
 
 
 def test_ground_constraints_for_small_bw():
     prob, index = create_small_bw_with_index()
     grounder = ConstraintGrounder(prob, index)
     grounder.calculate_constraints()
-    assert len(prob.ground_constraints) == 1
+    assert len(prob.ground_constraints) == 0
 
 def test_ground_sensors_for_small_contingent_problem():
     prob = localize.create_small_task()

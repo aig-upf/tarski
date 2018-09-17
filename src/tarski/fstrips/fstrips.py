@@ -7,8 +7,6 @@ from .errors import InvalidEffectError
 from tarski.syntax import *
 from .. import theories as tsk_theories
 
-from tarski.syntax.visitors import SymbolReference
-
 class UniversalEffect:
     """ A forall-effect """
 
@@ -233,8 +231,8 @@ class BlackBoxEffect(SingleEffect):
 
         self.function.bind_to_language(self.lhs[0, 0].language)
         for k, y in enumerate(self.lhs[:,0]):
-            ys = SymbolReference(y)
-            ok = SymbolReference(self.function.out_x[k].symbol)
+            ys = TermReference(y)
+            ok = TermReference(self.function.out_x[k].symbol)
             if ys != ok:
                 msg = "Error declaring BlackBoxEffect, lhs {}-th symbol {} is not\
                 matched by corresponding function output, {}".format(k, str(y), str(ok))

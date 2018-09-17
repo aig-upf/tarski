@@ -11,7 +11,7 @@ def test_task_static_symbol_detection():
     prob = parcprinter.create_small_task()
     index = fs.TaskIndex(prob.language.name, prob.name)
     index.process_symbols(prob)
-    assert len(index.static_symbols) == 2
+    assert len(index.static_symbols) == 3
     assert len(index.fluent_symbols) == 4
 
 
@@ -39,7 +39,7 @@ def test_all_state_variables_can_be_evaluated_in_init_parcprinter():
 
 
 def test_task_index_create_state_variables_blocksworld():
-    prob = blocksworld.create_small_task()
+    prob = blocksworld.create_4blocks_task()
     index = fs.TaskIndex(prob.language.name, prob.name)
     index.process_symbols(prob)
     index.state_variables = IndexDictionary()
@@ -47,7 +47,7 @@ def test_task_index_create_state_variables_blocksworld():
         index.state_variables.add(var)
 
     # print(','.join([str(var) for var in index.state_variables]))
-    assert len(index.state_variables) == 8
+    assert len(index.state_variables) == 12
 
 def test_create_state_variables_for_hybrid_problem_with_reactions():
     prob = create_billiards_world()

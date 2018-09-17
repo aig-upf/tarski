@@ -69,8 +69,7 @@ def create_small_task():
                         upp.Location(prevsheet, upp.some_finisher_tray),
                         upp.Sheetsize(sheet, upp.letter),
                         upp.Location(sheet, upp.finisher2_entry_finisher1_exit))
-    # MRJ: note that the positive effects should be under an extra X op, as per the
-    # "deletes before adds" semantics,
+
     effects = [fs.DelEffect(upp.Available(upp.finisher2_rsrc)),
                fs.DelEffect(upp.Location(sheet, upp.finisher2_entry_finisher1_exit)),
                fs.AddEffect(upp.Location(sheet, upp.some_finisher_tray)),
