@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from tarski.syntax import *
 
-class MatchSymbol(object):
+class MatchExpression(object):
     """
         This Visitor traverses a formula/expression stopping when
         finding an exact syntactic match for the target
