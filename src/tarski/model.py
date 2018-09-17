@@ -2,7 +2,7 @@
 from collections import defaultdict
 
 from . import errors as err
-from .syntax import Function, Constant, CompoundTerm
+from .syntax import Function, Constant, CompoundTerm, TermReference
 from .syntax.predicate import Predicate
 
 
@@ -88,24 +88,10 @@ class Model:
         if not isinstance(predicate, Predicate):
             raise err.SemanticError("Model.add() can only set the value of predicates")
         point = _check_assignment(predicate, args)
-        # point = tuple(a.symbol for a in point)
-        self.predicate_extensions[predicate.signature].add(point)
+        self.predicate_extensions[predicate.signature].add(tuple_ref(point))
 
     def remove(self, predicate: Predicate, *args):
-        # point = tuple(a.symbol for a in args)
-        point = args
-
-        # try:
-        #
-        # except TypeError:
-        #     if point is None:
-        #         entry = frozenset()
-        #     elif isinstance(point, Constant):
-        #         entry = frozenset([point.symbol])
-        #     else :
-        #         raise err.LanguageError('Model.remove() : arguments of tuple to add for predicate
-        #  needs to be a tuple of constants or a constant')
-        self.predicate_extensions[predicate.signature].remove(point)
+        self.predicate_extensions[predicate.signature].remove(tuple_ref(args))
 
     def value(self, fun: Function, point):
         """ Return the value of the given function on the given point in the current model """
@@ -115,7 +101,7 @@ class Model:
     def holds(self, predicate: Predicate, point):
         """ Return true iff the given predicate is true on the given point in the current model """
         # return tuple(c.symbol for c in point) in self.predicate_extensions[predicate.signature]
-        return point in self.predicate_extensions[predicate.signature]
+        return tuple_ref(point) in self.predicate_extensions[predicate.signature]
 
     def __getitem__(self, arg):
         try:
@@ -136,11 +122,15 @@ class ExtensionalFunctionDefinition:
     def set(self, point, value):
         assert isinstance(point, tuple)
         assert isinstance(value, Constant)
-        self.data[point] = value
+        self.data[tuple_ref(point)] = value
 
     def get(self, point):
-        return self.data[point]
+        return self.data[tuple_ref(point)]
 
 
 # class IntensionalFunctionDefinition:
 #     pass
+
+def tuple_ref(tup):
+    """ Create a tuple of Term references from a tuple of terms """
+    return tuple(TermReference(a) for a in tup)

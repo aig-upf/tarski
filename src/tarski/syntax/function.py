@@ -26,11 +26,6 @@ class Function:
             if self.language != a.language:
                 raise err.LanguageMismatch(a, a.language, self.language)
 
-    def __deepcopy__(self, memo):
-        # TODO BEWARE! THIS DOES A SHALLOW COPY!
-        memo[id(self)] = self
-        return self
-
     @property
     def signature(self):
         return tuple([self.symbol] + [a.name for a in self.domain] + [self.codomain.name])

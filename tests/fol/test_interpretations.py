@@ -9,7 +9,7 @@ from tarski import errors
 
 from ..common import blocksworld, numeric
 from tarski.evaluators.simple import evaluate
-from tarski.syntax import Constant
+from tarski.syntax import Constant, TermReference
 from tarski.theories import Theory
 
 def test_interpretation_instance():
@@ -233,6 +233,7 @@ def test_zero_ary_predicate_set():
 
     assert evaluate(P(), M) is True
 
+
 def test_predicate_extensions():
     lang = tarski.language()
     pred = lang.predicate('pred', lang.Object, lang.Object)
@@ -262,11 +263,29 @@ def test_predicate_extensions():
     with pytest.raises(KeyError):
         # This should raise an error, as the tuple has been removed
         model.remove(pred, o1, o2)
+def test_predicate_without_equality():
+    lang = tarski.language(theories=[])
+    leq = lang.predicate('leq', lang.Integer, lang.Integer)
+    f = lang.function('f', lang.Object, lang.Integer)
+    o1 = lang.constant("o1", lang.Object)
+    o2 = lang.constant("o2", lang.Object)
 
-def test_predicate_extensions2():
+    model = Model(lang)
+    model.evaluator = evaluate
+
+    model.set(f, o1, 1)
+    model.set(f, o2, 2)
+    for x in range(0, 5):
+        for y in range(x, 5):
+            model.add(leq, x, y)
+
+    assert model[leq(f(o1), f(o2))] is True
+    assert model[leq(f(o2), f(o1))] is False
+
+def test_predicate_without_equality_reals():
     import numpy
 
-    lang = tarski.language(theories=[Theory.EQUALITY])
+    lang = tarski.language(theories=[])
     leq = lang.predicate('leq', lang.Real, lang.Real)
     w = lang.function('w', lang.Object, lang.Real)
     o1 = lang.constant("o1", lang.Object)
@@ -283,3 +302,16 @@ def test_predicate_extensions2():
 
     assert model[leq(w(o1), w(o2))] == True
     assert model[leq(w(o2), w(o1))] == False
+
+def test_term_refs():
+    lang = tarski.language()
+    f = lang.function('f', lang.Object, lang.Integer)
+    o1 = lang.constant("o1", lang.Object)
+    o2 = lang.constant("o2", lang.Object)
+
+    tr1 = TermReference(o1)
+    tr2 = TermReference(o1)
+    tr3 = TermReference(o2)
+
+    assert tr1 == tr2
+    assert tr1 != tr3
