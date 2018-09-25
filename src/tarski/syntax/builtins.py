@@ -39,6 +39,7 @@ class BuiltinFunctionSymbol(Enum):
     ERF = "erf"
     ERFC = "erfc"
     SGN = "sgn"
+    SQRT = "sqrt"
 
     # ...
 
@@ -74,9 +75,12 @@ def get_arithmetic_predicates():
     return [BuiltinPredicateSymbol.LT, BuiltinPredicateSymbol.LE, BuiltinPredicateSymbol.GT, BuiltinPredicateSymbol.GE]
 
 
-def get_arithmetic_functions():
+def get_arithmetic_binary_functions():
     return [BuiltinFunctionSymbol.ADD, BuiltinFunctionSymbol.SUB, BuiltinFunctionSymbol.MUL, BuiltinFunctionSymbol.DIV,\
             BuiltinFunctionSymbol.POW, BuiltinFunctionSymbol.MOD]
+
+def get_arithmetic_unary_functions():
+    return [BuiltinFunctionSymbol.SQRT]
 
 def get_special_binary_functions():
     BFS = BuiltinFunctionSymbol
