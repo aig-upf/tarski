@@ -4,6 +4,7 @@ import scipy.special as sci
 impl = {
     "min": lambda x, y: np.min((x, y)),
     "max": lambda x, y: np.max((x, y)),
+    "pow": lambda x, y: np.pow(x, y),
     "abs": lambda x: np.abs(x),
     "sin": lambda x: np.sin(x),
     "cos": lambda x: np.cos(x),
@@ -13,5 +14,6 @@ impl = {
     "log": lambda x: np.log(x),
     "erf": lambda x: sci.erf(x),
     "erfc": lambda x: sci.erfc(x),
-    "sgn": lambda x: np.sign(x)
+    "sgn": lambda x: np.sign(x),
+    "sqrt": lambda x: np.sqrt(x)
 }

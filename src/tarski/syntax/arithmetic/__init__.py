@@ -38,3 +38,11 @@ def summation( *args ):
         lhs = L.dispatch_operator(BuiltinFunctionSymbol.ADD, Term, Term, lhs, processed_expr[k])
 
     return lhs
+
+def pow(x, y):
+    pow_func = x.language.get_function(BuiltinFunctionSymbol.POW)
+    return pow_func(x, y)
+
+def sqrt(x):
+    sqrt_func = x.language.get_function(BuiltinFunctionSymbol.SQRT)
+    return sqrt_func(x)
