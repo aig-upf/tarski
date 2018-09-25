@@ -107,6 +107,16 @@ def test_special_function_abs():
     assert model[abs(a) > c] is True
     assert model[abs(b) > c] is True
 
+def test_special_function_pow():
+    import numpy as np
+    from tarski.syntax.arithmetic import pow
+    lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL])
+    model = Model(lang)
+    model.evaluator = evaluate
+    reals = lang.Real
+    alpha = lang.constant(0.5, reals)
+    assert model[pow(alpha, 2.0)].symbol == np.power(0.5, 2.0)
+
 def test_special_function_sin():
     import numpy as np
     from tarski.syntax.arithmetic.special import sin
@@ -116,6 +126,16 @@ def test_special_function_sin():
     reals = lang.Real
     alpha = lang.constant(0.5, reals)
     assert model[sin(alpha)].symbol == np.sin(0.5)
+
+def test_special_function_sqrt():
+    import numpy as np
+    from tarski.syntax.arithmetic import sqrt
+    lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL])
+    model = Model(lang)
+    model.evaluator = evaluate
+    reals = lang.Real
+    alpha = lang.constant(0.5, reals)
+    assert model[sqrt(alpha)].symbol == np.sqrt(0.5)
 
 def test_special_function_cos():
     import numpy as np
