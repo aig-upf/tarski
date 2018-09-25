@@ -43,5 +43,24 @@ def test_language_init_navigation():
     expr = distance(z1) == tm.sqrt(tm.pow( l(x) - dzc(z1, x), 2.0) + tm.pow(l(y) - dzc(z1, y), 2.0))
 
 def test_language_init_reservoir():
+    import tarski.syntax.arithmetic as tm
+    import tarski.syntax.arithmetic.special as tms
+
     res_reader = rddl.Reader('tests/data/rddl/Reservoir.rddl')
     assert res_reader.rddl_model is not None
+    assert res_reader.rddl_model.domain.name == 'reservoir'
+
+    # create sorts and initialize constants
+    domain = res_reader.rddl_model.domain
+    non_fluents = res_reader.rddl_model.non_fluents
+    res_reader.translate_rddl_model()
+    assert res_reader.language is not None
+
+    # try to construct expression without triggering any exceptions
+    t1 = res_reader.language.get('t1')
+    overflow = res_reader.language.get('overflow')
+    rlevel = res_reader.language.get('rlevel')
+    outflow = res_reader.language.get('outflow')
+    max_reservoir_capacity = res_reader.language.get('MAX_RES_CAP')
+
+    expr = overflow(t1) == tms.max(0.0, rlevel(t1) - outflow(t1) - max_reservoir_capacity(t1))
