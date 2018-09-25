@@ -22,8 +22,25 @@ def test_language_init_mars_rovers():
     phi = implies(snap_picture(), (delta_x() == 0.0) & (delta_y() == 0.0))
 
 def test_language_init_navigation():
+    import tarski.syntax.arithmetic as tm
     nav_reader = rddl.Reader('tests/data/rddl/Navigation.rddl')
     assert nav_reader.rddl_model is not None
+    assert nav_reader.rddl_model.domain.name == 'Navigation'
+
+    # create sorts and initialize constants
+    domain = nav_reader.rddl_model.domain
+    non_fluents = nav_reader.rddl_model.non_fluents
+    nav_reader.translate_rddl_model()
+    assert nav_reader.language is not None
+
+    # try to construct expression without triggering any exceptions
+    x = nav_reader.language.get('x')
+    y = nav_reader.language.get('y')
+    l = nav_reader.language.get('location')
+    dzc = nav_reader.language.get('DECELERATION_ZONE_CENTER')
+    z1 = nav_reader.language.get('z1')
+    distance = nav_reader.language.get('distance')
+    expr = distance(z1) == tm.sqrt(tm.pow( l(x) - dzc(z1, x), 2.0) + tm.pow(l(y) - dzc(z1, y), 2.0))
 
 def test_language_init_reservoir():
     res_reader = rddl.Reader('tests/data/rddl/Reservoir.rddl')
