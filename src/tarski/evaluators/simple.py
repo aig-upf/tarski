@@ -64,7 +64,11 @@ def evaluate_quantified(formula: Formula, m: Model, sigma):
 def evaluate_term(term, m: Model, sigma):
     if isinstance(term, CompoundTerm) and builtins.is_builtin_function(term.symbol):
         return evaluate_builtin_function(term, m, sigma)
-
+    # MRJ: Coerce float and int Python literals into conctants
+    if isinstance(term, float):
+        term = Constant(term, m.language.Real)
+    if isinstance(term, int):
+        term = Constant(term, m.language.Integer)
     assert isinstance(term, (Constant, CompoundTerm))  # TODO Add support for variables
     arguments = []
 
@@ -122,6 +126,7 @@ def evaluate_builtin_function(term, model, sigma):
         bif.ERF: lambda f, m, s: _arithmetic_evaluator_1(funcsym.impl[bif.ERF.value], f.subterms[0], model, sigma),
         bif.ERFC: lambda f, m, s: _arithmetic_evaluator_1(funcsym.impl[bif.ERFC.value], f.subterms[0], model, sigma),
         bif.SGN: lambda f, m, s: _arithmetic_evaluator_1(funcsym.impl[bif.SGN.value], f.subterms[0], model, sigma),
+        bif.SQRT: lambda f, m, s: _arithmetic_evaluator_1(funcsym.impl[bif.SQRT.value], f.subterms[0], model, sigma),
     }
 
     return _evaluators[term.symbol.symbol](term, model, sigma)
