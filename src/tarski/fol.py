@@ -42,7 +42,11 @@ class FirstOrderLanguage:
         self.language_components_frozen = False
         self.theories = []
 
+
         self._build_builtin_sorts()
+        # "virtual function" ite (if-then-else)
+        self.function('ite', self.Object, self.Object, self.Object)
+
 
     def __deepcopy__(self, memo):
         """ At the moment we forbid deep copies of this class, as they might be too expensive"""

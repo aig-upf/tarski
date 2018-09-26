@@ -9,7 +9,7 @@ from tarski import errors
 
 from ..common import blocksworld, numeric
 from tarski.evaluators.simple import evaluate
-from tarski.syntax import Constant
+from tarski.syntax import Constant, ite
 from tarski.theories import Theory
 
 def test_interpretation_instance():
@@ -323,3 +323,26 @@ def test_predicate_without_equality_reals():
 
     assert model[leq(w(o1), w(o2))] == True
     assert model[leq(w(o2), w(o1))] == False
+
+def test_ite():
+    lang = tarski.language('arith', [Theory.EQUALITY, Theory.ARITHMETIC])
+
+    c = lang.constant(1, lang.Integer)
+
+    x = lang.function('x', lang.Integer)
+    y = lang.function('y', lang.Integer)
+
+    phi = (x() <= y()) & (y() <= x())
+
+    t1 = x() + 2
+    t2 = y() + 3
+
+    tau = ite(phi, t1, t2)
+
+    model = Model(lang)
+    model.evaluator = evaluate
+
+    model.setx(x(), 1)
+    model.setx(y(), 2)
+
+    assert model[tau].symbol == 5

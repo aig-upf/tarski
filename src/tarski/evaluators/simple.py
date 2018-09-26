@@ -3,7 +3,7 @@ import tarski.funcsym as funcsym
 import tarski.errors as err
 
 from ..syntax import ops, Connective, Atom, Formula, CompoundFormula, QuantifiedFormula, builtins, Variable, \
-    Constant, CompoundTerm, Tautology, Contradiction
+    Constant, CompoundTerm, Tautology, Contradiction, IfThenElse
 from ..model import Model
 
 
@@ -62,6 +62,12 @@ def evaluate_quantified(formula: Formula, m: Model, sigma):
 
 
 def evaluate_term(term, m: Model, sigma):
+    if isinstance(term, IfThenElse):
+        if evaluate(term.condition, m, sigma): # condition is true
+            term = term.subterms[0]
+        else:
+            term = term.subterms[1]
+
     if isinstance(term, CompoundTerm) and builtins.is_builtin_function(term.symbol):
         return evaluate_builtin_function(term, m, sigma)
     # MRJ: Coerce float and int Python literals into conctants
@@ -84,6 +90,7 @@ def evaluate_term(term, m: Model, sigma):
     if isinstance(term, CompoundTerm):
         # evaluate each of the arguments
         arguments = tuple(evaluate(a, m, sigma) for a in term.subterms)
+
 
     try:
         return m.value(term.symbol, arguments)

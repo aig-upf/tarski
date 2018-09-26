@@ -187,6 +187,63 @@ class CompoundTerm(Term):
         # Else we just need to recursively check if all subterms are syntactically equal
         return all(x.is_syntactically_equal(y) for x, y in zip(self.subterms, other.subterms))
 
+class IfThenElse(CompoundTerm):
+    """
+        Combination of a formula C and two terms, t1 and t2.
+
+        This term evaluates to t1 if C is true, and t2 otherwise. t1 and t2
+        are restricted to have the same codomain.
+    """
+
+    def __init__(self, C, subterms: Tuple[Term]):
+
+        self.condition = C
+        if len(subterms) == 0:
+            raise err.SyntacticError(msg='IfThenElse: needs two sub terms!')
+
+        self.symbol = subterms[0].language.get('ite')
+
+        if len(subterms) != 2:
+            raise err.ArityMismatch(self.symbol, subterms)
+
+        # Our implementation of ite requires both branches to have the same
+        # sort.
+        if subterms[0].sort != subterms[1].sort:
+            raise err.SyntacticError(msg='IfThenElse: both sub terms need to have same codomain!')
+
+        self.subterms = tuple(subterms)
+
+        self.symbol.language.language_components_frozen = True
+
+    @property
+    def language(self):
+        return self.language
+
+    @property
+    def sort(self):
+        return self.subterms[0].sort
+
+
+    def __str__(self):
+        return '{}({})'.format(self.symbol, ', '.join([str(self.condition)] + [str(t) for t in self.subterms]))
+
+    __repr__ = __str__
+
+    def __hash__(self):
+        return hash((self.symbol, self.condition, tuple(x for x in self.subterms)))
+
+    def is_syntactically_equal(self, other):
+        if (self.__class__ is not other.__class__ or self.symbol != other.symbol \
+                or len(self.subterms) != len(other.subterms)) \
+                or (not self.condition.is_syntactically_equal(other.condition)):
+            return False
+
+        # Else we just need to recursively check if all subterms are syntactically equal
+        return all(x.is_syntactically_equal(y) for x, y in zip(self.subterms, other.subterms))
+
+def ite(c, t1, t2):
+    return IfThenElse(c, (t1, t2) )
+
 class Constant(Term):
     def __init__(self, symbol, sort: Sort):
         self.symbol = symbol

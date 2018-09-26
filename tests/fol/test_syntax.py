@@ -216,3 +216,23 @@ def test_formula_refs():
 
     assert fr1 == fr3
     assert fr1 != fr2
+
+def test_ite():
+    lang = tsk.fstrips.language('arith', [Theory.EQUALITY, Theory.ARITHMETIC])
+
+    c = lang.constant(1, lang.Integer)
+
+    x = lang.function('x', lang.Integer)
+    y = lang.function('y', lang.Integer)
+
+    phi = (x() <= y()) & (y() <= x())
+
+    t1 = x() + 2
+    t2 = y() + 3
+
+    tau = ite(phi, t1, t2)
+
+    assert tau.condition.is_syntactically_equal(phi)
+    assert tau.subterms[0].is_syntactically_equal(t1)
+    assert tau.subterms[1].is_syntactically_equal(t2)
+    assert tau.sort == t1.sort
