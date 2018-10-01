@@ -64,3 +64,6 @@ def test_language_init_reservoir():
     max_reservoir_capacity = res_reader.language.get('MAX_RES_CAP')
 
     expr = overflow(t1) == tms.max(0.0, rlevel(t1) - outflow(t1) - max_reservoir_capacity(t1))
+
+def test_language_mars_rovers_load_cpfs():
+    assert False

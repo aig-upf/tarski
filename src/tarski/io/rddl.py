@@ -3,10 +3,91 @@
 """
 import tarski
 from tarski.syntax import *
+import tarski.syntax.arithmetic as tm
+import tarski.syntax.arithmetic.special as tmsp
+import tarski.syntax.arithmetic.random as tmr
+
 from tarski.errors import LanguageError
 from tarski.theories import Theory
 import pyrddl
 
+logic_rddl_to_tarski = {
+    '=>' : implies,
+    '^' : land,
+    '|' : lor}
+
+relational_rddl_to_tarski = {
+    '==': BuiltinPredicateSymbol.EQ,
+    '<=': BuiltinPredicateSymbol.LE,
+    '>=': BuiltinPredicateSymbol.GE
+}
+
+arithmetic_rddl_to_tarski = {
+    '-': lambda L, x, y : L.dispatch_operator(BuiltinFunctionSymbol.SUB, Term, Term, x, y),
+    '+': lambda L, x, y : L.dispatch_operator(BuiltinFunctionSymbol.ADD, Term, Term, x, y),
+    '*': lambda L, x, y : L.dispatch_operator(BuiltinFunctionSymbol.MUL, Term, Term, x, y)
+}
+
+func_rddl_to_tarski = {
+    'abs': BuiltinFunctionSymbol.ABS,
+    'Normal': BuiltinFunctionSymbol.NORMAL
+}
+
+def translate_expression(L, rddl_expr):
+    expr_type, expr_sym = rddl_expr.etype
+
+    if expr_type == 'number':
+        if 'float' in expr_sym:
+            return Constant(rddl_expr.args, L.Real)
+        elif 'integer' in expr_sym:
+            return Constant(rddl_expr.args, L.Integer)
+    elif expr_type == 'pvar':
+        tsym = L.get(rddl_expr.args[0])
+        if len(rddl_expr.args) == 2 and rddl_expr.args[1] is None:
+            return tsym() # 0-ary
+        targs = []
+        for k, arg in enumerate(rddl_expr.args[1]):
+            if arg[0] == '?':
+                if isinstance(tsym, Function):
+                    targs += [Variable(arg, tsym.domain[k])]
+                elif isinstance(tsym, Predicate):
+                    targs += [Variable(arg, tsym.sort[k])]
+                else:
+                    assert False
+            elif isinstance(arg, float):
+                targs += [Constant(arg, L.Real)]
+            elif isinstance(arg, int):
+                targs += [Constant(arg, L.Integer)]
+            else:
+                print(arg)
+                targs += [L.get(arg)] # named constant?
+        return tsym(*targs)
+    elif expr_type == 'control':
+        assert expr_sym == 'if'
+        targs = [translate_expression(L, arg) for arg in rddl_expr.args]
+        return ite(*targs)
+    elif expr_type == 'relational':
+        tsym = relational_rddl_to_tarski[expr_sym]
+        targs = [translate_expression(L, arg) for arg in rddl_expr.args]
+        return builtins.create_atom(L, tsym, targs[0], targs[1])
+    elif expr_type == 'arithmetic':
+        op = arithmetic_rddl_to_tarski[expr_sym]
+        targs = [L] + [translate_expression(L, arg) for arg in rddl_expr.args]
+        return op(*targs)
+    elif expr_type == 'func':
+        func = func_rddl_to_tarski[expr_sym]
+        targs = [translate_expression(L, arg) for arg in rddl_expr.args]
+        return L.get(func)(*targs)
+    elif expr_type == 'randomvar':
+        func = func_rddl_to_tarski[expr_sym]
+        targs = [translate_expression(L, arg) for arg in rddl_expr.args]
+        return L.get(func)(*targs)
+    elif expr_type == 'boolean':
+        connective = logic_rddl_to_tarski[expr_sym]
+        targs = [translate_expression(L, arg) for arg in rddl_expr.args]
+        return connective(*targs)
+    print(rddl_expr)
+    assert False
 
 class Reader(object):
     """
