@@ -66,4 +66,51 @@ def test_language_init_reservoir():
     expr = overflow(t1) == tms.max(0.0, rlevel(t1) - outflow(t1) - max_reservoir_capacity(t1))
 
 def test_language_mars_rovers_load_cpfs():
-    assert False
+    mr_reader = rddl.Reader('tests/data/rddl/Mars_Rover.rddl')
+    # create sorts and initialize constants
+    domain = mr_reader.rddl_model.domain
+    non_fluents = mr_reader.rddl_model.non_fluents
+    mr_reader.translate_rddl_model()
+
+    # collect state cpfs
+    state_cpfs = []
+    for f in domain.state_cpfs:
+        state_cpfs += [rddl.translate_expression(mr_reader.language, f.expr)]
+    # collect intermediate cpfs
+    intermediate_cpfs = []
+    for f in domain.intermediate_cpfs:
+        intermediate_cpfs += [rddl.translate_expression(mr_reader.language, f.expr)]
+
+    assert len(state_cpfs) + len(intermediate_cpfs) == 4
+
+def test_language_mars_rovers_load_constraints():
+    mr_reader = rddl.Reader('tests/data/rddl/Mars_Rover.rddl')
+    # create sorts and initialize constants
+    domain = mr_reader.rddl_model.domain
+    non_fluents = mr_reader.rddl_model.non_fluents
+    mr_reader.translate_rddl_model()
+
+    precs = []
+    for prec in domain.preconds:
+        precs += [ rddl.translate_expression(mr_reader.language, prec)]
+    assert len(precs) == 1
+
+    action_constraints = []
+    for c in domain.constraints:
+        action_constraints += [ rddl.translate_expression(mr_reader.language, c.expr)]
+    assert len(action_constraints) == 0
+
+    state_constraints = []
+    for c in domain.constraints:
+        state_constraints += [ rddl.translate_expression(mr_reader.language, c.expr)]
+    assert len(state_constraints) == 0
+
+def test_language_mars_rovers_load_reward():
+    mr_reader = rddl.Reader('tests/data/rddl/Mars_Rover.rddl')
+    # create sorts and initialize constants
+    domain = mr_reader.rddl_model.domain
+    non_fluents = mr_reader.rddl_model.non_fluents
+    mr_reader.translate_rddl_model()
+    reward_func = rddl.translate_expression(mr_reader.language, domain.reward)
+    print(reward_func)
+    assert  isinstance(reward_func, Term)

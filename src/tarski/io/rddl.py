@@ -6,6 +6,7 @@ from tarski.syntax import *
 import tarski.syntax.arithmetic as tm
 import tarski.syntax.arithmetic.special as tmsp
 import tarski.syntax.arithmetic.random as tmr
+import tarski.syntax.temporal.ltl as tt
 
 from tarski.errors import LanguageError
 from tarski.theories import Theory
@@ -14,7 +15,8 @@ import pyrddl
 logic_rddl_to_tarski = {
     '=>' : implies,
     '^' : land,
-    '|' : lor}
+    '|' : lor,
+    '~' : neg}
 
 relational_rddl_to_tarski = {
     '==': BuiltinPredicateSymbol.EQ,
@@ -34,7 +36,10 @@ func_rddl_to_tarski = {
 }
 
 def translate_expression(L, rddl_expr):
-    expr_type, expr_sym = rddl_expr.etype
+    try:
+        expr_type, expr_sym = rddl_expr.etype
+    except AttributeError:
+        expr_type, expr_sym = rddl_expr
 
     if expr_type == 'number':
         if 'float' in expr_sym:
@@ -42,8 +47,16 @@ def translate_expression(L, rddl_expr):
         elif 'integer' in expr_sym:
             return Constant(rddl_expr.args, L.Integer)
     elif expr_type == 'pvar':
-        tsym = L.get(rddl_expr.args[0])
+        # MRJ: this is a next state fluent
+        prima_fluent = False
+        if "'" in rddl_expr.args[0]:
+            prima_fluent = True
+        tsym = L.get(rddl_expr.args[0].replace("'", ""))
         if len(rddl_expr.args) == 2 and rddl_expr.args[1] is None:
+            if prima_fluent:
+                if not isinstance(tsym, Predicate):
+                    raise LanguageError("Temporal operator X only defined for predicates!")
+                return tt.X(tsym())
             return tsym() # 0-ary
         targs = []
         for k, arg in enumerate(rddl_expr.args[1]):
@@ -61,7 +74,15 @@ def translate_expression(L, rddl_expr):
             else:
                 print(arg)
                 targs += [L.get(arg)] # named constant?
+        if prima_fluent:
+            if not isinstance(tsym, Predicate):
+                raise LanguageError("Temporal operator X only defined for predicates!")
+            return tt.X(tsym(*targs))
+
         return tsym(*targs)
+    elif expr_type == 'typed_var':
+        var_name, var_type = expr_sym
+        return Variable(var_name, L.get(var_type))
     elif expr_type == 'control':
         assert expr_sym == 'if'
         targs = [translate_expression(L, arg) for arg in rddl_expr.args]
@@ -70,9 +91,22 @@ def translate_expression(L, rddl_expr):
         tsym = relational_rddl_to_tarski[expr_sym]
         targs = [translate_expression(L, arg) for arg in rddl_expr.args]
         return builtins.create_atom(L, tsym, targs[0], targs[1])
+    elif expr_type == 'aggregation':
+        if expr_sym == 'sum':
+            var = translate_expression(L, rddl_expr.args[0])
+            sum_expr = translate_expression(L, rddl_expr.args[1])
+            return tm.summation(var, sum_expr)
     elif expr_type == 'arithmetic':
         op = arithmetic_rddl_to_tarski[expr_sym]
         targs = [L] + [translate_expression(L, arg) for arg in rddl_expr.args]
+        # MRJ: in some domains (e.g. Mars Rovers) there's stuff like a boolean multiplying an
+        # expression
+        if expr_sym == '*':
+            if isinstance(targs[1], Formula):
+                return ite(targs[1], targs[2], Constant(0, targs[2].sort))
+            if isinstance(targs[2], Formula):
+                return ite(targs[2], targs[1], Constant(0, targs[1].sort))
+        #print(expr_sym)
         return op(*targs)
     elif expr_type == 'func':
         func = func_rddl_to_tarski[expr_sym]
