@@ -217,7 +217,7 @@ class IfThenElse(CompoundTerm):
 
     @property
     def language(self):
-        return self.language
+        return self.symbol.language
 
     @property
     def sort(self):
