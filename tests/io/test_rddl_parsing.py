@@ -101,7 +101,7 @@ def test_language_mars_rovers_load_constraints():
     assert len(action_constraints) == 0
 
     state_constraints = []
-    for c in domain.constraints:
+    for c in domain.invariants:
         state_constraints += [ rddl.translate_expression(mr_reader.language, c.expr)]
     assert len(state_constraints) == 0
 
