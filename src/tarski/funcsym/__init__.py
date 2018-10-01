@@ -15,5 +15,6 @@ impl = {
     "erf": lambda x: sci.erf(x),
     "erfc": lambda x: sci.erfc(x),
     "sgn": lambda x: np.sign(x),
-    "sqrt": lambda x: np.sqrt(x)
+    "sqrt": lambda x: np.sqrt(x),
+    "normal": lambda u, s: np.random.normal(u,s)
 }

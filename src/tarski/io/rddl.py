@@ -47,7 +47,7 @@ class Reader(object):
     def translate_rddl_model(self):
         # 0. create language
         self.language = tarski.language(self.rddl_model.domain.name,
-            theories=[Theory.EQUALITY, Theory.ARITHMETIC, Theory.SPECIAL])
+            theories=[Theory.EQUALITY, Theory.ARITHMETIC, Theory.SPECIAL, Theory.RANDOM])
 
         # 1. create types
         self._translate_types()

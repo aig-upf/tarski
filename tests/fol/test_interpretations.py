@@ -217,6 +217,20 @@ def test_special_function_sgn():
     x = lang.constant(0.5,reals)
     assert model[sgn(x)].symbol == np.sign(0.5)
 
+def test_random_function_normal():
+    import numpy as np
+    from tarski.syntax.arithmetic.random import normal
+    np.random.seed(1234) # for repeatability
+    lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL, Theory.RANDOM])
+    model = Model(lang)
+    model.evaluator = evaluate
+    reals = lang.Real
+    mu = lang.constant(0.5, reals)
+    sigma = lang.constant(1.0, reals)
+    the_term = normal(mu, sigma)
+    assert isinstance(the_term, tarski.syntax.Term)
+    assert model[normal(mu, sigma)].symbol == 0.9714351637324931
+
 
 def test_blocksworld_add():
     lang = blocksworld.generate_small_fstrips_bw_language()

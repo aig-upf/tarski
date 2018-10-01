@@ -40,6 +40,7 @@ class BuiltinFunctionSymbol(Enum):
     ERFC = "erfc"
     SGN = "sgn"
     SQRT = "sqrt"
+    NORMAL = "normal"
 
     # ...
 
@@ -89,6 +90,14 @@ def get_special_binary_functions():
 def get_special_unary_functions():
     BFS = BuiltinFunctionSymbol
     return [BFS.ABS, BFS.SIN, BFS.COS, BFS.TAN, BFS.ATAN, BFS.EXP, BFS.LOG, BFS.ERF, BFS.ERFC, BFS.SGN]
+
+def get_random_binary_functions():
+    BFS = BuiltinFunctionSymbol
+    return [BFS.NORMAL]
+
+def get_random_unary_functions():
+    BFS = BuiltinFunctionSymbol
+    return []
 
 
 def get_predicate_from_symbol(symbol: str):

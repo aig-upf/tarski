@@ -13,6 +13,7 @@ class Theory(Enum):
     EQUALITY = "equality"
     ARITHMETIC = "arithmetic"
     SPECIAL = "special"
+    RANDOM = "random"
 
     def __str__(self):
         return self.value
@@ -55,8 +56,6 @@ def load_theory(lang, theory):
             lang.register_unary_operator_handler(fun, Term, create_casting_handler(fun, create_arithmetic_term))
             f = lang.function(fun, lang.Real, lang.Real)
             f.builtin = True
-
-
     elif theory == Theory.SPECIAL:
         for fun in builtins.get_special_binary_functions():
             lang.register_operator_handler(fun, Term, Term, create_casting_handler(fun, create_arithmetic_term))
@@ -66,6 +65,16 @@ def load_theory(lang, theory):
             lang.register_unary_operator_handler(fun, Term, create_casting_handler(fun, create_arithmetic_term))
             f = lang.function(fun, lang.Real, lang.Real)
             f.builtin = True
+    elif theory == Theory.RANDOM:
+        for fun in builtins.get_random_binary_functions():
+            lang.register_operator_handler(fun, Term, Term, create_casting_handler(fun, create_arithmetic_term))
+            f = lang.function(fun, lang.Real, lang.Real, lang.Real)
+            f.builtin = True
+        for fun in builtins.get_random_unary_functions():
+            lang.register_unary_operator_handler(fun, Term, create_casting_handler(fun, create_arithmetic_term))
+            f = lang.function(fun, lang.Real, lang.Real)
+            f.builtin = True
+
     else:
         raise err.UnknownTheory(theory)
     lang.theories.append(theory)
