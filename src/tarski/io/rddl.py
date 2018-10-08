@@ -52,7 +52,7 @@ def translate_expression(L, rddl_expr):
             return Constant(rddl_expr.args, L.Real)
         elif 'int' in expr_sym:
             return Constant(rddl_expr.args, L.Integer)
-    elif expr_type == 'pvar':
+    elif expr_type == 'pvar' or expr_type == 'pvar_expr':
         # MRJ: this is a next state fluent
         prima_fluent = False
         if "'" in rddl_expr.args[0]:
