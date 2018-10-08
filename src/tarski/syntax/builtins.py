@@ -41,6 +41,7 @@ class BuiltinFunctionSymbol(Enum):
     SGN = "sgn"
     SQRT = "sqrt"
     NORMAL = "normal"
+    GAMMA = "gamma"
 
     # ...
 
@@ -93,7 +94,7 @@ def get_special_unary_functions():
 
 def get_random_binary_functions():
     BFS = BuiltinFunctionSymbol
-    return [BFS.NORMAL]
+    return [BFS.NORMAL, BFS.GAMMA]
 
 def get_random_unary_functions():
     BFS = BuiltinFunctionSymbol

@@ -15,7 +15,7 @@ def summation(*args):
     expr = args[-1]
     if not isinstance(expr, Term):
         raise err.SyntacticError(msg='sum(x0,x1,...,xn,expr) requires last \
-        argument "expr" to be an instance of Term')
+        argument "expr" to be an instance of Term, got "{}"'.format(expr))
     vars = []
     for x in args[:-1]:
         if not isinstance(x, Variable):

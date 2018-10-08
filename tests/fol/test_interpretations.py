@@ -231,6 +231,19 @@ def test_random_function_normal():
     assert isinstance(the_term, tarski.syntax.Term)
     assert model[normal(mu, sigma)].symbol == 0.9714351637324931
 
+def test_random_function_gamma():
+    import numpy as np
+    from tarski.syntax.arithmetic.random import gamma
+    np.random.seed(1234) # for repeatability
+    lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL, Theory.RANDOM])
+    model = Model(lang)
+    model.evaluator = evaluate
+    reals = lang.Real
+    shape = lang.constant(1.0, reals)
+    scale = lang.constant(5.0, reals)
+    the_term = gamma(shape, scale)
+    assert isinstance(the_term, tarski.syntax.Term)
+    assert model[gamma(shape, scale)].symbol == 1.0629932880924005
 
 def test_blocksworld_add():
     lang = blocksworld.generate_small_fstrips_bw_language()

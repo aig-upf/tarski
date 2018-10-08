@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from typing import Tuple
 
-from .sorts import Sort
+from .sorts import Sort, parent
 from .. import errors as err
 from .builtins import BuiltinPredicateSymbol, BuiltinFunctionSymbol
 
@@ -209,7 +209,16 @@ class IfThenElse(CompoundTerm):
         # Our implementation of ite requires both branches to have the same
         # sort.
         if subterms[0].sort != subterms[1].sort:
-            raise err.SyntacticError(msg='IfThenElse: both sub terms need to have same codomain!')
+            if parent(subterms[0].sort) == subterms[1].sort:
+                self._sort = subterms[1].sort
+            elif parent(subterms[1].sort) == subterms[0].sort:
+                self._sort = subterms[0].sort
+            else:
+                raise err.SyntacticError(\
+                msg='IfThenElse: both sub terms need to have same codomain! lhs: "{}"({}), rhs: "{}"({})'.format(\
+                    subterms[0], subterms[0].sort, subterms[1], subterms[1].sort))
+        else:
+            self._sort = subterms[0].sort
 
         self.subterms = tuple(subterms)
 
@@ -221,7 +230,7 @@ class IfThenElse(CompoundTerm):
 
     @property
     def sort(self):
-        return self.subterms[0].sort
+        return self._sort
 
 
     def __str__(self):
@@ -230,7 +239,7 @@ class IfThenElse(CompoundTerm):
     __repr__ = __str__
 
     def __hash__(self):
-        return hash((self.symbol, self.condition, tuple(x for x in self.subterms)))
+        return hash(('ite', self.condition, tuple(x for x in self.subterms)))
 
     def is_syntactically_equal(self, other):
         if (self.__class__ is not other.__class__ or self.symbol != other.symbol \

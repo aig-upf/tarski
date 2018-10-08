@@ -1,10 +1,10 @@
 ////////////////////////////////////////////////////////////////////
 // The problem models the active maintenance of water levels in
-// a Reservoir system with uncertain rainfall and nonlinear 
+// a Reservoir system with uncertain rainfall and nonlinear
 // evaporation rates as a function of water level.  The objective
 // is to maintain all reservoir levels within a desired safe range.
 //
-// The state of each reservoir is the water level (rlevel).  The 
+// The state of each reservoir is the water level (rlevel).  The
 // actions are to set the outflows of each reservoir.  Rewards
 // are summed per reservoir and optimal when the water level is
 // within predefined upper and lower bounds.
@@ -14,7 +14,7 @@
 
 domain reservoir {
 
-	requirements = { 
+	requirements = {
 		concurrent,           // x and y directions move independently and simultaneously
 		reward-deterministic, // this domain does not use a stochastic reward
 		intermediate-nodes,   // this domain uses intermediate pvariable nodes
@@ -24,9 +24,9 @@ domain reservoir {
 	types {
 		res: object;
 	};
-	
+
 	pvariables {
-	
+
 		// Constants
 		MAX_RES_CAP(res): { non-fluent, real, default = 100.0 }; // Beyond this amount, water spills over
 		UPPER_BOUND(res): { non-fluent, real, default = 80.0 };  // The upper bound for a safe reservoir level
@@ -34,7 +34,7 @@ domain reservoir {
 		RAIN_SHAPE(res):  { non-fluent, real, default = 25.0 };  // Gamma shape parameter for rainfall
 		RAIN_SCALE(res):  { non-fluent, real, default = 25.0 };  // Gamma scale paramater for rainfall
 		DOWNSTREAM(res,res): { non-fluent, bool, default = false }; // Indicates 2nd res is downstream of 1st res
-		SINK_RES(res):    { non-fluent, bool, default = false }; // This is a "sink" water source (sea, ocean) 
+		SINK_RES(res):    { non-fluent, bool, default = false }; // This is a "sink" water source (sea, ocean)
 		MAX_WATER_EVAP_FRAC_PER_TIME_UNIT: { non-fluent, real, default = 0.05 }; // Maximum fraction of evaporation
 
 		LOW_PENALTY(res) : { non-fluent, real, default =  -5.0 }; // Penalty per unit of level < LOWER_BOUND
@@ -48,44 +48,44 @@ domain reservoir {
 
 		// State fluents
 		rlevel(res): {state-fluent, real, default = 50.0 }; // Reservoir level for res
-		
+
 		// Action fluents
 		outflow(res): { action-fluent, real, default = 0.0 }; // Action to set outflow of res
 	};
-	
+
 	cpfs {
 		// Gamma is non-negative, Gamma expected value is SHAPE*SCALE, variance is SHAPE*SCALE^2
 		rainfall(?r) = Gamma(RAIN_SHAPE(?r), RAIN_SCALE(?r));
-		
+
 		evaporated(?r) = MAX_WATER_EVAP_FRAC_PER_TIME_UNIT
 		                 *[(rlevel(?r)*rlevel(?r))/(MAX_RES_CAP(?r)*MAX_RES_CAP(?r))]
 		                 *rlevel(?r);
 
 		// Consider MAX_RES_CAP=90, rlevel=100, outflow=4, then the excess overflow is 6 units
 		// Consider MAX_RES_CAP=100, rlevel=90, outflow=4, then the excess overflow is 0 units
-		overflow(?r) = max[0, rlevel(?r) - outflow(?r) - MAX_RES_CAP(?r)]; 
+		overflow(?r) = max[0, rlevel(?r) - outflow(?r) - MAX_RES_CAP(?r)];
 
 		inflow(?r) = sum_{?up : res} [DOWNSTREAM(?up,?r)*(outflow(?up) + overflow(?up))];
 
 		rlevel'(?r) = max[0.0, rlevel(?r) + rainfall(?r) - evaporated(?r) - outflow(?r) - overflow(?r) + inflow(?r)];
 	};
-	
-	reward = sum_{?r: res} [if (rlevel'(?r)>=LOWER_BOUND(?r) ^ (rlevel'(?r)<=UPPER_BOUND(?r)))
+
+	reward = sum_{?r: res} [if (rlevel(?r)>=LOWER_BOUND(?r) ^ (rlevel(?r)<=UPPER_BOUND(?r)))
 									then 0
- 									else if (rlevel'(?r)<=LOWER_BOUND(?r))
- 										then LOW_PENALTY(?r)*(LOWER_BOUND(?r)-rlevel'(?r))
-										else HIGH_PENALTY(?r)*(rlevel'(?r)-UPPER_BOUND(?r))];
-								
+ 									else if (rlevel(?r)<=LOWER_BOUND(?r))
+ 										then LOW_PENALTY(?r)*(LOWER_BOUND(?r)-rlevel(?r))
+										else HIGH_PENALTY(?r)*(rlevel(?r)-UPPER_BOUND(?r))];
+
 	action-preconditions {
-	
-		forall_{?r : res} outflow(?r) <= rlevel(?r); 
+
+		forall_{?r : res} outflow(?r) <= rlevel(?r);
 		forall_{?r : res} outflow(?r) >= 0;
-		
+
 	};
 
 	state-invariants {
 
-		forall_{?r : res} rlevel(?r) >= 0; 	
+		forall_{?r : res} rlevel(?r) >= 0;
 		forall_{?up : res} (sum_{?down : res} DOWNSTREAM(?up,?down)) <= 1;
 	};
 }

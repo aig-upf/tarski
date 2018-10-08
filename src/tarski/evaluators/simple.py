@@ -135,6 +135,7 @@ def evaluate_builtin_function(term, model, sigma):
         bif.SGN: lambda f, m, s: _arithmetic_evaluator_1(funcsym.impl[bif.SGN.value], f.subterms[0], m, s),
         bif.SQRT: lambda f, m, s: _arithmetic_evaluator_1(funcsym.impl[bif.SQRT.value], f.subterms[0], m, s),
         bif.NORMAL: lambda f, m, s: _arithmetic_evaluator_2(funcsym.impl[bif.NORMAL.value], f.subterms[0], f.subterms[1], m, s),
+        bif.GAMMA: lambda f, m, s: _arithmetic_evaluator_2(funcsym.impl[bif.GAMMA.value], f.subterms[0], f.subterms[1], m, s),
     }
 
     return _evaluators[term.symbol.symbol](term, model, sigma)

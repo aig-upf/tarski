@@ -16,5 +16,6 @@ impl = {
     "erfc": lambda x: sci.erfc(x),
     "sgn": lambda x: np.sign(x),
     "sqrt": lambda x: np.sqrt(x),
-    "normal": lambda u, s: np.random.normal(u,s)
+    "normal": lambda u, s: np.random.normal(u, s),
+    "gamma": lambda shape, scale: np.random.gamma(shape, scale)
 }

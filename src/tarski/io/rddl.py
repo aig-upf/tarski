@@ -36,7 +36,9 @@ func_rddl_to_tarski = {
     'Normal': BuiltinFunctionSymbol.NORMAL,
     'sqrt': BuiltinFunctionSymbol.SQRT,
     'pow': BuiltinFunctionSymbol.POW,
-    'exp': BuiltinFunctionSymbol.EXP
+    'exp': BuiltinFunctionSymbol.EXP,
+    'max': BuiltinFunctionSymbol.MAX,
+    'Gamma': BuiltinFunctionSymbol.GAMMA
 }
 
 def translate_expression(L, rddl_expr):
@@ -99,11 +101,19 @@ def translate_expression(L, rddl_expr):
         if expr_sym == 'sum':
             var = translate_expression(L, rddl_expr.args[0])
             sum_expr = translate_expression(L, rddl_expr.args[1])
+            if isinstance(sum_expr, Formula):
+                sum_expr = ite(sum_expr, Constant(1, L.Integer), Constant(0, L.Integer))
             return tm.summation(var, sum_expr)
         elif expr_sym == 'prod':
             var = translate_expression(L, rddl_expr.args[0])
             prod_expr = translate_expression(L, rddl_expr.args[1])
+            if isinstance(prod_expr, Formula):
+                prod_expr = ite(prod_expr, Constant(1, L.Integer), Constant(0, L.Integer))
             return tm.product(var, prod_expr)
+        elif expr_sym == 'forall':
+            var = translate_expression(L, rddl_expr.args[0])
+            forall_expr = translate_expression(L, rddl_expr.args[1])
+            return forall(var, forall_expr)
     elif expr_type == 'arithmetic':
         op = arithmetic_rddl_to_tarski[expr_sym]
         targs = [L] + [translate_expression(L, arg) for arg in rddl_expr.args]

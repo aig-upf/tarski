@@ -116,7 +116,6 @@ def test_language_mars_rovers_load_reward():
     assert  isinstance(reward_func, Term)
 
 def test_language_navigation_load_cpfs():
-    import tarski.syntax.arithmetic as tm
     nav_reader = rddl.Reader('tests/data/rddl/Navigation.rddl')
 
     # create sorts and initialize constants
@@ -133,3 +132,90 @@ def test_language_navigation_load_cpfs():
         intermediate_cpfs += [rddl.translate_expression(nav_reader.language, f.expr)]
 
     assert len(state_cpfs) + len(intermediate_cpfs) == 3
+
+def test_language_navigation_load_constraints():
+    nav_reader = rddl.Reader('tests/data/rddl/Navigation.rddl')
+
+    # create sorts and initialize constants
+    domain = nav_reader.rddl_model.domain
+    nav_reader.translate_rddl_model()
+
+    precs = []
+    for prec in domain.preconds:
+        precs += [rddl.translate_expression(nav_reader.language, prec)]
+    assert len(precs) == 2
+
+    action_constraints = []
+    for c in domain.constraints:
+        action_constraints += [rddl.translate_expression(nav_reader.language, c.expr)]
+    assert len(action_constraints) == 0
+
+    state_constraints = []
+    for c in domain.invariants:
+        state_constraints += [rddl.translate_expression(nav_reader.language, c.expr)]
+    assert len(state_constraints) == 0
+
+def test_language_navigation_load_reward():
+    nav_reader = rddl.Reader('tests/data/rddl/Navigation.rddl')
+
+    # create sorts and initialize constants
+    domain = nav_reader.rddl_model.domain
+    nav_reader.translate_rddl_model()
+    reward_func = rddl.translate_expression(nav_reader.language, domain.reward)
+    #print(reward_func)
+    assert isinstance(reward_func, Term)
+
+def test_language_reservoir_load_cpfs():
+    res_reader = rddl.Reader('tests/data/rddl/Reservoir.rddl')
+
+    # create sorts and initialize constants
+    domain = res_reader.rddl_model.domain
+    non_fluents = res_reader.rddl_model.non_fluents
+    res_reader.translate_rddl_model()
+
+    # collect state cpfs
+    state_cpfs = []
+    for f in domain.state_cpfs:
+        state_cpfs += [rddl.translate_expression(res_reader.language, f.expr)]
+    intermediate_cpfs = []
+    for f in domain.intermediate_cpfs:
+        intermediate_cpfs += [rddl.translate_expression(res_reader.language, f.expr)]
+
+    assert len(state_cpfs) + len(intermediate_cpfs) == 5
+
+def test_language_reservoir_load_constraints():
+    res_reader = rddl.Reader('tests/data/rddl/Reservoir.rddl')
+
+    # create sorts and initialize constants
+    domain = res_reader.rddl_model.domain
+    non_fluents = res_reader.rddl_model.non_fluents
+    res_reader.translate_rddl_model()
+
+    precs = []
+    for prec in domain.preconds:
+        precs += [rddl.translate_expression(res_reader.language, prec)]
+    assert len(precs) == 2
+
+    action_constraints = []
+    for c in domain.constraints:
+        action_constraints += [rddl.translate_expression(res_reader.language, c.expr)]
+    assert len(action_constraints) == 0
+
+    state_constraints = []
+    for c in domain.invariants:
+        print(c)
+        state_constraints += [rddl.translate_expression(res_reader.language, c)]
+    assert len(state_constraints) == 2
+
+def test_language_reservoir_load_reward():
+    res_reader = rddl.Reader('tests/data/rddl/Reservoir.rddl')
+
+    # create sorts and initialize constants
+    domain = res_reader.rddl_model.domain
+    non_fluents = res_reader.rddl_model.non_fluents
+    res_reader.translate_rddl_model()
+
+    #print(domain.reward)
+    reward_func = rddl.translate_expression(res_reader.language, domain.reward)
+    #print(reward_func)
+    assert isinstance(reward_func, Term)
