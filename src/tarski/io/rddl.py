@@ -8,6 +8,8 @@ import tarski.syntax.arithmetic.special as tmsp
 import tarski.syntax.arithmetic.random as tmr
 import tarski.syntax.temporal.ltl as tt
 
+from tarski.model import Model
+from tarski.evaluators.simple import evaluate
 from tarski.errors import LanguageError
 from tarski.theories import Theory
 import pyrddl
@@ -52,7 +54,34 @@ def translate_expression(L, rddl_expr):
             return Constant(rddl_expr.args, L.Real)
         elif 'int' in expr_sym:
             return Constant(rddl_expr.args, L.Integer)
-    elif expr_type == 'pvar' or expr_type == 'pvar_expr':
+    elif expr_type == 'pvar_expr':
+        # MRJ: this is a next state fluent
+        prima_fluent = False
+        pvar_name = expr_sym[0]
+        if "'" in pvar_name:
+            prima_fluent = True
+        tsym = L.get(pvar_name.replace("'", ""))
+        args = expr_sym[1]
+        targs = []
+        if args is not None :
+            for k, arg in enumerate(args):
+                if arg[0] == '?':
+                    if isinstance(tsym, Function):
+                        targs += [Variable(arg, tsym.domain[k])]
+                    elif isinstance(tsym, Predicate):
+                        targs += [Variable(arg, tsym.sort[k])]
+                    else:
+                        assert False
+                elif isinstance(arg, float):
+                    targs += [Constant(arg, L.Real)]
+                elif isinstance(arg, int):
+                    targs += [Constant(arg, L.Integer)]
+                else:
+                    print(arg)
+                    targs += [L.get(arg)] # named constant?
+        return tsym(*targs)
+
+    elif expr_type == 'pvar':
         # MRJ: this is a next state fluent
         prima_fluent = False
         if "'" in rddl_expr.args[0]:
@@ -147,6 +176,15 @@ def translate_expression(L, rddl_expr):
     print(rddl_expr)
     assert False
 
+class Parameters(object):
+    """
+        RDDL instance parameters
+    """
+    def __init__(self):
+        self.horizon = None
+        self.discount = None
+        self.max_actions = None
+
 class Reader(object):
     """
         Reader creates a FOL and several language components
@@ -155,6 +193,8 @@ class Reader(object):
     def __init__(self, filename):
         self.language = None
         self.rddl_model = self._load_rddl_model(filename)
+        self.parameters = Parameters()
+        self.x0 = None
 
     def _load_rddl_model(self, filename):
         with open(filename, 'r') as input_file:
@@ -193,6 +233,19 @@ class Reader(object):
 
         # 2. create functions (or predicates) for all variable types
         self._translate_variables()
+
+        # 3. acquire instance parameters
+        self.parameters.horizon = self.rddl_model.instance.horizon
+        self.parameters.discount = self.rddl_model.instance.discount
+        if self.rddl_model.instance.max_nondef_actions != 'pos-inf':
+            self.parameters.max_actions = self.rddl_model.instance.max_nondef_actions
+
+        # 4. recover initial state, interpretation of fluents
+        self.x0 = Model(self.language)
+        self.x0.evaluator = evaluate
+
+        for fluent, value in self.rddl_model.instance.init_state:
+            self.x0.setx(translate_expression(self.language, ('pvar_expr', fluent)), value)
 
 built_in_type_map = { 'object': 'Object', 'real': 'Real', 'integer': 'Integer'}
 

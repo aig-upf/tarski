@@ -219,3 +219,79 @@ def test_language_reservoir_load_reward():
     reward_func = rddl.translate_expression(res_reader.language, domain.reward)
     #print(reward_func)
     assert isinstance(reward_func, Term)
+
+def test_mars_rovers_load_parameters():
+
+    mr_reader = rddl.Reader('tests/data/rddl/Mars_Rover.rddl')
+    # create sorts and initialize constants
+    domain = mr_reader.rddl_model.domain
+    non_fluents = mr_reader.rddl_model.non_fluents
+    mr_reader.translate_rddl_model()
+
+    assert mr_reader.parameters.horizon == 40
+    assert mr_reader.parameters.discount == 1.0
+    assert mr_reader.parameters.max_actions == None
+
+def test_language_navigation_load_reward():
+    nav_reader = rddl.Reader('tests/data/rddl/Navigation.rddl')
+
+    # create sorts and initialize constants
+    domain = nav_reader.rddl_model.domain
+    nav_reader.translate_rddl_model()
+    assert nav_reader.parameters.horizon == 20
+    assert nav_reader.parameters.discount == 1.0
+    assert nav_reader.parameters.max_actions == 2
+
+def test_language_reservoir_load_reward():
+    res_reader = rddl.Reader('tests/data/rddl/Reservoir.rddl')
+
+    # create sorts and initialize constants
+    domain = res_reader.rddl_model.domain
+    non_fluents = res_reader.rddl_model.non_fluents
+    res_reader.translate_rddl_model()
+    assert res_reader.parameters.horizon == 40
+    assert res_reader.parameters.discount == 1.0
+    assert res_reader.parameters.max_actions == None
+
+def test_mars_rovers_load_initial_state():
+
+    mr_reader = rddl.Reader('tests/data/rddl/Mars_Rover.rddl')
+    # create sorts and initialize constants
+    domain = mr_reader.rddl_model.domain
+    non_fluents = mr_reader.rddl_model.non_fluents
+    print(mr_reader.rddl_model.instance.init_state)
+    mr_reader.translate_rddl_model()
+    xPos = mr_reader.language.get('xPos')
+    yPos = mr_reader.language.get('yPos')
+    time = mr_reader.language.get('time')
+    assert mr_reader.x0[xPos()].symbol == 0.0
+    assert mr_reader.x0[yPos()].symbol == 0.0
+    assert mr_reader.x0[time()].symbol == 0.0
+
+def test_language_navigation_load_initial_state():
+    nav_reader = rddl.Reader('tests/data/rddl/Navigation.rddl')
+
+    # create sorts and initialize constants
+    domain = nav_reader.rddl_model.domain
+    nav_reader.translate_rddl_model()
+    #print(nav_reader.rddl_model.instance.init_state)
+    x = nav_reader.language.get('x')
+    y = nav_reader.language.get('y')
+    location = nav_reader.language.get('location')
+
+    assert nav_reader.x0[location(x)].symbol == 0.0
+    assert nav_reader.x0[location(y)].symbol == 0.0
+
+def test_language_reservoir_load_initial_state():
+    res_reader = rddl.Reader('tests/data/rddl/Reservoir.rddl')
+
+    # create sorts and initialize constants
+    domain = res_reader.rddl_model.domain
+    non_fluents = res_reader.rddl_model.non_fluents
+    res_reader.translate_rddl_model()
+    #print(res_reader.rddl_model.instance.init_state)
+
+    t1 = res_reader.language.get('t1')
+    rlevel = res_reader.language.get('rlevel')
+
+    assert res_reader.x0[rlevel(t1)].symbol == 75.0
