@@ -27,12 +27,16 @@ relational_rddl_to_tarski = {
 arithmetic_rddl_to_tarski = {
     '-': lambda L, x, y : L.dispatch_operator(BuiltinFunctionSymbol.SUB, Term, Term, x, y),
     '+': lambda L, x, y : L.dispatch_operator(BuiltinFunctionSymbol.ADD, Term, Term, x, y),
-    '*': lambda L, x, y : L.dispatch_operator(BuiltinFunctionSymbol.MUL, Term, Term, x, y)
+    '*': lambda L, x, y : L.dispatch_operator(BuiltinFunctionSymbol.MUL, Term, Term, x, y),
+    '/': lambda L, x, y : L.dispatch_operator(BuiltinFunctionSymbol.DIV, Term, Term, x, y)
 }
 
 func_rddl_to_tarski = {
     'abs': BuiltinFunctionSymbol.ABS,
-    'Normal': BuiltinFunctionSymbol.NORMAL
+    'Normal': BuiltinFunctionSymbol.NORMAL,
+    'sqrt': BuiltinFunctionSymbol.SQRT,
+    'pow': BuiltinFunctionSymbol.POW,
+    'exp': BuiltinFunctionSymbol.EXP
 }
 
 def translate_expression(L, rddl_expr):
@@ -44,7 +48,7 @@ def translate_expression(L, rddl_expr):
     if expr_type == 'number':
         if 'float' in expr_sym:
             return Constant(rddl_expr.args, L.Real)
-        elif 'integer' in expr_sym:
+        elif 'int' in expr_sym:
             return Constant(rddl_expr.args, L.Integer)
     elif expr_type == 'pvar':
         # MRJ: this is a next state fluent
@@ -96,6 +100,10 @@ def translate_expression(L, rddl_expr):
             var = translate_expression(L, rddl_expr.args[0])
             sum_expr = translate_expression(L, rddl_expr.args[1])
             return tm.summation(var, sum_expr)
+        elif expr_sym == 'prod':
+            var = translate_expression(L, rddl_expr.args[0])
+            prod_expr = translate_expression(L, rddl_expr.args[1])
+            return tm.product(var, prod_expr)
     elif expr_type == 'arithmetic':
         op = arithmetic_rddl_to_tarski[expr_sym]
         targs = [L] + [translate_expression(L, arg) for arg in rddl_expr.args]
@@ -106,7 +114,13 @@ def translate_expression(L, rddl_expr):
                 return ite(targs[1], targs[2], Constant(0, targs[2].sort))
             if isinstance(targs[2], Formula):
                 return ite(targs[2], targs[1], Constant(0, targs[1].sort))
-        #print(expr_sym)
+        #print(expr_sym, targs)
+        if len(targs) == 2: # unary operator
+            if expr_sym == '-':
+                # replace -x by -1 * x
+                actual_op = arithmetic_rddl_to_tarski['*']
+                targs = [targs[0]] + [Constant(-1.0, L.Real)] + [targs[1]]
+                return actual_op(*targs)
         return op(*targs)
     elif expr_type == 'func':
         func = func_rddl_to_tarski[expr_sym]

@@ -114,3 +114,22 @@ def test_language_mars_rovers_load_reward():
     reward_func = rddl.translate_expression(mr_reader.language, domain.reward)
     print(reward_func)
     assert  isinstance(reward_func, Term)
+
+def test_language_navigation_load_cpfs():
+    import tarski.syntax.arithmetic as tm
+    nav_reader = rddl.Reader('tests/data/rddl/Navigation.rddl')
+
+    # create sorts and initialize constants
+    domain = nav_reader.rddl_model.domain
+    non_fluents = nav_reader.rddl_model.non_fluents
+    nav_reader.translate_rddl_model()
+
+    # collect state cpfs
+    state_cpfs = []
+    for f in domain.state_cpfs:
+        state_cpfs += [rddl.translate_expression(nav_reader.language, f.expr)]
+    intermediate_cpfs = []
+    for f in domain.intermediate_cpfs:
+        intermediate_cpfs += [rddl.translate_expression(nav_reader.language, f.expr)]
+
+    assert len(state_cpfs) + len(intermediate_cpfs) == 3
