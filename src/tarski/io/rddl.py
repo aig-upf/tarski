@@ -324,6 +324,13 @@ class PVarDomains(Enum):
     def __str__(self):
         return self.value.lower()
 
+class ConstraintType(Enum):
+    ACTION = "action"
+    STATE = "state"
+    INVARIANT = "invariant"
+
+    def __str__(self):
+        return self.value.lower()
 
 symbol_map = {
     BPS.EQ : "==",
@@ -397,6 +404,7 @@ class Writer(object):
             non_fluent_expr=self.get_non_fluent_init(),
             instance_name=self.task.instance_name,
             init_state_fluent_expr=self.get_state_fluent_init(),
+            non_fluents_ref='{}_non_fluents'.format(self.task.instance_name),
             max_nondef_actions=self.get_max_nondef_actions(),
             horizon=self.get_horizon(),
             discount=self.get_discount()
