@@ -1,6 +1,7 @@
 """
     RDDL model acquisition module
 """
+import os
 from enum import Enum
 
 import tarski
@@ -16,6 +17,9 @@ from tarski.evaluators.simple import evaluate
 from tarski.errors import LanguageError
 from tarski.theories import Theory
 import pyrddl
+
+_CURRENT_DIR_ = os.path.dirname(os.path.realpath(__file__))
+
 
 logic_rddl_to_tarski = {
     '=>' : implies,
@@ -248,7 +252,17 @@ class Reader(object):
         self.x0.evaluator = evaluate
 
         for fluent, value in self.rddl_model.instance.init_state:
-            self.x0.setx(translate_expression(self.language, ('pvar_expr', fluent)), value)
+            expr = translate_expression(self.language, ('pvar_expr', fluent))
+            if isinstance(expr, Term):
+                self.x0.setx(expr, value)
+            if isinstance(expr, Atom) and value is True:
+                self.x0.add(expr.predicate, *expr.subterms)
+        for fluent, value in self.rddl_model.non_fluents.init_non_fluent:
+            expr = translate_expression(self.language, ('pvar_expr', fluent))
+            if isinstance(expr, Term):
+                self.x0.setx(expr, value)
+            if isinstance(expr, Atom) and value is True:
+                self.x0.add(expr.predicate, *expr.subterms)
 
 built_in_type_map = { 'object': 'Object', 'real': 'Real', 'integer': 'Integer'}
 
@@ -360,4 +374,74 @@ class Writer(object):
         into RDDL
     """
     def __init__(self, task):
-        pass
+        self.task = task
+
+    def load_tpl(self, name):
+        with open(os.path.join(_CURRENT_DIR_, "templates", name), 'r') as file:
+            return file.read()
+
+    def write_model(self, filename):
+        tpl = self.load_tpl("rddl_model.tpl")
+        content = tpl.format(
+            domain_name=self.task.domain_name,
+            req_list=self.get_requirements(),
+            type_list=self.get_types(),
+            pvar_list=self.get_pvars(),
+            cpfs_list=self.get_cpfs(),
+            reward_expr=self.get_reward(),
+            action_precondition_list=self.get_preconditions(),
+            state_constraint_list=self.get_state_constraints(),
+            state_invariant_list=self.get_state_invariants(),
+            domain_non_fluents='{}_non_fluents'.format(self.task.instance_name),
+            object_list=self.get_objects(),
+            non_fluent_expr=self.get_non_fluent_init(),
+            instance_name=self.task.instance_name,
+            init_state_fluent_expr=self.get_state_fluent_init(),
+            max_nondef_actions=self.get_max_nondef_actions(),
+            horizon=self.get_horizon(),
+            discount=self.get_discount()
+        )
+        with open(filename, 'w') as file:
+            file.write(content)
+
+    def get_requirements(self):
+        return ''
+
+    def get_types(self):
+        return ''
+
+    def get_pvars(self):
+        return ''
+
+    def get_cpfs(self):
+        return ''
+
+    def get_reward(self):
+        return ''
+
+    def get_preconditions(self):
+        return ''
+
+    def get_state_constraints(self):
+        return ''
+
+    def get_state_invariants(self):
+        return ''
+
+    def get_objects(self):
+        return ''
+
+    def get_non_fluent_init(self):
+        return ''
+
+    def get_state_fluent_init(self):
+        return ''
+
+    def get_max_nondef_actions(self):
+        return ''
+
+    def get_horizon(self):
+        return ''
+
+    def get_discount(self):
+        return ''
