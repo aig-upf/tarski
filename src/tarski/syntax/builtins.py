@@ -42,6 +42,11 @@ class BuiltinFunctionSymbol(Enum):
     SQRT = "sqrt"
     NORMAL = "normal"
     GAMMA = "gamma"
+    KRON = "kron"
+    DIRAC = "dirac"
+    BERNOULLI = "bernoulli"
+    DISCRETE = "discrete"
+    POISSON = "poisson"
 
     # ...
 

@@ -1,6 +1,8 @@
 """
     RDDL model acquisition module
 """
+from enum import Enum
+
 import tarski
 from tarski.syntax import *
 import tarski.syntax.arithmetic as tm
@@ -8,6 +10,7 @@ import tarski.syntax.arithmetic.special as tmsp
 import tarski.syntax.arithmetic.random as tmr
 import tarski.syntax.temporal.ltl as tt
 
+from tarski.syntax.builtins import BuiltinPredicateSymbol as BPS, BuiltinFunctionSymbol as BFS
 from tarski.model import Model
 from tarski.evaluators.simple import evaluate
 from tarski.errors import LanguageError
@@ -273,6 +276,83 @@ def translate_variable(L : tarski.FirstOrderLanguage, name, term):
         return L.predicate(name, *t_signature)
     return L.function(name, *t_signature)
 
+class Requirements(Enum):
+
+    CONTINUOUS = "continuous"
+    MULTIVALUED = "multivalued"
+    REWARD_DET = "reward-deterministic"
+    INTERMEDIATE_NODES = "intermediate-nodes"
+    PARTIALLY_OBS = "partially-observed"
+    CONCURRENT = "concurrent"
+    INTEGER_VALUED = "integer-valued"
+    CPF_DETERMINISTIC = "cpf-deterministic"
+
+    def __str__(self):
+        return self.value.lower()
+
+class PVarTypes(Enum):
+    NON_FLUENT = "non-fluent"
+    STATE_FLUENT = "state-fluent"
+    INTERM_FLUENT = "interm-fluent"
+    OBSERV_FLUENT = "observ-fluent"
+
+    def __str__(self):
+        return self.value.lower()
+
+class PVarDomains(Enum):
+
+    BOOL = "bool"
+    INT = "int"
+    REAL = "real"
+    OBJECT = "object"
+    ENUMERATED = "enumerated"
+
+    def __str__(self):
+        return self.value.lower()
+
+
+symbol_map = {
+    BPS.EQ : "==",
+    BPS.NE : "~=",
+    BPS.LT : "<",
+    BPS.LE : "<=",
+    BPS.GT : ">",
+    BPS.GE : ">=",
+    Connective.And : "^",
+    Connective.Or : "|",
+    Connective.Not : "~",
+    Quantifier.Exists : "exists",
+    Quantifier.Forall : "forall",
+    BFS.ADD : "+",
+    BFS.SUB : "-",
+    BFS.MUL : "*",
+    BFS.DIV : "/",
+    BFS.POW : "**",
+    BFS.MOD : "%"
+}
+
+function_map = {
+    BFS.MIN : "min",
+    BFS.MAX : "max",
+    BFS.ABS : "abs",
+    BFS.SIN : "sin",
+    BFS.COS : "cos",
+    BFS.TAN : "tan",
+    BFS.ATAN : "atan",
+    BFS.EXP : "exp",
+    BFS.LOG : "log",
+    BFS.ERF : "erf",
+    BFS.ERFC : "erfc",
+    BFS.SGN : "sgn",
+    BFS.SQRT : "sqrt",
+    BFS.NORMAL : "Normal",
+    BFS.GAMMA : "Gamma",
+    BFS.KRON : "KronDelta",
+    BFS.DIRAC : "DiracDelta",
+    BFS.BERNOULLI : "Bernoulli",
+    BFS.DISCRETE : "Discrete",
+    BFS.POISSON : "Poisson"
+}
 
 class Writer(object):
     """
