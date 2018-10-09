@@ -40,8 +40,8 @@ class Task(object):
     def declare_action_fluent(self, symbol, value):
         self.action_fluents += [(symbol, value)]
 
-    def declare_non_fluent(self, symbol):
-        self.non_fluents += [symbol]
+    def declare_non_fluent(self, symbol, value):
+        self.non_fluents += [(symbol, value)]
 
     def add_constraint(self, expr, ctype):
         self.constraints += [(expr, ctype)]
@@ -98,8 +98,8 @@ def test_simple_rddl_model():
     the_task.declare_state_fluent(t(), 0.0)
     the_task.declare_interm_fluent(v(), 1)
     the_task.declare_action_fluent(u(), 0.0)
-    the_task.declare_non_fluent(dt())
-    the_task.declare_non_fluent(gx())
+    the_task.declare_non_fluent(dt(), 0.0)
+    the_task.declare_non_fluent(gx(), 0.0)
 
     the_writer = rddl.Writer(the_task)
     rddl_filename = os.path.join(tempfile.gettempdir(), 'monga.rddl')

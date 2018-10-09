@@ -20,10 +20,6 @@ domain {domain_name} {{
 {action_precondition_list}
     }};
 
-    state-constraints {{
-{state_constraint_list}
-    }};
-
     state-invariants {{
 {state_invariant_list}
     }};

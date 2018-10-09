@@ -20,6 +20,8 @@ import pyrddl
 
 _CURRENT_DIR_ = os.path.dirname(os.path.realpath(__file__))
 
+class TranslationError(Exception):
+    pass
 
 logic_rddl_to_tarski = {
     '=>' : implies,
@@ -384,6 +386,8 @@ class Writer(object):
     def __init__(self, task):
         self.task = task
         self.need_constraints = {}
+        self.need_obj_decl = []
+        self.non_fluent_signatures = set()
 
     def load_tpl(self, name):
         with open(os.path.join(_CURRENT_DIR_, "templates", name), 'r') as file:
@@ -399,7 +403,6 @@ class Writer(object):
             cpfs_list=self.get_cpfs(),
             reward_expr=self.get_reward(),
             action_precondition_list=self.get_preconditions(),
-            state_constraint_list=self.get_state_constraints(),
             state_invariant_list=self.get_state_invariants(),
             domain_non_fluents='{}_non_fluents'.format(self.task.instance_name),
             object_list=self.get_objects(),
@@ -421,10 +424,13 @@ class Writer(object):
         from tarski.syntax.sorts import parent
         type_decl_list = []
         for S in self.task.L.sorts:
-            if S.builtin or S.name == 'object' : continue
+            if S.builtin or S.name == 'object' :
+                continue
             if isinstance(S, Interval):
                 self.need_constraints[S.name] = S
+                continue
             type_decl_list += ['{} : {};'.format(S.name, parent(S).name)]
+            self.need_obj_decl += [S]
         return ',\n'.join(type_decl_list)
 
     def get_type(self, fl):
@@ -456,6 +462,19 @@ class Writer(object):
         for fl, v in self.task.state_fluents:
             rsig = self.get_signature(fl)
             pvar_decl_list += ['\t{} : {{state-fluent, {}, default = {}}};'.format(rsig, self.get_type(fl), str(v)) ]
+        for fl, level in self.task.interm_fluents:
+            rsig = self.get_signature(fl)
+            pvar_decl_list += ['\t{} : {{interm-fluent, {}, level = {}}};'.format(rsig, self.get_type(fl), str(level))]
+        for fl, v in self.task.action_fluents:
+            rsig = self.get_signature(fl)
+            pvar_decl_list += ['\t{} : {{action-fluent, {}, default = {}}};'.format(rsig, self.get_type(fl), str(v))]
+        for fl, v in self.task.non_fluents:
+            rsig = self.get_signature(fl)
+            try:
+                self.non_fluent_signatures.add(fl.symbol.signature)
+            except AttributeError:
+                self.non_fluent_signatures.add(fl.predicate.signature)
+            pvar_decl_list += ['\t{} : {{non-fluent, {}, default = {}}};'.format(rsig, self.get_type(fl), str(v))]
         return '\n'.join(pvar_decl_list)
 
     def get_cpfs(self):
@@ -467,17 +486,42 @@ class Writer(object):
     def get_preconditions(self):
         return ''
 
-    def get_state_constraints(self):
-        return ''
-
     def get_state_invariants(self):
         return ''
 
     def get_objects(self):
-        return ''
+        obj_decl_blocks = []
+        # initialize
+        for S in self.need_obj_decl:
+            domain_str = ','.join([str(c.symbol) for c in S.domain])
+            obj_decl_blocks += ['\t{} : {{{}}};'.format(S.name, domain_str)]
+
+        return '\n'.join(obj_decl_blocks)
 
     def get_non_fluent_init(self):
-        return ''
+        non_fluent_init_list = []
+        for signature, defs in self.task.x0.function_extensions.items():
+            if signature not in self.non_fluent_signatures:
+                continue
+            for st_refs, value in defs.data.items():
+                subterms = [r.expr for r in st_refs]
+                if len(subterms) == 0:
+                    term_str = signature[0]
+                else:
+                    term_str = str(self.task.L.get(signature[0])(*subterms))
+                non_fluent_init_list += ['\t{} = {};'.format(term_str, value)]
+        for signature, defs in self.task.x0.predicate_extensions.items():
+            if signature not in self.non_fluent_signatures:
+                continue
+            for st_refs in defs:
+                subterms = [r.expr for r in st_refs]
+                if len(subterms) == 0:
+                    atom_str = signature[0]
+                else:
+                    atom_str = str(self.task.L.get(signature[0])(*subterms))
+                non_fluent_init_list += ['\t{} = true;'.format(atom_str)]
+
+        return '\n'.join(non_fluent_init_list)
 
     def get_state_fluent_init(self):
         return ''
