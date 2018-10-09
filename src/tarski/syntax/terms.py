@@ -187,6 +187,47 @@ class CompoundTerm(Term):
         # Else we just need to recursively check if all subterms are syntactically equal
         return all(x.is_syntactically_equal(y) for x, y in zip(self.subterms, other.subterms))
 
+class AggregateCompoundTerm(Term):
+    """
+        Combinations of a functional symbol, a set of bound variables and a terms.
+        Argument symbol needs to be an instance of Function of have
+        Function-like interface.
+    """
+
+    def __init__(self, operator, bound_vars, subterm: Term):
+
+        self.symbol = operator
+        self.bound_vars = bound_vars
+
+        #@TODO: type checking?
+        self.subterm = subterm
+
+    @property
+    def language(self):
+        return self.symbol.language
+
+    @property
+    def sort(self):
+        return self.symbol.codomain
+
+    def __str__(self):
+        return '{}_{{{}}}({})'.format(self.symbol, ','.join([str(x) for x in self.bound_vars]), str(self.subterm))
+
+    __repr__ = __str__
+
+    def __hash__(self):
+        return hash((self.symbol.symbol, tuple(x for x in self.subterms)))
+
+    def is_syntactically_equal(self, other):
+        if (self.__class__ is not other.__class__ or self.symbol != other.symbol
+                or len(self.bound_vars) != len(other.bound_vars)):
+            return False
+
+        return all(x.is_syntactically_equal(y) for x, y in zip(self.bound_vars, other.bound_vars)) \
+            and self.subterm.is_syntactically_equal(other.subterm)
+
+
+
 class IfThenElse(CompoundTerm):
     """
         Combination of a formula C and two terms, t1 and t2.

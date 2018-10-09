@@ -1,11 +1,41 @@
 import itertools
 import copy
 
-from tarski.syntax import Variable, Term
+from tarski.syntax import Variable, Term, AggregateCompoundTerm
 from ... import errors as err
 from ... grounding.naive import instantiation
 from .. transform import TermSubstitution
 from .. builtins import BuiltinPredicateSymbol, BuiltinFunctionSymbol
+
+def sumterm(*args):
+    vars = args[:-1]
+    expr = args[-1]
+    if len(vars) < 1:
+        raise err.SyntacticError(msg='sumterm(x0,x1,...,xn,expr) requires at least one\
+        bound variable, arguments: {}'.format(args))
+    for x in vars:
+        if not isinstance(x, Variable):
+            raise err.SyntacticError(msg='sum(x0,...,xn,expr) require each\
+            argument xi to be an instance of Variable')
+    if not isinstance(expr, Term):
+        raise err.SyntacticError(msg='sum(x0,x1,...,xn,expr) requires last \
+        argument "expr" to be an instance of Term, got "{}"'.format(expr))
+    return AggregateCompoundTerm(BuiltinFunctionSymbol.ADD, vars, expr)
+
+def prodterm(*args):
+    vars = args[:-1]
+    expr = args[-1]
+    if len(vars) < 1:
+        raise err.SyntacticError(msg='sumterm(x0,x1,...,xn,expr) requires at least one\
+        bound variable, arguments: {}'.format(args))
+    for x in vars:
+        if not isinstance(x, Variable):
+            raise err.SyntacticError(msg='sum(x0,...,xn,expr) require each\
+            argument xi to be an instance of Variable')
+    if not isinstance(expr, Term):
+        raise err.SyntacticError(msg='sum(x0,x1,...,xn,expr) requires last \
+        argument "expr" to be an instance of Term, got "{}"'.format(expr))
+    return AggregateCompoundTerm(BuiltinFunctionSymbol.MUL, vars, expr)
 
 def summation(*args):
     """

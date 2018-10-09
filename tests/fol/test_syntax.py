@@ -236,3 +236,36 @@ def test_ite():
     assert tau.subterms[0].is_syntactically_equal(t1)
     assert tau.subterms[1].is_syntactically_equal(t2)
     assert tau.sort == t1.sort
+
+def test_sumterm():
+    from tarski.syntax.arithmetic import sumterm
+
+    lang = tsk.fstrips.language('arith', [Theory.EQUALITY, Theory.ARITHMETIC])
+
+    c = lang.constant(1, lang.Integer)
+    o1 = lang.constant('o1', lang.Object)
+    o2 = lang.constant('o2', lang.Object)
+
+    x = lang.function('x', lang.Object, lang.Integer)
+    y = lang.function('y', lang.Object, lang.Integer)
+
+    o = lang.variable('o', lang.Object)
+
+    summation = sumterm(o, x(o) + y(o))
+    assert isinstance(summation, AggregateCompoundTerm)
+
+def test_prodterm():
+    from tarski.syntax.arithmetic import prodterm
+    lang = tsk.fstrips.language('arith', [Theory.EQUALITY, Theory.ARITHMETIC])
+
+    c = lang.constant(1, lang.Integer)
+    o1 = lang.constant('o1', lang.Object)
+    o2 = lang.constant('o2', lang.Object)
+
+    x = lang.function('x', lang.Object, lang.Integer)
+    y = lang.function('y', lang.Object, lang.Integer)
+
+    o = lang.variable('o', lang.Object)
+
+    product = prodterm(o, x(o) + y(o) )
+    assert isinstance(product, AggregateCompoundTerm)
