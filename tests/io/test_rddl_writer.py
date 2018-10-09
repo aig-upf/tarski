@@ -31,14 +31,14 @@ class Task(object):
         self.requirements = []
 
 
-    def declare_state_fluent(self, symbol):
-        self.state_fluents += [symbol]
+    def declare_state_fluent(self, symbol, value):
+        self.state_fluents += [(symbol,value)]
 
     def declare_interm_fluent(self, symbol, level):
         self.interm_fluents += [(symbol, level)]
 
-    def declare_action_fluent(self, symbol):
-        self.action_fluents += [symbol]
+    def declare_action_fluent(self, symbol, value):
+        self.action_fluents += [(symbol, value)]
 
     def declare_non_fluent(self, symbol):
         self.non_fluents += [symbol]
@@ -51,8 +51,8 @@ class Task(object):
 
 def test_simple_rddl_model():
 
-    lang = tarski.language('linear_car', [Theory.EQUALITY, Theory.ARITHMETIC, Theory.SPECIAL])
-    the_task = Task( lang, 'linear_car', 'instance_001')
+    lang = tarski.language('lqr_nav_1d', [Theory.EQUALITY, Theory.ARITHMETIC, Theory.SPECIAL])
+    the_task = Task( lang, 'lqr_nav_1d', 'instance_001')
 
     the_task.requirements = [rddl.Requirements.CONTINUOUS, rddl.Requirements.REWARD_DET]
 
@@ -94,10 +94,10 @@ def test_simple_rddl_model():
     the_task.x0.setx(gx(), 20.0)
 
     # fluent metadata
-    the_task.declare_state_fluent(x())
-    the_task.declare_state_fluent(t())
+    the_task.declare_state_fluent(x(), 0.0)
+    the_task.declare_state_fluent(t(), 0.0)
     the_task.declare_interm_fluent(v(), 1)
-    the_task.declare_action_fluent(u())
+    the_task.declare_action_fluent(u(), 0.0)
     the_task.declare_non_fluent(dt())
     the_task.declare_non_fluent(gx())
 

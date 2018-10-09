@@ -264,7 +264,8 @@ class Reader(object):
             if isinstance(expr, Atom) and value is True:
                 self.x0.add(expr.predicate, *expr.subterms)
 
-built_in_type_map = { 'object': 'Object', 'real': 'Real', 'integer': 'Integer'}
+built_in_type_map = { 'object': 'Object', 'real': 'Real', 'int': 'Integer'}
+reverse_built_in_type_map = { 'Object': 'object', 'Real': 'real', 'Integer': 'int'}
 
 def translate_builtin_type(L: tarski.FirstOrderLanguage, name):
     return L.get(built_in_type_map[name])
@@ -382,6 +383,7 @@ class Writer(object):
     """
     def __init__(self, task):
         self.task = task
+        self.need_constraints = {}
 
     def load_tpl(self, name):
         with open(os.path.join(_CURRENT_DIR_, "templates", name), 'r') as file:
@@ -413,13 +415,48 @@ class Writer(object):
             file.write(content)
 
     def get_requirements(self):
-        return ''
+        return ', '.join([str(r) for r in self.task.requirements])
 
     def get_types(self):
-        return ''
+        from tarski.syntax.sorts import parent
+        type_decl_list = []
+        for S in self.task.L.sorts:
+            if S.builtin or S.name == 'object' : continue
+            if isinstance(S, Interval):
+                self.need_constraints[S.name] = S
+            type_decl_list += ['{} : {};'.format(S.name, parent(S).name)]
+        return ',\n'.join(type_decl_list)
+
+    def get_type(self, fl):
+        if isinstance(fl, Atom):
+            return 'boolean'
+        try:
+            return reverse_built_in_type_map[fl.symbol.codomain.name]
+        except KeyError:
+            return fl.symbol.codomain.name
+
+    def get_signature(self, fl):
+        if isinstance(fl, CompoundTerm):
+            sig = fl.symbol.signature
+            head = sig[0]
+            domain = sig[1:-1]
+        elif isinstance(fl, Atom):
+            sig = fl.predicate.signature
+            head = sig[0]
+            domain = sig[1:]
+        else:
+            assert False
+        if len(domain) == 0:
+            return '{}'.format(head)
+        return '{}({})'.format(head, ','.join(domain))
 
     def get_pvars(self):
-        return ''
+        pvar_decl_list = []
+        # state fluents
+        for fl, v in self.task.state_fluents:
+            rsig = self.get_signature(fl)
+            pvar_decl_list += ['\t{} : {{state-fluent, {}, default = {}}};'.format(rsig, self.get_type(fl), str(v)) ]
+        return '\n'.join(pvar_decl_list)
 
     def get_cpfs(self):
         return ''
@@ -446,10 +483,10 @@ class Writer(object):
         return ''
 
     def get_max_nondef_actions(self):
-        return ''
+        return str(self.task.parameters.max_nondef_actions)
 
     def get_horizon(self):
-        return ''
+        return str(self.task.parameters.horizon)
 
     def get_discount(self):
-        return ''
+        return str(self.task.parameters.discount)
