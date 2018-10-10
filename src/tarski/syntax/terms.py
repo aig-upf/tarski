@@ -228,7 +228,7 @@ class AggregateCompoundTerm(Term):
 
 
 
-class IfThenElse(CompoundTerm):
+class IfThenElse(Term):
     """
         Combination of a formula C and two terms, t1 and t2.
 

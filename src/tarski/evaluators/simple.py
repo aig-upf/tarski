@@ -3,7 +3,7 @@ import tarski.funcsym as funcsym
 import tarski.errors as err
 
 from ..syntax import ops, Connective, Atom, Formula, CompoundFormula, QuantifiedFormula, builtins, Variable, \
-    Constant, CompoundTerm, Tautology, Contradiction, IfThenElse
+    Constant, CompoundTerm, Tautology, Contradiction, IfThenElse, AggregateCompoundTerm
 from ..model import Model
 
 
@@ -34,7 +34,7 @@ def evaluate(element, m: Model, sigma=None):
     if isinstance(element, Variable):
         return sigma[element]  # TODO Finish this, ATM it will raise a runtime error
 
-    if isinstance(element, (Constant, CompoundTerm)):
+    if isinstance(element, (Constant, CompoundTerm, IfThenElse, AggregateCompoundTerm)):
         return evaluate_term(element, m, sigma)
 
     raise RuntimeError("Unknown logical element type: {}, {}".format(element, type(element)))
