@@ -204,11 +204,11 @@ class AggregateCompoundTerm(Term):
 
     @property
     def language(self):
-        return self.symbol.language
+        return self.subterm.language
 
     @property
     def sort(self):
-        return self.symbol.codomain
+        return self.subterm.sort
 
     def __str__(self):
         return '{}_{{{}}}({})'.format(self.symbol, ','.join([str(x) for x in self.bound_vars]), str(self.subterm))
