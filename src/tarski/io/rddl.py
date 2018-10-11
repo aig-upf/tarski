@@ -578,7 +578,12 @@ class Writer(object):
             if expr.symbol.builtin:
                 if expr.symbol.symbol in function_map.keys():
                     if len(re_st) > 0:
-                        st_str = '[{}]'.format(','.join(re_st))
+                        # MRJ: Random variables need parenthesis, other functions need
+                        # brackets...
+                        if expr.symbol.symbol in tarski.syntax.builtins.get_random_binary_functions():
+                            st_str = '({})'.format(','.join(re_st))
+                        else:
+                            st_str = '[{}]'.format(','.join(re_st))
                     return '{}{}'.format(function_map[expr.symbol.symbol], st_str)
             if len(re_st) > 0:
                 st_str = '({})'.format(','.join(re_st))
