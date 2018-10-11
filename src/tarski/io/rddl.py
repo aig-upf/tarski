@@ -278,7 +278,7 @@ def translate_variable(L : tarski.FirstOrderLanguage, name, term):
     params = []
     if term.param_types is not None:
         params = term.param_types
-    if term.range == 'bool':
+    if term.range in ('bool', 'boolean'):
         signature = tuple(params)
     else:
         signature = tuple(params + [term.range])
@@ -290,7 +290,7 @@ def translate_variable(L : tarski.FirstOrderLanguage, name, term):
         except LanguageError:
             t_s = translate_builtin_type(L, s)
         t_signature += [t_s]
-    if term.range == 'bool':
+    if term.range in ('bool', 'boolean'):
         return L.predicate(name, *t_signature)
     return L.function(name, *t_signature)
 
@@ -433,11 +433,11 @@ class Writer(object):
                 continue
             type_decl_list += ['{} : {};'.format(S.name, parent(S).name)]
             self.need_obj_decl += [S]
-        return ',\n'.join(type_decl_list)
+        return '\n'.join(type_decl_list)
 
     def get_type(self, fl):
         if isinstance(fl, Atom):
-            return 'boolean'
+            return 'bool'
         try:
             return reverse_built_in_type_map[fl.symbol.codomain.name]
         except KeyError:
@@ -510,7 +510,7 @@ class Writer(object):
         obj_decl_blocks = []
         # initialize
         for S in self.need_obj_decl:
-            domain_str = ','.join([str(c.symbol) for c in S.domain])
+            domain_str = ','.join([str(c.symbol) for c in S.domain()])
             obj_decl_blocks += ['\t{} : {{{}}};'.format(S.name, domain_str)]
 
         return '\n'.join(obj_decl_blocks)
@@ -607,6 +607,10 @@ class Writer(object):
             expr1 = self.rewrite(expr.subterms[0])
             expr2 = self.rewrite(expr.subterms[1])
             return 'if ({}) then ({}) else ({})'.format(cond, expr1, expr2)
+        elif isinstance(expr, Tautology):
+            return 'true'
+        elif isinstance(expr, Contradiction):
+            return 'false'
         elif isinstance(expr, CompoundFormula):
             re_sf = [self.rewrite(st) for st in expr.subformulas]
             re_sym = symbol_map[expr.connective]
@@ -621,9 +625,9 @@ class Writer(object):
         elif isinstance(expr, AggregateCompoundTerm):
             re_expr = self.rewrite(expr.subterm)
             re_vars = ['?{} : {}'.format(x.symbol, x.sort.name) for x in expr.bound_vars]
-            if expr.operator == BFS.ADD:
+            if expr.symbol == BFS.ADD:
                 re_sym = 'sum'
-            elif expr.operator == BFS.MUL:
+            elif expr.symbol == BFS.MUL:
                 re_sym = 'prod'
             return '{}_{{{}}} ({})'.format(re_sym, ','.join(re_vars), re_expr)
 
@@ -636,7 +640,7 @@ class Writer(object):
         subterms_str = ''
         if len(fl.subterms) > 0:
             subterms_str = []
-            for st in subterms:
+            for st in fl.subterms:
                 if isinstance(st, Variable):
                     # remove any ? from symbol just in case
                     subterms_str += ['?{}'.format(st.symbol.replace('?',''))]
