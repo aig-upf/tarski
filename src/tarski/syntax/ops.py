@@ -1,14 +1,22 @@
 from .terms import Term, Constant
-
+import numpy as np
 
 def cast_to_closest_common_ancestor(lhs, rhs):
-    # TODO - THIS CLEARLY DOES NOT COVER ALL POSSIBLE CASES (E.G. "1.0 + 2", ETC.)
-    # TODO - WE NEED TO FINISH AND UNIT-TEST THIS. DOCUMENT IT AS WELL.
-    assert isinstance(lhs, Term)
-    if isinstance(rhs, Term):
-        pass
-    else:
-        rhs = Constant(lhs.sort.cast(rhs), lhs.sort)
+
+    if isinstance(lhs, Term):
+        if isinstance(rhs, np.matrix):
+            # lhs is scalar, rhs is matrix
+            return lhs.language.matrix([[lhs]]), rhs
+        if not isinstance(rhs, Term):
+            rhs = Constant(lhs.sort.cast(rhs), lhs.sort)
+        return lhs, rhs
+    if isinstance(lhs, np.matrix):
+        # lhs is matrix
+        if isinstance(rhs, Term):
+            return lhs, rhs.language.matrix([[rhs]])
+    if not isinstance(rhs, Term):
+        assert False # this should not happen
+    lhs = Constant(rhs.sort.cast(lhs), rhs.sort)
 
     return lhs, rhs
 

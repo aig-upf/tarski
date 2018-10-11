@@ -4,7 +4,7 @@ import itertools
 from collections import defaultdict, OrderedDict
 
 from . import errors as err
-from .syntax import Function, Constant, Variable, Sort, inclusion_closure, Predicate, Interval, sorts
+from .syntax import Function, Constant, Variable, Matrix, Sort, inclusion_closure, Predicate, Interval, sorts
 
 
 def language(name='L'):
@@ -246,6 +246,13 @@ class FirstOrderLanguage:
 
     def constants(self):
         return list(self._constants.values())
+
+    def vector(self, arraylike, sort: Sort):
+        import numpy as np
+        return Matrix(np.reshape(arraylike, (len(arraylike), 1)), sort)
+
+    def matrix(self, arraylike, sort: Sort):
+        return Matrix(arraylike, sort)
 
     def _check_name_not_defined(self, name, where, exception):
         """ Check whether the given name is already defined in the given container, raising an exception of

@@ -2,7 +2,7 @@
 from .function import Function
 from .predicate import Predicate
 from .sorts import Sort, Interval, inclusion_closure
-from .terms import Term, Constant, Variable, CompoundTerm, TermReference, IfThenElse, ite, AggregateCompoundTerm
+from .terms import Term, Constant, Variable, CompoundTerm, TermReference, IfThenElse, ite, AggregateCompoundTerm, Matrix
 from .formulas import land, lor, neg, implies, forall, exists, equiv, Connective, Atom, Formula,\
     CompoundFormula, QuantifiedFormula, Tautology, Contradiction, top, bot, Quantifier, FormulaReference
 from .builtins import BuiltinFunctionSymbol, BuiltinPredicateSymbol

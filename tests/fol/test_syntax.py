@@ -269,3 +269,12 @@ def test_prodterm():
 
     product = prodterm(o, x(o) + y(o) )
     assert isinstance(product, AggregateCompoundTerm)
+
+def test_matrices_constants():
+    lang = tsk.language('test', [Theory.EQUALITY, Theory.ARITHMETIC])
+    A = lang.matrix([[0, 0, 1, 0], [0, 0, 0, 1], [0, 0, 0, 0], [0, 0, 0, 0]], lang.Real)
+    assert isinstance(A, Matrix)
+    N, M = A.shape
+    for i in range(N):
+        for j in range(M):
+            assert isinstance(A.matrix[i,j], Term)
