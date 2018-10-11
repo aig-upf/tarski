@@ -2,11 +2,11 @@ domain {domain_name} {{
 
     requirements = {{ {req_list} }};
 
-    types = {{
+    types {{
 {type_list}
     }};
 
-    pvariables = {{
+    pvariables {{
 {pvar_list}
     }};
 
@@ -47,7 +47,7 @@ instance {instance_name} {{
 {init_state_fluent_expr}
     }};
 
-    max-non-def-actions = {max_nondef_actions};
+    max-nondef-actions = {max_nondef_actions};
     horizon = {horizon};
     discount = {discount};
 }}

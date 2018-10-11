@@ -217,6 +217,7 @@ class Reader(object):
         for typename, parent_type in self.rddl_model.domain.types:
             assert parent_type == 'object'
             self.language.sort(typename, self.language.Object)
+        if self.rddl_model.non_fluents.objects[0] is None : return
         for typename, dom in self.rddl_model.non_fluents.objects:
             for o in dom:
                 self.language.constant(o, self.language.get(typename))
@@ -574,11 +575,13 @@ class Writer(object):
                 if expr.symbol.symbol in symbol_map.keys():
                     return '({} {} {})'.format(re_st[0], symbol_map[expr.symbol.symbol], re_st[1])
             st_str = ''
-            if len(re_st) > 0:
-                st_str = '({})'.format(','.join(re_st))
             if expr.symbol.builtin:
                 if expr.symbol.symbol in function_map.keys():
+                    if len(re_st) > 0:
+                        st_str = '[{}]'.format(','.join(re_st))
                     return '{}{}'.format(function_map[expr.symbol.symbol], st_str)
+            if len(re_st) > 0:
+                st_str = '({})'.format(','.join(re_st))
             return '{}{}'.format(expr.symbol.signature[0], st_str)
         elif isinstance(expr, Atom):
             re_st = [self.rewrite(st) for st in expr.subterms]
@@ -635,10 +638,10 @@ class Writer(object):
                 else:
                     subterms_str += [str(st)]
             subterms_str = '({})'.format(','.join(subterms_str))
-        next_state = ''
+        prima = ''
         if next_state:
-            next_state = "'"
-        return "{}{}{}".format(head, next_state, subterms_str)
+            prima = "'"
+        return "{}{}{}".format(head, prima, subterms_str)
 
     def get_max_nondef_actions(self):
         return str(self.task.parameters.max_nondef_actions)

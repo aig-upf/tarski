@@ -82,7 +82,9 @@ def test_simple_rddl_model():
 
     # cost function
     Q = (x()-gx()) * (x()-gx())
+    # MRJ: RDDL does not support the abs() algebraic construct
     R = ite(abs(x()-gx()) > 0.0, u() * u() * 0.01, lang.constant(0.0, lang.Real))
+    #R = u() * u() * 0.01
     the_task.reward = Q + R
 
     # definitions
@@ -104,3 +106,8 @@ def test_simple_rddl_model():
     the_writer = rddl.Writer(the_task)
     rddl_filename = os.path.join(tempfile.gettempdir(), 'monga.rddl')
     the_writer.write_model(rddl_filename)
+    mr_reader = rddl.Reader(rddl_filename)
+    assert mr_reader.rddl_model is not None
+    assert mr_reader.rddl_model.domain.name == 'lqr_nav_1d'
+    mr_reader.translate_rddl_model()
+    assert mr_reader.language is not None
