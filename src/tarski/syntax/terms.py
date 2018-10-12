@@ -335,6 +335,12 @@ class Matrix(Term):
     def sort(self):
         return self._sort
 
+    def __setitem__(self, key, value):
+        self.matrix[key] = value
+
+    def __getitem__(self, *args):
+        i, j = args
+        return self.matrix[i, j]
 
     def __str__(self):
         return '{}'.format(self.matrix)
