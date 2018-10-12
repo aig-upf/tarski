@@ -338,8 +338,8 @@ class Matrix(Term):
     def __setitem__(self, key, value):
         self.matrix[key] = value
 
-    def __getitem__(self, *args):
-        i, j = args
+    def __getitem__(self, arg):
+        i, j = arg
         return self.matrix[i, j]
 
     def __str__(self):

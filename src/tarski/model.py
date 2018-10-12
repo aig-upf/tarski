@@ -107,6 +107,9 @@ class Model:
         try:
             expr, sigma = arg
             return self.evaluator(expr, self, sigma)
+        except ValueError:
+            # MRJ: This for expression that have the __getitem__ operator overloaded
+            return self.evaluator(arg, self)
         except TypeError:
             return self.evaluator(arg, self)
 

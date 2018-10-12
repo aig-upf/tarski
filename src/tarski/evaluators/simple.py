@@ -3,7 +3,7 @@ import tarski.funcsym as funcsym
 import tarski.errors as err
 
 from ..syntax import ops, Connective, Atom, Formula, CompoundFormula, QuantifiedFormula, builtins, Variable, \
-    Constant, CompoundTerm, Tautology, Contradiction, IfThenElse, AggregateCompoundTerm
+    Constant, CompoundTerm, Tautology, Contradiction, IfThenElse, AggregateCompoundTerm, Matrix
 from ..model import Model
 
 
@@ -34,7 +34,7 @@ def evaluate(element, m: Model, sigma=None):
     if isinstance(element, Variable):
         return sigma[element]  # TODO Finish this, ATM it will raise a runtime error
 
-    if isinstance(element, (Constant, CompoundTerm, IfThenElse, AggregateCompoundTerm)):
+    if isinstance(element, (Constant, CompoundTerm, IfThenElse, Matrix, AggregateCompoundTerm)):
         return evaluate_term(element, m, sigma)
 
     raise RuntimeError("Unknown logical element type: {}, {}".format(element, type(element)))
@@ -68,9 +68,17 @@ def evaluate_term(term, m: Model, sigma):
         else:
             term = term.subterms[1]
 
+    if isinstance(term, Matrix):
+        N, M = term.shape
+        result = []
+        for i in range(N):
+            row = [evaluate_term(term.matrix[i, j], m, sigma) for j in range(M)]
+            result.append(row)
+        return Matrix(result, term.sort)
+
     if isinstance(term, CompoundTerm) and builtins.is_builtin_function(term.symbol):
         return evaluate_builtin_function(term, m, sigma)
-    # MRJ: Coerce float and int Python literals into conctants
+    # MRJ: Coerce float and int Python literals into constants
     if isinstance(term, float):
         term = Constant(term, m.language.Real)
     if isinstance(term, int):
@@ -157,6 +165,16 @@ def _arithmetic_evaluator_2(operation, lhs, rhs, model, sigma):
     # assert self.domain[1].contains(_rhs)
     lhs = evaluate_term(lhs, model, sigma)
     rhs = evaluate_term(rhs, model, sigma)
+    if isinstance(lhs, Matrix) and isinstance(rhs, Matrix):
+        value = operation(lhs.matrix, rhs.matrix)
+        return evaluate_term(Matrix(value, lhs.sort), model, sigma)
+    elif isinstance(lhs, Matrix) and not isinstance(rhs, Matrix):
+        value = operation(lhs.matrix, ops.cast_to_number(rhs))
+        return evaluate_term(Matrix(value, lhs.sort), model, sigma)
+    elif isinstance(rhs, Matrix) and not isinstance(lhs, Matrix):
+        value = operation(ops.cast_to_number(lhs), rhs.matrix)
+        return evaluate_term(Matrix(value, rhs.sort), model, sigma)
+
     value = operation(ops.cast_to_number(lhs), ops.cast_to_number(rhs))
     sort = ops.infer_numeric_sort(value, lhs.language)
     return Constant(value, sort)

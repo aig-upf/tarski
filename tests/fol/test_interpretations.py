@@ -373,3 +373,29 @@ def test_ite():
     model.setx(y(), 2)
 
     assert model[tau].symbol == 5
+
+def test_matrix_evaluation_case_1():
+    from tarski.syntax.arithmetic import one
+    lang = tarski.language('double_integrator', [Theory.EQUALITY, Theory.ARITHMETIC])
+    I = lang.matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]], lang.Real)
+    x0 = Model(lang)
+    x0.evaluator = evaluate
+    assert x0[I][0,0].is_syntactically_equal(one(lang.Real))
+
+def test_matrix_evaluation_case_2():
+    from tarski.syntax.arithmetic import one
+    lang = tarski.language('double_integrator', [Theory.EQUALITY, Theory.ARITHMETIC])
+    I = lang.matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]], lang.Real)
+    x = lang.function('x', lang.Real)
+    y = lang.function('y', lang.Real)
+    z = lang.function('z', lang.Real)
+
+    v = lang.vector([x(), y(), z()], lang.Real)
+
+    x0 = Model(lang)
+    x0.evaluator = evaluate
+
+    x0.setx(x(), 1.0)
+    x0.setx(y(), 2.0)
+    x0.setx(z(), 3.0)
+    assert x0[I*v][2,0].is_syntactically_equal(lang.constant(3.0, lang.Real))
