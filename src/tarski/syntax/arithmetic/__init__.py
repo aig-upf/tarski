@@ -1,11 +1,12 @@
 import itertools
 import copy
+import numpy as np
 
-from tarski.syntax import Variable, Term, AggregateCompoundTerm
+from tarski.syntax import Variable, Term, AggregateCompoundTerm, Matrix, CompoundTerm, Constant, Variable
 from ... import errors as err
 from ... grounding.naive import instantiation
 from .. transform import TermSubstitution
-from .. builtins import BuiltinPredicateSymbol, BuiltinFunctionSymbol
+from .. builtins import BuiltinPredicateSymbol, BuiltinFunctionSymbol, get_arithmetic_binary_functions
 
 def sumterm(*args):
     vars = args[:-1]
@@ -109,3 +110,102 @@ def pow(x, y):
 def sqrt(x):
     sqrt_func = x.language.get_function(BuiltinFunctionSymbol.SQRT)
     return sqrt_func(x)
+
+def transpose(m : Term):
+    if isinstance(m, Matrix):
+        m_t = copy.copy(m)
+        m_t.matrix = m_t.matrix.T
+        return m_t
+    elif isinstance(m, CompoundTerm):
+        if m.symbol.symbol in get_arithmetic_binary_functions():
+            # handle as an operator
+            if m.symbol.symbol == BuiltinFunctionSymbol.ADD:
+                m.subterms = (transpose(m.subterms[0]), transpose(m.subterms[1]))
+                return m
+            if m.symbol.symbol == BuiltinFunctionSymbol.SUB:
+                m.subterms = (transpose(m.subterms[0]), transpose(m.subterms[1]))
+                return m
+            elif m.symbol.symbol == BuiltinFunctionSymbol.MUL:
+                m.subterms = (transpose(m.subterms[1]), transpose(m.subterms[0]))
+                return m
+            raise err.SyntacticError("transpose(): can only be applied on scalars (constants, variables), matrices and basic arithmetic operations.")
+        else:
+            raise err.SyntacticError("transpose(): can only be applied on scalars (constants, variables), matrices and basic arithmetic operations.")
+    elif isinstance(m, Constant):
+        return Matrix([m], m.sort)
+    elif isinstance(m, Variable):
+        return Matrix([m], m.sort)
+    raise err.SyntacticError("transpose(): can only be applied on scalars (constants, variables), matrices and basic arithmetic operations.")
+
+def zero(sort):
+    assert sort.name in ('Real', 'Integer', 'Natural')
+    return sort.language.constant(0, sort)
+
+def one(sort):
+    assert sort.name in ('Real', 'Integer', 'Natural')
+    return sort.language.constant(1, sort)
+
+
+def simplify(expr: Term):
+    if isinstance(expr, Constant):
+        return expr
+    elif isinstance(expr, Variable):
+        return expr
+    elif isinstance(expr, CompoundTerm):
+        if not expr.symbol.builtin \
+            or expr.symbol.symbol not in get_arithmetic_binary_functions():
+            return expr
+        if expr.symbol.symbol == BuiltinFunctionSymbol.ADD:
+            simp_st = (simplify(expr.subterms[0]), simplify(expr.subterms[1]))
+            if simp_st[0].is_syntactically_equal(zero(expr.sort)):
+                return simp_st[1]
+            if simp_st[1].is_syntactically_equal(zero(expr.sort)):
+                return simp_st[0]
+            expr.subterms = simp_st
+            return expr
+        if expr.symbol.symbol == BuiltinFunctionSymbol.SUB:
+            simp_st = (simplify(expr.subterms[0]), simplify(expr.subterms[1]))
+            if simp_st[0].is_syntactically_equal(zero(expr.sort)):
+                return -1 * simp_st[1]
+            if simp_st[1].is_syntactically_equal(zero(expr.sort)):
+                return simp_st[0]
+            expr.subterms = simp_st
+            return expr
+        if expr.symbol.symbol == BuiltinFunctionSymbol.MUL:
+            simp_st = (simplify(expr.subterms[0]), simplify(expr.subterms[1]))
+            if simp_st[0].is_syntactically_equal(zero(expr.sort)):
+                return zero(expr.sort)
+            if simp_st[1].is_syntactically_equal(zero(expr.sort)):
+                return zero(expr.sort)
+            if simp_st[0].is_syntactically_equal(one(expr.sort)):
+                return simp_st[1]
+            if simp_st[1].is_syntactically_equal(one(expr.sort)):
+                return simp_st[0]
+            expr.subterms = simp_st
+            return expr
+        if expr.symbol.symbol == BuiltinFunctionSymbol.DIV:
+            simp_st = (simplify(expr.subterms[0]), simplify(expr.subterms[1]))
+            if simp_st[0].is_syntactically_equal(zero(expr.sort)):
+                return zero(expr.sort)
+            if simp_st[1].is_syntactically_equal(zero(expr.sort)):
+                raise err.SemanticError("Division by Zero detected when \
+            simplifying expression '{}' in division '{}'".format(expr.subterms[1], expr))
+            if simp_st[1].is_syntactically_equal(one(expr.sort)):
+                return simp_st[0]
+            expr.subterms = simp_st
+            return expr
+    elif isinstance(expr, Matrix) or isinstance(expr, np.matrix):
+        N, M = expr.shape
+        for i in range(N):
+            for j in range(M):
+                expr[i,j] = simplify(expr[i,j])
+        return expr
+    elif isinstance(expr, AggregateCompoundTerm):
+        expr.subterm = simplify(subterm)
+        return expr
+    elif isinstance(expr, IfThenElse):
+        expr.subterms = (simplify(expr.subterms[0]), simplify(expr.subterms[1]))
+        return expr
+
+
+    raise NotImplementedError("Can't handle expression {} yet".format(expr))
