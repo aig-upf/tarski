@@ -40,6 +40,9 @@ class Predicate:
     # def __str__(self):
     #     return '{}({})'.format(self.symbol, ','.join([a.name for a in self.sort]))
 
+    def __hash__(self):
+        return hash(self.signature)
+
     def __eq__(self, other):
         return self.signature == other.signature
 
