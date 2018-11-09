@@ -40,6 +40,10 @@ def atan(x):
     atan_func = x.language.get_function(BFS.ATAN)
     return atan_func(x)
 
+def asin(x):
+    asin_func = x.language.get_function(BFS.ASIN)
+    return asin_func(x)
+
 def exp(x):
     exp_func = x.language.get_function(BFS.EXP)
     return exp_func(x)

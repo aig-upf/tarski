@@ -9,6 +9,7 @@ impl = {
     "sin": lambda x: np.sin(x),
     "cos": lambda x: np.cos(x),
     "tan": lambda x: np.tan(x),
+    "asin": lambda x: np.arcsin(x),
     "atan": lambda x: np.arctan(x),
     "exp": lambda x: np.exp(x),
     "log": lambda x: np.log(x),

@@ -34,6 +34,7 @@ class BuiltinFunctionSymbol(Enum):
     COS = "cos"
     TAN = "tan"
     ATAN = "atan"
+    ASIN = "asin"
     EXP = "exp"
     LOG = "log"
     ERF = "erf"
@@ -95,7 +96,7 @@ def get_special_binary_functions():
 
 def get_special_unary_functions():
     BFS = BuiltinFunctionSymbol
-    return [BFS.ABS, BFS.SIN, BFS.COS, BFS.TAN, BFS.ATAN, BFS.EXP, BFS.LOG, BFS.ERF, BFS.ERFC, BFS.SGN]
+    return [BFS.ABS, BFS.SIN, BFS.COS, BFS.TAN, BFS.ATAN, BFS.ASIN, BFS.EXP, BFS.LOG, BFS.ERF, BFS.ERFC, BFS.SGN]
 
 def get_random_binary_functions():
     BFS = BuiltinFunctionSymbol

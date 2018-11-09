@@ -245,6 +245,16 @@ def test_random_function_gamma():
     assert isinstance(the_term, tarski.syntax.Term)
     assert model[gamma(shape, scale)].symbol == 1.0629932880924005
 
+def test_arcsin():
+    import numpy as np
+    from tarski.syntax.arithmetic.special import asin
+    lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL])
+    model = Model(lang)
+    model.evaluator = evaluate
+    reals = lang.Real
+    alpha = lang.constant(0.5, reals)
+    assert model[asin(alpha)].symbol == np.arcsin(0.5)
+
 def test_blocksworld_add():
     lang = blocksworld.generate_small_fstrips_bw_language()
     model = Model(lang)

@@ -364,6 +364,7 @@ function_map = {
     BFS.COS : "cos",
     BFS.TAN : "tan",
     BFS.ATAN : "atan",
+    BFS.ASIN: "asin",
     BFS.EXP : "exp",
     BFS.LOG : "log",
     BFS.ERF : "erf",
