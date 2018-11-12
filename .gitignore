@@ -66,3 +66,4 @@ alltests.bat
 
 # setup internals
 build/
+notebooks/exploratory/.ipynb_checkpoints/From_RDDL_to_Functional_STRIPS-checkpoint.ipynb
