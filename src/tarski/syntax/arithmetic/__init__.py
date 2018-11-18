@@ -152,8 +152,7 @@ def simplify(expr: Term):
     elif isinstance(expr, Variable):
         return expr
     elif isinstance(expr, CompoundTerm):
-        if not expr.symbol.builtin \
-            or expr.symbol.symbol not in get_arithmetic_binary_functions():
+        if not expr.symbol.builtin :
             return expr
         if expr.symbol.symbol == BuiltinFunctionSymbol.ADD:
             simp_st = (simplify(expr.subterms[0]), simplify(expr.subterms[1]))
@@ -193,6 +192,12 @@ def simplify(expr: Term):
             if simp_st[1].is_syntactically_equal(one(expr.sort)):
                 return simp_st[0]
             expr.subterms = simp_st
+            return expr
+        if expr.symbol.symbol == BuiltinFunctionSymbol.EXP:
+            simp_st = simplify(expr.subterms[0])
+            if simp_st.is_syntactically_equal(zero(expr.sort)):
+                return one(expr.sort)
+            expr.subterms = (simp_st,)
             return expr
     elif isinstance(expr, Matrix) or isinstance(expr, np.matrix):
         N, M = expr.shape
