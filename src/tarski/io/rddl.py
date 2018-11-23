@@ -16,7 +16,7 @@ from tarski.model import Model
 from tarski.evaluators.simple import evaluate
 from tarski.errors import LanguageError
 from tarski.theories import Theory
-import pyrddl
+from pyrddl.parser import RDDLParser
 
 _CURRENT_DIR_ = os.path.dirname(os.path.realpath(__file__))
 
@@ -182,7 +182,15 @@ def translate_expression(L, rddl_expr):
         connective = logic_rddl_to_tarski[expr_sym]
         targs = [translate_expression(L, arg) for arg in rddl_expr.args]
         return connective(*targs)
-    print(rddl_expr)
+    elif expr_type == 'constant':
+        if "class 'float'" in expr_sym:
+            k = Constant(rddl_expr.args, L.Real)
+            return k
+        if "class 'int'" in expr_sym:
+            k = Constant(rddl_expr.args, L.Real)
+            return k
+
+    print(rddl_expr, expr_type, type(expr_sym))
     assert False
 
 class Parameters(object):
@@ -208,7 +216,7 @@ class Reader(object):
     def _load_rddl_model(self, filename):
         with open(filename, 'r') as input_file:
             rddl = input_file.read()
-        parser = pyrddl.Parser()
+        parser = RDDLParser()
         parser.build()
         # parse RDDL
         return parser.parse(rddl)
