@@ -22,8 +22,8 @@ class SyntacticFactory:
         self.top = UniversalConcept(self.universe_sort.name)
         self.bot = EmptyConcept(self.universe_sort.name)
 
-    def generate_primitives_from_language(self, constants, types, goal_predicates):
-        """ Generate primitive concepts from the language taking into account only the given constants """
+    def generate_primitives_from_language(self, nominals, types, goal_predicates):
+        """ Generate primitive concepts from the language taking into account only the given nominals """
 
         concepts, roles, primitive_atoms = [], [], []
         for predfun in list(self.language.predicates) + list(self.language.functions):
@@ -50,7 +50,7 @@ class SyntacticFactory:
             else:
                 logging.warning('Predicate/Function "{}" with normalized arity > 2 ignored'.format(predfun))
 
-        for c in constants:
+        for c in nominals:
             concepts.append(NominalConcept(c.symbol, c.sort))
 
         # Temporally deactivated
@@ -127,7 +127,7 @@ class SyntacticFactory:
         sort = self.language.most_restricted_type(r1.sort[0], r2.sort[0])
 
         if sort is None:
-            logging.debug('Concept "EqualConcept({},{})" pruned for type-inconsistency reasons'.format(r1,r2))
+            logging.debug('Concept "EqualConcept({},{})" pruned for type-inconsistency reasons'.format(r1, r2))
             return None
         return EqualConcept(r1, r2, sort)
 

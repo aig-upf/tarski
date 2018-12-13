@@ -3,7 +3,7 @@
 """
 from enum import Enum
 
-from .concepts import Concept, Role, NullaryAtom, retrieve_possibly_cached_extension
+from .concepts import Concept, Role, NullaryAtom
 from ..utils.algorithms import compute_min_distance
 
 
@@ -18,7 +18,7 @@ class FeatureValueChange(Enum):
 
 
 class Feature:
-    def value(self, cache, state):
+    def denotation(self, model):
         raise NotImplementedError()
 
     def diff(self, x, y):
@@ -72,10 +72,8 @@ class ConceptCardinalityFeature(Feature):
         self.c = c
         self.hash = hash((self.__class__, self.c))
 
-    def value(self, cache, state):
-        """ The feature value _is_ the cardinality of the extension of the represented concept"""
-        ext = retrieve_possibly_cached_extension(self.c, cache, state)
-        return ext.count()
+    def denotation(self, model):
+        return model.compressed_denotation(self.c).count()
 
     def diff(self, x, y):
         return compute_int_feature_diff(x, y)
@@ -106,12 +104,10 @@ class EmpiricalBinaryConcept(Feature):
         self.c = feature.c
         self.hash = hash((self.__class__, self.c))
 
-    def value(self, cache, state):
-        """ The feature value _is_ whether the cardinality of the extension of the represented concept is 0 or 1 """
-        ext = retrieve_possibly_cached_extension(self.c, cache, state)
-        x = ext.count()
-        assert x in (0, 1)  # By definition of "empirical binary concept"
-        return bool(x)
+    def denotation(self, model):
+        val = model.compressed_denotation(self.c).count()
+        assert val in (0, 1)  # By definition of "empirical binary concept"
+        return bool(val)
 
     def diff(self, x, y):
         return compute_bool_feature_diff(x, y)
@@ -184,22 +180,21 @@ class MinDistanceFeature(Feature):
         return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
                 self.c1 == other.c1 and self.r == other.r and self.c2 == other.c2)
 
-    def value(self, cache, state):
+    def denotation(self, model):
         """ The value of the feature is the min distance between any object in the extension of c1 and any object
             on the extension of c2, moving only along r-edges.
         """
-        ext_c1 = retrieve_possibly_cached_extension(self.c1, cache, state)
-        ext_c2 = retrieve_possibly_cached_extension(self.c2, cache, state)
-        ext_r = retrieve_possibly_cached_extension(self.r, cache, state)
+        ext_c1 = model.uncompressed_denotation(self.c1)
+        ext_c2 = model.uncompressed_denotation(self.c2)
+        ext_r = model.uncompressed_denotation(self.r)
 
         # (Debugging)
         # ec1 = sorted(cache.universe.value(x) for x in cache.uncompress(ext_c1, self.c1.ARITY))
         # ec2 = sorted(cache.universe.value(x) for x in cache.uncompress(ext_c2, self.c2.ARITY))
-        # er1 = sorted((cache.universe.value(x), cache.universe.value(y)) for x, y in cache.uncompress(ext_r, self.r.ARITY))
+        # er1 = sorted((cache.universe.value(x), cache.universe.va
+        # for x, y in cache.uncompress(ext_r, self.r.ARITY))
 
-        return compute_min_distance(cache.uncompress(ext_c1, self.c1.ARITY),
-                                    cache.uncompress(ext_r, self.r.ARITY),
-                                    cache.uncompress(ext_c2, self.c2.ARITY))
+        return compute_min_distance(ext_c1, ext_r, ext_c2)
 
     def diff(self, x, y):
         return compute_int_feature_diff(x, y)
@@ -219,9 +214,10 @@ class NullaryAtomFeature(Feature):
         self.atom = atom
         self.hash = hash((self.__class__, self.atom))
 
-    def value(self, cache, state):
+    def denotation(self, model):
         """ The feature evaluates to true iff the nullary atom is true in the given state """
-        return self.atom.extension(cache, state)
+        # return self.atom.extension(cache, state)
+        return model.primitive_denotation(self.atom)
 
     def diff(self, x, y):
         return compute_bool_feature_diff(x, y)

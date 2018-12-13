@@ -30,8 +30,8 @@ class NullaryAtom:
 
     __str__ = __repr__
 
-    def extension(self, cache, state):
-        return cache.nullary_value(str(self), state)
+    def denotation(self, model):
+        return model.primitive_denotation(self)
 
 
 class GoalNullaryAtom(NullaryAtom):
@@ -49,7 +49,7 @@ class Concept:
         self.sort = sort
         self.size = size
 
-    def extension(self, cache, state):
+    def denotation(self, model):
         raise NotImplementedError()
 
     def flatten(self):
@@ -64,7 +64,7 @@ class Role:
         self.sort = sort
         self.size = size
 
-    def extension(self, cache, state):
+    def denotation(self, model):
         raise NotImplementedError()
 
     def flatten(self):
@@ -82,8 +82,8 @@ class UniversalConcept(Concept):
     def __eq__(self, other):
         return self.__class__ is other.__class__
 
-    def extension(self, cache, state):
-        return cache.as_bitarray(str(self), state)
+    def denotation(self, model):
+        return model.compressed(model.universe(), self.ARITY)
 
     def __repr__(self):
         return '<universe>'
@@ -105,8 +105,8 @@ class EmptyConcept(Concept):
     def __eq__(self, other):
         return self.__class__ is other.__class__
 
-    def extension(self, cache, state):
-        return cache.as_bitarray(str(self), state)
+    def denotation(self, model):
+        return model.compressed(model.primitive_denotation(self), self.ARITY)
 
     def __repr__(self):
         return '<empty>'
@@ -130,9 +130,8 @@ class NominalConcept(Concept):
         return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
                 self.name == other.name)
 
-    def extension(self, cache, state):
-        singleton = {cache.universe.index(self.name)}
-        return cache.compress(singleton, self.ARITY)
+    def denotation(self, model):
+        return model.compressed(model.primitive_denotation(self), self.ARITY)
 
     def __repr__(self):
         return "{{{}}}".format(self.name)
@@ -157,7 +156,6 @@ class PrimitiveConcept(Concept):
             self.name = predicate.name
         self.hash = hash((self.__class__, self.name))
 
-
     def __hash__(self):
         return self.hash
 
@@ -165,8 +163,8 @@ class PrimitiveConcept(Concept):
         return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
                 self.name == other.name)
 
-    def extension(self, cache, state):
-        return cache.as_bitarray(str(self), state)
+    def denotation(self, model):
+        return model.compressed(model.primitive_denotation(self), self.ARITY)
 
     def __repr__(self):
         return "{}".format(self.name)
@@ -198,9 +196,8 @@ class NotConcept(Concept):
         return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
                 self.c == other.c)
 
-    def extension(self, cache, state):
-        ext_c = cache.as_bitarray(self.c, state)
-        return ~ext_c
+    def denotation(self, model):
+        return ~model.compressed_denotation(self.c)
 
     def __repr__(self):
         return 'Not({})'.format(self.c)
@@ -228,9 +225,9 @@ class AndConcept(Concept):
                 self.c1 == other.c1 and
                 self.c2 == other.c2)
 
-    def extension(self, cache, state):
-        ext_c1 = cache.as_bitarray(self.c1, state)
-        ext_c2 = cache.as_bitarray(self.c2, state)
+    def denotation(self, model):
+        ext_c1 = model.compressed_denotation(self.c1)
+        ext_c2 = model.compressed_denotation(self.c2)
         return ext_c1 & ext_c2
 
     def __repr__(self):
@@ -260,12 +257,12 @@ class ExistsConcept(Concept):
                 self.c == other.c and
                 self.r == other.r)
 
-    def extension(self, cache, state):
-        ext_c = cache.as_set(self.c, state)
-        ext_r = cache.as_set(self.r, state)
+    def denotation(self, model):
+        ext_c = model.uncompressed_denotation(self.c)
+        ext_r = model.uncompressed_denotation(self.r)
         # result = [x for x in objects if [z for (y, z) in ext_r if y == x and z in ext_c]]
         result = set(x for x, y in ext_r if y in ext_c)
-        return cache.compress(result, self.ARITY)
+        return model.compressed(result, self.ARITY)
 
     def __repr__(self):
         return 'Exists({},{})'.format(self.r, self.c)
@@ -294,18 +291,16 @@ class ForallConcept(Concept):
                 self.c == other.c and
                 self.r == other.r)
 
-    def extension(self, cache, state):
-        universe = cache.universe_set
-        ext_c = cache.as_set(self.c, state)
-        ext_r = cache.as_set(self.r, state)
-        # cache[self] = result = set(x for x in objects if objects ==
-        #  [y for y in objects if (x, y) not in ext_r or y in ext_c])
+    def denotation(self, model):
+        universe = model.universe()
+        ext_c = model.uncompressed_denotation(self.c)
+        ext_r = model.uncompressed_denotation(self.r)
         result = set()
         for x in universe:  # TODO COULD BE OPTIMIZED, E.G. IF R HAS EMPTY EXTENSION, ETC.
             ys = ext_c.union(y for y in universe if (x, y) not in ext_r)
             if len(universe) == len(ys):  # No need to compare the sets, as objects has max possible length
                 result.add(x)
-        return cache.compress(result, self.ARITY)
+        return model.compressed(result, self.ARITY)
 
     def __repr__(self):
         return 'Forall({},{})'.format(self.r, self.c)
@@ -333,20 +328,17 @@ class EqualConcept(Concept):
                 self.r1 == other.r1 and
                 self.r2 == other.r2)
 
-    def extension(self, cache, state):
-        universe = cache.universe_set
-        ext_r1 = cache.as_set(self.r1, state)
-        ext_r2 = cache.as_set(self.r2, state)
-
-        # cache[self] = result = [x for x in objects if [z for (y, z) in
-        # ext_r1 if y == x] == [z for (y, z) in ext_r2 if y == x]]
+    def denotation(self, model):
+        universe = model.universe()
+        ext_r1 = model.uncompressed_denotation(self.r1)
+        ext_r2 = model.uncompressed_denotation(self.r2)
         result = set()
         for x in universe:
             left = set(z for (y, z) in ext_r1 if y == x)
             right = set(z for (y, z) in ext_r2 if y == x)
             if left == right:
                 result.add(x)
-        return cache.compress(result, self.ARITY)
+        return model.compressed(result, self.ARITY)
 
     def __repr__(self):
         return 'Equal({},{})'.format(self.r1, self.r2)
@@ -375,8 +367,8 @@ class PrimitiveRole(Role):
         return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
                 self.name == other.name)
 
-    def extension(self, cache, state):
-        return cache.as_bitarray(str(self), state)
+    def denotation(self, model):
+        return model.compressed(model.primitive_denotation(self), self.ARITY)
 
     def __repr__(self):
         return '{}'.format(self.name)
@@ -409,10 +401,10 @@ class InverseRole(Role):
         return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
                 self.r == other.r)
 
-    def extension(self, cache, state):
-        ext_r = cache.as_set(self.r, state)
+    def denotation(self, model):
+        ext_r = model.uncompressed_denotation(self.r)
         result = set((y, x) for (x, y) in ext_r)
-        return cache.compress(result, self.ARITY)
+        return model.compressed(result, self.ARITY)
 
     def __repr__(self):
         return 'Inverse({})'.format(self.r)
@@ -437,10 +429,10 @@ class StarRole(Role):
         return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
                 self.r == other.r)
 
-    def extension(self, cache, state):
-        ext_r = cache.as_set(self.r, state)
+    def denotation(self, model):
+        ext_r = model.uncompressed_denotation(self.r)
         result = set(transitive_closure(ext_r))
-        return cache.compress(result, self.ARITY)
+        return model.compressed(result, self.ARITY)
 
     def __repr__(self):
         return 'Star({})'.format(self.r)
@@ -468,9 +460,9 @@ class CompositionRole(Role):
                 self.r1 == other.r1 and
                 self.r2 == other.r2)
 
-    def extension(self, cache, state):
-        ext_r1 = cache.as_set(self.r1, state)
-        ext_r2 = cache.as_set(self.r2, state)
+    def denotation(self, model):
+        ext_r1 = model.uncompressed_denotation(self.r1)
+        ext_r2 = model.uncompressed_denotation(self.r2)
         result = set()
         for a, b in ext_r1:
             for x, y in ext_r2:
@@ -479,8 +471,7 @@ class CompositionRole(Role):
                     break  # i.e. break the inner loop
         # for (x, u) in ext_r1:
         #     result.extend((x, z) for (y, z) in ext_r2 if u == y)
-
-        return cache.compress(result, self.ARITY)
+        return model.compressed(result, self.ARITY)
 
     def __repr__(self):
         return 'Composition({},{})'.format(self.r1, self.r2)
@@ -508,11 +499,11 @@ class RestrictRole(Role):
                 self.c == other.c and
                 self.r == other.r)
 
-    def extension(self, cache, state):
-        ext_c = cache.as_set(self.c, state)
-        ext_r = cache.as_set(self.r, state)
+    def denotation(self, model):
+        ext_c = model.uncompressed_denotation(self.c)
+        ext_r = model.uncompressed_denotation(self.r)
         result = set((x, y) for (x, y) in ext_r if y in ext_c)
-        return cache.compress(result, self.ARITY)
+        return model.compressed(result, self.ARITY)
 
     def __repr__(self):
         return 'Restrict({},{})'.format(self.r, self.c)
@@ -526,12 +517,3 @@ class RestrictRole(Role):
 def _check_arity(term, expected_arity, predfun):
     if expected_arity != predfun.uniform_arity():
         raise ArityDLMismatch('Cannot create {} from predicate "{}"'.format(term, predfun))
-
-
-def retrieve_possibly_cached_extension(concept, cache, state):
-    try:
-        return cache.as_bitarray(concept, state)
-    except KeyError:
-        ext = concept.extension(cache, state)
-        cache.register_compressed_extension(concept, state, ext)
-        return ext
