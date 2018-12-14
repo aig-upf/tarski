@@ -15,6 +15,15 @@ def filter_subnodes(elem, t):
     return list(filter(lambda x: type(x) == t, elem.flatten()))
 
 
+def compute_dl_vocabulary(lang):
+    """ Return the DL vocabulary for the given language.
+    This is the list of all predicates of arity 0, 1 and 2, and all functions of arity 0 and 1
+    """
+    v = [(p.symbol, p) for p in lang.predicates if not builtins.is_builtin_predicate(p) and 0 <= p.arity <= 2] +\
+        [(f.symbol, f) for f in lang.functions if not builtins.is_builtin_function(f) and f.arity in (0, 1)]
+    return dict(v)
+
+
 class SyntacticFactory:
     def __init__(self, language: FirstOrderLanguage):
         self.language = language
