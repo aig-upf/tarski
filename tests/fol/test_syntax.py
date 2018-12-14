@@ -151,6 +151,7 @@ def test_duplicate_detection_and_global_getter():
     assert len(lang.get('t1', 'c1', 'f1', 'p1')) == 4
     assert(all(id(x) == id(y) for x, y in zip([t1, c1, f1, p1], lang.get('t1', 'c1', 'f1', 'p1'))))
 
+
 def test_term_refs():
     lang = tsk.language()
     f = lang.function('f', lang.Object, lang.Integer)
