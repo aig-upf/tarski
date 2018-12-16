@@ -303,7 +303,7 @@ def print_term_list(terms):
     return " ".join(print_term(t) for t in terms)
 
 def print_term_ref_list(termrefs):
-    return " ".join(print_term(t.expr()) for t in termrefs)
+    return " ".join(print_term(t.expr) for t in termrefs)
 
 def print_formula_list(formulas):
     return " ".join(print_formula(f) for f in formulas)
