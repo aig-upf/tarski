@@ -181,7 +181,14 @@ def test_term_refs():
 def test_object_function_arity():
     fol = tsk.fstrips.language()
     block = fol.sort('block')
-    loc = fol.function('loc', 'block')
+    # MRJ: Note that first argument is name of function, following arguments
+    # denote the domain and codomain of the function. The previous definition
+    # loc = fol.function('loc', 'block')
+    # actually defines a 0-arity term, which denotes one element of the sort
+    # block, or a mapping between the symbol loc() and a constant of sort block.
+    # I think that  what was intended, was an actual function like
+    # loc: block -> block, a mapping between elements of the sort block.
+    loc = fol.function('loc', 'block', 'block')
 
     b1 = fol.constant('b1', block)
     b2 = fol.constant('b2', block)
