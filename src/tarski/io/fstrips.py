@@ -53,7 +53,7 @@ action_tpl = """
      :parameters ({parameters})
      :precondition {precondition}
      :effect {effect}
-    ) 
+    )
 """
 
 
@@ -90,14 +90,14 @@ def print_init(problem):
             continue  # Ignore intensionally defined symbols
         fname = signature[0]
         for point, value in definition.data.items():
-            elements.append("(= ({} {}) {})".format(fname, print_term_list(point), value))
+            elements.append("(= ({} {}) {})".format(fname, print_term_ref_list(point), value))
 
     # e.g. (clear b1)
     for signature, definition in problem.init.predicate_extensions.items():
         assert isinstance(definition, set)
         predname = signature[0]
         for point in definition:
-            elements.append("({} {})".format(predname, print_term_list(point)))
+            elements.append("({} {})".format(predname, print_term_ref_list(point)))
 
     return linebreaks(elements, indentation=2, indent_first=False)
 
@@ -302,6 +302,8 @@ def print_atom(atom):
 def print_term_list(terms):
     return " ".join(print_term(t) for t in terms)
 
+def print_term_ref_list(termrefs):
+    return " ".join(print_term(t.expr()) for t in termrefs)
 
 def print_formula_list(formulas):
     return " ".join(print_formula(f) for f in formulas)
