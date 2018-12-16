@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 import sys
 
+import tarski as tsk
 from tarski import fstrips
 
 sys.path.append('../src')
-from src import tarski as tsk
 
 if __name__ == "__main__":
 
@@ -17,10 +17,10 @@ if __name__ == "__main__":
     loc = fol.function('loc', 'place')
     clear = fol.predicate('clear', 'place')
 
-    b1 = fol.const('b1', block)
-    b2 = fol.const('b2', block)
-    b3 = fol.const('b3', block)
-    table = fol.const('table', place)
+    b1 = fol.constant('b1', block)
+    b2 = fol.constant('b2', block)
+    b3 = fol.constant('b3', block)
+    table = fol.constant('table', place)
 
 
     # Now we create the different elements of the planning problem, which mostly build

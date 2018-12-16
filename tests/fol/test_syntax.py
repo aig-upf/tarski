@@ -178,6 +178,16 @@ def test_term_refs():
     assert tr1 == tr2
     assert tr1 != tr3
 
+def test_object_function_arity():
+    fol = tsk.fstrips.language()
+    block = fol.sort('block')
+    loc = fol.function('loc', 'block')
+
+    b1 = fol.constant('b1', block)
+    b2 = fol.constant('b2', block)
+
+    goal = (loc(b1) == b2)
+
 def test_term_refs_compound():
     lang = tsk.language()
     f = lang.function('f', lang.Object, lang.Integer)
