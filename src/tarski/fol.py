@@ -45,7 +45,8 @@ class FirstOrderLanguage:
 
         self._build_builtin_sorts()
         # "virtual function" ite (if-then-else)
-        self.function('ite', self.Object, self.Object, self.Object)
+        ite_func = self.function('ite', self.Object, self.Object, self.Object)
+        ite_func.builtin = True
 
 
     def __deepcopy__(self, memo):
