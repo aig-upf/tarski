@@ -42,6 +42,11 @@ def load_theory(lang, theory):
             p.builtin = True
 
     elif theory == Theory.ARITHMETIC:
+        # MRJ: ite function is now part of the Arithmetic theory
+        # "virtual function" ite (if-then-else) registered
+        ite_func = lang.function('ite', lang.Object, lang.Object, lang.Object)
+        ite_func.builtin = True
+
         for pred in builtins.get_arithmetic_predicates():
             lang.register_operator_handler(pred, Term, Term, create_casting_handler(pred, create_atom))
             p = lang.predicate(pred, lang.Real, lang.Real)
