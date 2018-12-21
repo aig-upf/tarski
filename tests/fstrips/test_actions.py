@@ -39,6 +39,14 @@ def test_functional_effect_valid_creation():
     eff = f(t1) << t2
     assert isinstance(eff, fs.FunctionalEffect)
 
+def test_increase_effect_valid_creation():
+    lang = fs.language('lang')
+    lang.total_cost = lang.function('total-cost', lang.Real)
+    eff = fs.IncreaseEffect(lang.total_cost(), 5)
+
+    assert isinstance(eff, fs.IncreaseEffect)
+    assert eff.rhs == 5
+
 def test_choice_effect_invalid_creation():
     import tarski.fstrips.errors as err
     from tests.fstrips.hybrid.tasks import create_billiards_world

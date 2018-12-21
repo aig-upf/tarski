@@ -42,8 +42,11 @@ def get_requirements_string(problem):
     # TODO To be completed
     requirements = []
     for t in problem.language.theories:
-        if t == Theory.ARITHMETIC:
+        if t == Theory.ARITHMETIC and not problem.numeric_fluents_for_action_costs_only:
             requirements.append(":numeric-fluents")
+
+    if problem.metric is not None:
+        requirements.append(":action-costs")
 
     return requirements
 

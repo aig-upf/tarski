@@ -60,6 +60,7 @@ def create_small_task():
     M.add(upp.Prevsheet, sheet1, dummy_sheet)
     M.add(upp.Sheetsize, sheet1, upp.letter)
     M.add(upp.Location, sheet1, upp.some_feeder_tray)
+    M.setx(upp.total_cost(), 0)
 
     sheet = upp.variable('sheet', upp.sheet_t)
     prevsheet = upp.variable('prevsheet', upp.sheet_t)
@@ -74,7 +75,8 @@ def create_small_task():
                fs.DelEffect(upp.Location(sheet, upp.finisher2_entry_finisher1_exit)),
                fs.AddEffect(upp.Location(sheet, upp.some_finisher_tray)),
                fs.AddEffect(upp.Stackedin(sheet, upp.finisher2_tray)),
-               fs.AddEffect(upp.Available(upp.finisher2_rsrc))
+               fs.AddEffect(upp.Available(upp.finisher2_rsrc)),
+               fs.IncreaseEffect(upp.total_cost(), 8000)
                ]
 
     P = fs.Problem()
@@ -83,4 +85,5 @@ def create_small_task():
     P.init = M
     P.goal = top
     P.action('Finisher2-Stack-Letter', [sheet, prevsheet], precondition, effects)
+    P.metric = fs.OptimizationMetric(upp.total_cost(), fs.OptimizationType.MINIMIZE)
     return P

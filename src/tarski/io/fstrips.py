@@ -9,7 +9,7 @@ from tarski.syntax import Tautology, Contradiction, Atom, CompoundTerm, Compound
 from tarski.syntax.sorts import parent, Interval, ancestors
 
 from ._fstrips.common import tarsky_to_pddl_type, get_requirements_string
-from ..fstrips import create_fstrips_problem, language, FunctionalEffect, AddEffect, DelEffect
+from ..fstrips import create_fstrips_problem, language, FunctionalEffect, AddEffect, DelEffect, IncreaseEffect
 
 from ._fstrips.reader import FStripsParser
 
@@ -128,11 +128,12 @@ def print_problem_constraints(problem):
     # pylint: disable=unused-argument
     return ""  # TODO
 
+def print_metric(metric):
+    return '(:metric {type} {exp})'.format(type=metric.opt_type.value,
+                                           exp=print_term(metric.opt_expression))
 
 def print_problem_metric(problem):
-    # pylint: disable=unused-argument
-    return ""  # TODO
-
+    return print_metric(problem.metric) if problem.metric else ''
 
 class FstripsWriter:
 
@@ -149,7 +150,7 @@ class FstripsWriter:
         with open(os.path.join(_CURRENT_DIR_, "templates", name), 'r') as file:
             return file.read()
 
-    def write_domain(self, filename, constant_objects):
+    def print_domain(self, constant_objects=None):
         tpl = self.load_tpl("fstrips_domain.tpl")
         content = tpl.format(
             header_info="",
@@ -159,16 +160,20 @@ class FstripsWriter:
             functions=self.get_functions(),
             predicates=self.get_predicates(),
             actions=self.get_actions(),
-            constants=print_objects(constant_objects),
+            constants=print_objects(constant_objects if constant_objects else set()),
         )
-        with open(filename, 'w') as file:
-            file.write(content)
+        return content
 
-    def write_instance(self, filename, constant_objects):
+    def write_domain(self, filename, constant_objects):
+        with open(filename, 'w') as file:
+            file.write(self.print_domain(constant_objects))
+
+    def print_instance(self, constant_objects=None):
         tpl = self.load_tpl("fstrips_instance.tpl")
 
         # Only objects which are not declared in the domain file need to be printed in the instance file
-        instance_objects = [c for c in self.problem.language.constants() if c not in set(constant_objects)]
+        constant_objs_set = set(constant_objects) if constant_objects else set()
+        instance_objects = [c for c in self.problem.language.constants() if c not in constant_objs_set]
 
         content = tpl.format(
             header_info="",
@@ -182,8 +187,11 @@ class FstripsWriter:
             domain_bounds=print_domain_bounds(self.problem),
             metric=print_problem_metric(self.problem),
         )
+        return content
+
+    def write_instance(self, filename, constant_objects):
         with open(filename, 'w') as file:
-            file.write(content)
+            file.write(self.print_instance(constant_objects))
 
     def get_types(self):
         res = []
@@ -274,7 +282,11 @@ def print_effect(eff, indentation=0):
     if conditional:
         raise RuntimeError("Unimplemented")
 
-    if functional:
+    if isinstance(eff, IncreaseEffect):
+        # Clumsy handling of both functions and constants in the delta field.
+        rhs = eff.rhs if not isinstance(eff.rhs, Term) else print_term(eff.rhs)
+        return indent("(increase {} {})".format(print_term(eff.lhs), rhs), indentation)
+    elif functional:
         return indent("(assign {} {})".format(print_term(eff.lhs), print_term(eff.rhs)), indentation)
     elif isinstance(eff, AddEffect):
         return indent("{}".format(print_atom(eff.atom)), indentation)
