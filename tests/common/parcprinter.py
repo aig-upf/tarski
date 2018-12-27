@@ -11,7 +11,7 @@ from tarski.theories import Theory
 
 
 def create_small_language():
-    upp = tsk.fstrips.language("upp", theories=[Theory.EQUALITY])
+    upp = tsk.fstrips.language("upp", theories=[Theory.EQUALITY, Theory.ARITHMETIC])
 
     upp.sheet_t = upp.sort('sheet_t')
     upp.resource_t = upp.sort('resource_t')
@@ -31,5 +31,7 @@ def create_small_language():
     upp.Sheetsize = upp.predicate('Sheetsize', upp.sheet_t, upp.size_t)
     upp.Stackedin = upp.predicate('Stackedin', upp.sheet_t, upp.location_t)
     upp.Uninitialized = upp.predicate('Uninitialized')
+
+    upp.total_cost = upp.function('total-cost', upp.Real)
 
     return upp

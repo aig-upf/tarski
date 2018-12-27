@@ -3,6 +3,7 @@ from enum import Enum
 from typing import List
 
 import tarski.errors as err
+import tarski.fol as fol
 from .errors import InvalidEffectError
 from tarski.syntax import *
 from .. import theories as tsk_theories
@@ -71,6 +72,20 @@ class FunctionalEffect(SingleEffect):
 
     def tostring(self):
         return "{} := {}".format(self.lhs, self.rhs)
+
+class IncreaseEffect(FunctionalEffect):
+    def check_well_formed(self):
+        if not isinstance(self.lhs, CompoundTerm):
+            msg = "Error declaring IncreaseEffect: {}\n Invalid effect expression: \
+            left hand side '{}' needs to be a functional term!".format(self.tostring(), self.lhs)
+            raise InvalidEffectError(self, msg)
+
+        if not isinstance(self.rhs, Term) and type(self.rhs) not in [int, float]:
+            msg = "Error declaring IncreaseEffect: {}\n Invalid increase expression: \
+            right hand side '{}' needs to be a constant or functional term!".format(
+                self.tostring(), self.lhs)
+            raise InvalidEffectError(self, msg)
+
 
 class OptimizationType(Enum):
     MINIMIZE = "minimize"
