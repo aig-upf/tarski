@@ -19,7 +19,6 @@ class Problem:
         self.constraints = []
         self.actions = OrderedDict()
         self.metric = None
-        self.numeric_fluents_for_action_costs_only = False
 
         # TODO Add axioms, state constraints, etc.
 
@@ -73,9 +72,6 @@ class Problem:
 
     def metric(self, opt_expression, opt_type):
         self.metric = OptimizationMetric(opt_expression, opt_type)
-
-    def set_numeric_fluents_for_action_costs_only(self, val=True):
-        self.numeric_fluents_for_action_costs_only = val
 
     def __str__(self):
         return 'FSTRIPS Problem "{}", domain "{}"'.format(self.name, self.domain_name)

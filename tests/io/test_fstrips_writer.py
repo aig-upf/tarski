@@ -68,14 +68,7 @@ def test_action_costs_numeric_fluents_requirements():
     problem = parcprinter.create_small_task()
     writer = FstripsWriter(problem)
 
-    # numeric fluents should be required by default.
     # action costs should be required if there is a metric defined.
-    domain_string = writer.print_domain()
-    assert 'numeric-fluents' in domain_string
-    assert 'action-costs' in domain_string
-
-    # but not if they are only used to implement action costs.
-    problem.set_numeric_fluents_for_action_costs_only()
     domain_string = writer.print_domain()
     assert 'numeric-fluents' not in domain_string
     assert 'action-costs' in domain_string

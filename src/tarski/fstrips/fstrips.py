@@ -74,6 +74,18 @@ class FunctionalEffect(SingleEffect):
         return "{} := {}".format(self.lhs, self.rhs)
 
 class IncreaseEffect(FunctionalEffect):
+    def __init__(self, lhs, rhs, condition=Tautology()):
+        self.lhs = lhs
+        self.rhs = rhs
+        self.condition = condition
+        self.check_well_formed()
+        # MRJ: normalise rhs so it is easier to handle later on
+        if type(self.rhs) == int:
+            self.rhs = Constant(self.rhs, self.lhs.language.Integer)
+        elif type(self.rhs) == float:
+            self.rhs = Constant(self.rhs, self.lhs.language.Real)
+
+
     def check_well_formed(self):
         if not isinstance(self.lhs, CompoundTerm):
             msg = "Error declaring IncreaseEffect: {}\n Invalid effect expression: \

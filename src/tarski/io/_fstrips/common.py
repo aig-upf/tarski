@@ -42,10 +42,14 @@ def get_requirements_string(problem):
     # TODO To be completed
     requirements = []
     for t in problem.language.theories:
-        if t == Theory.ARITHMETIC and not problem.numeric_fluents_for_action_costs_only:
+        # MRJ: The Arithmetic theory incorporates arithmetic functions (which
+        # are PDDL numeric operators)
+        if t == Theory.ARITHMETIC:
             requirements.append(":numeric-fluents")
 
-    if problem.metric is not None:
+    # MRJ: Functional STRIPS with action costs, keeping in line with IPC
+    # convention
+    if problem.metric is not None and problem.language.has_function('total-cost'):
         requirements.append(":action-costs")
 
     return requirements

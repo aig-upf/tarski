@@ -278,14 +278,13 @@ def print_effect(eff, indentation=0):
     assert isinstance(eff, SingleEffect)  # Universal, etc. effects yet to be implemented
     conditional = not isinstance(eff.condition, Tautology)  # We have a conditional effect
     functional = isinstance(eff, FunctionalEffect)
+    increase = isinstance(eff, IncreaseEffect)
 
     if conditional:
         raise RuntimeError("Unimplemented")
 
-    if isinstance(eff, IncreaseEffect):
-        # Clumsy handling of both functions and constants in the delta field.
-        rhs = eff.rhs if not isinstance(eff.rhs, Term) else print_term(eff.rhs)
-        return indent("(increase {} {})".format(print_term(eff.lhs), rhs), indentation)
+    if increase:
+        return indent("(increase {} {})".format(print_term(eff.lhs), print_term(eff.rhs)), indentation)
     elif functional:
         return indent("(assign {} {})".format(print_term(eff.lhs), print_term(eff.rhs)), indentation)
     elif isinstance(eff, AddEffect):
