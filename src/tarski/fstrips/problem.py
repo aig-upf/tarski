@@ -18,6 +18,7 @@ class Problem:
         self.goal = None
         self.constraints = []
         self.actions = OrderedDict()
+        self.derived = OrderedDict()
         self.metric = None
 
         # TODO Add axioms, state constraints, etc.
@@ -28,6 +29,13 @@ class Problem:
 
         self.actions[name] = Action(self.language, name, parameters, precondition, effects)
         return self.actions[name]
+
+    def derived(self, name, parameters, formula):
+        if name in self.derived:
+            raise err.DuplicateDerivedDefinition(name, self.derived[name])
+
+        self.derived[name] = Derived(self.language, name, parameters, formula)
+        return self.derived[name]
 
     def has_action(self, name):
         return name in self.actions

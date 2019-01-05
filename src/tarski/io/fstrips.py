@@ -56,6 +56,11 @@ action_tpl = """
     )
 """
 
+derived_tpl = """
+    (:derived ({name} {parameters})
+              {formula}
+    )
+"""
 
 def print_objects(constants):
     """ Print a PDDL object declaration with the given objects.
@@ -160,6 +165,7 @@ class FstripsWriter:
             functions=self.get_functions(),
             predicates=self.get_predicates(),
             actions=self.get_actions(),
+            derived=self.get_derived_predicates(),
             constants=print_objects(constant_objects if constant_objects else set()),
         )
         return content
@@ -237,6 +243,15 @@ class FstripsWriter:
             effect=print_effects(a.effects, base_indentation)
         )
 
+    def get_derived_predicates(self):
+        return "\n".join(self.get_derived(d) for d in self.problem.derived.values())
+
+    def get_derived(self, d):
+        base_indentation = 1
+        return derived_tpl.format(
+            name=d.name,
+            parameters=print_variable_list(d.parameters),
+            formula=print_formula(d.formula))
 
 def build_signature_string(domain):
     if not domain:

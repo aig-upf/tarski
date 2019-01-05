@@ -16,6 +16,8 @@ class InvalidEffectError(TarskiError):
 class DuplicateActionDefinition(DuplicateDefinition):
     pass
 
+class DuplicateDerivedDefinition(DuplicateDefinition):
+    pass
 
 class UndefinedAction(UndefinedElement):
     pass
