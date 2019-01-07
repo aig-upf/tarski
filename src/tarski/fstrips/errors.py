@@ -21,3 +21,11 @@ class DuplicateDerivedDefinition(DuplicateDefinition):
 
 class UndefinedAction(UndefinedElement):
     pass
+
+class InvalidDerivedPredicateError(TarskiError):
+    def __init__(self, symbol, formula, msg=None):
+        if msg is None:
+            msg = ' '
+
+        msg = 'definition of derived predicate "{} \equiv {}" is invalid! {}'.format(symbol, formula, msg)
+        super().__init__(msg)
