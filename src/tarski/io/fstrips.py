@@ -1,3 +1,4 @@
+import copy
 import logging
 import os
 from collections import defaultdict
@@ -9,7 +10,7 @@ from tarski.syntax import Tautology, Contradiction, Atom, CompoundTerm, Compound
 from tarski.syntax.sorts import parent, Interval, ancestors
 
 from ._fstrips.common import tarsky_to_pddl_type, get_requirements_string
-from ..fstrips import create_fstrips_problem, language, FunctionalEffect, AddEffect, DelEffect, IncreaseEffect
+from ..fstrips import create_fstrips_problem, language, FunctionalEffect, AddEffect, DelEffect, IncreaseEffect, UniversalEffect
 
 from ._fstrips.reader import FStripsParser
 
@@ -290,13 +291,18 @@ def print_effects(effects, indentation=0):
 
 
 def print_effect(eff, indentation=0):
-    assert isinstance(eff, SingleEffect)  # Universal, etc. effects yet to be implemented
+    # assert isinstance(eff, SingleEffect)  # Universal, etc. effects yet to be implemented
     conditional = not isinstance(eff.condition, Tautology)  # We have a conditional effect
     functional = isinstance(eff, FunctionalEffect)
     increase = isinstance(eff, IncreaseEffect)
 
     if conditional:
-        raise RuntimeError("Unimplemented")
+        eff_copy_no_condition = copy.copy(eff)
+        eff_copy_no_condition.condition = Tautology()
+
+        return indent("(when {} {})".format(print_formula(eff.condition, indentation + 1),
+                                            print_effect(eff_copy_no_condition, indentation + 1)),
+                      indentation)
 
     if increase:
         return indent("(increase {} {})".format(print_term(eff.lhs), print_term(eff.rhs)), indentation)
@@ -306,6 +312,11 @@ def print_effect(eff, indentation=0):
         return indent("{}".format(print_atom(eff.atom)), indentation)
     elif isinstance(eff, DelEffect):
         return indent("(not {})".format(print_atom(eff.atom)), indentation)
+    elif isinstance(eff, UniversalEffect):
+        return indent("(forall ({})\n{})".format(print_variable_list(eff.variables),
+                                                 print_effects(eff.effects, indentation=indentation + 1)),
+                      indentation)
+
     raise RuntimeError("Unexpected element type: {}".format(eff))
 
 

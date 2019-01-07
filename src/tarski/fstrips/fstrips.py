@@ -11,9 +11,10 @@ from .. import theories as tsk_theories
 class UniversalEffect:
     """ A forall-effect """
 
-    def __init__(self, variables, effects):
+    def __init__(self, variables, effects, condition=Tautology()):
         self.variables = variables
         self.effects = effects
+        self.condition = condition
 
     def __str__(self):
         return "forall ({}) : ({})".format(self.variables, ', '.join(self.effects))
