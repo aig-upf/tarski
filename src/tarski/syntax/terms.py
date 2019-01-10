@@ -353,6 +353,7 @@ class Matrix(Term):
     def is_syntactically_equal(self, other):
         if self.__class__ is not other.__class__ or self.matrix.shape != other.matrix.shape:
             return False
+        N, M = self.matrix.shape
         for i in range(N):
             for j in range(M):
                 if not self.matrix[i, j].is_syntactically_equal(other.matrix[i, j]):
