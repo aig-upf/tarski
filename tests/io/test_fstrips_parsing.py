@@ -1,6 +1,6 @@
 
 import pytest
-from tarski.io._fstrips.reader import ParsingError
+from tarski.io.fstrips import ParsingError
 from tarski.syntax import Atom
 from tarski.theories import Theory
 

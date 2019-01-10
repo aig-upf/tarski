@@ -13,6 +13,9 @@ from ..fstrips import create_fstrips_problem, language, FunctionalEffect, AddEff
 
 from ._fstrips.reader import FStripsParser
 
+# Leave the next import so that it can be imported from the outside without warnings of importing a private module
+from ._fstrips.reader import ParsingError
+
 _CURRENT_DIR_ = os.path.dirname(os.path.realpath(__file__))
 
 
