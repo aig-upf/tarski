@@ -225,7 +225,7 @@ class AggregateCompoundTerm(Term):
     __repr__ = __str__
 
     def __hash__(self):
-        return hash((self.symbol.symbol, tuple(x for x in self.subterms)))
+        return hash((self.symbol.symbol, self.subterms))
 
     def is_syntactically_equal(self, other):
         if (self.__class__ is not other.__class__ or self.symbol != other.symbol
