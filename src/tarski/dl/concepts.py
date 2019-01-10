@@ -83,7 +83,7 @@ class UniversalConcept(Concept):
         return self.__class__ is other.__class__
 
     def denotation(self, model):
-        return model.compressed(model.universe(), self.ARITY)
+        return model.compressed(model.primitive_denotation(self), self.ARITY)
 
     def __repr__(self):
         return '<universe>'

@@ -62,9 +62,14 @@ class SyntacticFactory:
         for c in nominals:
             concepts.append(NominalConcept(c.symbol, c.sort))
 
+        # TODO Generate primitive "type" predicates again
         # Temporally deactivated
         # for t in types:
         #     concepts.append(PrimitiveConcept(t))
+
+        logging.info('Primitive (nullary) atoms : {}'.format(", ".join(map(str, primitive_atoms))))
+        logging.info('Primitive (unary) concepts: {}'.format(", ".join(map(str, concepts))))
+        logging.info('Primitive (binary) roles  : {}'.format(", ".join(map(str, roles))))
 
         return concepts, roles, primitive_atoms
 
