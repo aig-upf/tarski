@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
 import itertools
 import copy
-
 from collections import OrderedDict
 
-import tarski.fstrips as fs
-import tarski.fstrips.hybrid as hybrid
-from tarski.syntax.transform import TermSubstitution
-from tarski.syntax.visitors import CollectVariables
-from tarski.util import IndexDictionary
+from ...fstrips import hybrid as hybrid
+from ...syntax.transform import TermSubstitution
+from ...util import IndexDictionary
 
 from . import instantiation
 from .elements import process_expression, process_effect
+
 
 class ReactionGrounder(object):
 
@@ -30,8 +28,9 @@ class ReactionGrounder(object):
 
         for react_schema in self.schemas:
             if len(react_schema.parameters) == 0:
-                self.problem.ground_reactions.add(hybrid.Reaction(self.L, \
-                react_schema.name, [], react_schema.condition, react_schema.effect))
+                self.problem.ground_reactions.add(hybrid.Reaction(self.L,
+                                                                  react_schema.name, [], react_schema.condition,
+                                                                  react_schema.effect))
                 self.reactions_generated += 1
                 continue
 
@@ -47,6 +46,5 @@ class ReactionGrounder(object):
                 g_eff.condition = process_expression(self.L, g_eff.condition, op, False)
                 g_eff = process_effect(self.L, g_eff, op)
 
-                self.problem.ground_reactions.add(hybrid.Reaction(self.L, \
-                react_schema.name, [], g_cond, g_eff))
+                self.problem.ground_reactions.add(hybrid.Reaction(self.L, react_schema.name, [], g_cond, g_eff))
             self.reactions_generated += k
