@@ -201,9 +201,10 @@ class CompoundTerm(Term):
 
 class AggregateCompoundTerm(Term):
     """
-        Combinations of a functional symbol, a set of bound variables and a terms.
-        Argument symbol needs to be an instance of Function of have
-        Function-like interface.
+        Combinations of a functional symbol, a set of bound variables and a sequence of terms.
+        Examples of such terms include summations, products and other operations over sequences.
+
+        Argument symbol needs to be an instance of Function or have Function-like interface.
     """
 
     def __init__(self, operator, bound_vars, subterm: Term):
