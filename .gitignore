@@ -47,9 +47,6 @@ Makefile
 # notebooks
 notebooks/.ipynb_checkpoints/
 
-# virtual environment
-venv/
-
 # Pytest dirs
 .pytest_cache
 
