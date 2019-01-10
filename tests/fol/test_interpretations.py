@@ -1,6 +1,3 @@
-"""
- This tests the type-handling module
-"""
 import pytest
 import tarski
 import tarski.model
@@ -11,6 +8,7 @@ from ..common import blocksworld, numeric
 from tarski.evaluators.simple import evaluate
 from tarski.syntax import Constant, ite
 from tarski.theories import Theory
+
 
 def test_interpretation_instance():
     lang = numeric.generate_numeric_instance()
@@ -73,6 +71,7 @@ def test_blocksworld_set_via_square_brackets():
 
     assert model[loc(b1)] == table
 
+
 def test_special_function_max():
     from tarski.syntax.arithmetic.special import max
     lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL])
@@ -81,7 +80,8 @@ def test_special_function_max():
     reals = lang.Real
     a, b = lang.constant(3.14, reals), lang.constant(1.24, reals)
 
-    assert model[max(a,b)].symbol == 3.14
+    assert model[max(a, b)].symbol == 3.14
+
 
 def test_special_function_min():
     from tarski.syntax.arithmetic.special import min
@@ -90,7 +90,7 @@ def test_special_function_min():
     model.evaluator = evaluate
     reals = lang.Real
     a, b = lang.constant(3.14, reals), lang.constant(1.24, reals)
-    assert model[min(a,b)].symbol == 1.24
+    assert model[min(a, b)].symbol == 1.24
 
 
 def test_special_function_abs():
@@ -107,6 +107,7 @@ def test_special_function_abs():
     assert model[abs(a) > c] is True
     assert model[abs(b) > c] is True
 
+
 def test_special_function_pow():
     import numpy as np
     from tarski.syntax.arithmetic import pow
@@ -116,6 +117,7 @@ def test_special_function_pow():
     reals = lang.Real
     alpha = lang.constant(0.5, reals)
     assert model[pow(alpha, 2.0)].symbol == np.power(0.5, 2.0)
+
 
 def test_special_function_sin():
     import numpy as np
@@ -127,6 +129,7 @@ def test_special_function_sin():
     alpha = lang.constant(0.5, reals)
     assert model[sin(alpha)].symbol == np.sin(0.5)
 
+
 def test_special_function_sqrt():
     import numpy as np
     from tarski.syntax.arithmetic import sqrt
@@ -136,6 +139,7 @@ def test_special_function_sqrt():
     reals = lang.Real
     alpha = lang.constant(0.5, reals)
     assert model[sqrt(alpha)].symbol == np.sqrt(0.5)
+
 
 def test_special_function_cos():
     import numpy as np
@@ -147,6 +151,7 @@ def test_special_function_cos():
     alpha = lang.constant(0.5, reals)
     assert model[cos(alpha)].symbol == np.cos(0.5)
 
+
 def test_special_function_tan():
     import numpy as np
     from tarski.syntax.arithmetic.special import tan
@@ -156,6 +161,7 @@ def test_special_function_tan():
     reals = lang.Real
     alpha = lang.constant(0.5, reals)
     assert model[tan(alpha)].symbol == np.tan(0.5)
+
 
 def test_special_function_atan():
     import numpy as np
@@ -167,6 +173,7 @@ def test_special_function_atan():
     alpha = lang.constant(0.5, reals)
     assert model[atan(alpha)].symbol == np.arctan(0.5)
 
+
 def test_special_function_exp():
     import numpy as np
     from tarski.syntax.arithmetic.special import exp
@@ -177,6 +184,7 @@ def test_special_function_exp():
     alpha = lang.constant(0.5, reals)
     assert model[exp(alpha)].symbol == np.exp(0.5)
 
+
 def test_special_function_log():
     import numpy as np
     from tarski.syntax.arithmetic.special import log
@@ -184,8 +192,9 @@ def test_special_function_log():
     model = Model(lang)
     model.evaluator = evaluate
     reals = lang.Real
-    alpha = lang.constant(0.5,reals)
+    alpha = lang.constant(0.5, reals)
     assert model[log(alpha)].symbol == np.log(0.5)
+
 
 def test_special_function_erf():
     import scipy.special as sci
@@ -194,8 +203,9 @@ def test_special_function_erf():
     model = Model(lang)
     model.evaluator = evaluate
     reals = lang.Real
-    x = lang.constant(0.5,reals)
+    x = lang.constant(0.5, reals)
     assert model[erf(x)].symbol == sci.erf(0.5)
+
 
 def test_special_function_erfc():
     import scipy.special as sci
@@ -204,8 +214,9 @@ def test_special_function_erfc():
     model = Model(lang)
     model.evaluator = evaluate
     reals = lang.Real
-    x = lang.constant(0.5,reals)
+    x = lang.constant(0.5, reals)
     assert model[erfc(x)].symbol == sci.erfc(0.5)
+
 
 def test_special_function_sgn():
     import numpy as np
@@ -214,13 +225,14 @@ def test_special_function_sgn():
     model = Model(lang)
     model.evaluator = evaluate
     reals = lang.Real
-    x = lang.constant(0.5,reals)
+    x = lang.constant(0.5, reals)
     assert model[sgn(x)].symbol == np.sign(0.5)
+
 
 def test_random_function_normal():
     import numpy as np
     from tarski.syntax.arithmetic.random import normal
-    np.random.seed(1234) # for repeatability
+    np.random.seed(1234)  # for repeatability
     lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL, Theory.RANDOM])
     model = Model(lang)
     model.evaluator = evaluate
@@ -231,10 +243,11 @@ def test_random_function_normal():
     assert isinstance(the_term, tarski.syntax.Term)
     assert model[normal(mu, sigma)].symbol == 0.9714351637324931
 
+
 def test_random_function_gamma():
     import numpy as np
     from tarski.syntax.arithmetic.random import gamma
-    np.random.seed(1234) # for repeatability
+    np.random.seed(1234)  # for repeatability
     lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL, Theory.RANDOM])
     model = Model(lang)
     model.evaluator = evaluate
@@ -245,6 +258,7 @@ def test_random_function_gamma():
     assert isinstance(the_term, tarski.syntax.Term)
     assert model[gamma(shape, scale)].symbol == 1.0629932880924005
 
+
 def test_arcsin():
     import numpy as np
     from tarski.syntax.arithmetic.special import asin
@@ -254,6 +268,7 @@ def test_arcsin():
     reals = lang.Real
     alpha = lang.constant(0.5, reals)
     assert model[asin(alpha)].symbol == np.arcsin(0.5)
+
 
 def test_blocksworld_add():
     lang = blocksworld.generate_small_fstrips_bw_language()
@@ -321,6 +336,7 @@ def test_predicate_extensions():
         # This should raise an error, as the tuple has been removed
         model.remove(pred, o1, o2)
 
+
 def test_predicate_without_equality():
     lang = tarski.language(theories=[])
     leq = lang.predicate('leq', lang.Integer, lang.Integer)
@@ -340,6 +356,7 @@ def test_predicate_without_equality():
     assert model[leq(f(o1), f(o2))] is True
     assert model[leq(f(o2), f(o1))] is False
 
+
 def test_predicate_without_equality_reals():
     import numpy
 
@@ -358,8 +375,9 @@ def test_predicate_without_equality_reals():
         for y in numpy.arange(x, 5.0):
             model.add(leq, x, y)
 
-    assert model[leq(w(o1), w(o2))] == True
-    assert model[leq(w(o2), w(o1))] == False
+    assert model[leq(w(o1), w(o2))] is True
+    assert model[leq(w(o2), w(o1))] is False
+
 
 def test_ite():
     lang = tarski.language('arith', [Theory.EQUALITY, Theory.ARITHMETIC])
@@ -384,16 +402,17 @@ def test_ite():
 
     assert model[tau].symbol == 5
 
+
 def test_matrix_evaluation_case_1():
     from tarski.syntax.arithmetic import one
     lang = tarski.language('double_integrator', [Theory.EQUALITY, Theory.ARITHMETIC])
     I = lang.matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]], lang.Real)
     x0 = Model(lang)
     x0.evaluator = evaluate
-    assert x0[I][0,0].is_syntactically_equal(one(lang.Real))
+    assert x0[I][0, 0].is_syntactically_equal(one(lang.Real))
+
 
 def test_matrix_evaluation_case_2():
-    from tarski.syntax.arithmetic import one
     lang = tarski.language('double_integrator', [Theory.EQUALITY, Theory.ARITHMETIC])
     I = lang.matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]], lang.Real)
     x = lang.function('x', lang.Real)
@@ -408,4 +427,4 @@ def test_matrix_evaluation_case_2():
     x0.setx(x(), 1.0)
     x0.setx(y(), 2.0)
     x0.setx(z(), 3.0)
-    assert x0[I*v][2,0].is_syntactically_equal(lang.constant(3.0, lang.Real))
+    assert x0[I * v][2, 0].is_syntactically_equal(lang.constant(3.0, lang.Real))

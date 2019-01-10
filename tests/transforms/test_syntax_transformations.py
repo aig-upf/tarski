@@ -14,12 +14,12 @@ from tarski.syntax.transform.errors import TransformationError
 
 def test_nnf_conjunction():
     bw = blocksworld.generate_small_fstrips_bw_language()
-    block = bw.get_sort('block')
-    place = bw.get_sort('place')
+    _ = bw.get_sort('block')
+    _ = bw.get_sort('place')
     loc = bw.get_function('loc')
-    clear = bw.get_predicate('clear')
+    _ = bw.get_predicate('clear')
     b1, b2, b3, b4 = [bw.get_constant('b{}'.format(k)) for k in range(1, 5)]
-    table = bw.get_constant('table')
+    _ = bw.get_constant('table')
 
     phi = neg(land(loc(b1) != loc(b2), loc(b3) != loc(b4)))
     result = NNFTransformation.rewrite(phi)
@@ -30,12 +30,12 @@ def test_nnf_conjunction():
 
 def test_nnf_double_negation():
     bw = blocksworld.generate_small_fstrips_bw_language()
-    block = bw.get_sort('block')
-    place = bw.get_sort('place')
+    _ = bw.get_sort('block')
+    _ = bw.get_sort('place')
     loc = bw.get_function('loc')
-    clear = bw.get_predicate('clear')
+    _ = bw.get_predicate('clear')
     b1, b2, b3, b4 = [bw.get_constant('b{}'.format(k)) for k in range(1, 5)]
-    table = bw.get_constant('table')
+    _ = bw.get_constant('table')
 
     phi = neg(neg(loc(b1) == loc(b2)))
     result = NNFTransformation.rewrite(phi)
@@ -47,11 +47,11 @@ def test_nnf_double_negation():
 def test_nnf_quantifier_flips():
     bw = blocksworld.generate_small_fstrips_bw_language()
     block = bw.get_sort('block')
-    place = bw.get_sort('place')
+    _ = bw.get_sort('place')
     loc = bw.get_function('loc')
-    clear = bw.get_predicate('clear')
+    _ = bw.get_predicate('clear')
     b1, b2, b3, b4 = [bw.get_constant('b{}'.format(k)) for k in range(1, 5)]
-    table = bw.get_constant('table')
+    _ = bw.get_constant('table')
 
     x = bw.variable('x', block)
 
@@ -62,7 +62,7 @@ def test_nnf_quantifier_flips():
     assert str(result.nnf) == str(gamma)
 
 
-def test_nnf_LPL_page_321_antecedent():
+def test_nnf_lpl_page_321_antecedent():
     tw = tarskiworld.create_small_world()
     x = tw.variable('x', tw.Object)
     y = tw.variable('y', tw.Object)
@@ -75,13 +75,13 @@ def test_nnf_LPL_page_321_antecedent():
 def test_prenex_idempotency():
     bw = blocksworld.generate_small_fstrips_bw_language()
     block = bw.get_sort('block')
-    place = bw.get_sort('place')
+    _ = bw.get_sort('place')
     loc = bw.get_function('loc')
-    clear = bw.get_predicate('clear')
+    _ = bw.get_predicate('clear')
     b1, b2, b3, b4 = [bw.get_constant('b{}'.format(k)) for k in range(1, 5)]
-    table = bw.get_constant('table')
+    _ = bw.get_constant('table')
 
-    x = bw.variable('x', block)
+    _ = bw.variable('x', block)
 
     phi = loc(b1) == b2
     result = PrenexTransformation.rewrite(bw, phi)
@@ -90,7 +90,7 @@ def test_prenex_idempotency():
     assert str(result.prenex) == str(gamma)
 
 
-def test_prenex_LPL_page_321():
+def test_prenex_lpl_page_321():
     tw = tarskiworld.create_small_world()
     x = tw.variable('x', tw.Object)
 
@@ -100,9 +100,8 @@ def test_prenex_LPL_page_321():
     phi = forall(x, implies(s2, s1))
     result = PrenexTransformation.rewrite(tw, phi)
     yp = tw.variable("y'", tw.Object)
-    gamma = NNFTransformation.rewrite(exists(yp, \
-                                             forall(x, y, implies(land(tw.Cube(x), land(tw.Tet(y), tw.LeftOf(x, y))), \
-                                                                  land(tw.Dodec(yp), tw.BackOf(x, yp)))))).nnf
+    gamma = NNFTransformation.rewrite(exists(yp, forall(
+        x, y, implies(land(tw.Cube(x), land(tw.Tet(y), tw.LeftOf(x, y))), land(tw.Dodec(yp), tw.BackOf(x, yp)))))).nnf
 
     assert str(result.prenex) == str(gamma)
 
@@ -117,7 +116,7 @@ def test_universal_elimination_fails_due_to_no_constants():
     phi = forall(x, implies(s2, s1))
     # print(str(phi))
     with pytest.raises(TransformationError):
-        result = UniversalQuantifierElimination.rewrite(tw, phi)
+        _ = UniversalQuantifierElimination.rewrite(tw, phi)
         # print(str(result.universal_free))
 
 
@@ -127,9 +126,9 @@ def test_universal_elimination_works():
 
     y = tw.variable('y', tw.Object)
 
-    obj1 = tw.constant('obj1', tw.Object)
-    obj2 = tw.constant('obj2', tw.Object)
-    obj3 = tw.constant('obj3', tw.Object)
+    _ = tw.constant('obj1', tw.Object)
+    _ = tw.constant('obj2', tw.Object)
+    _ = tw.constant('obj3', tw.Object)
 
     s1 = exists(y, land(tw.Dodec(y), tw.BackOf(x, y)))
     s2 = land(tw.Cube(x), exists(y, land(tw.Tet(y), tw.LeftOf(x, y))))
@@ -145,13 +144,13 @@ def test_universal_elimination_works():
 def test_builtin_negation_absorption():
     bw = blocksworld.generate_small_fstrips_bw_language()
     block = bw.get_sort('block')
-    place = bw.get_sort('place')
+    _ = bw.get_sort('place')
     loc = bw.get_function('loc')
-    clear = bw.get_predicate('clear')
+    _ = bw.get_predicate('clear')
     b1, b2, b3, b4 = [bw.get_constant('b{}'.format(k)) for k in range(1, 5)]
-    table = bw.get_constant('table')
+    _ = bw.get_constant('table')
 
-    x = bw.variable('x', block)
+    _ = bw.variable('x', block)
 
     phi = neg(loc(b1) == b2)
     psi = loc(b1) != b2
@@ -162,13 +161,13 @@ def test_builtin_negation_absorption():
 
 def test_cnf_conversion_easy():
     tw = tarskiworld.create_small_world()
-    x = tw.variable('x', tw.Object)
+    _ = tw.variable('x', tw.Object)
 
-    y = tw.variable('y', tw.Object)
+    _ = tw.variable('y', tw.Object)
 
     obj1 = tw.constant('obj1', tw.Object)
     obj2 = tw.constant('obj2', tw.Object)
-    obj3 = tw.constant('obj3', tw.Object)
+    _ = tw.constant('obj3', tw.Object)
 
     s1 = land(tw.Cube(obj1), neg(tw.Tet(obj2)))
     s2 = land(tw.Cube(obj2), neg(tw.Tet(obj1)))
@@ -188,9 +187,9 @@ def test_cnf_conversion_complex():
 
     y = tw.variable('y', tw.Object)
 
-    obj1 = tw.constant('obj1', tw.Object)
-    obj2 = tw.constant('obj2', tw.Object)
-    obj3 = tw.constant('obj3', tw.Object)
+    _ = tw.constant('obj1', tw.Object)
+    _ = tw.constant('obj2', tw.Object)
+    _ = tw.constant('obj3', tw.Object)
 
     s1 = exists(y, land(tw.Dodec(y), tw.BackOf(x, y)))
     s2 = land(tw.Cube(x), exists(y, land(tw.Tet(y), tw.LeftOf(x, y))))

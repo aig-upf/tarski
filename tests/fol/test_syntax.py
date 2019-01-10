@@ -1,4 +1,3 @@
-
 import copy
 
 import pytest
@@ -24,16 +23,16 @@ def test_arithmetic_terms_fails_without_import():
     two, three = lang.constant(2, ints), lang.constant(3, ints)
     with pytest.raises(err.LanguageError):
         # This should raise TypeError as the arithmetic module has not been loaded
-        sum_ = two + three
+        _ = two + three
 
 
 def test_arithmetic_term_plus_float_lit_is_term():
     lang = numeric.generate_numeric_instance()
-    particle = lang.get_sort('particle')
+    _ = lang.get_sort('particle')
     p1 = lang.get_constant('p1')
     x = lang.get_function('x')
     t = x(p1) + 1.0
-    assert isinstance(t, tsk.Term)
+    assert isinstance(t, CompoundTerm)
     assert isinstance(t.subterms[0], tsk.Term)
     assert isinstance(t.subterms[1], tsk.Term)
 
@@ -54,22 +53,24 @@ def test_load_arithmetic_module_fails_when_language_frozen():
     with pytest.raises(err.LanguageError):
         # load_theory() should raise LanguageError as we have created two constants
         theories.load_theory(lang, Theory.ARITHMETIC)
-        sum_ = two + three
+        _ = two + three
+
 
 def test_special_terms_does_not_fail_with_load_theory():
     from tarski.syntax.builtins import BuiltinFunctionSymbol
-    lang = tsk.fstrips.language(theories=[Theory.ARITHMETIC,Theory.SPECIAL])
+    lang = tsk.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL])
     assert Theory.SPECIAL in lang.theories
-    max_func = lang.get_function(BuiltinFunctionSymbol.MAX)
+    _ = lang.get_function(BuiltinFunctionSymbol.MAX)
 
 
 def test_special_term_construction():
     from tarski.syntax.arithmetic.special import max
-    lang = tsk.fstrips.language(theories=[Theory.ARITHMETIC,Theory.SPECIAL])
+    lang = tsk.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL])
     ints = lang.Integer
     two, three = lang.constant(2, ints), lang.constant(3, ints)
-    max_ = max(two,three)
+    max_ = max(two, three)
     assert isinstance(max_, tsk.Term), "max_ should be the term max(Const(2), Const(3)), not the integer value 3"
+
 
 def test_equality_atom_from_expression():
     lang = tsk.fstrips.language('arith', [Theory.EQUALITY, Theory.ARITHMETIC])
@@ -107,16 +108,17 @@ def test_copying_and_equality():
 
     x = lang.function('x', lang.Integer)
     y = lang.function('y', lang.Integer)
-    f = lang.function('f', lang.Integer, lang.Integer, lang.Integer)
+    _ = lang.function('f', lang.Integer, lang.Integer, lang.Integer)
 
-    deep = copy.deepcopy(c)
-    # deep = copy.deepcopy(x)
+    _ = copy.deepcopy(c)
 
     phi = (x() <= y()) & (y() <= x())
     shallow = copy.copy(phi)
     deep = copy.deepcopy(phi)
     # phi3 = (x() <= y()) & (y() <= x())
-
+    assert isinstance(phi, CompoundFormula)
+    assert isinstance(shallow, CompoundFormula)
+    assert isinstance(deep, CompoundFormula)
     assert shallow.connective == phi.connective
     assert id(shallow.connective) == id(phi.connective)
     assert id(shallow.subformulas) == id(phi.subformulas)
@@ -163,11 +165,12 @@ def test_duplicate_detection_and_global_getter():
     assert id(lang.get('p1')) == id(p1)
 
     assert len(lang.get('t1', 'c1', 'f1', 'p1')) == 4
-    assert(all(id(x) == id(y) for x, y in zip([t1, c1, f1, p1], lang.get('t1', 'c1', 'f1', 'p1'))))
+    assert (all(id(x) == id(y) for x, y in zip([t1, c1, f1, p1], lang.get('t1', 'c1', 'f1', 'p1'))))
+
 
 def test_term_refs():
     lang = tsk.language()
-    f = lang.function('f', lang.Object, lang.Integer)
+    _ = lang.function('f', lang.Object, lang.Integer)
     o1 = lang.constant("o1", lang.Object)
     o2 = lang.constant("o2", lang.Object)
 
@@ -177,6 +180,7 @@ def test_term_refs():
 
     assert tr1 == tr2
     assert tr1 != tr3
+
 
 def test_object_function_arity():
     fol = tsk.fstrips.language()
@@ -193,15 +197,15 @@ def test_object_function_arity():
     b1 = fol.constant('b1', block)
     b2 = fol.constant('b2', block)
 
-    goal = (loc(b1) == b2)
+    _ = (loc(b1) == b2)
+
 
 def test_term_refs_compound():
     lang = tsk.language()
     f = lang.function('f', lang.Object, lang.Integer)
     o1 = lang.constant("o1", lang.Object)
     o2 = lang.constant("o2", lang.Object)
-    g = lang.get('f')
-
+    _ = lang.get('f')
 
     t1 = f(o1)
     t2 = f(o1)
@@ -218,7 +222,7 @@ def test_term_refs_compound():
 def test_formula_refs():
     lang = tsk.fstrips.language('arith', [Theory.EQUALITY, Theory.ARITHMETIC])
 
-    c = lang.constant(1, lang.Integer)
+    _ = lang.constant(1, lang.Integer)
 
     x = lang.function('x', lang.Integer)
     y = lang.function('y', lang.Integer)
@@ -234,10 +238,11 @@ def test_formula_refs():
     assert fr1 == fr3
     assert fr1 != fr2
 
+
 def test_ite():
     lang = tsk.fstrips.language('arith', [Theory.EQUALITY, Theory.ARITHMETIC])
 
-    c = lang.constant(1, lang.Integer)
+    _ = lang.constant(1, lang.Integer)
 
     x = lang.function('x', lang.Integer)
     y = lang.function('y', lang.Integer)
@@ -254,14 +259,15 @@ def test_ite():
     assert tau.subterms[1].is_syntactically_equal(t2)
     assert tau.sort == t1.sort
 
+
 def test_sumterm():
     from tarski.syntax.arithmetic import sumterm
 
     lang = tsk.fstrips.language('arith', [Theory.EQUALITY, Theory.ARITHMETIC])
 
-    c = lang.constant(1, lang.Integer)
-    o1 = lang.constant('o1', lang.Object)
-    o2 = lang.constant('o2', lang.Object)
+    _ = lang.constant(1, lang.Integer)
+    _ = lang.constant('o1', lang.Object)
+    _ = lang.constant('o2', lang.Object)
 
     x = lang.function('x', lang.Object, lang.Integer)
     y = lang.function('y', lang.Object, lang.Integer)
@@ -271,21 +277,23 @@ def test_sumterm():
     summation = sumterm(o, x(o) + y(o))
     assert isinstance(summation, AggregateCompoundTerm)
 
+
 def test_prodterm():
     from tarski.syntax.arithmetic import prodterm
     lang = tsk.fstrips.language('arith', [Theory.EQUALITY, Theory.ARITHMETIC])
 
-    c = lang.constant(1, lang.Integer)
-    o1 = lang.constant('o1', lang.Object)
-    o2 = lang.constant('o2', lang.Object)
+    _ = lang.constant(1, lang.Integer)
+    _ = lang.constant('o1', lang.Object)
+    _ = lang.constant('o2', lang.Object)
 
     x = lang.function('x', lang.Object, lang.Integer)
     y = lang.function('y', lang.Object, lang.Integer)
 
     o = lang.variable('o', lang.Object)
 
-    product = prodterm(o, x(o) + y(o) )
+    product = prodterm(o, x(o) + y(o))
     assert isinstance(product, AggregateCompoundTerm)
+
 
 def test_matrices_constants():
     lang = tsk.language('test', [Theory.EQUALITY, Theory.ARITHMETIC])
@@ -294,4 +302,4 @@ def test_matrices_constants():
     N, M = A.shape
     for i in range(N):
         for j in range(M):
-            assert isinstance(A.matrix[i,j], Term)
+            assert isinstance(A.matrix[i, j], Term)

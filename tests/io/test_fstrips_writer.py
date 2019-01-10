@@ -1,4 +1,3 @@
-
 import tempfile
 
 import tarski.fstrips as fs
@@ -53,6 +52,7 @@ def test_objects_writing():
     problem, _, _, _, _ = get_bw_elements()
     assert print_objects(problem.language.constants()) == "b1 b2 b3 b4 - block\n        table - place"
 
+
 def test_metric_writing():
     lang = fs.language('lang')
     cost = lang.function('total-cost', lang.Real)
@@ -60,9 +60,11 @@ def test_metric_writing():
     metric_string = print_metric(metric)
     assert metric_string == '(:metric minimize (total-cost ))'
 
+
 def test_gridworld_writing():
     problem = generate_small_gridworld()
     write_problem(problem)
+
 
 def test_action_costs_numeric_fluents_requirements():
     problem = parcprinter.create_small_task()

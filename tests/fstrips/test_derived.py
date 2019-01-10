@@ -1,4 +1,3 @@
-import pytest
 
 from tarski import fstrips as fs
 from tarski.syntax import *
@@ -18,7 +17,7 @@ def test_derived_creation():
     # Transitive closure of "on" predicate.
     above = lang.predicate('above', 'block', 'block')
 
-    fs.Derived(lang, name='above', parameters=[b1,b2],
+    fs.Derived(lang, name='above', parameters=[b1, b2],
                formula=lor(on(b1, b2),
                            exists(b3,
                                   land(on(b1, b3),

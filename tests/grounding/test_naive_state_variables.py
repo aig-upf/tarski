@@ -51,6 +51,7 @@ def test_task_index_create_state_variables_blocksworld():
     # print(','.join([str(var) for var in index.state_variables]))
     assert len(index.state_variables) == 12
 
+
 def test_create_state_variables_for_hybrid_problem_with_reactions():
     prob = create_billiards_world()
     index = fs.TaskIndex(prob.language.name, prob.name)

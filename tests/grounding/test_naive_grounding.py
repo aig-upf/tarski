@@ -11,6 +11,7 @@ from tests.fstrips import blocksworld
 from tests.fstrips.contingent import localize
 from tests.fstrips.hybrid.tasks import create_particles_world, create_billiards_world
 
+
 def create_small_bw_with_index():
     prob = blocksworld.create_4blocks_task()
     index = fs.TaskIndex(prob.language.name, prob.name)
@@ -61,24 +62,27 @@ def test_ground_constraints_for_small_bw():
     grounder.calculate_constraints()
     assert len(prob.ground_constraints) == 0
 
+
 def test_ground_sensors_for_small_contingent_problem():
     prob = localize.create_small_task()
-    index = fs.TaskIndex(prob.language.name,prob.name)
+    index = fs.TaskIndex(prob.language.name, prob.name)
     index.process_symbols(prob)
     index.state_variables = IndexDictionary()
 
-    grounder = SensorGrounder(prob,index)
+    grounder = SensorGrounder(prob, index)
     grounder.calculate_sensors()
     assert len(prob.ground_sensors) == 4
 
+
 def test_ground_differential_constraints_for_hybrid_problem():
     prob = create_particles_world()
-    index = fs.TaskIndex( prob.language.name, prob.name )
+    index = fs.TaskIndex(prob.language.name, prob.name)
     index.process_symbols(prob)
     index.state_variables = IndexDictionary()
     grounder = DifferentialConstraintGrounder(prob, index)
     grounder.calculate_constraints()
     assert len(prob.ground_differential_constraints) == 8
+
 
 def test_ground_reactions_for_hybrid_problem():
     prob = create_billiards_world()

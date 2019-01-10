@@ -1,4 +1,3 @@
-import pytest
 import os
 import tempfile
 
@@ -6,8 +5,6 @@ import tarski
 from tarski.theories import Theory
 from tarski.syntax import *
 from tarski.io import rddl
-from tarski.model import Model
-from tarski.evaluators.simple import evaluate
 from tarski.syntax.arithmetic import *
 from tarski.syntax.arithmetic.special import *
 from tarski.syntax.arithmetic.random import *
@@ -15,9 +12,8 @@ from tarski.rddl import Task
 
 
 def test_simple_rddl_model():
-
     lang = tarski.language('lqr_nav_1d', [Theory.EQUALITY, Theory.ARITHMETIC, Theory.SPECIAL])
-    the_task = Task( lang, 'lqr_nav_1d', 'instance_001')
+    the_task = Task(lang, 'lqr_nav_1d', 'instance_001')
 
     the_task.requirements = [rddl.Requirements.CONTINUOUS, rddl.Requirements.REWARD_DET]
 
@@ -41,15 +37,15 @@ def test_simple_rddl_model():
     the_task.add_cpfs(x(), x() + dt() * v())
 
     # constraints
-    the_task.add_constraint( (u() >= -1.0) & (u() <= 1.0), rddl.ConstraintType.ACTION)
-    the_task.add_constraint( (v() >= -5.0) & (v() <= 5.0), rddl.ConstraintType.STATE)
-    the_task.add_constraint( (x() >= -100.0) & (x() <= 100.0), rddl.ConstraintType.STATE)
+    the_task.add_constraint((u() >= -1.0) & (u() <= 1.0), rddl.ConstraintType.ACTION)
+    the_task.add_constraint((v() >= -5.0) & (v() <= 5.0), rddl.ConstraintType.STATE)
+    the_task.add_constraint((x() >= -100.0) & (x() <= 100.0), rddl.ConstraintType.STATE)
 
     # cost function
-    Q = (x()-gx()) * (x()-gx())
+    Q = (x() - gx()) * (x() - gx())
     # MRJ: RDDL does not support the abs() algebraic construct
-    R = ite(abs(x()-gx()) > 0.0, u() * u() * 0.01, lang.constant(0.0, lang.Real))
-    #R = u() * u() * 0.01
+    R = ite(abs(x() - gx()) > 0.0, u() * u() * 0.01, lang.constant(0.0, lang.Real))
+    # R = u() * u() * 0.01
     the_task.reward = Q + R
 
     # definitions
@@ -77,10 +73,10 @@ def test_simple_rddl_model():
     mr_reader.translate_rddl_model()
     assert mr_reader.language is not None
 
-def test_rddl_model_with_random_vars():
 
+def test_rddl_model_with_random_vars():
     lang = tarski.language('lqg_nav_1d', [Theory.EQUALITY, Theory.ARITHMETIC, Theory.SPECIAL, Theory.RANDOM])
-    the_task = Task( lang, 'lqg_nav_1d', 'instance_001')
+    the_task = Task(lang, 'lqg_nav_1d', 'instance_001')
 
     the_task.requirements = [rddl.Requirements.CONTINUOUS, rddl.Requirements.REWARD_DET]
 
@@ -107,15 +103,15 @@ def test_rddl_model_with_random_vars():
     the_task.add_cpfs(x(), x() + dt() * v())
 
     # constraints
-    the_task.add_constraint( (u() >= -1.0) & (u() <= 1.0), rddl.ConstraintType.ACTION)
-    the_task.add_constraint( (v() >= -5.0) & (v() <= 5.0), rddl.ConstraintType.STATE)
-    the_task.add_constraint( (x() >= -100.0) & (x() <= 100.0), rddl.ConstraintType.STATE)
+    the_task.add_constraint((u() >= -1.0) & (u() <= 1.0), rddl.ConstraintType.ACTION)
+    the_task.add_constraint((v() >= -5.0) & (v() <= 5.0), rddl.ConstraintType.STATE)
+    the_task.add_constraint((x() >= -100.0) & (x() <= 100.0), rddl.ConstraintType.STATE)
 
     # cost function
-    Q = (x()-gx()) * (x()-gx())
+    Q = (x() - gx()) * (x() - gx())
     # MRJ: RDDL does not support the abs() algebraic construct
-    R = ite(abs(x()-gx()) > 0.0, u() * u() * 0.01, lang.constant(0.0, lang.Real))
-    #R = u() * u() * 0.01
+    R = ite(abs(x() - gx()) > 0.0, u() * u() * 0.01, lang.constant(0.0, lang.Real))
+    # R = u() * u() * 0.01
     the_task.reward = Q + R
 
     # definitions
@@ -147,10 +143,10 @@ def test_rddl_model_with_random_vars():
     mr_reader.translate_rddl_model()
     assert mr_reader.language is not None
 
-def test_parametrized_model_with_random_vars():
 
+def test_parametrized_model_with_random_vars():
     lang = tarski.language('lqg_nav_2d_multi_unit', [Theory.EQUALITY, Theory.ARITHMETIC, Theory.SPECIAL, Theory.RANDOM])
-    the_task = Task( lang, 'lqg_nav_2d_multi_unit', 'instance_001')
+    the_task = Task(lang, 'lqg_nav_2d_multi_unit', 'instance_001')
 
     the_task.requirements = [rddl.Requirements.CONTINUOUS, rddl.Requirements.REWARD_DET]
 
@@ -191,16 +187,18 @@ def test_parametrized_model_with_random_vars():
     the_task.add_cpfs(y(v), y(v) + dt() * vy(v))
 
     # constraints
-    the_task.add_constraint( forall(v, (ux(v) >= -1.0) & (ux(v) <= 1.0) & (uy(v) >= -1.0) & (uy(v) <= 1.0)), rddl.ConstraintType.ACTION)
-    the_task.add_constraint( forall(v, (sqrt(vx(v)*vx(v) + vy(v)*vy(v)) <= 5.0)), rddl.ConstraintType.STATE)
-    the_task.add_constraint( forall(v, (x(v) >= -100.0) & (x(v) <= 100.0)), rddl.ConstraintType.STATE)
-    the_task.add_constraint( forall(v, (y(v) >= -100.0) & (y(v) <= 100.0)), rddl.ConstraintType.STATE)
+    the_task.add_constraint(forall(v, (ux(v) >= -1.0) & (ux(v) <= 1.0) & (uy(v) >= -1.0) & (uy(v) <= 1.0)),
+                            rddl.ConstraintType.ACTION)
+    the_task.add_constraint(forall(v, (sqrt(vx(v) * vx(v) + vy(v) * vy(v)) <= 5.0)), rddl.ConstraintType.STATE)
+    the_task.add_constraint(forall(v, (x(v) >= -100.0) & (x(v) <= 100.0)), rddl.ConstraintType.STATE)
+    the_task.add_constraint(forall(v, (y(v) >= -100.0) & (y(v) <= 100.0)), rddl.ConstraintType.STATE)
 
     # cost function
-    Q = sumterm(v, ((x(v)-gx()) * (x(v)-gx())) + ((y(v) - gy()) * (y(v) * gy())))
+    Q = sumterm(v, ((x(v) - gx()) * (x(v) - gx())) + ((y(v) - gy()) * (y(v) * gy())))
     # MRJ: RDDL does not support the abs() algebraic construct
-    R = sumterm(v, ite(sqrt(vx(v)*vx(v) + vy(v)*vy(v)) > 0.0, (ux(v) * ux(v) * 0.01) + (uy(v) * uy(v) * 0.01), lang.constant(0.0, lang.Real)))
-    #R = u() * u() * 0.01
+    R = sumterm(v, ite(sqrt(vx(v) * vx(v) + vy(v) * vy(v)) > 0.0, (ux(v) * ux(v) * 0.01) + (uy(v) * uy(v) * 0.01),
+                       lang.constant(0.0, lang.Real)))
+    # R = u() * u() * 0.01
     the_task.reward = Q + R
 
     # definitions
@@ -240,9 +238,11 @@ def test_parametrized_model_with_random_vars():
     mr_reader.translate_rddl_model()
     assert mr_reader.language is not None
 
+
 def test_parametrized_model_with_random_vars_and_waypoints():
-    lang = tarski.language('lqg_nav_2d_multi_unit_waypoints', [Theory.EQUALITY, Theory.ARITHMETIC, Theory.SPECIAL, Theory.RANDOM])
-    the_task = Task( lang, 'lqg_nav_2d_multi_unit_waypoints', 'instance_001')
+    lang = tarski.language('lqg_nav_2d_multi_unit_waypoints',
+                           [Theory.EQUALITY, Theory.ARITHMETIC, Theory.SPECIAL, Theory.RANDOM])
+    the_task = Task(lang, 'lqg_nav_2d_multi_unit_waypoints', 'instance_001')
 
     the_task.requirements = [rddl.Requirements.CONTINUOUS, rddl.Requirements.REWARD_DET]
 
@@ -284,24 +284,26 @@ def test_parametrized_model_with_random_vars_and_waypoints():
 
     # cpfs
     the_task.add_cpfs(t(), t() + dt())
-    dist_vec_norm = ((x(v) - wx(wpt))*(x(v) - wx(wpt))) + ((y(v) - wy(wpt))*(y(v) - wy(wpt)))
-    the_task.add_cpfs(wv(wpt), ite(sqrt(dist_vec_norm) <= wr(), lang.constant(1.0, lang.Real), max(lang.constant(0.0, lang.Real), wv(wpt))))
+    dist_vec_norm = ((x(v) - wx(wpt)) * (x(v) - wx(wpt))) + ((y(v) - wy(wpt)) * (y(v) - wy(wpt)))
+    the_task.add_cpfs(wv(wpt), ite(sqrt(dist_vec_norm) <= wr(), lang.constant(1.0, lang.Real),
+                                   max(lang.constant(0.0, lang.Real), wv(wpt))))
     the_task.add_cpfs(vx(v), vx(v) + dt() * ux(v) + normal(mu_w(), sigma_w()))
     the_task.add_cpfs(vy(v), vy(v) + dt() * uy(v) + normal(mu_w(), sigma_w()))
     the_task.add_cpfs(x(v), x(v) + dt() * vx(v))
     the_task.add_cpfs(y(v), y(v) + dt() * vy(v))
 
     # constraints
-    the_task.add_constraint( forall(v, (ux(v) >= -1.0) & (ux(v) <= 1.0) & (uy(v) >= -1.0) & (uy(v) <= 1.0)), rddl.ConstraintType.ACTION)
-    the_task.add_constraint( forall(v, (sqrt(vx(v)*vx(v) + vy(v)*vy(v)) <= 5.0)), rddl.ConstraintType.STATE)
-    the_task.add_constraint( forall(v, (x(v) >= -100.0) & (x(v) <= 100.0)), rddl.ConstraintType.STATE)
-    the_task.add_constraint( forall(v, (y(v) >= -100.0) & (y(v) <= 100.0)), rddl.ConstraintType.STATE)
+    the_task.add_constraint(forall(v, (ux(v) >= -1.0) & (ux(v) <= 1.0) & (uy(v) >= -1.0) & (uy(v) <= 1.0)),
+                            rddl.ConstraintType.ACTION)
+    the_task.add_constraint(forall(v, (sqrt(vx(v) * vx(v) + vy(v) * vy(v)) <= 5.0)), rddl.ConstraintType.STATE)
+    the_task.add_constraint(forall(v, (x(v) >= -100.0) & (x(v) <= 100.0)), rddl.ConstraintType.STATE)
+    the_task.add_constraint(forall(v, (y(v) >= -100.0) & (y(v) <= 100.0)), rddl.ConstraintType.STATE)
 
     # cost function
     WV = sumterm(wpt, wv(wpt))
     # MRJ: RDDL does not support the abs() algebraic construct
     R = sumterm(v, (ux(v) * ux(v) * 0.01) + (uy(v) * uy(v) * 0.01))
-    #R = u() * u() * 0.01
+    # R = u() * u() * 0.01
     the_task.reward = WV - R
 
     # definitions
@@ -324,14 +326,11 @@ def test_parametrized_model_with_random_vars_and_waypoints():
     the_task.x0.setx(wy(p3), 1.0)
     the_task.x0.setx(wv(p3), 0.0)
 
-
-
     the_task.x0.setx(t(), 0.0)
     the_task.x0.setx(dt(), 0.5)
     the_task.x0.setx(mu_w(), 0.0)
     the_task.x0.setx(sigma_w(), 0.05)
     the_task.x0.setx(wr(), 2.0)
-
 
     # fluent metadata
     the_task.declare_state_fluent(x(v), 0.0)
@@ -358,9 +357,11 @@ def test_parametrized_model_with_random_vars_and_waypoints():
     mr_reader.translate_rddl_model()
     assert mr_reader.language is not None
 
+
 def test_parametrized_model_with_random_vars_and_waypoints_boolean():
-    lang = tarski.language('lqg_nav_2d_multi_unit_bool_waypoints', [Theory.EQUALITY, Theory.ARITHMETIC, Theory.SPECIAL, Theory.RANDOM])
-    the_task = Task( lang, 'lqg_nav_2d_multi_unit_bool_waypoints', 'instance_001')
+    lang = tarski.language('lqg_nav_2d_multi_unit_bool_waypoints',
+                           [Theory.EQUALITY, Theory.ARITHMETIC, Theory.SPECIAL, Theory.RANDOM])
+    the_task = Task(lang, 'lqg_nav_2d_multi_unit_bool_waypoints', 'instance_001')
 
     the_task.requirements = [rddl.Requirements.CONTINUOUS, rddl.Requirements.REWARD_DET]
 
@@ -384,7 +385,6 @@ def test_parametrized_model_with_random_vars_and_waypoints_boolean():
 
     wv = lang.predicate('visited', waypoint)
 
-
     # objects
     v001 = lang.constant('v001', vehicle)
     p1 = lang.constant('p1', waypoint)
@@ -404,7 +404,7 @@ def test_parametrized_model_with_random_vars_and_waypoints_boolean():
 
     # cpfs
     the_task.add_cpfs(t(), t() + dt())
-    dist_vec_norm = ((x(v) - wx(wpt))*(x(v) - wx(wpt))) + ((y(v) - wy(wpt))*(y(v) - wy(wpt)))
+    dist_vec_norm = ((x(v) - wx(wpt)) * (x(v) - wx(wpt))) + ((y(v) - wy(wpt)) * (y(v) - wy(wpt)))
     the_task.add_cpfs(wv(wpt), (wv(wpt) | (sqrt(dist_vec_norm) <= wr())))
     the_task.add_cpfs(vx(v), vx(v) + dt() * ux(v) + normal(mu_w(), sigma_w()))
     the_task.add_cpfs(vy(v), vy(v) + dt() * uy(v) + normal(mu_w(), sigma_w()))
@@ -412,16 +412,17 @@ def test_parametrized_model_with_random_vars_and_waypoints_boolean():
     the_task.add_cpfs(y(v), y(v) + dt() * vy(v))
 
     # constraints
-    the_task.add_constraint( forall(v, (ux(v) >= -1.0) & (ux(v) <= 1.0) & (uy(v) >= -1.0) & (uy(v) <= 1.0)), rddl.ConstraintType.ACTION)
-    the_task.add_constraint( forall(v, (sqrt(vx(v)*vx(v) + vy(v)*vy(v)) <= 5.0)), rddl.ConstraintType.STATE)
-    the_task.add_constraint( forall(v, (x(v) >= -100.0) & (x(v) <= 100.0)), rddl.ConstraintType.STATE)
-    the_task.add_constraint( forall(v, (y(v) >= -100.0) & (y(v) <= 100.0)), rddl.ConstraintType.STATE)
+    the_task.add_constraint(forall(v, (ux(v) >= -1.0) & (ux(v) <= 1.0) & (uy(v) >= -1.0) & (uy(v) <= 1.0)),
+                            rddl.ConstraintType.ACTION)
+    the_task.add_constraint(forall(v, (sqrt(vx(v) * vx(v) + vy(v) * vy(v)) <= 5.0)), rddl.ConstraintType.STATE)
+    the_task.add_constraint(forall(v, (x(v) >= -100.0) & (x(v) <= 100.0)), rddl.ConstraintType.STATE)
+    the_task.add_constraint(forall(v, (y(v) >= -100.0) & (y(v) <= 100.0)), rddl.ConstraintType.STATE)
 
     # cost function
     WV = sumterm(wpt, ite(wv(wpt), lang.constant(1.0, lang.Real), lang.constant(0.0, lang.Real)))
     # MRJ: RDDL does not support the abs() algebraic construct
     R = sumterm(v, (ux(v) * ux(v) * 0.01) + (uy(v) * uy(v) * 0.01))
-    #R = u() * u() * 0.01
+    # R = u() * u() * 0.01
     the_task.reward = WV - R
 
     # definitions
@@ -441,13 +442,11 @@ def test_parametrized_model_with_random_vars_and_waypoints_boolean():
     the_task.x0.setx(wx(p3), 2.0)
     the_task.x0.setx(wy(p3), 1.0)
 
-
     the_task.x0.setx(t(), 0.0)
     the_task.x0.setx(dt(), 0.5)
     the_task.x0.setx(mu_w(), 0.0)
     the_task.x0.setx(sigma_w(), 0.05)
     the_task.x0.setx(wr(), 2.0)
-
 
     # fluent metadata
     the_task.declare_state_fluent(x(v), 0.0)
