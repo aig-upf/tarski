@@ -10,34 +10,34 @@ from .. transform import TermSubstitution
 from .. builtins import BuiltinPredicateSymbol, BuiltinFunctionSymbol, get_arithmetic_binary_functions
 
 def sumterm(*args):
-    vars = args[:-1]
+    variables = args[:-1]
     expr = args[-1]
-    if len(vars) < 1:
+    if len(variables) < 1:
         raise err.SyntacticError(msg='sumterm(x0,x1,...,xn,expr) requires at least one\
         bound variable, arguments: {}'.format(args))
-    for x in vars:
+    for x in variables:
         if not isinstance(x, Variable):
             raise err.SyntacticError(msg='sum(x0,...,xn,expr) require each\
             argument xi to be an instance of Variable')
     if not isinstance(expr, Term):
         raise err.SyntacticError(msg='sum(x0,x1,...,xn,expr) requires last \
         argument "expr" to be an instance of Term, got "{}"'.format(expr))
-    return AggregateCompoundTerm(BuiltinFunctionSymbol.ADD, vars, expr)
+    return AggregateCompoundTerm(BuiltinFunctionSymbol.ADD, variables, expr)
 
 def prodterm(*args):
-    vars = args[:-1]
+    variables = args[:-1]
     expr = args[-1]
-    if len(vars) < 1:
+    if len(variables) < 1:
         raise err.SyntacticError(msg='sumterm(x0,x1,...,xn,expr) requires at least one\
         bound variable, arguments: {}'.format(args))
-    for x in vars:
+    for x in variables:
         if not isinstance(x, Variable):
             raise err.SyntacticError(msg='sum(x0,...,xn,expr) require each\
             argument xi to be an instance of Variable')
     if not isinstance(expr, Term):
         raise err.SyntacticError(msg='sum(x0,x1,...,xn,expr) requires last \
         argument "expr" to be an instance of Term, got "{}"'.format(expr))
-    return AggregateCompoundTerm(BuiltinFunctionSymbol.MUL, vars, expr)
+    return AggregateCompoundTerm(BuiltinFunctionSymbol.MUL, variables, expr)
 
 def summation(*args):
     """
@@ -48,15 +48,15 @@ def summation(*args):
     if not isinstance(expr, Term):
         raise err.SyntacticError(msg='sum(x0,x1,...,xn,expr) requires last \
         argument "expr" to be an instance of Term, got "{}"'.format(expr))
-    vars = []
+    variables = []
     for x in args[:-1]:
         if not isinstance(x, Variable):
             raise err.SyntacticError(msg='sum(x0,...,xn,expr) require each\
             argument xi to be an instance of Variable')
-        vars.append(x)
+        variables.append(x)
 
     L = expr.language
-    K, syms, substs = instantiation.enumerate_groundings(L, list(vars))
+    K, syms, substs = instantiation.enumerate_groundings(L, list(variables))
     processed_expr = []
     for values in itertools.product(*substs):
         subst = {syms[k]: v for k, v in enumerate(values)}
@@ -80,15 +80,15 @@ def product(*args):
     if not isinstance(expr, Term):
         raise err.SyntacticError(msg='prod(x0,x1,...,xn,expr) requires last \
         argument "expr" to be an instance of Term')
-    vars = []
+    variables = []
     for x in args[:-1]:
         if not isinstance(x, Variable):
             raise err.SyntacticError(msg='prod(x0,...,xn,expr) require each\
             argument xi to be an instance of Variable')
-        vars.append(x)
+        variables.append(x)
 
     L = expr.language
-    K, syms, substs = instantiation.enumerate_groundings(L, list(vars))
+    K, syms, substs = instantiation.enumerate_groundings(L, list(variables))
     processed_expr = []
     for values in itertools.product(*substs):
         subst = {syms[k]: v for k, v in enumerate(values)}

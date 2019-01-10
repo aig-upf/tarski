@@ -108,9 +108,9 @@ class OptimizationType(Enum):
 
 class ProceduralEffect(SingleEffect):
 
-    def __init__(self, input: List[CompoundTerm], output: List[CompoundTerm]):
+    def __init__(self, input_: List[CompoundTerm], output: List[CompoundTerm]):
         super().__init__(Tautology())
-        self.input = input
+        self.input = input_
         self.output = output
 
     def tostring(self):
