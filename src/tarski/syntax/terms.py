@@ -98,7 +98,6 @@ class Term:
     def __divmod__(self, rhs):
         return self.language.dispatch_operator('divmod', Term, Term, self, rhs)
 
-
     def __and__(self, rhs):
         return self.language.dispatch_operator('&', Term, Term, self, rhs)
 
@@ -199,6 +198,7 @@ class CompoundTerm(Term):
         # Else we just need to recursively check if all subterms are syntactically equal
         return all(x.is_syntactically_equal(y) for x, y in zip(self.subterms, other.subterms))
 
+
 class AggregateCompoundTerm(Term):
     """
         Combinations of a functional symbol, a set of bound variables and a terms.
@@ -207,12 +207,9 @@ class AggregateCompoundTerm(Term):
     """
 
     def __init__(self, operator, bound_vars, subterm: Term):
-
         self.symbol = operator
         self.bound_vars = bound_vars
-
-        #@TODO: type checking?
-        self.subterm = subterm
+        self.subterm = subterm  # TODO: type checking?
 
     @property
     def language(self):
@@ -236,8 +233,7 @@ class AggregateCompoundTerm(Term):
             return False
 
         return all(x.is_syntactically_equal(y) for x, y in zip(self.bound_vars, other.bound_vars)) \
-            and self.subterm.is_syntactically_equal(other.subterm)
-
+               and self.subterm.is_syntactically_equal(other.subterm)
 
 
 class IfThenElse(Term):
@@ -248,28 +244,24 @@ class IfThenElse(Term):
         are restricted to have the same codomain.
     """
 
-    def __init__(self, C, subterms: Tuple[Term]):
+    def __init__(self, condition, subterms: Tuple[Term]):
 
-        self.condition = C
-        if len(subterms) == 0:
-            raise err.SyntacticError(msg='IfThenElse: needs two sub terms!')
+        self.condition = condition
+        if len(subterms) != 2:
+            raise err.ArityMismatch(self.symbol, subterms, msg='IfThenElse: needs two sub terms!')
 
         self.symbol = subterms[0].language.get('ite')
 
-        if len(subterms) != 2:
-            raise err.ArityMismatch(self.symbol, subterms)
-
-        # Our implementation of ite requires both branches to have the same
-        # sort.
+        # Our implementation of ite requires both branches to have equal sort
         if subterms[0].sort != subterms[1].sort:
             if parent(subterms[0].sort) == subterms[1].sort:
                 self._sort = subterms[1].sort
             elif parent(subterms[1].sort) == subterms[0].sort:
                 self._sort = subterms[0].sort
             else:
-                raise err.SyntacticError(\
-                msg='IfThenElse: both sub terms need to have same codomain! lhs: "{}"({}), rhs: "{}"({})'.format(\
-                    subterms[0], subterms[0].sort, subterms[1], subterms[1].sort))
+                raise err.SyntacticError(
+                    msg='IfThenElse: both subterms need to be of the same sort! lhs: "{}"({}), rhs: "{}"({})'.format(
+                        subterms[0], subterms[0].sort, subterms[1], subterms[1].sort))
         else:
             self._sort = subterms[0].sort
 
@@ -285,7 +277,6 @@ class IfThenElse(Term):
     def sort(self):
         return self._sort
 
-
     def __str__(self):
         return '{}({})'.format(self.symbol, ', '.join([str(self.condition)] + [str(t) for t in self.subterms]))
 
@@ -296,15 +287,17 @@ class IfThenElse(Term):
 
     def is_syntactically_equal(self, other):
         if (self.__class__ is not other.__class__ or self.symbol != other.symbol \
-                or len(self.subterms) != len(other.subterms)) \
+            or len(self.subterms) != len(other.subterms)) \
                 or (not self.condition.is_syntactically_equal(other.condition)):
             return False
 
         # Else we just need to recursively check if all subterms are syntactically equal
         return all(x.is_syntactically_equal(y) for x, y in zip(self.subterms, other.subterms))
 
+
 def ite(c, t1, t2):
-    return IfThenElse(c, (t1, t2) )
+    return IfThenElse(c, (t1, t2))
+
 
 class Matrix(Term):
 
@@ -315,14 +308,15 @@ class Matrix(Term):
         N, M = self.matrix.shape
         for i in range(N):
             for j in range(M):
-                m_ij = self.matrix[i,j]
+                m_ij = self.matrix[i, j]
                 if isinstance(m_ij, Term):
                     if m_ij.sort != sort:
                         raise err.SyntacticError("Matrix: all \
                         entries need to be of sort '{}', \
                         entry ({},{}) is '{}'".format(sort.name, i, j, m_ij.sort.name))
                 else:
-                    self.matrix[i,j] = Constant(sort.cast(m_ij), sort)
+                    self.matrix[i, j] = Constant(sort.cast(m_ij), sort)
+
     @property
     def shape(self):
         return self.matrix.shape
@@ -352,17 +346,18 @@ class Matrix(Term):
         syms = []
         for i in range(N):
             for j in range(M):
-                syms += [self.matrix[i,j]]
+                syms += [self.matrix[i, j]]
         return hash(tuple(syms) + self.matrix.shape)
 
     def is_syntactically_equal(self, other):
-        if (self.__class__ is not other.__class__ or self.matrix.shape != other.matrix.shape):
+        if self.__class__ is not other.__class__ or self.matrix.shape != other.matrix.shape:
             return False
         for i in range(N):
             for j in range(M):
-                if not self.matrix[i,j].is_syntactically_equal(other.matrix[i,j]):
+                if not self.matrix[i, j].is_syntactically_equal(other.matrix[i, j]):
                     return False
         return True
+
 
 class Constant(Term):
     def __init__(self, symbol, sort: Sort):
