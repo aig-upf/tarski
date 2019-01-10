@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
-from .. problem import Problem
-from . reaction import Reaction
-from . differential_constraints import DifferentialConstraint
+from ..problem import Problem
+from .reaction import Reaction
+from .differential_constraints import DifferentialConstraint
 from . import errors as err
 from ..fstrips import *
+
 
 class HybridProblem(Problem):
     """ A Functional STRIPS Hybrid problem """
@@ -31,7 +32,8 @@ class HybridProblem(Problem):
     def differential_constraint(self, name, parameters, condition, variate, ode):
         if name in self.reactions:
             raise err.DuplicateDifferentialConstraintDefinition(name, self.reactions[name])
-        self.differential_constraints[name] = DifferentialConstraint(self.language, name, parameters, condition, variate, ode)
+        self.differential_constraints[name] = DifferentialConstraint(self.language, name, parameters, condition,
+                                                                     variate, ode)
         return self.differential_constraints[name]
 
     def has_differential_constraint(self, name):
@@ -65,7 +67,6 @@ class HybridProblem(Problem):
         for _, dc in self.differential_constraints.items():
             dc.condition.accept(pv)
             dc.variate.accept(ev)
-
 
     def __str__(self):
         return 'FSTRIPS Hybrid Problem "{}", domain "{}"'.format(self.name, self.domain_name)

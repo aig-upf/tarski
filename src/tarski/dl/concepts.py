@@ -1,9 +1,7 @@
 """
 
 """
-from tarski.syntax import Sort
-
-from ..syntax import Predicate, Function
+from ..syntax import Predicate, Function, Sort
 from ..utils.algorithms import transitive_closure
 from .errors import ArityDLMismatch
 

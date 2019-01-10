@@ -3,8 +3,6 @@
     Creates a TaskIndex for a  planning task as given by Tarski's AST.
 """
 from .. import util
-from ..fstrips import AddEffect, DelEffect, FunctionalEffect, LogicalEffect, \
-    ChoiceEffect
 from .visitors import FluentSymbolCollector, FluentHeuristic
 
 

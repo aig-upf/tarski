@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-from tarski.syntax import *
+
+from ...syntax import BuiltinFunctionSymbol, CompoundTerm
 from . import errors as err
-from  .. fstrips import *
+
 
 class DifferentialConstraint(object):
     """ A (possibly lifted) reaction """

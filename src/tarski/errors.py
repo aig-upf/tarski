@@ -93,6 +93,7 @@ class DuplicateVariableDefinition(DuplicateDefinition):
 class UndefinedTerm(UndefinedElement):
     pass
 
+
 class UndefinedSort(UndefinedElement):
     pass
 
