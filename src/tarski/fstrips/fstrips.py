@@ -2,11 +2,10 @@
 from enum import Enum
 from typing import List
 
-import tarski.errors as err
-import tarski.fol as fol
+from ..syntax import Tautology, CompoundTerm, TermReference, Term, Constant
 from .errors import InvalidEffectError
-from tarski.syntax import *
-from .. import theories as tsk_theories
+from .. import theories as ths
+
 
 class UniversalEffect:
     """ A forall-effect """
@@ -73,6 +72,7 @@ class FunctionalEffect(SingleEffect):
     def tostring(self):
         return "{} := {}".format(self.lhs, self.rhs)
 
+
 class IncreaseEffect(FunctionalEffect):
     def __init__(self, lhs, rhs, condition=Tautology()):
         self.lhs = lhs
@@ -84,7 +84,6 @@ class IncreaseEffect(FunctionalEffect):
             self.rhs = Constant(self.rhs, self.lhs.language.Integer)
         elif type(self.rhs) == float:
             self.rhs = Constant(self.rhs, self.lhs.language.Real)
-
 
     def check_well_formed(self):
         if not isinstance(self.lhs, CompoundTerm):
@@ -106,6 +105,7 @@ class OptimizationType(Enum):
     def __str__(self):
         return self.value.lower()
 
+
 class ProceduralEffect(SingleEffect):
 
     def __init__(self, input_: List[CompoundTerm], output: List[CompoundTerm]):
@@ -114,8 +114,9 @@ class ProceduralEffect(SingleEffect):
         self.output = output
 
     def tostring(self):
-        return "in: {}, out: {}".format( ','.join([str(x) for x in self.input]),\
-            ','.join([str(x) for x in self.output]))
+        return "in: {}, out: {}".format(','.join([str(x) for x in self.input]),
+                                        ','.join([str(x) for x in self.output]))
+
 
 class ChoiceEffect(SingleEffect):
 
@@ -134,9 +135,9 @@ class ChoiceEffect(SingleEffect):
             raise InvalidEffectError(self, msg)
 
     def tostring(self):
-        return "{} {}, vars: {} subject to: {}".format(self.obj_type, \
-            self.obj, ','.join([str(x) for x in self.variables]), self.condition)
-
+        return "{} {}, vars: {} subject to: {}".format(self.obj_type,
+                                                       self.obj, ','.join([str(x) for x in self.variables]),
+                                                       self.condition)
 
 
 class LogicalEffect(SingleEffect):
@@ -152,7 +153,6 @@ class VectorisedEffect(SingleEffect):
     """
         Action effects that modify the denotation of a vector (tuple) of terms
     """
-
 
     def __init__(self, lhs, rhs, condition=Tautology()):
         super().__init__(condition)
@@ -178,6 +178,7 @@ class VectorisedEffect(SingleEffect):
                 same dimensions"
             raise InvalidEffectError(self, msg)
 
+
 class LinearEffect(SingleEffect):
     """
         Action effects that modify the denotation of a vector of (terms)  with
@@ -186,6 +187,7 @@ class LinearEffect(SingleEffect):
 
             Ax + b
     """
+
     def __init__(self, y, A, x, b, condition=Tautology()):
         super().__init__(condition)
         self.y = y
@@ -230,10 +232,12 @@ class LinearEffect(SingleEffect):
                 same dimensions"
             raise InvalidEffectError(self, msg)
 
+
 class BlackBoxEffect(SingleEffect):
     """
         Black box functional effect
     """
+
     def __init__(self, lhs, f, condition=Tautology()):
         super().__init__(condition)
         self.lhs = lhs
@@ -257,14 +261,13 @@ class BlackBoxEffect(SingleEffect):
             raise InvalidEffectError(self, msg)
 
         self.function.bind_to_language(self.lhs[0, 0].language)
-        for k, y in enumerate(self.lhs[:,0]):
+        for k, y in enumerate(self.lhs[:, 0]):
             ys = TermReference(y)
             ok = TermReference(self.function.out_x[k].symbol)
             if ys != ok:
                 msg = "Error declaring BlackBoxEffect, lhs {}-th symbol {} is not\
                 matched by corresponding function output, {}".format(k, str(y), str(ok))
                 raise InvalidEffectError(self, msg)
-
 
 
 class OptimizationMetric:
@@ -278,8 +281,8 @@ def language(name="Unnamed FOL Language", theories=None):
         This is a standard FOL with a few convenient add-ons.
     """
     # By default, when defining a FSTRIPS problem we use a FOL with equality
-    theories = theories or [tsk_theories.Theory.EQUALITY]
-    lang = tsk_theories.language(name, theories)
+    theories = theories or [ths.Theory.EQUALITY]
+    lang = ths.language(name, theories)
     lang.register_operator_handler("<<", Term, Term, FunctionalEffect)
     lang.register_operator_handler(">>", Term, Term, lambda lhs, rhs: FunctionalEffect(rhs, lhs))  # Inverted
     return lang

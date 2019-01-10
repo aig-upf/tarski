@@ -1,5 +1,6 @@
 from . import errors as err
 
+
 class Derived:
     """ A derived predicate. """
 
@@ -23,8 +24,8 @@ class Derived:
 
     def dump(self):
         return dict(name=self.predicate.symbol,
-                    params = [par.dump() for par in self.parameters],
-                    formula = self.formula.dump())
+                    params=[par.dump() for par in self.parameters],
+                    formula=self.formula.dump())
 
     def ident(self):
         params = ', '.join([str(o) for o in self.parameters])

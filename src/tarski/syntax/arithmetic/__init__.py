@@ -2,12 +2,13 @@ import itertools
 import copy
 import numpy as np
 
-from tarski.syntax import Variable, Term, AggregateCompoundTerm, CompoundTerm, Constant, Variable
-from tarski.syntax.algebra import Matrix
+from ...syntax import Term, AggregateCompoundTerm, CompoundTerm, Constant, Variable
+from ...syntax.algebra import Matrix
 from ... import errors as err
 from ... grounding.naive import instantiation
 from .. transform import TermSubstitution
-from .. builtins import BuiltinPredicateSymbol, BuiltinFunctionSymbol, get_arithmetic_binary_functions
+from ..builtins import BuiltinPredicateSymbol, BuiltinFunctionSymbol, get_arithmetic_binary_functions
+
 
 def sumterm(*args):
     variables = args[:-1]
@@ -24,6 +25,7 @@ def sumterm(*args):
         argument "expr" to be an instance of Term, got "{}"'.format(expr))
     return AggregateCompoundTerm(BuiltinFunctionSymbol.ADD, variables, expr)
 
+
 def prodterm(*args):
     variables = args[:-1]
     expr = args[-1]
@@ -38,6 +40,7 @@ def prodterm(*args):
         raise err.SyntacticError(msg='sum(x0,x1,...,xn,expr) requires last \
         argument "expr" to be an instance of Term, got "{}"'.format(expr))
     return AggregateCompoundTerm(BuiltinFunctionSymbol.MUL, variables, expr)
+
 
 def summation(*args):
     """
@@ -70,6 +73,7 @@ def summation(*args):
         lhs = L.dispatch_operator(BuiltinFunctionSymbol.ADD, Term, Term, lhs, processed_expr[k])
 
     return lhs
+
 
 def product(*args):
     """
@@ -108,9 +112,11 @@ def pow(x, y):
     pow_func = x.language.get_function(BuiltinFunctionSymbol.POW)
     return pow_func(x, y)
 
+
 def sqrt(x):
     sqrt_func = x.language.get_function(BuiltinFunctionSymbol.SQRT)
     return sqrt_func(x)
+
 
 def transpose(m : Term):
     if isinstance(m, Matrix):
@@ -129,18 +135,20 @@ def transpose(m : Term):
             elif m.symbol.symbol == BuiltinFunctionSymbol.MUL:
                 m.subterms = (transpose(m.subterms[1]), transpose(m.subterms[0]))
                 return m
-            raise err.SyntacticError("transpose(): can only be applied on scalars (constants, variables), matrices and basic arithmetic operations.")
-        else:
-            raise err.SyntacticError("transpose(): can only be applied on scalars (constants, variables), matrices and basic arithmetic operations.")
+        raise err.SyntacticError("transpose() only applicable on scalars (constants, variables), "
+                                 "matrices and basic arithmetic operations.")
     elif isinstance(m, Constant):
         return Matrix([m], m.sort)
     elif isinstance(m, Variable):
         return Matrix([m], m.sort)
-    raise err.SyntacticError("transpose(): can only be applied on scalars (constants, variables), matrices and basic arithmetic operations.")
+    raise err.SyntacticError(
+        "transpose(): can only be applied on scalars (constants, variables), matrices and basic arithmetic operations.")
+
 
 def zero(sort):
     assert sort.name in ('Real', 'Integer', 'Natural')
     return sort.language.constant(0, sort)
+
 
 def one(sort):
     assert sort.name in ('Real', 'Integer', 'Natural')
@@ -212,6 +220,5 @@ def simplify(expr: Term):
     elif isinstance(expr, IfThenElse):
         expr.subterms = (simplify(expr.subterms[0]), simplify(expr.subterms[1]))
         return expr
-
 
     raise NotImplementedError("Can't handle expression {} yet".format(expr))

@@ -43,9 +43,7 @@ class FirstOrderLanguage:
         self.language_components_frozen = False
         self.theories = []
 
-
         self._build_builtin_sorts()
-
 
     def __deepcopy__(self, memo):
         """ At the moment we forbid deep copies of this class, as they might be too expensive"""
@@ -347,7 +345,6 @@ class FirstOrderLanguage:
             return self._operators[(operator, t)](term)
         except KeyError:
             raise err.LanguageError("Operator '{}' not defined on domain ({})".format(operator, t))
-
 
     def dispatch_operator(self, operator, t1, t2, lhs, rhs):
         # assert isinstance(lhs, t1)
