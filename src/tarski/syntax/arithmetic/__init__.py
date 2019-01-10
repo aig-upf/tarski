@@ -2,7 +2,8 @@ import itertools
 import copy
 import numpy as np
 
-from tarski.syntax import Variable, Term, AggregateCompoundTerm, Matrix, CompoundTerm, Constant, Variable
+from tarski.syntax import Variable, Term, AggregateCompoundTerm, CompoundTerm, Constant, Variable
+from tarski.syntax.algebra import Matrix
 from ... import errors as err
 from ... grounding.naive import instantiation
 from .. transform import TermSubstitution

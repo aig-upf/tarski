@@ -3,7 +3,8 @@ import tarski.funcsym as funcsym
 import tarski.errors as err
 
 from ..syntax import ops, Connective, Atom, Formula, CompoundFormula, QuantifiedFormula, builtins, Variable, \
-    Constant, CompoundTerm, Tautology, Contradiction, IfThenElse, AggregateCompoundTerm, Matrix
+    Constant, CompoundTerm, Tautology, Contradiction, IfThenElse, AggregateCompoundTerm
+from ..syntax.algebra import Matrix
 from ..model import Model
 
 

@@ -6,6 +6,7 @@ from tarski import theories
 from tarski.theories import Theory
 from tarski import errors as err
 from tarski.syntax import *
+from tarski.syntax.algebra import Matrix
 
 from ..common import numeric
 

@@ -4,7 +4,8 @@ import itertools
 from collections import defaultdict, OrderedDict
 
 from . import errors as err
-from .syntax import Function, Constant, Variable, Matrix, Sort, inclusion_closure, Predicate, Interval, sorts
+from .syntax import Function, Constant, Variable, Sort, inclusion_closure, Predicate, Interval, sorts
+from .syntax.algebra import Matrix
 
 
 def language(name='L'):
