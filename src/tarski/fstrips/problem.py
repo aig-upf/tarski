@@ -3,7 +3,8 @@ from collections import OrderedDict
 
 from .. import model
 from .action import Action
-from .fstrips import *
+from .derived import Derived
+from . import fstrips as fs
 from . import errors as err
 
 
@@ -21,7 +22,7 @@ class Problem:
         self.derived = OrderedDict()
         self.metric = None
 
-        # TODO Add axioms, state constraints, etc.
+        # TODO Add state constraints, etc.
 
     def action(self, name, parameters, precondition, effects):
         if name in self.actions:
@@ -59,17 +60,17 @@ class Problem:
             act.precondition.accept(pv)
             for eff in act.effects:
                 eff.condition.accept(pv)
-                if isinstance(eff, AddEffect):
+                if isinstance(eff, fs.AddEffect):
                     eff.atom.accept(ev)
-                elif isinstance(eff, DelEffect):
+                elif isinstance(eff, fs.DelEffect):
                     eff.atom.accept(ev)
-                elif isinstance(eff, FunctionalEffect):
+                elif isinstance(eff, fs.FunctionalEffect):
                     eff.lhs.accept(ev)
-                elif isinstance(eff, ChoiceEffect):
+                elif isinstance(eff, fs.ChoiceEffect):
                     eff.obj.accept(ev)
                     for x in eff.variables:
                         x.accept(ev)
-                elif isinstance(eff, LogicalEffect):
+                elif isinstance(eff, fs.LogicalEffect):
                     eff.formula.accept(ev)
                 else:
                     raise RuntimeError("Effect type '{}' cannot be analysed".format(type(eff)))
@@ -79,7 +80,7 @@ class Problem:
             const.accept(cv)
 
     def metric(self, opt_expression, opt_type):
-        self.metric = OptimizationMetric(opt_expression, opt_type)
+        self.metric = fs.OptimizationMetric(opt_expression, opt_type)
 
     def __str__(self):
         return 'FSTRIPS Problem "{}", domain "{}"'.format(self.name, self.domain_name)
