@@ -317,13 +317,6 @@ class FirstOrderLanguage:
             return t2
         return None
 
-    def most_restricted_type(self, t1, t2):
-        if self.is_subtype(t1, t2):
-            return t1
-        elif self.is_subtype(t2, t1):
-            return t2
-        return None
-
     def is_subtype(self, t, st):
         t = self._retrieve_object(t, Sort)
         st = self._retrieve_object(st, Sort)

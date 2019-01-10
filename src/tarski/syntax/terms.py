@@ -92,9 +92,6 @@ class Term:
     def __floordiv__(self, rhs):
         return self.language.dispatch_operator('//', Term, Term, self, rhs)
 
-    def __mod__(self, rhs):
-        return self.language.dispatch_operator('%', Term, Term, self, rhs)
-
     def __divmod__(self, rhs):
         return self.language.dispatch_operator('divmod', Term, Term, self, rhs)
 
