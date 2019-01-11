@@ -207,7 +207,7 @@ def simplify(expr: Term):
                 expr[i,j] = simplify(expr[i,j])
         return expr
     elif isinstance(expr, AggregateCompoundTerm):
-        expr.subterm = simplify(subterm)
+        expr.subterm = simplify(expr.subterm)
         return expr
     elif isinstance(expr, IfThenElse):
         expr.subterms = (simplify(expr.subterms[0]), simplify(expr.subterms[1]))
