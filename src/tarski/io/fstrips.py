@@ -2,11 +2,11 @@ import logging
 import os
 from collections import defaultdict
 
-from tarski import Term, Variable, Constant, Formula
-from tarski.fstrips.fstrips import SingleEffect
-from tarski.model import ExtensionalFunctionDefinition
-from tarski.syntax import Tautology, Contradiction, Atom, CompoundTerm, CompoundFormula, QuantifiedFormula
-from tarski.syntax.sorts import parent, Interval, ancestors
+from ..fstrips.fstrips import SingleEffect
+from ..model import ExtensionalFunctionDefinition
+from ..syntax import Tautology, Contradiction, Atom, CompoundTerm, CompoundFormula, QuantifiedFormula, \
+    Term, Variable, Constant, Formula
+from ..syntax.sorts import parent, Interval, ancestors
 
 from ._fstrips.common import tarsky_to_pddl_type, get_requirements_string
 from ..fstrips import create_fstrips_problem, language, FunctionalEffect, AddEffect, DelEffect, IncreaseEffect
@@ -22,7 +22,6 @@ _CURRENT_DIR_ = os.path.dirname(os.path.realpath(__file__))
 class FstripsReader:
 
     def __init__(self, raise_on_error=False, theories=None):
-
         self.problem = create_fstrips_problem(language=language(theories=theories))
         self.parser = FStripsParser(self.problem, raise_on_error)
 
@@ -49,7 +48,7 @@ class FstripsReader:
         return self.parser.visit(parse_tree)
 
 
-_TAB = " "*4
+_TAB = " " * 4
 
 action_tpl = """
     (:action {name}
@@ -64,6 +63,7 @@ derived_tpl = """
               {formula}
     )
 """
+
 
 def print_objects(constants):
     """ Print a PDDL object declaration with the given objects.
@@ -81,7 +81,6 @@ def print_objects(constants):
 
 
 def linebreaks(elements, indentation, indent_first):
-
     def indent_while_iterating():
         for i, element in enumerate(elements, 0):
             idt = 0 if i == 0 and not indent_first else indentation
@@ -136,12 +135,15 @@ def print_problem_constraints(problem):
     # pylint: disable=unused-argument
     return ""  # TODO
 
+
 def print_metric(metric):
     return '(:metric {type} {exp})'.format(type=metric.opt_type.value,
                                            exp=print_term(metric.opt_expression))
 
+
 def print_problem_metric(problem):
     return print_metric(problem.metric) if problem.metric else ''
+
 
 class FstripsWriter:
 
@@ -213,7 +215,7 @@ class FstripsWriter:
                 res.append("{} - {}".format(tname, tarsky_to_pddl_type(p)))
             else:
                 res.append(tname)
-        return ("\n" + _TAB*2).join(res)
+        return ("\n" + _TAB * 2).join(res)
 
     def get_functions(self):
         res = []
@@ -223,7 +225,7 @@ class FstripsWriter:
             domain_str = build_signature_string(fun.domain)
             codomain_str = tarsky_to_pddl_type(fun.codomain)
             res.append("({} {}) - {}".format(fun.symbol, domain_str, codomain_str))
-        return ("\n" + _TAB*2).join(res)
+        return ("\n" + _TAB * 2).join(res)
 
     def get_predicates(self):
         res = []
@@ -232,7 +234,7 @@ class FstripsWriter:
                 continue  # Don't declare builtin elements
             domain_str = build_signature_string(fun.sort)
             res.append("({} {})".format(fun.symbol, domain_str))
-        return ("\n" + _TAB*2).join(res)
+        return ("\n" + _TAB * 2).join(res)
 
     def get_actions(self):
         return "\n".join(self.get_action(a) for a in self.problem.actions.values())
@@ -250,11 +252,11 @@ class FstripsWriter:
         return "\n".join(self.get_derived(d) for d in self.problem.derived.values())
 
     def get_derived(self, d):
-        base_indentation = 1
         return derived_tpl.format(
             name=d.name,
             parameters=print_variable_list(d.parameters),
             formula=print_formula(d.formula))
+
 
 def build_signature_string(domain):
     if not domain:
@@ -289,7 +291,7 @@ def print_formula(formula, indentation=0):
 def print_effects(effects, indentation=0):
     if not effects:
         return "(and )"
-    return "(and\n{})".format("\n".join(print_effect(e, indentation+1) for e in effects))
+    return "(and\n{})".format("\n".join(print_effect(e, indentation + 1) for e in effects))
 
 
 def print_effect(eff, indentation=0):
@@ -331,12 +333,14 @@ def print_atom(atom):
 def print_term_list(terms):
     return " ".join(print_term(t) for t in terms)
 
+
 def print_term_ref_list(termrefs):
     return " ".join(print_term(t.expr) for t in termrefs)
+
 
 def print_formula_list(formulas):
     return " ".join(print_formula(f) for f in formulas)
 
 
 def indent(text, indentation):
-    return (indentation*_TAB) + text
+    return (indentation * _TAB) + text

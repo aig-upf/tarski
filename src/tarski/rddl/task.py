@@ -3,10 +3,11 @@ from tarski.io import rddl
 from tarski.model import Model
 from tarski.evaluators.simple import evaluate
 
+
 class Task(object):
 
-    def __init__(self, L: tarski.FirstOrderLanguage, domain_name: str, instance_name: str):
-        self.L = L
+    def __init__(self, lang: tarski.FirstOrderLanguage, domain_name: str, instance_name: str):
+        self.L = lang
         self.state_fluents = []
         self.interm_fluents = []
         self.action_fluents = []
@@ -21,9 +22,8 @@ class Task(object):
         self.x0.evaluator = evaluate
         self.requirements = []
 
-
     def declare_state_fluent(self, symbol, value):
-        self.state_fluents += [(symbol,value)]
+        self.state_fluents += [(symbol, value)]
 
     def declare_interm_fluent(self, symbol, level):
         self.interm_fluents += [(symbol, level)]

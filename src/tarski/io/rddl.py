@@ -4,30 +4,31 @@
 import os
 from enum import Enum
 
+from pyrddl.parser import RDDLParser
+
 import tarski
 from tarski.syntax import *
 import tarski.syntax.arithmetic as tm
-import tarski.syntax.arithmetic.special as tmsp
-import tarski.syntax.arithmetic.random as tmr
 import tarski.syntax.temporal.ltl as tt
 
-from tarski.syntax.builtins import BuiltinPredicateSymbol as BPS, BuiltinFunctionSymbol as BFS
-from tarski.model import Model
-from tarski.evaluators.simple import evaluate
-from tarski.errors import LanguageError
-from tarski.theories import Theory
-from pyrddl.parser import RDDLParser
+from ..syntax.builtins import BuiltinPredicateSymbol as BPS, BuiltinFunctionSymbol as BFS
+from ..model import Model
+from ..evaluators.simple import evaluate
+from ..errors import LanguageError
+from ..theories import Theory
 
 _CURRENT_DIR_ = os.path.dirname(os.path.realpath(__file__))
+
 
 class TranslationError(Exception):
     pass
 
+
 logic_rddl_to_tarski = {
-    '=>' : implies,
-    '^' : land,
-    '|' : lor,
-    '~' : neg}
+    '=>': implies,
+    '^': land,
+    '|': lor,
+    '~': neg}
 
 relational_rddl_to_tarski = {
     '==': BuiltinPredicateSymbol.EQ,
@@ -36,10 +37,10 @@ relational_rddl_to_tarski = {
 }
 
 arithmetic_rddl_to_tarski = {
-    '-': lambda L, x, y : L.dispatch_operator(BuiltinFunctionSymbol.SUB, Term, Term, x, y),
-    '+': lambda L, x, y : L.dispatch_operator(BuiltinFunctionSymbol.ADD, Term, Term, x, y),
-    '*': lambda L, x, y : L.dispatch_operator(BuiltinFunctionSymbol.MUL, Term, Term, x, y),
-    '/': lambda L, x, y : L.dispatch_operator(BuiltinFunctionSymbol.DIV, Term, Term, x, y)
+    '-': lambda L, x, y: L.dispatch_operator(BuiltinFunctionSymbol.SUB, Term, Term, x, y),
+    '+': lambda L, x, y: L.dispatch_operator(BuiltinFunctionSymbol.ADD, Term, Term, x, y),
+    '*': lambda L, x, y: L.dispatch_operator(BuiltinFunctionSymbol.MUL, Term, Term, x, y),
+    '/': lambda L, x, y: L.dispatch_operator(BuiltinFunctionSymbol.DIV, Term, Term, x, y)
 }
 
 func_rddl_to_tarski = {
@@ -51,6 +52,7 @@ func_rddl_to_tarski = {
     'max': BuiltinFunctionSymbol.MAX,
     'Gamma': BuiltinFunctionSymbol.GAMMA
 }
+
 
 def translate_expression(L, rddl_expr):
     try:
@@ -72,7 +74,7 @@ def translate_expression(L, rddl_expr):
         tsym = L.get(pvar_name.replace("'", ""))
         args = expr_sym[1]
         targs = []
-        if args is not None :
+        if args is not None:
             for k, arg in enumerate(args):
                 if arg[0] == '?':
                     if isinstance(tsym, Function):
@@ -87,7 +89,7 @@ def translate_expression(L, rddl_expr):
                     targs += [Constant(arg, L.Integer)]
                 else:
                     print(arg)
-                    targs += [L.get(arg)] # named constant?
+                    targs += [L.get(arg)]  # named constant?
         return tsym(*targs)
 
     elif expr_type == 'pvar':
@@ -101,7 +103,7 @@ def translate_expression(L, rddl_expr):
                 if not isinstance(tsym, Predicate):
                     raise LanguageError("Temporal operator X only defined for predicates!")
                 return tt.X(tsym())
-            return tsym() # 0-ary
+            return tsym()  # 0-ary
         targs = []
         for k, arg in enumerate(rddl_expr.args[1]):
             if arg[0] == '?':
@@ -117,7 +119,7 @@ def translate_expression(L, rddl_expr):
                 targs += [Constant(arg, L.Integer)]
             else:
                 print(arg)
-                targs += [L.get(arg)] # named constant?
+                targs += [L.get(arg)]  # named constant?
         if prima_fluent:
             if not isinstance(tsym, Predicate):
                 raise LanguageError("Temporal operator X only defined for predicates!")
@@ -162,8 +164,8 @@ def translate_expression(L, rddl_expr):
                 return ite(targs[1], targs[2], Constant(0, targs[2].sort))
             if isinstance(targs[2], Formula):
                 return ite(targs[2], targs[1], Constant(0, targs[1].sort))
-        #print(expr_sym, targs)
-        if len(targs) == 2: # unary operator
+        # print(expr_sym, targs)
+        if len(targs) == 2:  # unary operator
             if expr_sym == '-':
                 # replace -x by -1 * x
                 actual_op = arithmetic_rddl_to_tarski['*']
@@ -193,20 +195,24 @@ def translate_expression(L, rddl_expr):
     print(rddl_expr, expr_type, type(expr_sym))
     assert False
 
+
 class Parameters(object):
     """
         RDDL instance parameters
     """
+
     def __init__(self):
         self.horizon = None
         self.discount = None
         self.max_actions = None
+
 
 class Reader(object):
     """
         Reader creates a FOL and several language components
         that specify a RDDL task
     """
+
     def __init__(self, filename):
         self.language = None
         self.rddl_model = self._load_rddl_model(filename)
@@ -225,7 +231,7 @@ class Reader(object):
         for typename, parent_type in self.rddl_model.domain.types:
             assert parent_type == 'object'
             self.language.sort(typename, self.language.Object)
-        if self.rddl_model.non_fluents.objects[0] is None : return
+        if self.rddl_model.non_fluents.objects[0] is None: return
         for typename, dom in self.rddl_model.non_fluents.objects:
             for o in dom:
                 self.language.constant(o, self.language.get(typename))
@@ -244,7 +250,7 @@ class Reader(object):
     def translate_rddl_model(self):
         # 0. create language
         self.language = tarski.language(self.rddl_model.domain.name,
-            theories=[Theory.EQUALITY, Theory.ARITHMETIC, Theory.SPECIAL, Theory.RANDOM])
+                                        theories=[Theory.EQUALITY, Theory.ARITHMETIC, Theory.SPECIAL, Theory.RANDOM])
 
         # 1. create types
         self._translate_types()
@@ -275,14 +281,17 @@ class Reader(object):
             if isinstance(expr, Atom) and value is True:
                 self.x0.add(expr.predicate, *expr.subterms)
 
-built_in_type_map = { 'object': 'Object', 'real': 'Real', 'int': 'Integer'}
-reverse_built_in_type_map = { 'Object': 'object', 'Real': 'real', 'Integer': 'int'}
+
+built_in_type_map = {'object': 'Object', 'real': 'Real', 'int': 'Integer'}
+reverse_built_in_type_map = {'Object': 'object', 'Real': 'real', 'Integer': 'int'}
+
 
 def translate_builtin_type(L: tarski.FirstOrderLanguage, name):
     return L.get(built_in_type_map[name])
 
-def translate_variable(L : tarski.FirstOrderLanguage, name, term):
-    name = name.split('/')[0] # forget about the arity of the symbol
+
+def translate_variable(L: tarski.FirstOrderLanguage, name, term):
+    name = name.split('/')[0]  # forget about the arity of the symbol
     params = []
     if term.param_types is not None:
         params = term.param_types
@@ -302,8 +311,8 @@ def translate_variable(L : tarski.FirstOrderLanguage, name, term):
         return L.predicate(name, *t_signature)
     return L.function(name, *t_signature)
 
-class Requirements(Enum):
 
+class Requirements(Enum):
     CONTINUOUS = "continuous"
     MULTIVALUED = "multivalued"
     REWARD_DET = "reward-deterministic"
@@ -316,6 +325,7 @@ class Requirements(Enum):
     def __str__(self):
         return self.value.lower()
 
+
 class PVarTypes(Enum):
     NON_FLUENT = "non-fluent"
     STATE_FLUENT = "state-fluent"
@@ -325,8 +335,8 @@ class PVarTypes(Enum):
     def __str__(self):
         return self.value.lower()
 
-class PVarDomains(Enum):
 
+class PVarDomains(Enum):
     BOOL = "bool"
     INT = "int"
     REAL = "real"
@@ -336,6 +346,7 @@ class PVarDomains(Enum):
     def __str__(self):
         return self.value.lower()
 
+
 class ConstraintType(Enum):
     ACTION = "action"
     STATE = "state"
@@ -344,55 +355,58 @@ class ConstraintType(Enum):
     def __str__(self):
         return self.value.lower()
 
+
 symbol_map = {
-    BPS.EQ : "==",
-    BPS.NE : "~=",
-    BPS.LT : "<",
-    BPS.LE : "<=",
-    BPS.GT : ">",
-    BPS.GE : ">=",
-    Connective.And : "^",
-    Connective.Or : "|",
-    Connective.Not : "~",
-    Quantifier.Exists : "exists",
-    Quantifier.Forall : "forall",
-    BFS.ADD : "+",
-    BFS.SUB : "-",
-    BFS.MUL : "*",
-    BFS.DIV : "/",
-    BFS.POW : "**",
-    BFS.MOD : "%"
+    BPS.EQ: "==",
+    BPS.NE: "~=",
+    BPS.LT: "<",
+    BPS.LE: "<=",
+    BPS.GT: ">",
+    BPS.GE: ">=",
+    Connective.And: "^",
+    Connective.Or: "|",
+    Connective.Not: "~",
+    Quantifier.Exists: "exists",
+    Quantifier.Forall: "forall",
+    BFS.ADD: "+",
+    BFS.SUB: "-",
+    BFS.MUL: "*",
+    BFS.DIV: "/",
+    BFS.POW: "**",
+    BFS.MOD: "%"
 }
 
 function_map = {
-    BFS.MIN : "min",
-    BFS.MAX : "max",
-    BFS.ABS : "abs",
-    BFS.SIN : "sin",
-    BFS.COS : "cos",
-    BFS.TAN : "tan",
-    BFS.ATAN : "atan",
+    BFS.MIN: "min",
+    BFS.MAX: "max",
+    BFS.ABS: "abs",
+    BFS.SIN: "sin",
+    BFS.COS: "cos",
+    BFS.TAN: "tan",
+    BFS.ATAN: "atan",
     BFS.ASIN: "asin",
-    BFS.EXP : "exp",
-    BFS.LOG : "log",
-    BFS.ERF : "erf",
-    BFS.ERFC : "erfc",
-    BFS.SGN : "sgn",
-    BFS.SQRT : "sqrt",
-    BFS.NORMAL : "Normal",
-    BFS.GAMMA : "Gamma",
-    BFS.KRON : "KronDelta",
-    BFS.DIRAC : "DiracDelta",
-    BFS.BERNOULLI : "Bernoulli",
-    BFS.DISCRETE : "Discrete",
-    BFS.POISSON : "Poisson"
+    BFS.EXP: "exp",
+    BFS.LOG: "log",
+    BFS.ERF: "erf",
+    BFS.ERFC: "erfc",
+    BFS.SGN: "sgn",
+    BFS.SQRT: "sqrt",
+    BFS.NORMAL: "Normal",
+    BFS.GAMMA: "Gamma",
+    BFS.KRON: "KronDelta",
+    BFS.DIRAC: "DiracDelta",
+    BFS.BERNOULLI: "Bernoulli",
+    BFS.DISCRETE: "Discrete",
+    BFS.POISSON: "Poisson"
 }
+
 
 class Writer(object):
     """
         Writer compiles the specification of a planning task
         into RDDL
     """
+
     def __init__(self, task):
         self.task = task
         self.need_constraints = {}
@@ -435,7 +449,7 @@ class Writer(object):
         from tarski.syntax.sorts import parent
         type_decl_list = []
         for S in self.task.L.sorts:
-            if S.builtin or S.name == 'object' :
+            if S.builtin or S.name == 'object':
                 continue
             if isinstance(S, Interval):
                 self.need_constraints[S.name] = S
@@ -472,7 +486,7 @@ class Writer(object):
         # state fluents
         for fl, v in self.task.state_fluents:
             rsig = self.get_signature(fl)
-            pvar_decl_list += ['\t{} : {{state-fluent, {}, default = {}}};'.format(rsig, self.get_type(fl), str(v)) ]
+            pvar_decl_list += ['\t{} : {{state-fluent, {}, default = {}}};'.format(rsig, self.get_type(fl), str(v))]
         for fl, level in self.task.interm_fluents:
             rsig = self.get_signature(fl)
             try:
@@ -552,8 +566,8 @@ class Writer(object):
     def get_state_fluent_init(self):
         init_list = []
         for signature, defs in self.task.x0.function_extensions.items():
-            if signature in self.non_fluent_signatures\
-                or signature in self.interm_signatures:
+            if signature in self.non_fluent_signatures \
+                    or signature in self.interm_signatures:
                 continue
             for st_refs, value in defs.data.items():
                 subterms = [r.expr for r in st_refs]
@@ -563,8 +577,8 @@ class Writer(object):
                     term_str = str(self.task.L.get(signature[0])(*subterms))
                 init_list += ['\t{} = {};'.format(term_str, value)]
         for signature, defs in self.task.x0.predicate_extensions.items():
-            if signature in self.non_fluent_signatures\
-                or signature in self.interm_signatures:
+            if signature in self.non_fluent_signatures \
+                    or signature in self.interm_signatures:
                 continue
             for st_refs in defs:
                 subterms = [r.expr for r in st_refs]
@@ -640,7 +654,6 @@ class Writer(object):
                 re_sym = 'prod'
             return '{}_{{{}}} ({})'.format(re_sym, ','.join(re_vars), re_expr)
 
-
     def get_fluent(self, fl, next_state=False):
         try:
             head = fl.symbol.signature[0]
@@ -652,7 +665,7 @@ class Writer(object):
             for st in fl.subterms:
                 if isinstance(st, Variable):
                     # remove any ? from symbol just in case
-                    subterms_str += ['?{}'.format(st.symbol.replace('?',''))]
+                    subterms_str += ['?{}'.format(st.symbol.replace('?', ''))]
                 else:
                     subterms_str += [str(st)]
             subterms_str = '({})'.format(','.join(subterms_str))

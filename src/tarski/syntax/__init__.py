@@ -7,6 +7,7 @@ from .formulas import land, lor, neg, implies, forall, exists, equiv, Connective
     CompoundFormula, QuantifiedFormula, Tautology, Contradiction, top, bot, Quantifier, FormulaReference
 from .builtins import BuiltinFunctionSymbol, BuiltinPredicateSymbol
 
+
 def symref(sym):
     if isinstance(sym, Term):
         return TermReference(sym)
