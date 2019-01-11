@@ -1,11 +1,10 @@
 # * coding: utf8 *
 from collections import OrderedDict
-import copy
 from enum import Enum
 from typing import List
 
 from .. import errors as err
-from .terms import Variable, Term, TermReference
+from .terms import Variable, Term
 from .predicate import Predicate
 
 
@@ -54,6 +53,7 @@ class Formula:
         but here we use `__eq__` for a different purpose """
         raise NotImplementedError()  # To be subclassed
 
+
 class Tautology(Formula):
     def __str__(self):
         return "T"
@@ -61,12 +61,14 @@ class Tautology(Formula):
     def is_syntactically_equal(self, other):
         return self.__class__ is other.__class__
 
+
 class Contradiction(Formula):
     def __str__(self):
         return "F"
 
     def is_syntactically_equal(self, other):
         return self.__class__ is other.__class__
+
 
 class CompoundFormula(Formula):
     """ A set of formulas combined through some logical connective """
@@ -97,8 +99,8 @@ class CompoundFormula(Formula):
 
     def is_syntactically_equal(self, other):
         return self.__class__ is other.__class__ \
-            and self.connective == other.connective \
-            and all(x.is_syntactically_equal(y) for x, y in zip(self.subformulas, other.subformulas))
+               and self.connective == other.connective \
+               and all(x.is_syntactically_equal(y) for x, y in zip(self.subformulas, other.subformulas))
 
 
 class QuantifiedFormula(Formula):
@@ -118,9 +120,10 @@ class QuantifiedFormula(Formula):
 
     def is_syntactically_equal(self, other):
         return self.__class__ is other.__class__ \
-            and self.quantifier == other.quantifier \
-            and all(x.is_syntactically_equal(y) for x, y in zip(self.variables, other.variables)) \
-            and self.formula.is_syntactically_equal(other.formula)
+               and self.quantifier == other.quantifier \
+               and all(x.is_syntactically_equal(y) for x, y in zip(self.variables, other.variables)) \
+               and self.formula.is_syntactically_equal(other.formula)
+
 
 top = Tautology()
 bot = Contradiction()
@@ -183,18 +186,16 @@ def _quantified(quantifier, *args):
     if len(args) < 2:
         raise err.LanguageError('Quantified formula needs at least two arguments')
 
-    if not isinstance(args[-1], Formula):
+    variables, formula = args[:-1], args[-1]
+
+    if not isinstance(formula, Formula):
         raise err.LanguageError('Illformed arguments for quantified formula: {}'.format(args))
 
-    for x in args[:1]:
-        try:
-            _ = x.language
-        except AttributeError:
-            raise err.LanguageError('Illformed arguments for quantified formula: {}'.format(args))
-        if not isinstance(x, Variable):
+    for x in variables:
+        if not isinstance(x, Variable) or not hasattr(x, "language"):
             raise err.LanguageError('Illformed arguments for quantified formula: {}'.format(args))
 
-    return QuantifiedFormula(quantifier, args[:-1], args[-1])
+    return QuantifiedFormula(quantifier, variables, args[-1])
 
 
 class Atom(Formula):
@@ -236,14 +237,12 @@ class Atom(Formula):
         return '{}({})'.format(self.predicate.symbol, ','.join([str(t) for t in self.subterms]))
 
     def is_syntactically_equal(self, other):
-        if (self.__class__ is not other.__class__ or\
-            self.predicate != other.predicate or len(self.subterms) != len(other.subterms)):
+        if (self.__class__ is not other.__class__ or
+                self.predicate != other.predicate or len(self.subterms) != len(other.subterms)):
             return False
 
         # Else we just need to recursively check if all subterms are syntactically equal
         return all(x.is_syntactically_equal(y) for x, y in zip(self.subterms, other.subterms))
-
-
 
     __repr__ = __str__
 
@@ -308,6 +307,7 @@ class VariableBinding:
     def merge(self, binding):
         """ Merge the given binding into the current binding, inplace """
         raise NotImplementedError()
+
 
 class FormulaReference:
     """ A simple wrapper to provide a purely syntactic __eq__ operator for formulas.
