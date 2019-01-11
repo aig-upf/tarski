@@ -63,6 +63,9 @@ class Term:
     def __mul__(self, rhs):
         return self.language.dispatch_operator(BuiltinFunctionSymbol.MUL, Term, Term, self, rhs)
 
+    def __matmul__(self, rhs):
+        return self.language.dispatch_operator(BuiltinFunctionSymbol.MATMUL, Term, Term, self, rhs)
+
     def __truediv__(self, rhs):
         return self.language.dispatch_operator(BuiltinFunctionSymbol.DIV, Term, Term, self, rhs)
 
@@ -85,8 +88,6 @@ class Term:
         return self.language.dispatch_operator(BuiltinFunctionSymbol.MOD, Term, Term, self, rhs)
 
     # TODO - THE OPERATORS BELOW PROBABLY NEED TO BE REFACTORED
-    def __matmul__(self, rhs):
-        return self.language.dispatch_operator('@', Term, Term, self, rhs)
 
     def __floordiv__(self, rhs):
         return self.language.dispatch_operator('//', Term, Term, self, rhs)

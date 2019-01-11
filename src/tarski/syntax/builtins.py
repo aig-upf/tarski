@@ -24,6 +24,7 @@ class BuiltinFunctionSymbol(Enum):
     ADD = "+"
     SUB = "-"
     MUL = "*"
+    MATMUL = "@"
     DIV = "/"
     POW = "**"
     MOD = "%"

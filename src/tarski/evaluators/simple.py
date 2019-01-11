@@ -1,4 +1,5 @@
 import operator
+import numpy as np
 import tarski.funcsym as funcsym
 import tarski.errors as err
 
@@ -75,6 +76,7 @@ def evaluate_term(term, m: Model, sigma):
         for i in range(N):
             row = [evaluate_term(term.matrix[i, j], m, sigma) for j in range(M)]
             result.append(row)
+        print(result)
         return Matrix(result, term.sort)
 
     if isinstance(term, CompoundTerm) and builtins.is_builtin_function(term.symbol):
@@ -121,12 +123,25 @@ def evaluate_builtin_predicate(atom, model, sigma):
     return _evaluators[atom.predicate.symbol](atom, model, sigma)
 
 
+def symbolic_matrix_multiplication(lhs: Matrix, rhs: Matrix):
+    A, B = lhs.shape
+    C, D = rhs.shape
+
+    if B != C :
+        raise TypeError('matrices {}x{} and {}x{} cannot be multiplied together'.format(A,B,C,D))
+
+    zip_b = zip(*rhs.matrix)
+    zip_b = list(zip_b)
+    return [[sum(ele_a*ele_b for ele_a, ele_b in zip(row_a, col_b))
+             for col_b in zip_b] for row_a in lhs.matrix]
+
 def evaluate_builtin_function(term, model, sigma):
     bif = builtins.BuiltinFunctionSymbol
     _evaluators = {
         bif.ADD: lambda f, m, s: _arithmetic_evaluator_2(operator.add, f.subterms[0], f.subterms[1], m, s),
         bif.SUB: lambda f, m, s: _arithmetic_evaluator_2(operator.sub, f.subterms[0], f.subterms[1], m, s),
         bif.MUL: lambda f, m, s: _arithmetic_evaluator_2(operator.mul, f.subterms[0], f.subterms[1], m, s),
+        bif.MATMUL: lambda f, m, s: _arithmetic_evaluator_2(symbolic_matrix_multiplication, f.subterms[0], f.subterms[1], m, s),
         bif.DIV: lambda f, m, s: _arithmetic_evaluator_2(operator.truediv, f.subterms[0], f.subterms[1], m, s),
         bif.POW: lambda f, m, s: _arithmetic_evaluator_2(operator.pow, f.subterms[0], f.subterms[1], m, s),
         bif.MOD: lambda f, m, s: _arithmetic_evaluator_2(operator.mod, f.subterms[0], f.subterms[1], model, s),
@@ -168,7 +183,9 @@ def _arithmetic_evaluator_2(operation, lhs, rhs, model, sigma):
     lhs = evaluate_term(lhs, model, sigma)
     rhs = evaluate_term(rhs, model, sigma)
     if isinstance(lhs, Matrix) and isinstance(rhs, Matrix):
-        value = operation(lhs.matrix, rhs.matrix)
+        print("Matrix op Matrix")
+        value = operation(lhs, rhs)
+        print('Result : {}'.format(value))
         return evaluate_term(Matrix(value, lhs.sort), model, sigma)
     elif isinstance(lhs, Matrix) and not isinstance(rhs, Matrix):
         value = operation(lhs.matrix, ops.cast_to_number(rhs))

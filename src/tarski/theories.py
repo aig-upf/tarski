@@ -47,6 +47,11 @@ def load_theory(lang, theory):
         ite_func = lang.function('ite', lang.Object, lang.Object, lang.Object)
         ite_func.builtin = True
 
+        fun = builtins.BuiltinFunctionSymbol.MATMUL
+        lang.register_operator_handler(fun, Term, Term, create_casting_handler(fun, create_arithmetic_term))
+        f = lang.function(fun, lang.Real, lang.Real, lang.Real)
+        f.builtin = True
+
         for pred in builtins.get_arithmetic_predicates():
             lang.register_operator_handler(pred, Term, Term, create_casting_handler(pred, create_atom))
             p = lang.predicate(pred, lang.Real, lang.Real)
@@ -61,6 +66,7 @@ def load_theory(lang, theory):
             lang.register_unary_operator_handler(fun, Term, create_casting_handler(fun, create_arithmetic_term))
             f = lang.function(fun, lang.Real, lang.Real)
             f.builtin = True
+
     elif theory == Theory.SPECIAL:
         for fun in builtins.get_special_binary_functions():
             lang.register_operator_handler(fun, Term, Term, create_casting_handler(fun, create_arithmetic_term))

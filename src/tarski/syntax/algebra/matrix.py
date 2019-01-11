@@ -6,7 +6,7 @@ from tarski.syntax.sorts import Sort, parent
 
 class Matrix(Term):
     def __init__(self, arraylike, sort: Sort):
-        self.matrix = np.matrix(arraylike, dtype=np.dtype(object))
+        self.matrix = np.array(arraylike, dtype=np.dtype(object))
         self._sort = sort
         # verify and cast
         N, M = self.matrix.shape

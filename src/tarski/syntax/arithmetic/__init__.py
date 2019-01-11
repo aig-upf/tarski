@@ -200,7 +200,7 @@ def simplify(expr: Term):
                 return one(expr.sort)
             expr.subterms = (simp_st,)
             return expr
-    elif isinstance(expr, Matrix) or isinstance(expr, np.matrix):
+    elif isinstance(expr, Matrix) or isinstance(expr, np.ndarray):
         N, M = expr.shape
         for i in range(N):
             for j in range(M):
