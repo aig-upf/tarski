@@ -8,7 +8,6 @@ from ..syntax.algebra import Matrix
 from ..model import Model
 
 
-
 # TODO We will need to extend this so that the interpretation depends on a certain, given sigma of values to
 # TODO the free variables in the given termn / sentence, as is standard in textbook-FOL
 def evaluate(element, m: Model, sigma=None):
@@ -64,7 +63,7 @@ def evaluate_quantified(formula: Formula, m: Model, sigma):
 
 def evaluate_term(term, m: Model, sigma):
     if isinstance(term, IfThenElse):
-        if evaluate(term.condition, m, sigma): # condition is true
+        if evaluate(term.condition, m, sigma):  # condition is true
             term = term.subterms[0]
         else:
             term = term.subterms[1]
@@ -118,6 +117,19 @@ def evaluate_builtin_predicate(atom, model, sigma):
     }
 
     return _evaluators[atom.predicate.symbol](atom, model, sigma)
+
+
+def symbolic_matrix_multiplication(lhs: Matrix, rhs: Matrix):
+    A, B = lhs.shape
+    C, D = rhs.shape
+
+    if B != C:
+        raise TypeError('matrices {}x{} and {}x{} cannot be multiplied together'.format(A, B, C, D))
+
+    zip_b = zip(*rhs.matrix)
+    zip_b = list(zip_b)
+    return [[sum(ele_a * ele_b for ele_a, ele_b in zip(row_a, col_b))
+             for col_b in zip_b] for row_a in lhs.matrix]
 
 
 def evaluate_builtin_function(term, model, sigma):

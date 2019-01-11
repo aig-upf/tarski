@@ -1,7 +1,8 @@
 import numpy as np
 
-from tarski.syntax import Term, Constant
-from tarski.syntax.sorts import Sort, parent
+from ...syntax import Term, Constant
+from ...syntax.sorts import Sort
+from ... import errors as err
 
 
 class Matrix(Term):
