@@ -231,7 +231,8 @@ class Reader(object):
         for typename, parent_type in self.rddl_model.domain.types:
             assert parent_type == 'object'
             self.language.sort(typename, self.language.Object)
-        if self.rddl_model.non_fluents.objects[0] is None: return
+        if not hasattr(self.rddl_model.non_fluents, 'objects') \
+            or self.rddl_model.non_fluents.objects[0] is None: return
         for typename, dom in self.rddl_model.non_fluents.objects:
             for o in dom:
                 self.language.constant(o, self.language.get(typename))
@@ -531,12 +532,16 @@ class Writer(object):
 
     def get_objects(self):
         obj_decl_blocks = []
+
+        if len(self.need_obj_decl) == 0:
+            return ''
+
         # initialize
         for S in self.need_obj_decl:
             domain_str = ','.join([str(c.symbol) for c in S.domain()])
             obj_decl_blocks += ['\t{} : {{{}}};'.format(S.name, domain_str)]
 
-        return '\n'.join(obj_decl_blocks)
+        return 'objects {{{}}};'.format('\n'.join(obj_decl_blocks))
 
     def get_non_fluent_init(self):
         non_fluent_init_list = []
@@ -561,7 +566,10 @@ class Writer(object):
                     atom_str = str(self.task.L.get(signature[0])(*subterms))
                 non_fluent_init_list += ['\t{} = true;'.format(atom_str)]
 
-        return '\n'.join(non_fluent_init_list)
+        if len(non_fluent_init_list) == 0:
+            return ''
+
+        return 'non-fluents {{{}}};'.format('\n'.join(non_fluent_init_list))
 
     def get_state_fluent_init(self):
         init_list = []

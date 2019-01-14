@@ -29,13 +29,9 @@ domain {domain_name} {{
 non-fluents {domain_non_fluents} {{
     domain = {domain_name};
 
-    objects {{
-{object_list}
-    }};
+    {object_list}
 
-    non-fluents {{
-{non_fluent_expr}
-    }};
+    {non_fluent_expr}
 }}
 
 instance {instance_name} {{
