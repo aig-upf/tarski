@@ -243,12 +243,10 @@ class IfThenElse(Term):
     """
 
     def __init__(self, condition, subterms: Tuple[Term]):
-
+        self.symbol = subterms[0].language.get('ite')
         self.condition = condition
         if len(subterms) != 2:
             raise err.ArityMismatch(self.symbol, subterms, msg='IfThenElse: needs two sub terms!')
-
-        self.symbol = subterms[0].language.get('ite')
 
         # Our implementation of ite requires both branches to have equal sort
         if subterms[0].sort != subterms[1].sort:
