@@ -11,7 +11,7 @@ from tarski.syntax import *
 import tarski.syntax.arithmetic as tm
 import tarski.syntax.temporal.ltl as tt
 
-from ..syntax.builtins import BuiltinPredicateSymbol as BPS, BuiltinFunctionSymbol as BFS
+from ..syntax.builtins import create_atom, BuiltinPredicateSymbol as BPS, BuiltinFunctionSymbol as BFS
 from ..model import Model
 from ..evaluators.simple import evaluate
 from ..errors import LanguageError
@@ -136,7 +136,7 @@ def translate_expression(L, rddl_expr):
     elif expr_type == 'relational':
         tsym = relational_rddl_to_tarski[expr_sym]
         targs = [translate_expression(L, arg) for arg in rddl_expr.args]
-        return builtins.create_atom(L, tsym, targs[0], targs[1])
+        return create_atom(L, tsym, targs[0], targs[1])
     elif expr_type == 'aggregation':
         if expr_sym == 'sum':
             var = translate_expression(L, rddl_expr.args[0])
