@@ -2,7 +2,7 @@ import itertools
 import copy
 import numpy as np
 
-from ...syntax import Term, AggregateCompoundTerm, CompoundTerm, Constant, Variable
+from ...syntax import Term, AggregateCompoundTerm, CompoundTerm, Constant, Variable, IfThenElse
 from ...syntax.algebra import Matrix
 from ... import errors as err
 from ... grounding.naive import instantiation
@@ -69,7 +69,7 @@ def summation(*args):
         processed_expr.append(expr_subst)
 
     lhs = processed_expr[0]
-    for k in range(1,len(processed_expr)):
+    for k in range(1, len(processed_expr)):
         lhs = L.dispatch_operator(BuiltinFunctionSymbol.ADD, Term, Term, lhs, processed_expr[k])
 
     return lhs
@@ -102,7 +102,7 @@ def product(*args):
         processed_expr.append(expr_subst)
 
     lhs = processed_expr[0]
-    for k in range(1,len(processed_expr)):
+    for k in range(1, len(processed_expr)):
         lhs = L.dispatch_operator(BuiltinFunctionSymbol.MUL, Term, Term, lhs, processed_expr[k])
 
     return lhs
@@ -118,7 +118,7 @@ def sqrt(x):
     return sqrt_func(x)
 
 
-def transpose(m : Term):
+def transpose(m: Term):
     if isinstance(m, Matrix):
         m_t = copy.copy(m)
         m_t.matrix = m_t.matrix.T
@@ -161,7 +161,7 @@ def simplify(expr: Term):
     elif isinstance(expr, Variable):
         return expr
     elif isinstance(expr, CompoundTerm):
-        if not expr.symbol.builtin :
+        if not expr.symbol.builtin:
             return expr
         if expr.symbol.symbol == BuiltinFunctionSymbol.ADD:
             simp_st = (simplify(expr.subterms[0]), simplify(expr.subterms[1]))
@@ -212,7 +212,7 @@ def simplify(expr: Term):
         N, M = expr.shape
         for i in range(N):
             for j in range(M):
-                expr[i,j] = simplify(expr[i,j])
+                expr[i, j] = simplify(expr[i, j])
         return expr
     elif isinstance(expr, AggregateCompoundTerm):
         expr.subterm = simplify(expr.subterm)
