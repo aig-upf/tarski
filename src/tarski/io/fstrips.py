@@ -142,7 +142,7 @@ def print_metric(metric):
 
 
 def print_problem_metric(problem):
-    return print_metric(problem.metric) if problem.metric else ''
+    return print_metric(problem.plan_metric) if problem.plan_metric else ''
 
 
 class FstripsWriter:
@@ -249,7 +249,7 @@ class FstripsWriter:
         )
 
     def get_derived_predicates(self):
-        return "\n".join(self.get_derived(d) for d in self.problem.derived.values())
+        return "\n".join(self.get_derived(d) for d in self.problem.derived_predicates.values())
 
     def get_derived(self, d):
         return derived_tpl.format(

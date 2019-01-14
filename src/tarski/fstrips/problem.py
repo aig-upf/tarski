@@ -19,10 +19,18 @@ class Problem:
         self.goal = None
         self.constraints = []
         self.actions = OrderedDict()
-        self.derived = OrderedDict()
-        self.metric = None
+        self.derived_ = OrderedDict()
+        self.metric_ = None
 
         # TODO Add state constraints, etc.
+
+    @property
+    def derived_predicates(self):
+        return self.derived_
+
+    @property
+    def plan_metric(self):
+        return self.metric_
 
     def action(self, name, parameters, precondition, effects):
         if name in self.actions:
@@ -32,11 +40,11 @@ class Problem:
         return self.actions[name]
 
     def derived(self, name, parameters, formula):
-        if name in self.derived:
-            raise err.DuplicateDerivedDefinition(name, self.derived[name])
+        if name in self.derived_:
+            raise err.DuplicateDerivedDefinition(name, self.derived_[name])
 
-        self.derived[name] = Derived(self.language, name, parameters, formula)
-        return self.derived[name]
+        self.derived_[name] = Derived(self.language, name, parameters, formula)
+        return self.derived_[name]
 
     def has_action(self, name):
         return name in self.actions
@@ -80,7 +88,7 @@ class Problem:
             const.accept(cv)
 
     def metric(self, opt_expression, opt_type):
-        self.metric = fs.OptimizationMetric(opt_expression, opt_type)
+        self.metric_ = fs.OptimizationMetric(opt_expression, opt_type)
 
     def __str__(self):
         return 'FSTRIPS Problem "{}", domain "{}"'.format(self.name, self.domain_name)
