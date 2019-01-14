@@ -3,7 +3,6 @@
 
 class TarskiError(Exception):
     """ Common ancestor class to all of Tarski's exceptions """
-    pass
 
 
 class LanguageError(TarskiError):

@@ -25,9 +25,7 @@ class UninitializedAttribute:
 
 
 class DuplicateElementError(Exception):
-    def __init__(self, msg):
-        super().__init__(msg)
-
+    pass
 
 class IndexDictionary:
     """
