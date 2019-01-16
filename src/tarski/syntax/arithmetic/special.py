@@ -1,11 +1,23 @@
 from ..builtins import BuiltinFunctionSymbol as BFS
 
 def min(x, y):
-    min_func = x.language.get_function(BFS.MIN)
+    try:
+        min_func = x.language.get_function(BFS.MIN)
+    except AttributeError:
+        try:
+            min_func = y.language.get_function(BFS.MIN)
+        except AttributeError:
+            return min(x, y)
     return min_func(x, y)
 
 def max(x, y):
-    max_func = x.language.get_function(BFS.MAX)
+    try:
+        max_func = x.language.get_function(BFS.MAX)
+    except AttributeError:
+        try:
+            max_func = y.language.get_function(BFS.MAX)
+        except AttributeError:
+            return max(x, y)
     return max_func(x, y)
 
 def abs(x):
@@ -27,6 +39,10 @@ def tan(x):
 def atan(x):
     atan_func = x.language.get_function(BFS.ATAN)
     return atan_func(x)
+
+def asin(x):
+    asin_func = x.language.get_function(BFS.ASIN)
+    return asin_func(x)
 
 def exp(x):
     exp_func = x.language.get_function(BFS.EXP)

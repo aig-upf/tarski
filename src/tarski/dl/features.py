@@ -195,7 +195,8 @@ class MinDistanceFeature(Feature):
         # (Debugging)
         # ec1 = sorted(cache.universe.value(x) for x in cache.uncompress(ext_c1, self.c1.ARITY))
         # ec2 = sorted(cache.universe.value(x) for x in cache.uncompress(ext_c2, self.c2.ARITY))
-        # er1 = sorted((cache.universe.value(x), cache.universe.value(y)) for x, y in cache.uncompress(ext_r, self.r.ARITY))
+        # er1 = sorted((cache.universe.value(x),
+        # cache.universe.value(y)) for x, y in cache.uncompress(ext_r, self.r.ARITY))
 
         return compute_min_distance(cache.uncompress(ext_c1, self.c1.ARITY),
                                     cache.uncompress(ext_r, self.r.ARITY),

@@ -1,4 +1,3 @@
-from . import errors as err
 
 class Action:
     """ A (possibly lifted) planning action """

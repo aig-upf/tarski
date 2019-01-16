@@ -11,9 +11,9 @@ def generate_numeric_instance():
     # The sorts
     particle = lang.sort('particle')
 
-    x = lang.function('x', particle, lang.Real)
-    y = lang.function('y', particle, lang.Real)
-    f = lang.function('f', particle, lang.Real)
+    lang.function('x', particle, lang.Real)
+    lang.function('y', particle, lang.Real)
+    lang.function('f', particle, lang.Real)
 
     # Particles
     for k in (1, 2, 3, 4):
@@ -21,8 +21,8 @@ def generate_numeric_instance():
 
     return lang
 
-def generate_billiards_instance():
 
+def generate_billiards_instance():
     lang = tsk.fstrips.language(theories=[Theory.EQUALITY, Theory.ARITHMETIC])
 
     # The sorts
@@ -32,12 +32,12 @@ def generate_billiards_instance():
 
     # The stuff
     lang.balls = []
-    for k in (1,2):
+    for k in (1, 2):
         bk = lang.constant('ball_{}'.format(k), ball)
         lang.balls.append(bk)
 
     lang.dimensions = []
-    for d in ('x','y'):
+    for d in ('x', 'y'):
         dk = lang.constant(d, dim)
         lang.dimensions.append(dk)
 
@@ -47,10 +47,10 @@ def generate_billiards_instance():
         lang.forces.append(fk)
 
     # The properties of stuff
-    m = lang.function('m', ball, lang.Real)
-    F = lang.function('F', force, dim, ball, lang.Real)
-    a = lang.function('a', dim, ball, lang.Real)
-    v = lang.function('v', dim, ball, lang.Real)
-    p = lang.function('p', dim, ball, lang.Real)
+    lang.function('m', ball, lang.Real)
+    lang.function('F', force, dim, ball, lang.Real)
+    lang.function('a', dim, ball, lang.Real)
+    lang.function('v', dim, ball, lang.Real)
+    lang.function('p', dim, ball, lang.Real)
 
     return lang

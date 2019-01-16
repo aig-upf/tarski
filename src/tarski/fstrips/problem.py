@@ -3,7 +3,8 @@ from collections import OrderedDict
 
 from .. import model
 from .action import Action
-from .fstrips import *
+from .derived import Derived
+from . import fstrips as fs
 from . import errors as err
 
 
@@ -18,9 +19,18 @@ class Problem:
         self.goal = None
         self.constraints = []
         self.actions = OrderedDict()
-        self.metric = None
+        self.derived_ = OrderedDict()
+        self.metric_ = None
 
-        # TODO Add axioms, state constraints, etc.
+        # TODO Add state constraints, etc.
+
+    @property
+    def derived_predicates(self):
+        return self.derived_
+
+    @property
+    def plan_metric(self):
+        return self.metric_
 
     def action(self, name, parameters, precondition, effects):
         if name in self.actions:
@@ -29,6 +39,13 @@ class Problem:
         self.actions[name] = Action(self.language, name, parameters, precondition, effects)
         return self.actions[name]
 
+    def derived(self, name, parameters, formula):
+        if name in self.derived_:
+            raise err.DuplicateDerivedDefinition(name, self.derived_[name])
+
+        self.derived_[name] = Derived(self.language, name, parameters, formula)
+        return self.derived_[name]
+
     def has_action(self, name):
         return name in self.actions
 
@@ -36,7 +53,6 @@ class Problem:
         if not self.has_action(name):
             raise err.UndefinedAction(name)
         return self.actions[name]
-
 
     def get_symbols(self, pv, ev, cv):
         """
@@ -52,17 +68,17 @@ class Problem:
             act.precondition.accept(pv)
             for eff in act.effects:
                 eff.condition.accept(pv)
-                if isinstance(eff, AddEffect):
+                if isinstance(eff, fs.AddEffect):
                     eff.atom.accept(ev)
-                elif isinstance(eff, DelEffect):
+                elif isinstance(eff, fs.DelEffect):
                     eff.atom.accept(ev)
-                elif isinstance(eff, FunctionalEffect):
+                elif isinstance(eff, fs.FunctionalEffect):
                     eff.lhs.accept(ev)
-                elif isinstance(eff, ChoiceEffect):
+                elif isinstance(eff, fs.ChoiceEffect):
                     eff.obj.accept(ev)
                     for x in eff.variables:
                         x.accept(ev)
-                elif isinstance(eff, LogicalEffect):
+                elif isinstance(eff, fs.LogicalEffect):
                     eff.formula.accept(ev)
                 else:
                     raise RuntimeError("Effect type '{}' cannot be analysed".format(type(eff)))
@@ -71,6 +87,8 @@ class Problem:
             cv.reset()
             const.accept(cv)
 
+    def metric(self, opt_expression, opt_type):
+        self.metric_ = fs.OptimizationMetric(opt_expression, opt_type)
 
     def __str__(self):
         return 'FSTRIPS Problem "{}", domain "{}"'.format(self.name, self.domain_name)

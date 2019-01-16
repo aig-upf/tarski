@@ -1,11 +1,11 @@
 import operator
-import tarski.funcsym as funcsym
-import tarski.errors as err
+from .. import funcsym as funcsym
+from .. import errors as err
 
 from ..syntax import ops, Connective, Atom, Formula, CompoundFormula, QuantifiedFormula, builtins, Variable, \
-    Constant, CompoundTerm, Tautology, Contradiction
+    Constant, CompoundTerm, Tautology, Contradiction, IfThenElse, AggregateCompoundTerm
+from ..syntax.algebra import Matrix
 from ..model import Model
-
 
 
 # TODO We will need to extend this so that the interpretation depends on a certain, given sigma of values to
@@ -34,7 +34,7 @@ def evaluate(element, m: Model, sigma=None):
     if isinstance(element, Variable):
         return sigma[element]  # TODO Finish this, ATM it will raise a runtime error
 
-    if isinstance(element, (Constant, CompoundTerm)):
+    if isinstance(element, (Constant, CompoundTerm, IfThenElse, Matrix, AggregateCompoundTerm)):
         return evaluate_term(element, m, sigma)
 
     raise RuntimeError("Unknown logical element type: {}, {}".format(element, type(element)))
@@ -62,9 +62,27 @@ def evaluate_quantified(formula: Formula, m: Model, sigma):
 
 
 def evaluate_term(term, m: Model, sigma):
+    if isinstance(term, IfThenElse):
+        if evaluate(term.condition, m, sigma):  # condition is true
+            term = term.subterms[0]
+        else:
+            term = term.subterms[1]
+
+    if isinstance(term, Matrix):
+        N, M = term.shape
+        result = []
+        for i in range(N):
+            row = [evaluate_term(term.matrix[i, j], m, sigma) for j in range(M)]
+            result.append(row)
+        return Matrix(result, term.sort)
+
     if isinstance(term, CompoundTerm) and builtins.is_builtin_function(term.symbol):
         return evaluate_builtin_function(term, m, sigma)
-
+    # MRJ: Coerce float and int Python literals into constants
+    if isinstance(term, float):
+        term = Constant(term, m.language.Real)
+    if isinstance(term, int):
+        term = Constant(term, m.language.Integer)
     assert isinstance(term, (Constant, CompoundTerm))  # TODO Add support for variables
     arguments = []
 
@@ -101,30 +119,51 @@ def evaluate_builtin_predicate(atom, model, sigma):
     return _evaluators[atom.predicate.symbol](atom, model, sigma)
 
 
+def symbolic_matrix_multiplication(lhs: Matrix, rhs: Matrix):
+    A, B = lhs.shape
+    C, D = rhs.shape
+
+    if B != C:
+        raise TypeError('matrices {}x{} and {}x{} cannot be multiplied together'.format(A, B, C, D))
+
+    zip_b = zip(*rhs.matrix)
+    zip_b = list(zip_b)
+    return [[sum(ele_a * ele_b for ele_a, ele_b in zip(row_a, col_b))
+             for col_b in zip_b] for row_a in lhs.matrix]
+
+
 def evaluate_builtin_function(term, model, sigma):
     bif = builtins.BuiltinFunctionSymbol
+    ae1 = _arithmetic_evaluator_1
+    ae2 = _arithmetic_evaluator_2
     _evaluators = {
-        bif.ADD: lambda f, m, s: _arithmetic_evaluator_2(operator.add, f.subterms[0], f.subterms[1], model, sigma),
-        bif.SUB: lambda f, m, s: _arithmetic_evaluator_2(operator.sub, f.subterms[0], f.subterms[1], model, sigma),
-        bif.MUL: lambda f, m, s: _arithmetic_evaluator_2(operator.mul, f.subterms[0], f.subterms[1], model, sigma),
-        bif.DIV: lambda f, m, s: _arithmetic_evaluator_2(operator.truediv, f.subterms[0], f.subterms[1], model, sigma),
-        bif.POW: lambda f, m, s: _arithmetic_evaluator_2(operator.pow, f.subterms[0], f.subterms[1], model, sigma),
-        bif.MOD: lambda f, m, s: _arithmetic_evaluator_2(operator.mod, f.subterms[0], f.subterms[1], model, sigma),
-        bif.MIN: lambda f, m, s: _arithmetic_evaluator_2(funcsym.impl[bif.MIN.value], f.subterms[0], f.subterms[1], model, sigma),
-        bif.MAX: lambda f, m, s: _arithmetic_evaluator_2(funcsym.impl[bif.MAX.value], f.subterms[0], f.subterms[1], model, sigma),
-        bif.ABS: lambda f, m, s: _arithmetic_evaluator_1(funcsym.impl[bif.ABS.value], f.subterms[0], model, sigma),
-        bif.SIN: lambda f, m, s: _arithmetic_evaluator_1(funcsym.impl[bif.SIN.value], f.subterms[0], model, sigma),
-        bif.COS: lambda f, m, s: _arithmetic_evaluator_1(funcsym.impl[bif.COS.value], f.subterms[0], model, sigma),
-        bif.TAN: lambda f, m, s: _arithmetic_evaluator_1(funcsym.impl[bif.TAN.value], f.subterms[0], model, sigma),
-        bif.ATAN: lambda f, m, s: _arithmetic_evaluator_1(funcsym.impl[bif.ATAN.value], f.subterms[0], model, sigma),
-        bif.EXP: lambda f, m, s: _arithmetic_evaluator_1(funcsym.impl[bif.EXP.value], f.subterms[0], model, sigma),
-        bif.LOG: lambda f, m, s: _arithmetic_evaluator_1(funcsym.impl[bif.LOG.value], f.subterms[0], model, sigma),
-        bif.ERF: lambda f, m, s: _arithmetic_evaluator_1(funcsym.impl[bif.ERF.value], f.subterms[0], model, sigma),
-        bif.ERFC: lambda f, m, s: _arithmetic_evaluator_1(funcsym.impl[bif.ERFC.value], f.subterms[0], model, sigma),
-        bif.SGN: lambda f, m, s: _arithmetic_evaluator_1(funcsym.impl[bif.SGN.value], f.subterms[0], model, sigma),
+        bif.ADD: lambda f, m, s: ae2(operator.add, f.subterms[0], f.subterms[1], m, s),
+        bif.SUB: lambda f, m, s: ae2(operator.sub, f.subterms[0], f.subterms[1], m, s),
+        bif.MUL: lambda f, m, s: ae2(operator.mul, f.subterms[0], f.subterms[1], m, s),
+        bif.MATMUL: lambda f, m, s: ae2(symbolic_matrix_multiplication, f.subterms[0], f.subterms[1], m, s),
+        bif.DIV: lambda f, m, s: ae2(operator.truediv, f.subterms[0], f.subterms[1], m, s),
+        bif.POW: lambda f, m, s: ae2(operator.pow, f.subterms[0], f.subterms[1], m, s),
+        bif.MOD: lambda f, m, s: ae2(operator.mod, f.subterms[0], f.subterms[1], model, s),
+        bif.MIN: lambda f, m, s: ae2(funcsym.impl[bif.MIN.value], f.subterms[0], f.subterms[1], m, s),
+        bif.MAX: lambda f, m, s: ae2(funcsym.impl[bif.MAX.value], f.subterms[0], f.subterms[1], m, s),
+        bif.ABS: lambda f, m, s: ae1(funcsym.impl[bif.ABS.value], f.subterms[0], m, s),
+        bif.SIN: lambda f, m, s: ae1(funcsym.impl[bif.SIN.value], f.subterms[0], m, s),
+        bif.COS: lambda f, m, s: ae1(funcsym.impl[bif.COS.value], f.subterms[0], m, s),
+        bif.TAN: lambda f, m, s: ae1(funcsym.impl[bif.TAN.value], f.subterms[0], m, s),
+        bif.ATAN: lambda f, m, s: ae1(funcsym.impl[bif.ATAN.value], f.subterms[0], m, s),
+        bif.ASIN: lambda f, m, s: ae1(funcsym.impl[bif.ASIN.value], f.subterms[0], m, s),
+        bif.EXP: lambda f, m, s: ae1(funcsym.impl[bif.EXP.value], f.subterms[0], m, s),
+        bif.LOG: lambda f, m, s: ae1(funcsym.impl[bif.LOG.value], f.subterms[0], m, s),
+        bif.ERF: lambda f, m, s: ae1(funcsym.impl[bif.ERF.value], f.subterms[0], m, s),
+        bif.ERFC: lambda f, m, s: ae1(funcsym.impl[bif.ERFC.value], f.subterms[0], m, s),
+        bif.SGN: lambda f, m, s: ae1(funcsym.impl[bif.SGN.value], f.subterms[0], m, s),
+        bif.SQRT: lambda f, m, s: ae1(funcsym.impl[bif.SQRT.value], f.subterms[0], m, s),
+        bif.NORMAL: lambda f, m, s: ae2(funcsym.impl[bif.NORMAL.value], f.subterms[0], f.subterms[1], m, s),
+        bif.GAMMA: lambda f, m, s: ae2(funcsym.impl[bif.GAMMA.value], f.subterms[0], f.subterms[1], m, s),
     }
 
     return _evaluators[term.symbol.symbol](term, model, sigma)
+
 
 def _arithmetic_evaluator_1(operation, expr, model, sigma):
     # _lhs = args[0].symbol
@@ -136,6 +175,7 @@ def _arithmetic_evaluator_1(operation, expr, model, sigma):
     sort = ops.infer_numeric_sort(value, expr.language)
     return Constant(value, sort)
 
+
 def _arithmetic_evaluator_2(operation, lhs, rhs, model, sigma):
     # _lhs = args[0].symbol
     # _rhs = args[1].symbol
@@ -143,6 +183,18 @@ def _arithmetic_evaluator_2(operation, lhs, rhs, model, sigma):
     # assert self.domain[1].contains(_rhs)
     lhs = evaluate_term(lhs, model, sigma)
     rhs = evaluate_term(rhs, model, sigma)
+    if isinstance(lhs, Matrix) and isinstance(rhs, Matrix):
+        print("Matrix op Matrix")
+        value = operation(lhs, rhs)
+        print('Result : {}'.format(value))
+        return evaluate_term(Matrix(value, lhs.sort), model, sigma)
+    elif isinstance(lhs, Matrix) and not isinstance(rhs, Matrix):
+        value = operation(lhs.matrix, ops.cast_to_number(rhs))
+        return evaluate_term(Matrix(value, lhs.sort), model, sigma)
+    elif isinstance(rhs, Matrix) and not isinstance(lhs, Matrix):
+        value = operation(ops.cast_to_number(lhs), rhs.matrix)
+        return evaluate_term(Matrix(value, rhs.sort), model, sigma)
+
     value = operation(ops.cast_to_number(lhs), ops.cast_to_number(rhs))
     sort = ops.infer_numeric_sort(value, lhs.language)
     return Constant(value, sort)

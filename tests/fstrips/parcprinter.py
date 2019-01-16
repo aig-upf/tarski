@@ -7,7 +7,6 @@ import tarski.model
 from tests.common import parcprinter
 from tarski import fstrips as fs
 from tarski.syntax import *
-# from tarski.symbols import *
 
 from tarski.evaluators.simple import evaluate
 
@@ -30,18 +29,18 @@ from tarski.evaluators.simple import evaluate
 (:action Finisher2-Stack-Letter
  :parameters ( ?sheet - sheet_t ?prevsheet - sheet_t)
  :precondition (and
-		(Available Finisher2-RSRC)
-		(Prevsheet ?sheet ?prevsheet)
-		(Location ?prevsheet Some_Finisher_Tray)
-		(Sheetsize ?sheet Letter)
-		(Location ?sheet Finisher2_Entry-Finisher1_Exit))
+        (Available Finisher2-RSRC)
+        (Prevsheet ?sheet ?prevsheet)
+        (Location ?prevsheet Some_Finisher_Tray)
+        (Sheetsize ?sheet Letter)
+        (Location ?sheet Finisher2_Entry-Finisher1_Exit))
  :effect (and
-		(not (Available Finisher2-RSRC))
-		(Location ?sheet Some_Finisher_Tray)
-		(Stackedin ?sheet Finisher2_Tray)
-		(not (Location ?sheet Finisher2_Entry-Finisher1_Exit))
-		(Available Finisher2-RSRC)
-		(increase (total-cost) 8000))
+        (not (Available Finisher2-RSRC))
+        (Location ?sheet Some_Finisher_Tray)
+        (Stackedin ?sheet Finisher2_Tray)
+        (not (Location ?sheet Finisher2_Entry-Finisher1_Exit))
+        (Available Finisher2-RSRC)
+        (increase (total-cost) 8000))
 )
 
 )
@@ -60,6 +59,7 @@ def create_small_task():
     M.add(upp.Prevsheet, sheet1, dummy_sheet)
     M.add(upp.Sheetsize, sheet1, upp.letter)
     M.add(upp.Location, sheet1, upp.some_feeder_tray)
+    M.setx(upp.total_cost(), 0)
 
     sheet = upp.variable('sheet', upp.sheet_t)
     prevsheet = upp.variable('prevsheet', upp.sheet_t)
@@ -74,7 +74,8 @@ def create_small_task():
                fs.DelEffect(upp.Location(sheet, upp.finisher2_entry_finisher1_exit)),
                fs.AddEffect(upp.Location(sheet, upp.some_finisher_tray)),
                fs.AddEffect(upp.Stackedin(sheet, upp.finisher2_tray)),
-               fs.AddEffect(upp.Available(upp.finisher2_rsrc))
+               fs.AddEffect(upp.Available(upp.finisher2_rsrc)),
+               fs.IncreaseEffect(upp.total_cost(), 8000)
                ]
 
     P = fs.Problem()
@@ -83,4 +84,5 @@ def create_small_task():
     P.init = M
     P.goal = top
     P.action('Finisher2-Stack-Letter', [sheet, prevsheet], precondition, effects)
+    P.metric = fs.OptimizationMetric(upp.total_cost(), fs.OptimizationType.MINIMIZE)
     return P

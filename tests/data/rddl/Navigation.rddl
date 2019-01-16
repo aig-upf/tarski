@@ -1,0 +1,81 @@
+domain Navigation {
+
+    requirements = {
+        concurrent,           // this domain permits multiple non-default actions
+        continuous,           // this domain uses real-valued parameterized variables
+        cpf-deterministic,    // this domain uses deterministic conditional functions for transitions
+        intermediate-nodes,   // this domain uses intermediate pvariable nodes
+        reward-deterministic  // this domain does not use a stochastic reward
+    };
+
+    types {
+        dim: object;
+        zone: object;
+    };
+
+    pvariables {
+        MIN_ACTION_BOUND(dim): { non-fluent, real, default = -1.0 };
+        MAX_ACTION_BOUND(dim): { non-fluent, real, default =  1.0 };
+
+        GOAL(dim): { non-fluent, real, default = 0.0 };
+
+        DECELERATION_ZONE_CENTER(zone, dim) : { non-fluent, real, default = 0.0 };
+        DECELERATION_ZONE_DECAY(zone): { non-fluent, real, default = 2.0 };
+
+        distance(zone): { interm-fluent, real, level = 1 };
+        deceleration(zone): { interm-fluent, real, level = 2 };
+
+        location(dim): { state-fluent, real, default = 0.0 };
+
+        move(dim): { action-fluent, real, default = 0.0 };
+    };
+
+    cpfs {
+        distance(?z) = sqrt[ sum_{?l:dim} [ pow[ (DECELERATION_ZONE_CENTER(?z, ?l) - location(?l)), 2 ] ] ];
+        deceleration(?z) = 2.0 / (1.0 + exp[-DECELERATION_ZONE_DECAY(?z) * distance(?z) ]) - 1.00;
+        location'(?l) = location(?l) + (prod_{?z:zone} [deceleration(?z)]) * move(?l);
+    };
+
+    reward = - sqrt[ sum_{?l:dim}[ pow[ GOAL(?l) - location(?l), 2 ] ] ];
+
+    action-preconditions {
+        forall_{?l:dim} [move(?l) >= MIN_ACTION_BOUND(?l)];
+        forall_{?l:dim} [move(?l) <= MAX_ACTION_BOUND(?l)];
+    };
+}
+
+non-fluents Navigation2D-Small-2Zones {
+    domain = Navigation;
+
+    objects {
+        dim: {x, y};
+        zone: {z1, z2};
+    };
+
+    non-fluents {
+        GOAL(x) = 8.0;
+        GOAL(y) = 8.0;
+
+        DECELERATION_ZONE_CENTER(z1, x) = 2.0;
+        DECELERATION_ZONE_CENTER(z1, y) = 5.0;
+        DECELERATION_ZONE_DECAY(z1) = 2.2;
+
+        DECELERATION_ZONE_CENTER(z2, x) = 4.0;
+        DECELERATION_ZONE_CENTER(z2, y) = 3.0;
+        DECELERATION_ZONE_DECAY(z2) = 1.7;
+    };
+}
+
+instance inst1 {
+    domain = Navigation;
+    non-fluents = Navigation2D-Small-2Zones;
+
+    init-state {
+        location(x) = 0.0;
+        location(y) = 0.0;
+    };
+
+    max-nondef-actions = 2;
+    horizon = 20;
+    discount = 1.0;
+}

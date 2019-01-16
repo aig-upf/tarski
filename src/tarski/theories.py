@@ -13,6 +13,7 @@ class Theory(Enum):
     EQUALITY = "equality"
     ARITHMETIC = "arithmetic"
     SPECIAL = "special"
+    RANDOM = "random"
 
     def __str__(self):
         return self.value
@@ -41,14 +42,29 @@ def load_theory(lang, theory):
             p.builtin = True
 
     elif theory == Theory.ARITHMETIC:
+        # MRJ: ite function is now part of the Arithmetic theory
+        # "virtual function" ite (if-then-else) registered
+        ite_func = lang.function('ite', lang.Object, lang.Object, lang.Object)
+        ite_func.builtin = True
+
+        fun = builtins.BuiltinFunctionSymbol.MATMUL
+        lang.register_operator_handler(fun, Term, Term, create_casting_handler(fun, create_arithmetic_term))
+        f = lang.function(fun, lang.Real, lang.Real, lang.Real)
+        f.builtin = True
+
         for pred in builtins.get_arithmetic_predicates():
             lang.register_operator_handler(pred, Term, Term, create_casting_handler(pred, create_atom))
             p = lang.predicate(pred, lang.Real, lang.Real)
             p.builtin = True
 
-        for fun in builtins.get_arithmetic_functions():
+        for fun in builtins.get_arithmetic_binary_functions():
             lang.register_operator_handler(fun, Term, Term, create_casting_handler(fun, create_arithmetic_term))
             f = lang.function(fun, lang.Real, lang.Real, lang.Real)
+            f.builtin = True
+
+        for fun in builtins.get_arithmetic_unary_functions():
+            lang.register_unary_operator_handler(fun, Term, create_casting_handler(fun, create_arithmetic_term))
+            f = lang.function(fun, lang.Real, lang.Real)
             f.builtin = True
 
     elif theory == Theory.SPECIAL:
@@ -60,6 +76,16 @@ def load_theory(lang, theory):
             lang.register_unary_operator_handler(fun, Term, create_casting_handler(fun, create_arithmetic_term))
             f = lang.function(fun, lang.Real, lang.Real)
             f.builtin = True
+    elif theory == Theory.RANDOM:
+        for fun in builtins.get_random_binary_functions():
+            lang.register_operator_handler(fun, Term, Term, create_casting_handler(fun, create_arithmetic_term))
+            f = lang.function(fun, lang.Real, lang.Real, lang.Real)
+            f.builtin = True
+        for fun in builtins.get_random_unary_functions():
+            lang.register_unary_operator_handler(fun, Term, create_casting_handler(fun, create_arithmetic_term))
+            f = lang.function(fun, lang.Real, lang.Real)
+            f.builtin = True
+
     else:
         raise err.UnknownTheory(theory)
     lang.theories.append(theory)

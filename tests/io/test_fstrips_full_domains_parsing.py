@@ -18,10 +18,11 @@ SAMPLE_STRIPS_INSTANCES = [
     "visitall-sat11-strips:problem12.pddl",
     "trucks:p01.pddl",  # quantified formulas
     "blocks:probBLOCKS-4-1.pddl",
+    "blocks:probBLOCKS-10-0.pddl",
     "gripper:prob01.pddl",
 
-    "sokoban-opt08-strips:p01.pddl", # action costs
-    "parking-sat11-strips:pfile08-031.pddl", # action costs
+    "sokoban-opt08-strips:p01.pddl",  # action costs
+    "parking-sat11-strips:pfile08-031.pddl",  # action costs
 ]
 
 SAMPLE_FSTRIPS_INSTANCES = [

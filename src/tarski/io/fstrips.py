@@ -2,16 +2,19 @@ import logging
 import os
 from collections import defaultdict
 
-from tarski import Term, Variable, Constant, Formula
-from tarski.fstrips.fstrips import SingleEffect
-from tarski.model import ExtensionalFunctionDefinition
-from tarski.syntax import Tautology, Contradiction, Atom, CompoundTerm, CompoundFormula, QuantifiedFormula
-from tarski.syntax.sorts import parent, Interval, ancestors
+from ..fstrips.fstrips import SingleEffect
+from ..model import ExtensionalFunctionDefinition
+from ..syntax import Tautology, Contradiction, Atom, CompoundTerm, CompoundFormula, QuantifiedFormula, \
+    Term, Variable, Constant, Formula
+from ..syntax.sorts import parent, Interval, ancestors
 
 from ._fstrips.common import tarsky_to_pddl_type, get_requirements_string
-from ..fstrips import create_fstrips_problem, language, FunctionalEffect, AddEffect, DelEffect
+from ..fstrips import create_fstrips_problem, language, FunctionalEffect, AddEffect, DelEffect, IncreaseEffect
 
 from ._fstrips.reader import FStripsParser
+
+# Leave the next import so that it can be imported from the outside without warnings of importing a private module
+from ._fstrips.reader import ParsingError
 
 _CURRENT_DIR_ = os.path.dirname(os.path.realpath(__file__))
 
@@ -19,7 +22,6 @@ _CURRENT_DIR_ = os.path.dirname(os.path.realpath(__file__))
 class FstripsReader:
 
     def __init__(self, raise_on_error=False, theories=None):
-
         self.problem = create_fstrips_problem(language=language(theories=theories))
         self.parser = FStripsParser(self.problem, raise_on_error)
 
@@ -46,14 +48,20 @@ class FstripsReader:
         return self.parser.visit(parse_tree)
 
 
-_TAB = " "*4
+_TAB = " " * 4
 
 action_tpl = """
     (:action {name}
      :parameters ({parameters})
      :precondition {precondition}
      :effect {effect}
-    ) 
+    )
+"""
+
+derived_tpl = """
+    (:derived ({name} {parameters})
+              {formula}
+    )
 """
 
 
@@ -73,7 +81,6 @@ def print_objects(constants):
 
 
 def linebreaks(elements, indentation, indent_first):
-
     def indent_while_iterating():
         for i, element in enumerate(elements, 0):
             idt = 0 if i == 0 and not indent_first else indentation
@@ -90,14 +97,14 @@ def print_init(problem):
             continue  # Ignore intensionally defined symbols
         fname = signature[0]
         for point, value in definition.data.items():
-            elements.append("(= ({} {}) {})".format(fname, print_term_list(point), value))
+            elements.append("(= ({} {}) {})".format(fname, print_term_ref_list(point), value))
 
     # e.g. (clear b1)
     for signature, definition in problem.init.predicate_extensions.items():
         assert isinstance(definition, set)
         predname = signature[0]
         for point in definition:
-            elements.append("({} {})".format(predname, print_term_list(point)))
+            elements.append("({} {})".format(predname, print_term_ref_list(point)))
 
     return linebreaks(elements, indentation=2, indent_first=False)
 
@@ -129,9 +136,13 @@ def print_problem_constraints(problem):
     return ""  # TODO
 
 
+def print_metric(metric):
+    return '(:metric {type} {exp})'.format(type=metric.opt_type.value,
+                                           exp=print_term(metric.opt_expression))
+
+
 def print_problem_metric(problem):
-    # pylint: disable=unused-argument
-    return ""  # TODO
+    return print_metric(problem.plan_metric) if problem.plan_metric else ''
 
 
 class FstripsWriter:
@@ -149,7 +160,7 @@ class FstripsWriter:
         with open(os.path.join(_CURRENT_DIR_, "templates", name), 'r') as file:
             return file.read()
 
-    def write_domain(self, filename, constant_objects):
+    def print_domain(self, constant_objects=None):
         tpl = self.load_tpl("fstrips_domain.tpl")
         content = tpl.format(
             header_info="",
@@ -159,16 +170,21 @@ class FstripsWriter:
             functions=self.get_functions(),
             predicates=self.get_predicates(),
             actions=self.get_actions(),
-            constants=print_objects(constant_objects),
+            derived=self.get_derived_predicates(),
+            constants=print_objects(constant_objects if constant_objects else set()),
         )
-        with open(filename, 'w') as file:
-            file.write(content)
+        return content
 
-    def write_instance(self, filename, constant_objects):
+    def write_domain(self, filename, constant_objects):
+        with open(filename, 'w') as file:
+            file.write(self.print_domain(constant_objects))
+
+    def print_instance(self, constant_objects=None):
         tpl = self.load_tpl("fstrips_instance.tpl")
 
         # Only objects which are not declared in the domain file need to be printed in the instance file
-        instance_objects = [c for c in self.problem.language.constants() if c not in set(constant_objects)]
+        constant_objs_set = set(constant_objects) if constant_objects else set()
+        instance_objects = [c for c in self.problem.language.constants() if c not in constant_objs_set]
 
         content = tpl.format(
             header_info="",
@@ -182,8 +198,11 @@ class FstripsWriter:
             domain_bounds=print_domain_bounds(self.problem),
             metric=print_problem_metric(self.problem),
         )
+        return content
+
+    def write_instance(self, filename, constant_objects):
         with open(filename, 'w') as file:
-            file.write(content)
+            file.write(self.print_instance(constant_objects))
 
     def get_types(self):
         res = []
@@ -196,7 +215,7 @@ class FstripsWriter:
                 res.append("{} - {}".format(tname, tarsky_to_pddl_type(p)))
             else:
                 res.append(tname)
-        return ("\n" + _TAB*2).join(res)
+        return ("\n" + _TAB * 2).join(res)
 
     def get_functions(self):
         res = []
@@ -206,7 +225,7 @@ class FstripsWriter:
             domain_str = build_signature_string(fun.domain)
             codomain_str = tarsky_to_pddl_type(fun.codomain)
             res.append("({} {}) - {}".format(fun.symbol, domain_str, codomain_str))
-        return ("\n" + _TAB*2).join(res)
+        return ("\n" + _TAB * 2).join(res)
 
     def get_predicates(self):
         res = []
@@ -215,7 +234,7 @@ class FstripsWriter:
                 continue  # Don't declare builtin elements
             domain_str = build_signature_string(fun.sort)
             res.append("({} {})".format(fun.symbol, domain_str))
-        return ("\n" + _TAB*2).join(res)
+        return ("\n" + _TAB * 2).join(res)
 
     def get_actions(self):
         return "\n".join(self.get_action(a) for a in self.problem.actions.values())
@@ -228,6 +247,15 @@ class FstripsWriter:
             precondition=print_formula(a.precondition, base_indentation),
             effect=print_effects(a.effects, base_indentation)
         )
+
+    def get_derived_predicates(self):
+        return "\n".join(self.get_derived(d) for d in self.problem.derived_predicates.values())
+
+    def get_derived(self, d):
+        return derived_tpl.format(
+            name=d.name,
+            parameters=print_variable_list(d.parameters),
+            formula=print_formula(d.formula))
 
 
 def build_signature_string(domain):
@@ -263,18 +291,21 @@ def print_formula(formula, indentation=0):
 def print_effects(effects, indentation=0):
     if not effects:
         return "(and )"
-    return "(and\n{})".format("\n".join(print_effect(e, indentation+1) for e in effects))
+    return "(and\n{})".format("\n".join(print_effect(e, indentation + 1) for e in effects))
 
 
 def print_effect(eff, indentation=0):
     assert isinstance(eff, SingleEffect)  # Universal, etc. effects yet to be implemented
     conditional = not isinstance(eff.condition, Tautology)  # We have a conditional effect
     functional = isinstance(eff, FunctionalEffect)
+    increase = isinstance(eff, IncreaseEffect)
 
     if conditional:
         raise RuntimeError("Unimplemented")
 
-    if functional:
+    if increase:
+        return indent("(increase {} {})".format(print_term(eff.lhs), print_term(eff.rhs)), indentation)
+    elif functional:
         return indent("(assign {} {})".format(print_term(eff.lhs), print_term(eff.rhs)), indentation)
     elif isinstance(eff, AddEffect):
         return indent("{}".format(print_atom(eff.atom)), indentation)
@@ -303,9 +334,13 @@ def print_term_list(terms):
     return " ".join(print_term(t) for t in terms)
 
 
+def print_term_ref_list(termrefs):
+    return " ".join(print_term(t.expr) for t in termrefs)
+
+
 def print_formula_list(formulas):
     return " ".join(print_formula(f) for f in formulas)
 
 
 def indent(text, indentation):
-    return (indentation*_TAB) + text
+    return (indentation * _TAB) + text

@@ -22,5 +22,7 @@
         {functions}
     )
 
+    {derived}
+
     {actions}
 )

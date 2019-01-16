@@ -5,6 +5,7 @@ from collections import defaultdict, OrderedDict
 
 from . import errors as err
 from .syntax import Function, Constant, Variable, Sort, inclusion_closure, Predicate, Interval, sorts
+from .syntax.algebra import Matrix
 
 
 def language(name='L'):
@@ -243,6 +244,13 @@ class FirstOrderLanguage:
     def constants(self):
         return list(self._constants.values())
 
+    def vector(self, arraylike, sort: Sort):
+        import numpy as np
+        return Matrix(np.reshape(arraylike, (len(arraylike), 1)), sort)
+
+    def matrix(self, arraylike, sort: Sort):
+        return Matrix(arraylike, sort)
+
     def _check_name_not_defined(self, name, where, exception):
         """ Check whether the given name is already defined in the given container, raising an exception of
         the indicated type in case it is. If not, check it is not defined in any other container, raising a
@@ -307,13 +315,6 @@ class FirstOrderLanguage:
             return t2
         return None
 
-    def most_restricted_type(self, t1, t2):
-        if self.is_subtype(t1, t2):
-            return t1
-        elif self.is_subtype(t2, t1):
-            return t2
-        return None
-
     def is_subtype(self, t, st):
         t = self._retrieve_object(t, Sort)
         st = self._retrieve_object(st, Sort)
@@ -344,7 +345,6 @@ class FirstOrderLanguage:
             return self._operators[(operator, t)](term)
         except KeyError:
             raise err.LanguageError("Operator '{}' not defined on domain ({})".format(operator, t))
-
 
     def dispatch_operator(self, operator, t1, t2, lhs, rhs):
         # assert isinstance(lhs, t1)

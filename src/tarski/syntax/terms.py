@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from typing import Tuple
-
-from .sorts import Sort
+from .sorts import Sort, parent
 from .. import errors as err
 from .builtins import BuiltinPredicateSymbol, BuiltinFunctionSymbol
 
@@ -64,8 +63,23 @@ class Term:
     def __mul__(self, rhs):
         return self.language.dispatch_operator(BuiltinFunctionSymbol.MUL, Term, Term, self, rhs)
 
+    def __matmul__(self, rhs):
+        return self.language.dispatch_operator(BuiltinFunctionSymbol.MATMUL, Term, Term, self, rhs)
+
     def __truediv__(self, rhs):
         return self.language.dispatch_operator(BuiltinFunctionSymbol.DIV, Term, Term, self, rhs)
+
+    def __radd__(self, lhs):
+        return self.language.dispatch_operator(BuiltinFunctionSymbol.ADD, Term, Term, lhs, self)
+
+    def __rsub__(self, lhs):
+        return self.language.dispatch_operator(BuiltinFunctionSymbol.SUB, Term, Term, lhs, self)
+
+    def __rmul__(self, lhs):
+        return self.language.dispatch_operator(BuiltinFunctionSymbol.MUL, Term, Term, lhs, self)
+
+    def __rtruediv__(self, lhs):
+        return self.language.dispatch_operator(BuiltinFunctionSymbol.DIV, Term, Term, lhs, self)
 
     def __pow__(self, rhs):
         return self.language.dispatch_operator(BuiltinFunctionSymbol.POW, Term, Term, self, rhs)
@@ -74,18 +88,12 @@ class Term:
         return self.language.dispatch_operator(BuiltinFunctionSymbol.MOD, Term, Term, self, rhs)
 
     # TODO - THE OPERATORS BELOW PROBABLY NEED TO BE REFACTORED
-    def __matmul__(self, rhs):
-        return self.language.dispatch_operator('@', Term, Term, self, rhs)
 
     def __floordiv__(self, rhs):
         return self.language.dispatch_operator('//', Term, Term, self, rhs)
 
-    def __mod__(self, rhs):
-        return self.language.dispatch_operator('%', Term, Term, self, rhs)
-
     def __divmod__(self, rhs):
         return self.language.dispatch_operator('divmod', Term, Term, self, rhs)
-
 
     def __and__(self, rhs):
         return self.language.dispatch_operator('&', Term, Term, self, rhs)
@@ -186,6 +194,105 @@ class CompoundTerm(Term):
 
         # Else we just need to recursively check if all subterms are syntactically equal
         return all(x.is_syntactically_equal(y) for x, y in zip(self.subterms, other.subterms))
+
+
+class AggregateCompoundTerm(Term):
+    """
+        Combinations of a functional symbol, a set of bound variables and a sequence of terms.
+        Examples of such terms include summations, products and other operations over sequences.
+
+        Argument symbol needs to be an instance of Function or have Function-like interface.
+    """
+
+    def __init__(self, operator, bound_vars, subterm: Term):
+        self.symbol = operator
+        self.bound_vars = bound_vars
+        self.subterm = subterm  # TODO: type checking?
+
+    @property
+    def language(self):
+        return self.subterm.language
+
+    @property
+    def sort(self):
+        return self.subterm.sort
+
+    def __str__(self):
+        return '{}_{{{}}}({})'.format(self.symbol, ','.join([str(x) for x in self.bound_vars]), str(self.subterm))
+
+    __repr__ = __str__
+
+    def __hash__(self):
+        return hash((self.symbol.symbol, self.subterms))
+
+    def is_syntactically_equal(self, other):
+        if (self.__class__ is not other.__class__ or self.symbol != other.symbol
+                or len(self.bound_vars) != len(other.bound_vars)):
+            return False
+
+        return all(x.is_syntactically_equal(y) for x, y in zip(self.bound_vars, other.bound_vars)) \
+               and self.subterm.is_syntactically_equal(other.subterm)
+
+
+class IfThenElse(Term):
+    """
+        Combination of a formula C and two terms, t1 and t2.
+
+        This term evaluates to t1 if C is true, and t2 otherwise. t1 and t2
+        are restricted to have the same codomain.
+    """
+
+    def __init__(self, condition, subterms: Tuple[Term]):
+        self.symbol = subterms[0].language.get('ite')
+        self.condition = condition
+        if len(subterms) != 2:
+            raise err.ArityMismatch(self.symbol, subterms, msg='IfThenElse: needs two sub terms!')
+
+        # Our implementation of ite requires both branches to have equal sort
+        if subterms[0].sort != subterms[1].sort:
+            if parent(subterms[0].sort) == subterms[1].sort:
+                self._sort = subterms[1].sort
+            elif parent(subterms[1].sort) == subterms[0].sort:
+                self._sort = subterms[0].sort
+            else:
+                raise err.SyntacticError(
+                    msg='IfThenElse: both subterms need to be of the same sort! lhs: "{}"({}), rhs: "{}"({})'.format(
+                        subterms[0], subterms[0].sort, subterms[1], subterms[1].sort))
+        else:
+            self._sort = subterms[0].sort
+
+        self.subterms = tuple(subterms)
+
+        self.symbol.language.language_components_frozen = True
+
+    @property
+    def language(self):
+        return self.symbol.language
+
+    @property
+    def sort(self):
+        return self._sort
+
+    def __str__(self):
+        return '{}({})'.format(self.symbol, ', '.join([str(self.condition)] + [str(t) for t in self.subterms]))
+
+    __repr__ = __str__
+
+    def __hash__(self):
+        return hash(('ite', self.condition, tuple(x for x in self.subterms)))
+
+    def is_syntactically_equal(self, other):
+        if (self.__class__ is not other.__class__ or self.symbol != other.symbol \
+            or len(self.subterms) != len(other.subterms)) \
+                or (not self.condition.is_syntactically_equal(other.condition)):
+            return False
+
+        # Else we just need to recursively check if all subterms are syntactically equal
+        return all(x.is_syntactically_equal(y) for x, y in zip(self.subterms, other.subterms))
+
+
+def ite(c, t1, t2):
+    return IfThenElse(c, (t1, t2))
 
 class Constant(Term):
     def __init__(self, symbol, sort: Sort):

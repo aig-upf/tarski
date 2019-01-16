@@ -38,6 +38,9 @@ class Function:
     def sort(self):
         return self.domain + (self.codomain, )
 
+    def __hash__(self):
+        return hash(self.signature)
+
     def dump(self):
         return dict(symbol=self.symbol,
                     domain=[a.name for a in self.domain],

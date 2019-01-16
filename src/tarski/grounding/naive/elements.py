@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 import copy
 
-import tarski.fstrips as fs
+from ... import fstrips as fs
+from ...syntax import Variable
+from ...syntax.visitors import CollectVariables
 
-from tarski.syntax import Variable
-from tarski.syntax.transform import TermSubstitution
-from tarski.syntax.visitors import CollectVariables
 
 def process_expression(language, schema, op, copy_schema=True):
     if copy_schema:
@@ -17,6 +16,7 @@ def process_expression(language, schema, op, copy_schema=True):
     g_expr.accept(var_collector)
     assert len(var_collector.variables) == 0
     return g_expr
+
 
 def process_effect(language, eff_schema, op):
     if isinstance(eff_schema, fs.AddEffect):

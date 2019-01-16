@@ -49,7 +49,7 @@ class Model:
         self.function_extensions = dict()
         self.predicate_extensions = defaultdict(set)
 
-    def setx( self, t: CompoundTerm, value: Constant):
+    def setx(self, t: CompoundTerm, value: Constant):
         if not isinstance(t.symbol, Function):
             raise err.SemanticError("Model.set() can only set the value of functions")
         if t.symbol.builtin:
@@ -67,7 +67,7 @@ class Model:
 
         definition.set(point, value)
 
-    def set(self, fun, *args ):
+    def set(self, fun, *args):
         """ Set the value of fucntion 'fun' at point 'point' to be equal to 'value'
             'point' needs to be a tuple of constants, and value a single constant.
         """
@@ -107,6 +107,9 @@ class Model:
         try:
             expr, sigma = arg
             return self.evaluator(expr, self, sigma)
+        except ValueError:
+            # MRJ: This for expression that have the __getitem__ operator overloaded
+            return self.evaluator(arg, self)
         except TypeError:
             return self.evaluator(arg, self)
 

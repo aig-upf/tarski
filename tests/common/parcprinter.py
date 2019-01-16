@@ -2,11 +2,6 @@
     Generate parcprinter language elements
 """
 import tarski as tsk
-import tarski.model
-
-from tarski import fstrips as fs
-from tarski.syntax import *
-from tarski.syntax.temporal import ltl
 from tarski.theories import Theory
 
 
@@ -31,5 +26,7 @@ def create_small_language():
     upp.Sheetsize = upp.predicate('Sheetsize', upp.sheet_t, upp.size_t)
     upp.Stackedin = upp.predicate('Stackedin', upp.sheet_t, upp.location_t)
     upp.Uninitialized = upp.predicate('Uninitialized')
+
+    upp.total_cost = upp.function('total-cost', upp.Real)
 
     return upp

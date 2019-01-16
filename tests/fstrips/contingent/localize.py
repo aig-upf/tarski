@@ -1,10 +1,10 @@
 import tarski.model
-from tarski.theories import Theory
 from tarski import fstrips as fs
 from tarski.fstrips import contingent
 from tarski.syntax import *
 
 from tests.common.grid_navigation import generate_single_agent_language
+
 
 def create_small_task():
     nav = generate_single_agent_language()
@@ -14,15 +14,15 @@ def create_small_task():
     x = nav.get_function('x')
     y = nav.get_function('y')
 
-    M0.setx( x(), 0 )
-    M0.setx( y(), 0 )
+    M0.setx(x(), 0)
+    M0.setx(y(), 0)
 
-    M1.setx( x(), 2)
-    M1.setx( y(), -2)
+    M1.setx(x(), 2)
+    M1.setx(y(), -2)
 
-    constraint = (-4 <= x() ) & ( x() <= 4) & (-4 <= y()) & (y() <= 4)
+    constraint = (-4 <= x()) & (x() <= 4) & (-4 <= y()) & (y() <= 4)
 
-    G = land( x() == 3, y() == 3 )
+    G = land(x() == 3, y() == 3)
 
     P = contingent.Problem()
     P.name = "localize-4-4"

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
-from .. problem import Problem
-from .. action import Action
-from . sensor import Sensor
+from ..problem import Problem
+from .sensor import Sensor
 from . import errors as err
+
 
 class ContingentProblem(Problem):
     """ A Functional STRIPS Contingent problem """
@@ -27,7 +27,7 @@ class ContingentProblem(Problem):
         return self.sensors[name]
 
     def get_symbols(self, pv, ev, cv):
-        super().get_symbols(pv,ev,cv)
+        super().get_symbols(pv, ev, cv)
         for _, sensor in self.sensors.items():
             sensor.condition.accept(pv)
             sensor.obs.accept(pv)

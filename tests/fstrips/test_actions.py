@@ -27,10 +27,10 @@ def test_functional_effect_invalid_creation():
     t1 = lang.constant('x', 'object')
     t2 = lang.constant('y', 'object')
     with pytest.raises(err.InvalidEffectError):
-        eff = t1 << t2  # i.e. x := y
+        _ = t1 << t2  # i.e. x := y
+
 
 def test_functional_effect_valid_creation():
-    import tarski.fstrips.errors as err
     lang = fs.language()
     t1 = lang.constant('x', lang.Object)
     t2 = lang.constant('y', lang.Object)
@@ -38,6 +38,16 @@ def test_functional_effect_valid_creation():
 
     eff = f(t1) << t2
     assert isinstance(eff, fs.FunctionalEffect)
+
+
+def test_increase_effect_valid_creation():
+    lang = fs.language('lang')
+    lang.total_cost = lang.function('total-cost', lang.Real)
+    eff = fs.IncreaseEffect(lang.total_cost(), 5)
+
+    assert isinstance(eff, fs.IncreaseEffect)
+    assert eff.rhs == 5
+
 
 def test_choice_effect_invalid_creation():
     import tarski.fstrips.errors as err
@@ -47,12 +57,12 @@ def test_choice_effect_invalid_creation():
     cue = prob.language.get_constant('cue')
     b = prob.language.get_constant('ball_1')
     F = prob.language.get_function('F')
-    v = prob.language.get_function('v')
+    _ = prob.language.get_function('v')
     with pytest.raises(err.InvalidEffectError):
-        eff = fs.ChoiceEffect(fs.OptimizationType.MAXIMIZE, Variable(0.0, prob.language.Real), [F(cue, x, b)])
+        _ = fs.ChoiceEffect(fs.OptimizationType.MAXIMIZE, Variable("z", prob.language.Real), [F(cue, x, b)])
+
 
 def test_choice_effect_valid_creation():
-    import tarski.fstrips.errors as err
     from tests.fstrips.hybrid.tasks import create_billiards_world
     prob = create_billiards_world()
     x = prob.language.get_constant('x')
@@ -61,4 +71,4 @@ def test_choice_effect_valid_creation():
     F = prob.language.get_function('F')
     v = prob.language.get_function('v')
     eff = fs.ChoiceEffect(fs.OptimizationType.MAXIMIZE, v(x, b), [F(cue, x, b)])
-    assert isinstance(eff,fs.ChoiceEffect)
+    assert isinstance(eff, fs.ChoiceEffect)

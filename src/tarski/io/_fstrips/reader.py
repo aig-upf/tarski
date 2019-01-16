@@ -213,14 +213,14 @@ class FStripsParser(fstripsVisitor):
         subterms = [self.visit(t) for t in ctx.term()]
         lhs, rhs = subterms
         return self.language.dispatch_operator(get_function_from_symbol(op), Term, Term, lhs, rhs)
-
-    def visitUnaryArithmeticFunctionTerm(self, ctx):
-        func_name = ctx.builtin_unary_function().getText().lower()
-        if func_name not in built_in_functional_symbols:
-            raise SystemExit("Function {0} first seen used as a term in an atomic formula".format(func_name))
-        if func_name == '-':
-            return FunctionalTerm('*', [self.visit(ctx.term()), NumericConstant(-1)])
-        return FunctionalTerm(func_name, [self.visit(ctx.term())])
+    #
+    # def visitUnaryArithmeticFunctionTerm(self, ctx):
+    #     func_name = ctx.builtin_unary_function().getText().lower()
+    #     if func_name not in built_in_functional_symbols:
+    #         raise SystemExit("Function {0} first seen used as a term in an atomic formula".format(func_name))
+    #     if func_name == '-':
+    #         return FunctionalTerm('*', [self.visit(ctx.term()), NumericConstant(-1)])
+    #     return FunctionalTerm(func_name, [self.visit(ctx.term())])
 
     def visitAndGoalDesc(self, ctx):
         conjuncts = [self.visit(sub_ctx) for sub_ctx in ctx.goalDesc()]
@@ -321,7 +321,7 @@ class FStripsParser(fstripsVisitor):
     def visitInitFunctionAssignment(self, ctx):
         fun, subterms = self.visit(ctx.flat_term())
         value = self.visit(ctx.constant_name())
-        self.init.setx(fun(subterms), value)
+        self.init.setx(fun(*subterms), value)
 
     def visitFlat_atom(self, ctx):
         predicate = self.language.get_predicate(ctx.predicate().getText().lower())
@@ -361,8 +361,8 @@ class FStripsParser(fstripsVisitor):
             constraints += self.visit(conGD_ctx)
         return constraints
 
-    def visitProbConstraints(self, ctx):
-        self.constraints = Conjunction(self.visit(ctx.prefConGD()))
+    # def visitProbConstraints(self, ctx):
+    #     self.constraints = Conjunction(self.visit(ctx.prefConGD()))
 
     def visitProblemMetric(self, ctx):
         opt_type = ctx.optimization().getText().lower()
@@ -395,116 +395,109 @@ class FStripsParser(fstripsVisitor):
         rhs = self.language.dispatch_operator(get_function_from_symbol(operator), Term, Term, lhs, rhs)
         return FunctionalEffect(lhs, self.visit(ctx.term()), rhs)
 
-    ########## PROCESS STUFF - UNREVISED #######
+    # ------------- PROCESS STUFF - UNREVISED -------------
 
-    def visitProcessAssignEffect(self, ctx):
-        operation = ctx.processEffectOp().getText().lower()
-        lhs = self.visit(ctx.functionTerm())
-        rhs = self.visit(ctx.processEffectExp())
-        if operation in ['assign', 'scale-up', 'scale-down']:
-            raise SystemExit("Assign/scale up/scale down effects not allowed in processes")
-        trans_op = {'increase': '+', 'decrease': '-'}
-        new_rhs = FunctionalTerm(trans_op[operation], [lhs, rhs])
-        return AssignmentEffect(lhs, new_rhs)  # This effectively normalizes effects
+    # def visitProcessAssignEffect(self, ctx):
+    #     operation = ctx.processEffectOp().getText().lower()
+    #     lhs = self.visit(ctx.functionTerm())
+    #     rhs = self.visit(ctx.processEffectExp())
+    #     if operation in ['assign', 'scale-up', 'scale-down']:
+    #         raise SystemExit("Assign/scale up/scale down effects not allowed in processes")
+    #     trans_op = {'increase': '+', 'decrease': '-'}
+    #     new_rhs = FunctionalTerm(trans_op[operation], [lhs, rhs])
+    #     return AssignmentEffect(lhs, new_rhs)  # This effectively normalizes effects
+    #
+    # def visitFunctionalProcessEffectExpr(self, ctx):
+    #     return self.visit(ctx.processFunctionEff())
+    #
+    # def visitConstProcessEffectExpr(self, ctx):
+    #     return self.visit(ctx.processConstEff())
+    #
+    # def visitVariableProcessEffectExpr(self, ctx):
+    #     return self.visit(ctx.processVarEff())
+    #
+    # def visitProcessFunctionEff(self, ctx):
+    #     return self.visit(ctx.functionTerm())
+    #
+    # def visitProcessConstEff(self, ctx):
+    #     try:
+    #         return NumericConstant(int(ctx.NUMBER().getText().lower()))
+    #     except ValueError:
+    #         return NumericConstant(float(ctx.NUMBER().getText().lower()))
+    #
+    # def visitProcessVarEff(self, ctx):
+    #     variable_name = ctx.VARIABLE().getText().lower()
+    #     return self._recover_variable_from_context(variable_name)
+    #
+    # def visitProcessSingleEffect(self, ctx):
+    #     return ConjunctiveEffect([self.visit(ctx.processEffect())])
+    #
+    # def visitProcessConjunctiveEffectFormula(self, ctx):
+    #     effects = []
+    #     for sub_ctx in ctx.processEffect():
+    #         effects.append(self.visit(sub_ctx))
+    #     return ConjunctiveEffect(effects)
+    #
+    # def visitProcessDef(self, ctx):
+    #     name = ctx.actionName().getText().lower()
+    #     params = self.visit(ctx.possibly_typed_variable_list())
+    #     self.current_params = params
+    #     try:
+    #         precondition, effect = self.visit(ctx.processDefBody())
+    #     except UndeclaredVariable as error:
+    #         raise SystemExit("Parsing process {}: undeclared variable {}".format(name, error))
+    #     self.current_params = None
+    #     process = Action(name, params, len(params), precondition, effect, None)
+    #     self.processes.append(process)
 
-    def visitFunctionalProcessEffectExpr(self, ctx):
-        return self.visit(ctx.processFunctionEff())
-
-    def visitConstProcessEffectExpr(self, ctx):
-        return self.visit(ctx.processConstEff())
-
-    def visitVariableProcessEffectExpr(self, ctx):
-        return self.visit(ctx.processVarEff())
-
-    def visitProcessFunctionEff(self, ctx):
-        return self.visit(ctx.functionTerm())
-
-    def visitProcessConstEff(self, ctx):
-        try:
-            return NumericConstant(int(ctx.NUMBER().getText().lower()))
-        except ValueError:
-            return NumericConstant(float(ctx.NUMBER().getText().lower()))
-
-    def visitProcessVarEff(self, ctx):
-        variable_name = ctx.VARIABLE().getText().lower()
-        return self._recover_variable_from_context(variable_name)
-
-    def visitProcessSingleEffect(self, ctx):
-        return ConjunctiveEffect([self.visit(ctx.processEffect())])
-
-    def visitProcessConjunctiveEffectFormula(self, ctx):
-        effects = []
-        for sub_ctx in ctx.processEffect():
-            effects.append(self.visit(sub_ctx))
-        return ConjunctiveEffect(effects)
-        # return self.visitConjunctiveEffectFormula( ctx )
-
-    def visitProcessDef(self, ctx):
-        name = ctx.actionName().getText().lower()
-        params = self.visit(ctx.possibly_typed_variable_list())
-        self.current_params = params
-        try:
-            precondition, effect = self.visit(ctx.processDefBody())
-        except UndeclaredVariable as error:
-            raise SystemExit("Parsing process {}: undeclared variable {}".format(name, error))
-        self.current_params = None
-        process = Action(name, params, len(params), precondition, effect, None)
-        self.processes.append(process)
-        # print( 'Action: {0}'.format(name) )
-        # print( 'Parameters: {0}'.format(len(params)))
-        # for parm in params :
-        #    print(parm)
-        # precondition.dump()
-        # effect.dump()
-
-    def visitProcessDefBody(self, ctx):
-        try:
-            prec = self.visit(ctx.precondition())
-        except UnresolvedVariableError as e:
-            raise UndeclaredVariable('precondition', str(e))
-        try:
-            unnorm_eff = self.visit(ctx.processEffectList())
-        except UnresolvedVariableError as e:
-            raise UndeclaredVariable('effect', str(e))
-        norm_eff = unnorm_eff.normalize()
-        norm_eff_list = []
-        add_effect(norm_eff, norm_eff_list)
-
-        return prec, norm_eff_list
-
-    def visitEventDef(self, ctx):
-        name = ctx.eventSymbol().getText().lower()
-        params = self.visit(ctx.possibly_typed_variable_list())
-        self.current_params = params
-        try:
-            precondition, effect = self.visit(ctx.actionDefBody())
-        except UndeclaredVariable as error:
-            raise SystemExit("Parsing event {}: undeclared variable {}".format(name, error))
-        self.current_params = None
-        evt = Event(name, params, len(params), precondition, effect)
-        self.events.append(evt)
-        # print( 'Action: {0}'.format(name) )
-        # print( 'Parameters: {0}'.format(len(params)))
-        # for parm in params :
-        #    print(parm)
-        # precondition.dump()
-        # effect.dump()
-
-    def visitConstraintDef(self, ctx):
-        name = ctx.constraintSymbol().getText().lower()
-        params = self.visit(ctx.possibly_typed_variable_list())
-        self.current_params = params
-
-        try:
-            conditions = self.visit(ctx.goalDesc())
-        except UndeclaredVariable as error:
-            raise SystemExit(
-                "Parsing process {}: undeclared variable in {} found undeclared variable {}".format('state constraint',
-                                                                                                    repr(error)))
-
-        self.current_params = None
-        state_constraint = Constraint(name, params, conditions)
-        self.constraint_schemata.append(state_constraint)
+    # def visitProcessDefBody(self, ctx):
+    #     try:
+    #         prec = self.visit(ctx.precondition())
+    #     except UnresolvedVariableError as e:
+    #         raise UndeclaredVariable('precondition', str(e))
+    #     try:
+    #         unnorm_eff = self.visit(ctx.processEffectList())
+    #     except UnresolvedVariableError as e:
+    #         raise UndeclaredVariable('effect', str(e))
+    #     norm_eff = unnorm_eff.normalize()
+    #     norm_eff_list = []
+    #     add_effect(norm_eff, norm_eff_list)
+    #
+    #     return prec, norm_eff_list
+    #
+    # def visitEventDef(self, ctx):
+    #     name = ctx.eventSymbol().getText().lower()
+    #     params = self.visit(ctx.possibly_typed_variable_list())
+    #     self.current_params = params
+    #     try:
+    #         precondition, effect = self.visit(ctx.actionDefBody())
+    #     except UndeclaredVariable as error:
+    #         raise SystemExit("Parsing event {}: undeclared variable {}".format(name, error))
+    #     self.current_params = None
+    #     evt = Event(name, params, len(params), precondition, effect)
+    #     self.events.append(evt)
+    #     # print( 'Action: {0}'.format(name) )
+    #     # print( 'Parameters: {0}'.format(len(params)))
+    #     # for parm in params :
+    #     #    print(parm)
+    #     # precondition.dump()
+    #     # effect.dump()
+    #
+    # def visitConstraintDef(self, ctx):
+    #     name = ctx.constraintSymbol().getText().lower()
+    #     params = self.visit(ctx.possibly_typed_variable_list())
+    #     self.current_params = params
+    #
+    #     try:
+    #         conditions = self.visit(ctx.goalDesc())
+    #     except UndeclaredVariable as error:
+    #         raise SystemExit(
+    #             "Parsing process {}: undeclared variable in {} found undeclared variable {}".
+    #             format('state constraint', repr(error)))
+    #
+    #     self.current_params = None
+    #     state_constraint = Constraint(name, params, conditions)
+    #     self.constraint_schemata.append(state_constraint)
 
 
 class UnresolvedVariableError(Exception):
