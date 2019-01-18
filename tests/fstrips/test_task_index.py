@@ -16,8 +16,8 @@ def test_task_index_process_symbols_fluents():
     index = fs.TaskIndex(prob.language.name, prob.name)
     index.process_symbols(prob)
 
-    print(','.join([str(sym) for sym in index.fluent_symbols]))
-    assert len(index.fluent_symbols) == 6
+    print(','.join([str(sym) for sym in index.fluent_terms]))
+    assert len(index.fluent_terms) == 6
 
 
 def test_task_index_process_symbols_statics():
@@ -25,5 +25,5 @@ def test_task_index_process_symbols_statics():
     index = fs.TaskIndex(prob.language.name, prob.name)
     index.process_symbols(prob)
 
-    print(','.join([str(sym) for sym in index.static_symbols]))
-    assert len(index.static_symbols) == 11
+    print(','.join([str(sym) for sym in index.static_terms]))
+    assert len(index.static_terms) == 11

@@ -18,7 +18,7 @@ def create_small_bw_with_index():
     index.process_symbols(prob)
     index.state_variables = IndexDictionary()
 
-    for var in sv.create_all_possible_state_variables(index.fluent_symbols):
+    for var in sv.create_all_possible_state_variables(index.fluent_terms):
         index.state_variables.add(var)
 
     return prob, index
