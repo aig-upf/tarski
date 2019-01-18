@@ -53,13 +53,13 @@ class StateVariable:
     __repr__ = __str__
 
 
-def create_all_possible_state_variables(fluent_symbols):
+def create_all_possible_state_variables(fluent_terms):
     """ Creates an index with all possible state variables by brute-force
         enumeration.
     """
     variables = IndexDictionary()
 
-    for ref in fluent_symbols:
+    for ref in fluent_terms:
         # @TODO: Work in Progress and we will need to iterate over this a bit
         # @TODO: Sort fluent symbols according to the number of variable subterms
         # L = ref.language
@@ -84,7 +84,7 @@ def create_all_possible_state_variables(fluent_symbols):
 
 # @TODO: review and refactor this method, most definitely we don't want the groundings of the symbols
 # @TODO: to come as part of the predicates or functions
-def create_all_possible_state_variables_from_groundings(predicates, functions, object_idx, static_symbols):
+def create_all_possible_state_variables_from_groundings(predicates, functions, object_idx, static_terms):
     # pylint: disable=unused-argument
     raise NotImplementedError(
         "state_variables.create_all_possible_state_variables_from_groundings() not implemented yet!")
@@ -92,7 +92,7 @@ def create_all_possible_state_variables_from_groundings(predicates, functions, o
     # for pred in predicates:
     #     # MRJ: @TODO: I am leaving the code below commented for future reference
     #     name = pred.name
-    #     if is_external(name) or name in static_symbols:
+    #     if is_external(name) or name in static_terms:
     #        continue
     #
     #     grounding_ids = []  # A list with the (integer index of) each grounding

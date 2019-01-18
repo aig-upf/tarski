@@ -11,8 +11,8 @@ def test_task_static_symbol_detection():
     prob = parcprinter.create_small_task()
     index = fs.TaskIndex(prob.language.name, prob.name)
     index.process_symbols(prob)
-    assert len(index.static_symbols) == 3
-    assert len(index.fluent_symbols) == 5
+    assert len(index.static_terms) == 3
+    assert len(index.fluent_terms) == 5
 
 
 def test_task_index_create_state_variables_parcprinter():
@@ -20,7 +20,7 @@ def test_task_index_create_state_variables_parcprinter():
     index = fs.TaskIndex(prob.language, prob.name)
     index.process_symbols(prob)
     index.state_variables = IndexDictionary()
-    for var in sv.create_all_possible_state_variables(index.fluent_symbols):
+    for var in sv.create_all_possible_state_variables(index.fluent_terms):
         index.state_variables.add(var)
 
     assert len(index.state_variables) == 8
@@ -31,7 +31,7 @@ def test_all_state_variables_can_be_evaluated_in_init_parcprinter():
     index = fs.TaskIndex(prob.language, prob.name)
     index.process_symbols(prob)
     index.state_variables = IndexDictionary()
-    for var in sv.create_all_possible_state_variables(index.fluent_symbols):
+    for var in sv.create_all_possible_state_variables(index.fluent_terms):
         index.state_variables.add(var)
     for var in index.state_variables:
         # print("type: {} expr: {} value: {}".format(type(var.ground), str(var.ground), prob.init[var.ground]))
@@ -45,7 +45,7 @@ def test_task_index_create_state_variables_blocksworld():
     index = fs.TaskIndex(prob.language.name, prob.name)
     index.process_symbols(prob)
     index.state_variables = IndexDictionary()
-    for var in sv.create_all_possible_state_variables(index.fluent_symbols):
+    for var in sv.create_all_possible_state_variables(index.fluent_terms):
         index.state_variables.add(var)
 
     # print(','.join([str(var) for var in index.state_variables]))
@@ -57,6 +57,6 @@ def test_create_state_variables_for_hybrid_problem_with_reactions():
     index = fs.TaskIndex(prob.language.name, prob.name)
     index.process_symbols(prob)
     index.state_variables = IndexDictionary()
-    for var in sv.create_all_possible_state_variables(index.fluent_symbols):
+    for var in sv.create_all_possible_state_variables(index.fluent_terms):
         index.state_variables.add(var)
     assert len(index.state_variables) == 4
