@@ -1,10 +1,10 @@
 from tarski import fstrips as fs
 
-from tests.fstrips import blocksworld
+from tests.common.blocksworld import create_small_bw_task
 
 
 def test_task_index_constructor():
-    prob = blocksworld.create_small_task()
+    prob = create_small_bw_task()
     index = fs.TaskIndex(prob.language.name, prob.name)
 
     assert index.domain_name == prob.language.name
@@ -12,7 +12,7 @@ def test_task_index_constructor():
 
 
 def test_task_index_process_symbols_fluents():
-    prob = blocksworld.create_small_task()
+    prob = create_small_bw_task()
     index = fs.TaskIndex(prob.language.name, prob.name)
     index.process_symbols(prob)
 
@@ -21,7 +21,7 @@ def test_task_index_process_symbols_fluents():
 
 
 def test_task_index_process_symbols_statics():
-    prob = blocksworld.create_small_task()
+    prob = create_small_bw_task()
     index = fs.TaskIndex(prob.language.name, prob.name)
     index.process_symbols(prob)
 

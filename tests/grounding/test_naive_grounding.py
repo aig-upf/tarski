@@ -4,11 +4,12 @@ from tarski.grounding.naive import instantiation
 from tarski.util import IndexDictionary
 from tarski.grounding.naive.actions import ActionGrounder
 from tarski.grounding.naive.constraints import ConstraintGrounder
-from tests.fstrips import blocksworld
+
+from tests.common.blocksworld import create_small_bw_task
 
 
 def create_small_bw_with_index():
-    prob = blocksworld.create_small_task()
+    prob = create_small_bw_task()
     index = fs.TaskIndex(prob.language.name, prob.name)
     index.process_symbols(prob)
     index.state_variables = IndexDictionary()

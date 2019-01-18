@@ -6,12 +6,8 @@ from tests.common import blocksworld as bw
 
 
 def test_ground_atom_transformation():
-    problem = bw.generate_small_fstrips_bw_problem()
-    lang = problem.language
-
+    lang = bw.generate_small_fstrips_bw_language()
     b1, b2, b3, clear, loc = lang.get('b1', 'b2', 'b3', 'clear', 'loc')
-    problem.goal = (loc(b1) == b2) & (loc(b2) == b3) & (clear(b1))
-
     atoms = transform_to_ground_atoms((clear(b1)) & (clear(b2)))
     assert atoms == [('clear', 'b1'), ('clear', 'b2')]
 

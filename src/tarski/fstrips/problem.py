@@ -43,7 +43,7 @@ class Problem:
 
 
 def create_fstrips_problem(language, problem_name=None, domain_name=None):
-    """ """
+    """ Creates an FSTRIPS problem with empty initial state and with no assigned goal """
     problem_name = problem_name or "Unnamed FSTRIPS problem"
     domain_name = domain_name or "Unnamed FSTRIPS domain"
     problem = Problem(problem_name=problem_name, domain_name=domain_name)
