@@ -250,7 +250,7 @@ class FstripsWriter:
     def get_derived(self, d):
         base_indentation = 1
         return derived_tpl.format(
-            name=d.name,
+            name=d.predicate.symbol,
             parameters=print_variable_list(d.parameters),
             formula=print_formula(d.formula))
 
