@@ -324,7 +324,8 @@ def print_effect(eff, indentation=0):
                                   print_unconditional_effect(eff, indentation + 1)),
             indentation)
     else:
-        return indent(print_unconditional_effect(eff, indentation + 1))
+        return indent(print_unconditional_effect(eff, indentation + 1),
+                      indentation)
 
 
 def print_term(term):
