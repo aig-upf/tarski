@@ -66,6 +66,14 @@ def compute_bool_feature_diff(x, y):
         return FeatureValueChange.NIL
 
 
+def are_feature_changes_analogous(x, y):
+    return x == y or \
+           (x == FeatureValueChange.DEL and y == FeatureValueChange.DEC) or \
+           (x == FeatureValueChange.DEC and y == FeatureValueChange.DEL) or \
+           (x == FeatureValueChange.ADD and y == FeatureValueChange.INC) or \
+           (x == FeatureValueChange.INC and y == FeatureValueChange.ADD)
+
+
 class ConceptCardinalityFeature(Feature):
     """ A numeric feature that reflects the cardinality of a set of objects defined by a concept """
     def __init__(self, c):
