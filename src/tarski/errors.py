@@ -3,7 +3,6 @@
 
 class TarskiError(Exception):
     """ Common ancestor class to all of Tarski's exceptions """
-    pass
 
 
 class LanguageError(TarskiError):
@@ -92,6 +91,7 @@ class DuplicateVariableDefinition(DuplicateDefinition):
 
 class UndefinedTerm(UndefinedElement):
     pass
+
 
 class UndefinedSort(UndefinedElement):
     pass

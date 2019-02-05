@@ -7,7 +7,6 @@ import tarski.model
 from tests.common import parcprinter
 from tarski import fstrips as fs
 from tarski.syntax import *
-# from tarski.symbols import *
 
 from tarski.evaluators.simple import evaluate
 
@@ -30,18 +29,18 @@ from tarski.evaluators.simple import evaluate
 (:action Finisher2-Stack-Letter
  :parameters ( ?sheet - sheet_t ?prevsheet - sheet_t)
  :precondition (and
-		(Available Finisher2-RSRC)
-		(Prevsheet ?sheet ?prevsheet)
-		(Location ?prevsheet Some_Finisher_Tray)
-		(Sheetsize ?sheet Letter)
-		(Location ?sheet Finisher2_Entry-Finisher1_Exit))
+        (Available Finisher2-RSRC)
+        (Prevsheet ?sheet ?prevsheet)
+        (Location ?prevsheet Some_Finisher_Tray)
+        (Sheetsize ?sheet Letter)
+        (Location ?sheet Finisher2_Entry-Finisher1_Exit))
  :effect (and
-		(not (Available Finisher2-RSRC))
-		(Location ?sheet Some_Finisher_Tray)
-		(Stackedin ?sheet Finisher2_Tray)
-		(not (Location ?sheet Finisher2_Entry-Finisher1_Exit))
-		(Available Finisher2-RSRC)
-		(increase (total-cost) 8000))
+        (not (Available Finisher2-RSRC))
+        (Location ?sheet Some_Finisher_Tray)
+        (Stackedin ?sheet Finisher2_Tray)
+        (not (Location ?sheet Finisher2_Entry-Finisher1_Exit))
+        (Available Finisher2-RSRC)
+        (increase (total-cost) 8000))
 )
 
 )

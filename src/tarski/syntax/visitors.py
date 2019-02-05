@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from tarski.syntax import *
+from ..syntax import *
+
 
 class MatchExpression(object):
     """
@@ -17,7 +18,8 @@ class MatchExpression(object):
             if symref(phi) == self.target:
                 self.hits += 1
                 return
-            for f in phi.subformulas: f.accept(self)
+            for f in phi.subformulas:
+                f.accept(self)
         elif isinstance(phi, QuantifiedFormula):
             if symref(phi) == self.target:
                 self.hits += 1
@@ -35,6 +37,7 @@ class MatchExpression(object):
                 return
             for k, t in enumerate(phi.subterms):
                 t.accept(self)
+
 
 class CollectVariables:
     """

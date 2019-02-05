@@ -4,7 +4,8 @@ import itertools
 from collections import defaultdict, OrderedDict
 
 from . import errors as err
-from .syntax import Function, Constant, Variable, Matrix, Sort, inclusion_closure, Predicate, Interval, sorts
+from .syntax import Function, Constant, Variable, Sort, inclusion_closure, Predicate, Interval, sorts
+from .syntax.algebra import Matrix
 
 
 def language(name='L'):
@@ -42,9 +43,7 @@ class FirstOrderLanguage:
         self.language_components_frozen = False
         self.theories = []
 
-
         self._build_builtin_sorts()
-
 
     def __deepcopy__(self, memo):
         """ At the moment we forbid deep copies of this class, as they might be too expensive"""
@@ -316,13 +315,6 @@ class FirstOrderLanguage:
             return t2
         return None
 
-    def most_restricted_type(self, t1, t2):
-        if self.is_subtype(t1, t2):
-            return t1
-        elif self.is_subtype(t2, t1):
-            return t2
-        return None
-
     def is_subtype(self, t, st):
         t = self._retrieve_object(t, Sort)
         st = self._retrieve_object(st, Sort)
@@ -353,7 +345,6 @@ class FirstOrderLanguage:
             return self._operators[(operator, t)](term)
         except KeyError:
             raise err.LanguageError("Operator '{}' not defined on domain ({})".format(operator, t))
-
 
     def dispatch_operator(self, operator, t1, t2, lhs, rhs):
         # assert isinstance(lhs, t1)

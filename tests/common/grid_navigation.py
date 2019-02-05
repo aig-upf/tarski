@@ -9,7 +9,7 @@ def generate_single_agent_language():
     lang = tsk.fstrips.language(theories=[Theory.EQUALITY, Theory.ARITHMETIC])
 
     # Functions
-    x = lang.function('x', lang.Real)
-    y = lang.function('y', lang.Real)
+    _ = lang.function('x', lang.Real)
+    _ = lang.function('y', lang.Real)
 
     return lang

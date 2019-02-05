@@ -2,41 +2,45 @@ import itertools
 import copy
 import numpy as np
 
-from tarski.syntax import Variable, Term, AggregateCompoundTerm, Matrix, CompoundTerm, Constant, Variable
+from ...syntax import Term, AggregateCompoundTerm, CompoundTerm, Constant, Variable, IfThenElse
+from ...syntax.algebra import Matrix
 from ... import errors as err
 from ... grounding.naive import instantiation
 from .. transform import TermSubstitution
-from .. builtins import BuiltinPredicateSymbol, BuiltinFunctionSymbol, get_arithmetic_binary_functions
+from ..builtins import BuiltinPredicateSymbol, BuiltinFunctionSymbol, get_arithmetic_binary_functions
+
 
 def sumterm(*args):
-    vars = args[:-1]
+    variables = args[:-1]
     expr = args[-1]
-    if len(vars) < 1:
+    if len(variables) < 1:
         raise err.SyntacticError(msg='sumterm(x0,x1,...,xn,expr) requires at least one\
         bound variable, arguments: {}'.format(args))
-    for x in vars:
+    for x in variables:
         if not isinstance(x, Variable):
             raise err.SyntacticError(msg='sum(x0,...,xn,expr) require each\
             argument xi to be an instance of Variable')
     if not isinstance(expr, Term):
         raise err.SyntacticError(msg='sum(x0,x1,...,xn,expr) requires last \
         argument "expr" to be an instance of Term, got "{}"'.format(expr))
-    return AggregateCompoundTerm(BuiltinFunctionSymbol.ADD, vars, expr)
+    return AggregateCompoundTerm(BuiltinFunctionSymbol.ADD, variables, expr)
+
 
 def prodterm(*args):
-    vars = args[:-1]
+    variables = args[:-1]
     expr = args[-1]
-    if len(vars) < 1:
+    if len(variables) < 1:
         raise err.SyntacticError(msg='sumterm(x0,x1,...,xn,expr) requires at least one\
         bound variable, arguments: {}'.format(args))
-    for x in vars:
+    for x in variables:
         if not isinstance(x, Variable):
             raise err.SyntacticError(msg='sum(x0,...,xn,expr) require each\
             argument xi to be an instance of Variable')
     if not isinstance(expr, Term):
         raise err.SyntacticError(msg='sum(x0,x1,...,xn,expr) requires last \
         argument "expr" to be an instance of Term, got "{}"'.format(expr))
-    return AggregateCompoundTerm(BuiltinFunctionSymbol.MUL, vars, expr)
+    return AggregateCompoundTerm(BuiltinFunctionSymbol.MUL, variables, expr)
+
 
 def summation(*args):
     """
@@ -47,15 +51,15 @@ def summation(*args):
     if not isinstance(expr, Term):
         raise err.SyntacticError(msg='sum(x0,x1,...,xn,expr) requires last \
         argument "expr" to be an instance of Term, got "{}"'.format(expr))
-    vars = []
+    variables = []
     for x in args[:-1]:
         if not isinstance(x, Variable):
             raise err.SyntacticError(msg='sum(x0,...,xn,expr) require each\
             argument xi to be an instance of Variable')
-        vars.append(x)
+        variables.append(x)
 
     L = expr.language
-    K, syms, substs = instantiation.enumerate_groundings(L, list(vars))
+    K, syms, substs = instantiation.enumerate_groundings(L, list(variables))
     processed_expr = []
     for values in itertools.product(*substs):
         subst = {syms[k]: v for k, v in enumerate(values)}
@@ -65,10 +69,11 @@ def summation(*args):
         processed_expr.append(expr_subst)
 
     lhs = processed_expr[0]
-    for k in range(1,len(processed_expr)):
+    for k in range(1, len(processed_expr)):
         lhs = L.dispatch_operator(BuiltinFunctionSymbol.ADD, Term, Term, lhs, processed_expr[k])
 
     return lhs
+
 
 def product(*args):
     """
@@ -79,15 +84,15 @@ def product(*args):
     if not isinstance(expr, Term):
         raise err.SyntacticError(msg='prod(x0,x1,...,xn,expr) requires last \
         argument "expr" to be an instance of Term')
-    vars = []
+    variables = []
     for x in args[:-1]:
         if not isinstance(x, Variable):
             raise err.SyntacticError(msg='prod(x0,...,xn,expr) require each\
             argument xi to be an instance of Variable')
-        vars.append(x)
+        variables.append(x)
 
     L = expr.language
-    K, syms, substs = instantiation.enumerate_groundings(L, list(vars))
+    K, syms, substs = instantiation.enumerate_groundings(L, list(variables))
     processed_expr = []
     for values in itertools.product(*substs):
         subst = {syms[k]: v for k, v in enumerate(values)}
@@ -97,7 +102,7 @@ def product(*args):
         processed_expr.append(expr_subst)
 
     lhs = processed_expr[0]
-    for k in range(1,len(processed_expr)):
+    for k in range(1, len(processed_expr)):
         lhs = L.dispatch_operator(BuiltinFunctionSymbol.MUL, Term, Term, lhs, processed_expr[k])
 
     return lhs
@@ -107,11 +112,13 @@ def pow(x, y):
     pow_func = x.language.get_function(BuiltinFunctionSymbol.POW)
     return pow_func(x, y)
 
+
 def sqrt(x):
     sqrt_func = x.language.get_function(BuiltinFunctionSymbol.SQRT)
     return sqrt_func(x)
 
-def transpose(m : Term):
+
+def transpose(m: Term):
     if isinstance(m, Matrix):
         m_t = copy.copy(m)
         m_t.matrix = m_t.matrix.T
@@ -128,18 +135,20 @@ def transpose(m : Term):
             elif m.symbol.symbol == BuiltinFunctionSymbol.MUL:
                 m.subterms = (transpose(m.subterms[1]), transpose(m.subterms[0]))
                 return m
-            raise err.SyntacticError("transpose(): can only be applied on scalars (constants, variables), matrices and basic arithmetic operations.")
-        else:
-            raise err.SyntacticError("transpose(): can only be applied on scalars (constants, variables), matrices and basic arithmetic operations.")
+        raise err.SyntacticError("transpose() only applicable on scalars (constants, variables), "
+                                 "matrices and basic arithmetic operations.")
     elif isinstance(m, Constant):
         return Matrix([m], m.sort)
     elif isinstance(m, Variable):
         return Matrix([m], m.sort)
-    raise err.SyntacticError("transpose(): can only be applied on scalars (constants, variables), matrices and basic arithmetic operations.")
+    raise err.SyntacticError(
+        "transpose(): can only be applied on scalars (constants, variables), matrices and basic arithmetic operations.")
+
 
 def zero(sort):
     assert sort.name in ('Real', 'Integer', 'Natural')
     return sort.language.constant(0, sort)
+
 
 def one(sort):
     assert sort.name in ('Real', 'Integer', 'Natural')
@@ -152,7 +161,7 @@ def simplify(expr: Term):
     elif isinstance(expr, Variable):
         return expr
     elif isinstance(expr, CompoundTerm):
-        if not expr.symbol.builtin :
+        if not expr.symbol.builtin:
             return expr
         if expr.symbol.symbol == BuiltinFunctionSymbol.ADD:
             simp_st = (simplify(expr.subterms[0]), simplify(expr.subterms[1]))
@@ -199,18 +208,17 @@ def simplify(expr: Term):
                 return one(expr.sort)
             expr.subterms = (simp_st,)
             return expr
-    elif isinstance(expr, Matrix) or isinstance(expr, np.matrix):
+    elif isinstance(expr, Matrix) or isinstance(expr, np.ndarray):
         N, M = expr.shape
         for i in range(N):
             for j in range(M):
-                expr[i,j] = simplify(expr[i,j])
+                expr[i, j] = simplify(expr[i, j])
         return expr
     elif isinstance(expr, AggregateCompoundTerm):
-        expr.subterm = simplify(subterm)
+        expr.subterm = simplify(expr.subterm)
         return expr
     elif isinstance(expr, IfThenElse):
         expr.subterms = (simplify(expr.subterms[0]), simplify(expr.subterms[1]))
         return expr
-
 
     raise NotImplementedError("Can't handle expression {} yet".format(expr))

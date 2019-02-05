@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
 import itertools
-import copy
-
 from collections import OrderedDict
 
-import tarski.fstrips as fs
-import tarski.fstrips.hybrid as hybrid
-from tarski.syntax.transform import TermSubstitution
-from tarski.syntax.visitors import CollectVariables
-from tarski.util import IndexDictionary
+from ...fstrips import hybrid as hybrid
+from ...syntax.transform import TermSubstitution
+from ...util import IndexDictionary
 from . import instantiation
 from .elements import process_expression
+
 
 class DifferentialConstraintGrounder(object):
 
@@ -36,7 +33,6 @@ class DifferentialConstraintGrounder(object):
                 g_variate = process_expression(self.L, ode_schema.variate, op)
                 g_ode = process_expression(self.L, ode_schema.ode, op)
 
-                self.problem.ground_differential_constraints.add(\
-                    hybrid.DifferentialConstraint(self.L, ode_schema.name, [], \
-                    g_cond, g_variate, g_ode))
+                self.problem.ground_differential_constraints.add(
+                    hybrid.DifferentialConstraint(self.L, ode_schema.name, [], g_cond, g_variate, g_ode))
             self.differential_constraints_generated += k

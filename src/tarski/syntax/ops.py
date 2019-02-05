@@ -1,21 +1,22 @@
 from .terms import Term, Constant
 import numpy as np
+from tarski.syntax.algebra import Matrix
+
 
 def cast_to_closest_common_ancestor(lhs, rhs):
-
     if isinstance(lhs, Term):
-        if isinstance(rhs, np.matrix):
+        if isinstance(rhs, np.ndarray):
             # lhs is scalar, rhs is matrix
-            return lhs.language.matrix([[lhs]]), rhs
+            return lhs.language.matrix([[lhs]], lhs.sort), rhs
         if not isinstance(rhs, Term):
             rhs = Constant(lhs.sort.cast(rhs), lhs.sort)
         return lhs, rhs
-    if isinstance(lhs, np.matrix):
+    if isinstance(lhs, np.ndarray):
         # lhs is matrix
         if isinstance(rhs, Term):
             return lhs, rhs.language.matrix([[rhs]])
     if not isinstance(rhs, Term):
-        assert False # this should not happen
+        assert False  # this should not happen
     lhs = Constant(rhs.sort.cast(lhs), rhs.sort)
 
     return lhs, rhs

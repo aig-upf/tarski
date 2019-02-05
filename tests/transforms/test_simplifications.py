@@ -17,4 +17,3 @@ def test_ground_atom_transformation():
 
     with pytest.raises(TransformationError):
         transform_to_ground_atoms((clear(b1)) | (clear(b2)))
-

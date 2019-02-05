@@ -1,11 +1,10 @@
 
 import logging
 
-from tarski.dl.concepts import GoalNullaryAtom, GoalConcept, GoalRole
-
 from .. import FirstOrderLanguage
 from ..syntax import builtins
 
+from .concepts import GoalNullaryAtom, GoalConcept, GoalRole
 from . import Concept, Role, UniversalConcept, PrimitiveConcept, NotConcept, ExistsConcept, ForallConcept, \
     EqualConcept, PrimitiveRole, RestrictRole, AndConcept, EmptyConcept, CompositionRole, NominalConcept, NullaryAtom
 
@@ -127,7 +126,7 @@ class SyntacticFactory:
         sort = self.language.most_restricted_type(r1.sort[0], r2.sort[0])
 
         if sort is None:
-            logging.debug('Concept "EqualConcept({},{})" pruned for type-inconsistency reasons'.format(r1,r2))
+            logging.debug('Concept "EqualConcept({},{})" pruned for type-inconsistency reasons'.format(r1, r2))
             return None
         return EqualConcept(r1, r2, sort)
 

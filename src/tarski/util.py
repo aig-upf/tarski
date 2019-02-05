@@ -23,14 +23,15 @@ class UninitializedAttribute:
     __iter__ = _raise_error
     __contains__ = _raise_error
 
+
 class DuplicateElementError(Exception):
-    def __init__(self, msg):
-        super().__init__(msg)
+    pass
 
 class IndexDictionary:
     """
     A very basic indexing mechanism object that assigns consecutive indexes to the indexed objects.
     """
+
     def __init__(self, elements=None):
         self.data = OrderedDict()
         self.objects = []

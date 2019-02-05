@@ -24,6 +24,7 @@ class BuiltinFunctionSymbol(Enum):
     ADD = "+"
     SUB = "-"
     MUL = "*"
+    MATMUL = "@"
     DIV = "/"
     POW = "**"
     MOD = "%"
@@ -84,26 +85,31 @@ def get_arithmetic_predicates():
 
 
 def get_arithmetic_binary_functions():
-    return [BuiltinFunctionSymbol.ADD, BuiltinFunctionSymbol.SUB, BuiltinFunctionSymbol.MUL, BuiltinFunctionSymbol.DIV,\
+    return [BuiltinFunctionSymbol.ADD, BuiltinFunctionSymbol.SUB, BuiltinFunctionSymbol.MUL, BuiltinFunctionSymbol.DIV,
             BuiltinFunctionSymbol.POW, BuiltinFunctionSymbol.MOD]
+
 
 def get_arithmetic_unary_functions():
     return [BuiltinFunctionSymbol.SQRT]
+
 
 def get_special_binary_functions():
     BFS = BuiltinFunctionSymbol
     return [BFS.MIN, BFS.MAX]
 
+
 def get_special_unary_functions():
     BFS = BuiltinFunctionSymbol
     return [BFS.ABS, BFS.SIN, BFS.COS, BFS.TAN, BFS.ATAN, BFS.ASIN, BFS.EXP, BFS.LOG, BFS.ERF, BFS.ERFC, BFS.SGN]
+
 
 def get_random_binary_functions():
     BFS = BuiltinFunctionSymbol
     return [BFS.NORMAL, BFS.GAMMA]
 
+
 def get_random_unary_functions():
-    BFS = BuiltinFunctionSymbol
+    # BFS = BuiltinFunctionSymbol
     return []
 
 

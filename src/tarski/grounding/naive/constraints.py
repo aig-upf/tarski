@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 import itertools
-import copy
-
 from collections import OrderedDict
 
 from ...syntax.transform import TermSubstitution, UniversalQuantifierElimination, NegatedBuiltinAbsorption

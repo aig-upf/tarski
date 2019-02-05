@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-from tarski.syntax import *
-from . import errors as err
-from  .. fstrips import *
+
 
 class Reaction(object):
     """ A (possibly lifted) reaction """

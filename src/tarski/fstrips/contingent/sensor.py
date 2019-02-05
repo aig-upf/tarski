@@ -1,6 +1,6 @@
+from ...syntax import CompoundFormula, Atom, Connective
 from . import errors as err
 
-from tarski.syntax import *
 
 class Sensor(object):
     """ A (possibly lifted) sensing action """
@@ -14,18 +14,18 @@ class Sensor(object):
         self._check_well_formed()
 
     def _check_well_formed(self):
-        if isinstance(self.obs,Atom):
+        if isinstance(self.obs, Atom):
             return True
-        if isinstance(self.obs,CompoundFormula):
-            if self.obs.connective  == Connective.Not:
-                if isinstance(self.obs.subformulas[0],Atom):
+        if isinstance(self.obs, CompoundFormula):
+            if self.obs.connective == Connective.Not:
+                if isinstance(self.obs.subformulas[0], Atom):
                     return True
         # We do not support anything other than literals
         raise err.ObservationExpressivenessMismatch(self)
 
     def ident(self):
         params = ', '.join([str(o) for o in self.parameters])
-        return '{}({})'.format(self.name,params)
+        return '{}({})'.format(self.name, params)
 
     def dump(self):
         return dict(name=self.name,

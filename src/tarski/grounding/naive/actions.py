@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
+
 import itertools
 import copy
-
 from collections import OrderedDict
 
 from ... import fstrips as fs
 from ...syntax.transform import TermSubstitution
-from ...syntax.visitors import CollectVariables
 from ...util import IndexDictionary
 from . import instantiation
 from .elements import process_expression, process_effect
+
 
 class ActionGrounder:
 
