@@ -308,8 +308,8 @@ def print_unconditional_effect(eff, indentation=0):
     elif isinstance(eff, DelEffect):
         return indent("(not {})".format(print_atom(eff.atom)), indentation)
     elif isinstance(eff, UniversalEffect):
-        return indent("(forall ({}) {})".format(print_variable_list(eff.variables),
-                                                 print_effects(eff.effects, indentation=indentation + 1)),
+        effect_str = (print_effect(eff.effects[0]) if len(eff.effects) == 1 else print_effects(eff.effects))
+        return indent("(forall ({}) {})".format(print_variable_list(eff.variables), effect_str),
                       indentation)
 
     raise RuntimeError("Unexpected element type: {}".format(eff))
@@ -320,12 +320,10 @@ def print_effect(eff, indentation=0):
 
     if conditional:
         return indent(
-            "(when {} {})".format(print_formula(eff.condition, indentation + 1),
-                                  print_unconditional_effect(eff, indentation + 1)),
+            "(when {} {})".format(print_formula(eff.condition), print_unconditional_effect(eff)),
             indentation)
     else:
-        return indent(print_unconditional_effect(eff, indentation + 1),
-                      indentation)
+        return print_unconditional_effect(eff, indentation)
 
 
 def print_term(term):
