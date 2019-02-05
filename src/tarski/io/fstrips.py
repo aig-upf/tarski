@@ -1,4 +1,3 @@
-import copy
 import logging
 import os
 from collections import defaultdict
