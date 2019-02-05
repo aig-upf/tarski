@@ -308,7 +308,7 @@ def print_unconditional_effect(eff, indentation=0):
     elif isinstance(eff, DelEffect):
         return indent("(not {})".format(print_atom(eff.atom)), indentation)
     elif isinstance(eff, UniversalEffect):
-        return indent("(forall ({})\n{})".format(print_variable_list(eff.variables),
+        return indent("(forall ({}) {})".format(print_variable_list(eff.variables),
                                                  print_effects(eff.effects, indentation=indentation + 1)),
                       indentation)
 
