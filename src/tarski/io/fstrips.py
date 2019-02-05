@@ -295,19 +295,9 @@ def print_effects(effects, indentation=0):
     return "(and\n{})".format("\n".join(print_effect(e, indentation + 1) for e in effects))
 
 
-def print_effect(eff, indentation=0):
-    # assert isinstance(eff, SingleEffect)  # Universal, etc. effects yet to be implemented
-    conditional = not isinstance(eff.condition, Tautology)  # We have a conditional effect
+def print_unconditional_effect(eff, indentation=0):
     functional = isinstance(eff, FunctionalEffect)
     increase = isinstance(eff, IncreaseEffect)
-
-    if conditional:
-        eff_copy_no_condition = copy.copy(eff)
-        eff_copy_no_condition.condition = Tautology()
-
-        return indent("(when {} {})".format(print_formula(eff.condition, indentation + 1),
-                                            print_effect(eff_copy_no_condition, indentation + 1)),
-                      indentation)
 
     if increase:
         return indent("(increase {} {})".format(print_term(eff.lhs), print_term(eff.rhs)), indentation)
@@ -323,6 +313,18 @@ def print_effect(eff, indentation=0):
                       indentation)
 
     raise RuntimeError("Unexpected element type: {}".format(eff))
+
+
+def print_effect(eff, indentation=0):
+    conditional = not isinstance(eff.condition, Tautology)
+
+    if conditional:
+        return indent(
+            "(when {} {})".format(print_formula(eff.condition, indentation + 1),
+                                  print_unconditional_effect(eff, indentation + 1)),
+            indentation)
+    else:
+        return indent(print_unconditional_effect(eff, indentation + 1))
 
 
 def print_term(term):
