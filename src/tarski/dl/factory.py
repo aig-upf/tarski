@@ -17,10 +17,11 @@ def filter_subnodes(elem, t):
 
 def compute_dl_vocabulary(lang):
     """ Return the DL vocabulary for the given language.
-    This is the list of all predicates of arity 0, 1 and 2, and all functions of arity 0 and 1
+    This is the list of all predicates of arity 0, 1 and 2, all types, and all functions of arity 0 and 1
     """
     v = [(p.symbol, p) for p in lang.predicates if not builtins.is_builtin_predicate(p) and 0 <= p.arity <= 2] +\
-        [(f.symbol, f) for f in lang.functions if not builtins.is_builtin_function(f) and f.arity in (0, 1)]
+        [(f.symbol, f) for f in lang.functions if not builtins.is_builtin_function(f) and f.arity in (0, 1)] + \
+        [(s.name, s) for s in lang.sorts if not s.builtin]
     return dict(v)
 
 
@@ -62,10 +63,8 @@ class SyntacticFactory:
         for c in nominals:
             concepts.append(NominalConcept(c.symbol, c.sort))
 
-        # TODO Generate primitive "type" predicates again
-        # Temporally deactivated
-        # for t in types:
-        #     concepts.append(PrimitiveConcept(t))
+        for t in types:
+            concepts.append(PrimitiveConcept(t))
 
         logging.info('Primitive (nullary) atoms : {}'.format(", ".join(map(str, primitive_atoms))))
         logging.info('Primitive (unary) concepts: {}'.format(", ".join(map(str, concepts))))
