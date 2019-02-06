@@ -9,7 +9,7 @@ from ..syntax import Tautology, Contradiction, Atom, CompoundTerm, CompoundFormu
 from ..syntax.sorts import parent, Interval, ancestors
 
 from ._fstrips.common import tarsky_to_pddl_type, get_requirements_string
-from ..fstrips import create_fstrips_problem, language, FunctionalEffect, AddEffect, DelEffect, IncreaseEffect
+from ..fstrips import create_fstrips_problem, language, FunctionalEffect, AddEffect, DelEffect, IncreaseEffect, UniversalEffect
 
 from ._fstrips.reader import FStripsParser
 
@@ -253,7 +253,7 @@ class FstripsWriter:
 
     def get_derived(self, d):
         return derived_tpl.format(
-            name=d.name,
+            name=d.predicate.symbol,
             parameters=print_variable_list(d.parameters),
             formula=print_formula(d.formula))
 
@@ -294,14 +294,9 @@ def print_effects(effects, indentation=0):
     return "(and\n{})".format("\n".join(print_effect(e, indentation + 1) for e in effects))
 
 
-def print_effect(eff, indentation=0):
-    assert isinstance(eff, SingleEffect)  # Universal, etc. effects yet to be implemented
-    conditional = not isinstance(eff.condition, Tautology)  # We have a conditional effect
+def print_unconditional_effect(eff, indentation=0):
     functional = isinstance(eff, FunctionalEffect)
     increase = isinstance(eff, IncreaseEffect)
-
-    if conditional:
-        raise RuntimeError("Unimplemented")
 
     if increase:
         return indent("(increase {} {})".format(print_term(eff.lhs), print_term(eff.rhs)), indentation)
@@ -311,7 +306,23 @@ def print_effect(eff, indentation=0):
         return indent("{}".format(print_atom(eff.atom)), indentation)
     elif isinstance(eff, DelEffect):
         return indent("(not {})".format(print_atom(eff.atom)), indentation)
+    elif isinstance(eff, UniversalEffect):
+        effect_str = (print_effect(eff.effects[0]) if len(eff.effects) == 1 else print_effects(eff.effects))
+        return indent("(forall ({}) {})".format(print_variable_list(eff.variables), effect_str),
+                      indentation)
+
     raise RuntimeError("Unexpected element type: {}".format(eff))
+
+
+def print_effect(eff, indentation=0):
+    conditional = not isinstance(eff.condition, Tautology)
+
+    if conditional:
+        return indent(
+            "(when {} {})".format(print_formula(eff.condition), print_unconditional_effect(eff)),
+            indentation)
+    else:
+        return print_unconditional_effect(eff, indentation)
 
 
 def print_term(term):
