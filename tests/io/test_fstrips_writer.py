@@ -57,7 +57,7 @@ def test_effect_writing():
     e6 = UniversalEffect([block_var], [FunctionalEffect(loc(block_var), table, condition=clear(block_var))])
     s6 = print_effect(e6)
 
-    assert s6 == "(forall (?b - block) (when (clear ?b)     (assign (loc ?b) table)))"
+    assert s6 == "(forall (?b - block) (when (clear ?b) (assign (loc ?b) table)))"
 
 
 # def test_atom_writing():
