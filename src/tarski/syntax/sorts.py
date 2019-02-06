@@ -160,6 +160,15 @@ def ancestors(s: Sort) -> Set[Sort]:
     return s.language.ancestor_sorts[s]
 
 
+def children(s: Sort) -> Set[Sort]:
+    """ Return the direct children of the given sort """
+    result = set()
+    for child, par in s.language.immediate_parent.items():
+        if par is not None and par == s:
+            result.add(child)
+    return result
+
+
 def int_encode_fn(x):
     if isinstance(x, float) and not x.is_integer():
         raise ValueError()  # We don't want 1.2 to get encoded as an int

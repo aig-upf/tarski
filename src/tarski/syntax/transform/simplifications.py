@@ -1,6 +1,6 @@
 
-from tarski.syntax import Atom, CompoundFormula, Connective, Constant, CompoundTerm
-from tarski.syntax.builtins import BuiltinPredicateSymbol
+from ...syntax import Atom, CompoundFormula, Connective, Constant, CompoundTerm
+from ...syntax.builtins import BuiltinPredicateSymbol
 
 from .errors import TransformationError
 
