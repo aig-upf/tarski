@@ -4,7 +4,6 @@ from ..errors import TarskiError
 
 class TarskiDLError(TarskiError):
     """ Common ancestor class to all of Tarski's Description Language exceptions """
-    pass
 
 
 class SyntacticDLError(TarskiDLError):

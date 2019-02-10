@@ -6,7 +6,7 @@ from tarski import errors
 
 from ..common import blocksworld, numeric
 from tarski.evaluators.simple import evaluate
-from tarski.syntax import Constant, ite
+from tarski.syntax import Constant, ite, TermReference
 from tarski.theories import Theory
 
 
@@ -355,6 +355,36 @@ def test_predicate_without_equality():
 
     assert model[leq(f(o1), f(o2))] is True
     assert model[leq(f(o2), f(o1))] is False
+
+
+def test_model_list_extensions():
+    lang = tarski.language(theories=[])
+    p = lang.predicate('p', lang.Object, lang.Object)
+    f = lang.function('f', lang.Object, lang.Object)
+    o1 = lang.constant("o1", lang.Object)
+    o2 = lang.constant("o2", lang.Object)
+
+    model = Model(lang)
+    model.evaluator = evaluate
+
+    model.set(f, o1, o2)
+    model.add(p, o1, o2)
+
+    extensions = model.list_all_extensions()
+    ext_f = extensions[f.signature]
+    ext_p = extensions[p.signature]
+
+    # We want to test that the `list_all_extensions` method correctly unwraps all TermReferences in the internal
+    # representation of the model and returns _only_ actual Tarski terms. Testing this is a bit involved, as of
+    # course we cannot just check for (o1, o2) in ext_f, because that will trigger the wrong __eq__ and __hash__
+    # methods - in other words, to test this we precisely need to wrap things back into TermReferences, so that we can
+    # compare them properly
+
+    assert len(ext_f) == 1 and len(ext_p) == 1
+    p, v = ext_f[0]
+    assert TermReference(p) == TermReference(o1) and TermReference(v) == TermReference(o2)
+    v1, v2 = ext_p[0]
+    assert TermReference(v1) == TermReference(o1) and TermReference(v2) == TermReference(o2)
 
 
 def test_predicate_without_equality_reals():

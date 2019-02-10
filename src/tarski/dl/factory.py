@@ -14,6 +14,15 @@ def filter_subnodes(elem, t):
     return list(filter(lambda x: type(x) == t, elem.flatten()))
 
 
+def compute_dl_vocabulary(lang):
+    """ Return the DL vocabulary for the given language.
+    This is the list of all predicates of arity 0, 1 and 2, and all functions of arity 0 and 1
+    """
+    v = [(p.symbol, p) for p in lang.predicates if not builtins.is_builtin_predicate(p) and 0 <= p.arity <= 2] +\
+        [(f.symbol, f) for f in lang.functions if not builtins.is_builtin_function(f) and f.arity in (0, 1)]
+    return dict(v)
+
+
 class SyntacticFactory:
     def __init__(self, language: FirstOrderLanguage):
         self.language = language
@@ -21,8 +30,8 @@ class SyntacticFactory:
         self.top = UniversalConcept(self.universe_sort.name)
         self.bot = EmptyConcept(self.universe_sort.name)
 
-    def generate_primitives_from_language(self, constants, types, goal_predicates):
-        """ Generate primitive concepts from the language taking into account only the given constants """
+    def generate_primitives_from_language(self, nominals, types, goal_predicates):
+        """ Generate primitive concepts from the language taking into account only the given nominals """
 
         concepts, roles, primitive_atoms = [], [], []
         for predfun in list(self.language.predicates) + list(self.language.functions):
@@ -49,12 +58,17 @@ class SyntacticFactory:
             else:
                 logging.warning('Predicate/Function "{}" with normalized arity > 2 ignored'.format(predfun))
 
-        for c in constants:
+        for c in nominals:
             concepts.append(NominalConcept(c.symbol, c.sort))
 
+        # TODO Generate primitive "type" predicates again
         # Temporally deactivated
         # for t in types:
         #     concepts.append(PrimitiveConcept(t))
+
+        logging.info('Primitive (nullary) atoms : {}'.format(", ".join(map(str, primitive_atoms))))
+        logging.info('Primitive (unary) concepts: {}'.format(", ".join(map(str, concepts))))
+        logging.info('Primitive (binary) roles  : {}'.format(", ".join(map(str, roles))))
 
         return concepts, roles, primitive_atoms
 

@@ -88,10 +88,10 @@ class Model:
         if not isinstance(predicate, Predicate):
             raise err.SemanticError("Model.add() can only set the value of predicates")
         point = _check_assignment(predicate, args)
-        self.predicate_extensions[predicate.signature].add(tuple_ref(point))
+        self.predicate_extensions[predicate.signature].add(wrap_tuple(point))
 
     def remove(self, predicate: Predicate, *args):
-        self.predicate_extensions[predicate.signature].remove(tuple_ref(args))
+        self.predicate_extensions[predicate.signature].remove(wrap_tuple(args))
 
     def value(self, fun: Function, point):
         """ Return the value of the given function on the given point in the current model """
@@ -101,7 +101,17 @@ class Model:
     def holds(self, predicate: Predicate, point):
         """ Return true iff the given predicate is true on the given point in the current model """
         # return tuple(c.symbol for c in point) in self.predicate_extensions[predicate.signature]
-        return tuple_ref(point) in self.predicate_extensions[predicate.signature]
+        return wrap_tuple(point) in self.predicate_extensions[predicate.signature]
+
+    def list_all_extensions(self):
+        """ Return a mapping between predicate and function signatures and a list of all their respective extensions.
+        This list *unwraps* the TermReference's used internally in this class back into plain Tarski terms, so that
+        you can rely on the returned extensions being made up of Constant's, Variables, etc., not TermReference's
+        """
+        exts = {k: [unwrap_tuple(ref) for ref in refs] for k, refs in self.predicate_extensions.items()}
+        exts.update(
+            (k, [unwrap_tuple(point) + (value, ) for point, value in ext.data.items()]) for k, ext in self.function_extensions.items())
+        return exts
 
     def __getitem__(self, arg):
         try:
@@ -125,15 +135,20 @@ class ExtensionalFunctionDefinition:
     def set(self, point, value):
         assert isinstance(point, tuple)
         assert isinstance(value, Constant)
-        self.data[tuple_ref(point)] = value
+        self.data[wrap_tuple(point)] = value
 
     def get(self, point):
-        return self.data[tuple_ref(point)]
+        return self.data[wrap_tuple(point)]
 
 
 # class IntensionalFunctionDefinition:
 #     pass
 
-def tuple_ref(tup):
+def wrap_tuple(tup):
     """ Create a tuple of Term references from a tuple of terms """
     return tuple(TermReference(a) for a in tup)
+
+
+def unwrap_tuple(tup):
+    """ Create a tuple of Tarski terms from a tuple of Term references"""
+    return tuple(ref.term for ref in tup)
