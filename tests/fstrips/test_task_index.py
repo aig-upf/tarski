@@ -29,4 +29,6 @@ def test_task_index_process_symbols_fluents_bw_gripper():
     # MRJ: fluent terms need to be further processed to sort equivalent
     # ones.
     assert len(index.fluent_terms) == 5  # (free, carry, at-robby, at)
-    assert len(index.static_terms) == 3  # (ball, gripper, room)
+    # MRJ: static terms need further processing as well (sorting
+    # out equality predicates, etc.)
+    assert len(index.static_terms) == 7  # (ball, gripper, room)
