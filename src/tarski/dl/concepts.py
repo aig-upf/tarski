@@ -230,7 +230,38 @@ class AndConcept(Concept):
         return ext_c1 & ext_c2
 
     def __repr__(self):
-        return 'And({}, {})'.format(self.c1, self.c2)
+        return 'And({},{})'.format(self.c1, self.c2)
+
+    __str__ = __repr__
+
+    def flatten(self):
+        return [self] + self.c1.flatten() + self.c2.flatten()
+
+
+class OrConcept(Concept):
+    def __init__(self, c1, c2, sort):
+        assert isinstance(c1, Concept)
+        assert isinstance(c2, Concept)
+        Concept.__init__(self, sort, 1 + c1.size + c2.size)
+        self.c1 = c1
+        self.c2 = c2
+        self.hash = consistent_hash((self.__class__, self.c1, self.c2))
+
+    def __hash__(self):
+        return self.hash
+
+    def __eq__(self, other):
+        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
+                self.c1 == other.c1 and
+                self.c2 == other.c2)
+
+    def denotation(self, model):
+        ext_c1 = model.compressed_denotation(self.c1)
+        ext_c2 = model.compressed_denotation(self.c2)
+        return ext_c1 | ext_c2
+
+    def __repr__(self):
+        return 'Or({},{})'.format(self.c1, self.c2)
 
     __str__ = __repr__
 

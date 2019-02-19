@@ -223,7 +223,6 @@ class NullaryAtomFeature(Feature):
         self.atom = atom
         self.hash = consistent_hash((self.__class__, self.atom))
 
-
     def denotation(self, model):
         """ The feature evaluates to true iff the nullary atom is true in the given state """
         # return self.atom.extension(cache, state)
