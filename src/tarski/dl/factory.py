@@ -1,13 +1,12 @@
 
 import logging
 
-from tarski.dl.concepts import GoalNullaryAtom, GoalConcept, GoalRole
-
 from .. import FirstOrderLanguage
 from ..syntax import builtins
 
 from . import Concept, Role, UniversalConcept, PrimitiveConcept, NotConcept, ExistsConcept, ForallConcept, \
-    EqualConcept, PrimitiveRole, RestrictRole, AndConcept, EmptyConcept, CompositionRole, NominalConcept, NullaryAtom
+    EqualConcept, PrimitiveRole, RestrictRole, AndConcept, EmptyConcept, CompositionRole, NominalConcept, NullaryAtom, \
+    GoalNullaryAtom, GoalConcept, GoalRole, OrConcept
 
 
 def filter_subnodes(elem, t):
@@ -133,6 +132,18 @@ class SyntacticFactory:
             return None
 
         return AndConcept(c1, c2, sort)
+
+    def create_or_concept(self, c1: Concept, c2: Concept):
+        sort = self.language.most_restricted_type(c1.sort, c2.sort)
+
+        if c1 == c2:
+            return None  # No sense in C OR C
+
+        if c1 in (self.top, self.bot) or c2 in (self.top, self.bot):
+            logging.debug('OR of {} and {} pruned, no sense in OR\'ing with top or bot'.format(c1, c2))
+            return None
+
+        return OrConcept(c1, c2, sort)
 
     def create_equal_concept(self, r1: Role, r2: Role):
         assert isinstance(r1, Role) and isinstance(r2, Role)
