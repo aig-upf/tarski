@@ -1,7 +1,7 @@
 
 import tarski.model
 from tarski import fstrips as fs
-from tarski.syntax import land, neg
+from tarski.syntax import land
 
 
 def create_sample_language():

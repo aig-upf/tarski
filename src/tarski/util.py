@@ -4,28 +4,9 @@
 from collections import OrderedDict
 
 
-class UninitializedAttribute:
-    def __init__(self, name):
-        object.__setattr__(self, 'name', name)
-
-    def _raise_error(self, *args, **kwargs):
-        # pylint: disable=unused-argument
-        raise AttributeError("Attempt to access object '{}', which has not yet been initialized. "
-                             "Revise the application workflow.".format(object.__getattribute__(self, 'name')))
-
-    __getattr__ = _raise_error
-    __setattr__ = _raise_error
-    __delattr__ = _raise_error
-    __len__ = _raise_error
-    __getitem__ = _raise_error
-    __setitem__ = _raise_error
-    __delitem__ = _raise_error
-    __iter__ = _raise_error
-    __contains__ = _raise_error
-
-
 class DuplicateElementError(Exception):
     pass
+
 
 class IndexDictionary:
     """

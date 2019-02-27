@@ -2,7 +2,6 @@
 """
     Creates a TaskIndex for a  planning task as given by Tarski's AST.
 """
-from .. import util
 from .visitors import FluentSymbolCollector, FluentHeuristic
 
 
@@ -10,14 +9,14 @@ class TaskIndex:
     def __init__(self, domain_name, instance_name):
         self.domain_name = domain_name
         self.instance_name = instance_name
-        self.all_symbols = util.UninitializedAttribute('all_symbols')
-        self.static_symbols = util.UninitializedAttribute('static_symbols')
-        self.fluent_symbols = util.UninitializedAttribute('fluent_symbols')
-        self.static_terms = util.UninitializedAttribute('static_terms')
-        self.fluent_terms = util.UninitializedAttribute('fluent_terms')
-        self.initial_fluent_atoms = util.UninitializedAttribute('initial_fluent_atoms')
-        self.initial_static_data = util.UninitializedAttribute('initial_static_data')
-        self.state_variables = util.UninitializedAttribute('state_variables')
+        self.all_symbols = None
+        self.static_symbols = None
+        self.fluent_symbols = None
+        self.static_terms = None
+        self.fluent_terms = None
+        self.initial_fluent_atoms = None
+        self.initial_static_data = None
+        self.state_variables = None
 
     def _check_static_not_fluents(self):
         """
@@ -57,9 +56,10 @@ class TaskIndex:
         self.all_symbols = self.fluent_terms | self.static_terms
 
     def compute_fluent_and_statics(self):
-        """ Return two sets of predicate symbols, one for fluent and one for statics """
-        fluents = set(ref.phi.predicate for ref in self.fluent_terms)
-        statics = set(ref.phi.predicate for ref in self.static_terms)
+        """ Return sets with fluent and static predicate / function symbols """
+        fluents = set(ref.expr.predicate for ref in self.fluent_terms)
+        statics = set(ref.expr.predicate for ref in self.static_terms)
+        statics = set(x for x in statics if x not in fluents and not x.builtin)
         return fluents, statics
 
     def is_fluent(self, symbol):
