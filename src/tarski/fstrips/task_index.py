@@ -10,8 +10,6 @@ class TaskIndex:
         self.domain_name = domain_name
         self.instance_name = instance_name
         self.all_symbols = None
-        self.static_symbols = None
-        self.fluent_symbols = None
         self.static_terms = None
         self.fluent_terms = None
         self.initial_fluent_atoms = None
