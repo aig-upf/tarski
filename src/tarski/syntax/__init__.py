@@ -6,6 +6,6 @@ from .terms import Term, Constant, Variable, CompoundTerm, IfThenElse, ite, Aggr
 from .formulas import land, lor, neg, implies, forall, exists, equiv, Connective, Atom, Formula,\
     CompoundFormula, QuantifiedFormula, Tautology, Contradiction, top, bot, Quantifier
 from .builtins import BuiltinFunctionSymbol, BuiltinPredicateSymbol
-from .symrefs import symref, TermReference, FormulaReference
+from .symrefs import symref
 
 

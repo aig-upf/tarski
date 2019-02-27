@@ -3,7 +3,7 @@ from collections import defaultdict
 
 from . import errors as err
 from .syntax import Function, Constant, CompoundTerm
-from tarski.syntax import TermReference
+from tarski.syntax import symref
 from .syntax.predicate import Predicate
 
 
@@ -110,8 +110,8 @@ class Model:
         you can rely on the returned extensions being made up of Constant's, Variables, etc., not TermReference's
         """
         exts = {k: [unwrap_tuple(ref) for ref in refs] for k, refs in self.predicate_extensions.items()}
-        exts.update(
-            (k, [unwrap_tuple(point) + (value, ) for point, value in ext.data.items()]) for k, ext in self.function_extensions.items())
+        exts.update((k, [unwrap_tuple(point) + (value, ) for point, value in ext.data.items()])
+                    for k, ext in self.function_extensions.items())
         return exts
 
     def __getitem__(self, arg):
@@ -147,9 +147,9 @@ class ExtensionalFunctionDefinition:
 
 def wrap_tuple(tup):
     """ Create a tuple of Term references from a tuple of terms """
-    return tuple(TermReference(a) for a in tup)
+    return tuple(symref(a) for a in tup)
 
 
 def unwrap_tuple(tup):
     """ Create a tuple of Tarski terms from a tuple of Term references"""
-    return tuple(ref.term for ref in tup)
+    return tuple(ref.expr for ref in tup)

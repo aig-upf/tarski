@@ -2,8 +2,7 @@
 from enum import Enum
 from typing import List
 
-from ..syntax import Tautology, CompoundTerm, Term, Constant
-from tarski.syntax import TermReference
+from ..syntax import Tautology, CompoundTerm, Term, Constant, symref
 from .errors import InvalidEffectError
 from .. import theories as ths
 
@@ -263,8 +262,8 @@ class BlackBoxEffect(SingleEffect):
 
         self.function.bind_to_language(self.lhs[0, 0].language)
         for k, y in enumerate(self.lhs[:, 0]):
-            ys = TermReference(y)
-            ok = TermReference(self.function.out_x[k].symbol)
+            ys = symref(y)
+            ok = symref(self.function.out_x[k].symbol)
             if ys != ok:
                 msg = "Error declaring BlackBoxEffect, lhs {}-th symbol {} is not\
                 matched by corresponding function output, {}".format(k, str(y), str(ok))

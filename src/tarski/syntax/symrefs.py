@@ -20,23 +20,16 @@ class TermReference:
 
     def __init__(self, term):
         assert isinstance(term, Term)
-        self.term = term
-
-    @property
-    def expr(self):
-        """
-            Property shared with FormulaReference, enabling static polymorphism
-        """
-        return self.term
+        self.expr = term
 
     def __hash__(self):
-        return hash(self.term)
+        return hash(self.expr)
 
     def __eq__(self, other):
-        return self.__class__ is other.__class__ and self.term.is_syntactically_equal(other.term)
+        return self.__class__ is other.__class__ and self.expr.is_syntactically_equal(other.expr)
 
     def __str__(self):
-        return "TermRef[{}]".format(self.term)
+        return "TermRef[{}]".format(self.expr)
 
     __repr__ = __str__
 
@@ -49,22 +42,15 @@ class FormulaReference:
 
     def __init__(self, phi):
         assert isinstance(phi, Formula)
-        self.phi = phi
+        self.expr = phi
 
     def __hash__(self):
-        return hash(self.phi)
+        return hash(self.expr)
 
     def __eq__(self, other):
-        return self.__class__ is other.__class__ and self.phi.is_syntactically_equal(other.phi)
+        return self.__class__ is other.__class__ and self.expr.is_syntactically_equal(other.expr)
 
     def __str__(self):
-        return "FormulaRef[{}]".format(self.phi)
-
-    @property
-    def expr(self):
-        """
-            Property shared with TermReference, enabling static polymorphism
-        """
-        return self.phi
+        return "FormulaRef[{}]".format(self.expr)
 
     __repr__ = __str__

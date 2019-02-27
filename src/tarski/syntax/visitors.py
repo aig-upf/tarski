@@ -78,7 +78,7 @@ class CollectFreeVariables:
     @property
     def free_variables(self):
         for ref in self._free_variables:
-            yield ref.term
+            yield ref.expr
 
     def visit(self, phi):
         if isinstance(phi, CompoundFormula):

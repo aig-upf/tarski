@@ -6,7 +6,7 @@ from tarski import errors
 
 from ..common import blocksworld, numeric
 from tarski.evaluators.simple import evaluate
-from tarski.syntax import Constant, ite, TermReference
+from tarski.syntax import Constant, ite, symref
 from tarski.theories import Theory
 
 
@@ -382,9 +382,9 @@ def test_model_list_extensions():
 
     assert len(ext_f) == 1 and len(ext_p) == 1
     p, v = ext_f[0]
-    assert TermReference(p) == TermReference(o1) and TermReference(v) == TermReference(o2)
+    assert symref(p) == symref(o1) and symref(v) == symref(o2)
     v1, v2 = ext_p[0]
-    assert TermReference(v1) == TermReference(o1) and TermReference(v2) == TermReference(o2)
+    assert symref(v1) == symref(o1) and symref(v2) == symref(o2)
 
 
 def test_predicate_without_equality_reals():

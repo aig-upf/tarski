@@ -175,9 +175,9 @@ def test_term_refs():
     o1 = lang.constant("o1", lang.Object)
     o2 = lang.constant("o2", lang.Object)
 
-    tr1 = TermReference(o1)
-    tr2 = TermReference(o1)
-    tr3 = TermReference(o2)
+    tr1 = symref(o1)
+    tr2 = symref(o1)
+    tr3 = symref(o2)
 
     assert tr1 == tr2
     assert tr1 != tr3
@@ -212,9 +212,9 @@ def test_term_refs_compound():
     t2 = f(o1)
     t3 = f(o2)
     assert t1.symbol == t2.symbol
-    tr1 = TermReference(t1)
-    tr2 = TermReference(t2)
-    tr3 = TermReference(t3)
+    tr1 = symref(t1)
+    tr2 = symref(t2)
+    tr3 = symref(t3)
 
     assert tr1 == tr2
     assert tr1 != tr3
@@ -232,9 +232,9 @@ def test_formula_refs():
     psi = (x() >= y()) & (y() <= x())
     gamma = (x() <= y()) & (y() <= x())
 
-    fr1 = FormulaReference(phi)
-    fr2 = FormulaReference(psi)
-    fr3 = FormulaReference(gamma)
+    fr1 = symref(phi)
+    fr2 = symref(psi)
+    fr3 = symref(gamma)
 
     assert fr1 == fr3
     assert fr1 != fr2
