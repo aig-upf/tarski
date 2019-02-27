@@ -52,13 +52,18 @@ class TaskIndex:
             # print('Fluents: {}'.format(','.join([str(x) for x in self.fluent_terms])))
             # print('Statics: {}'.format(','.join([str(x) for x in self.static_terms])))
             self._check_static_not_fluents()
-            if len(self.fluent_terms) == o_f and \
-                    len(self.static_terms) == o_s:
+            if len(self.fluent_terms) == o_f and len(self.static_terms) == o_s:
                 break
             o_f = len(self.fluent_terms)
             o_s = len(self.static_terms)
 
         self.all_symbols = self.fluent_terms | self.static_terms
+
+    def compute_fluent_and_statics(self):
+        """ Return two sets of predicate symbols, one for fluent and one for statics """
+        fluents = set(ref.phi.predicate for ref in self.fluent_terms)
+        statics = set(ref.phi.predicate for ref in self.static_terms)
+        return fluents, statics
 
     def is_fluent(self, symbol):
         return symbol in self.fluent_terms
