@@ -1,7 +1,7 @@
 import tempfile
 
 import tarski.fstrips as fs
-from tarski.fstrips import AddEffect, DelEffect
+from tarski.fstrips import AddEffect, DelEffect, FunctionalEffect, UniversalEffect
 from tarski.io import FstripsWriter
 from tarski.io.fstrips import print_effects, print_effect, print_objects, print_metric
 
@@ -32,6 +32,7 @@ def get_bw_elements():
 
 def test_effect_writing():
     problem, loc, clear, b1, table = get_bw_elements()
+    block_var = problem.language.variable("b", "block")
 
     e1 = loc(b1) << table
     e2 = AddEffect(clear(b1))
@@ -42,6 +43,21 @@ def test_effect_writing():
     assert s2 == "(clear b1)"
     assert s3 == "(not (clear b1))"
     assert print_effects([e1, e2, e3]) == "(and\n    {}\n    {}\n    {})".format(s1, s2, s3)
+
+    e4 = UniversalEffect([block_var], [AddEffect(clear(block_var))])
+    s4 = print_effect(e4)
+
+    assert s4 == "(forall (?b - block) (clear ?b))"
+
+    e5 = UniversalEffect([block_var], [AddEffect(clear(block_var)), loc(block_var) << table])
+    s5 = print_effect(e5)
+
+    assert s5 == "(forall (?b - block) (and\n    (clear ?b)\n    (assign (loc ?b) table)))"
+
+    e6 = UniversalEffect([block_var], [FunctionalEffect(loc(block_var), table, condition=clear(block_var))])
+    s6 = print_effect(e6)
+
+    assert s6 == "(forall (?b - block) (when (clear ?b) (assign (loc ?b) table)))"
 
 
 # def test_atom_writing():
