@@ -6,7 +6,7 @@ from tarski.io import FstripsWriter
 from tarski.io.fstrips import print_effects, print_effect, print_objects, print_metric
 
 from tests.common.blocksworld import generate_small_fstrips_bw_problem
-from tests.fstrips import parcprinter
+from tests.common import parcprinter
 from ..common.gridworld import generate_small_gridworld
 
 

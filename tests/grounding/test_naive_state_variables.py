@@ -3,7 +3,7 @@ from tarski.grounding.naive import state_variables as sv
 from tarski.util import IndexDictionary
 
 from tests.common.blocksworld import create_4blocks_task
-from tests.fstrips import parcprinter
+from tests.common import parcprinter
 from tests.fstrips.hybrid.tasks import create_billiards_world
 
 

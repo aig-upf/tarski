@@ -1,6 +1,6 @@
 from tarski import fstrips as fs
 
-from tests.fstrips import blocksworld, gripper
+from tests.common import blocksworld, gripper
 
 
 def test_task_index_constructor():
