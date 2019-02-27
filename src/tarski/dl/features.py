@@ -5,6 +5,7 @@ from enum import Enum
 
 from .concepts import Concept, Role, NullaryAtom
 from ..utils.algorithms import compute_min_distance
+from ..utils.hashing import consistent_hash
 
 
 class FeatureValueChange(Enum):
@@ -65,12 +66,20 @@ def compute_bool_feature_diff(x, y):
         return FeatureValueChange.NIL
 
 
+def are_feature_changes_analogous(x, y):
+    return x == y or \
+           (x == FeatureValueChange.DEL and y == FeatureValueChange.DEC) or \
+           (x == FeatureValueChange.DEC and y == FeatureValueChange.DEL) or \
+           (x == FeatureValueChange.ADD and y == FeatureValueChange.INC) or \
+           (x == FeatureValueChange.INC and y == FeatureValueChange.ADD)
+
+
 class ConceptCardinalityFeature(Feature):
     """ A numeric feature that reflects the cardinality of a set of objects defined by a concept """
     def __init__(self, c):
         assert isinstance(c, Concept)
         self.c = c
-        self.hash = hash((self.__class__, self.c))
+        self.hash = consistent_hash((self.__class__, self.c))
 
     def denotation(self, model):
         return model.compressed_denotation(self.c).count()
@@ -102,7 +111,7 @@ class EmpiricalBinaryConcept(Feature):
     def __init__(self, feature):
         assert isinstance(feature, (ConceptCardinalityFeature, EmpiricalBinaryConcept))
         self.c = feature.c
-        self.hash = hash((self.__class__, self.c))
+        self.hash = consistent_hash((self.__class__, self.c))
 
     def denotation(self, model):
         val = model.compressed_denotation(self.c).count()
@@ -140,7 +149,7 @@ class EmpiricalBinaryConcept(Feature):
 #         assert isinstance(point, tuple)
 #         self.fun = fun
 #         self.point = point
-#         self.hash = hash((self.__class__, self.fun.symbol, point))
+#         self.hash = consistent_hash((self.__class__, self.fun.symbol, point))
 #
 #     def value(self, cache, state):
 #         """ The feature value _is_ the cardinality of the extension of the represented concept"""
@@ -171,7 +180,7 @@ class MinDistanceFeature(Feature):
         self.c1 = c1
         self.r = r
         self.c2 = c2
-        self.hash = hash((self.__class__, self.c1, self.r, self.c2))
+        self.hash = consistent_hash((self.__class__, self.c1, self.r, self.c2))
 
     def __hash__(self):
         return self.hash
@@ -212,7 +221,7 @@ class NullaryAtomFeature(Feature):
     def __init__(self, atom):
         assert isinstance(atom, NullaryAtom)
         self.atom = atom
-        self.hash = hash((self.__class__, self.atom))
+        self.hash = consistent_hash((self.__class__, self.atom))
 
     def denotation(self, model):
         """ The feature evaluates to true iff the nullary atom is true in the given state """

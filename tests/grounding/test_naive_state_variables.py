@@ -2,7 +2,7 @@ from tarski import fstrips as fs
 from tarski.grounding.naive import state_variables as sv
 from tarski.util import IndexDictionary
 
-from tests.fstrips import blocksworld
+from tests.common.blocksworld import create_4blocks_task
 from tests.fstrips import parcprinter
 from tests.fstrips.hybrid.tasks import create_billiards_world
 
@@ -41,7 +41,7 @@ def test_all_state_variables_can_be_evaluated_in_init_parcprinter():
 
 
 def test_task_index_create_state_variables_blocksworld():
-    prob = blocksworld.create_4blocks_task()
+    prob = create_4blocks_task()
     index = fs.TaskIndex(prob.language.name, prob.name)
     index.process_symbols(prob)
     index.state_variables = IndexDictionary()

@@ -3,6 +3,7 @@
 """
 from ..syntax import Predicate, Function, Sort
 from ..utils.algorithms import transitive_closure
+from ..utils.hashing import consistent_hash
 from .errors import ArityDLMismatch
 
 
@@ -14,7 +15,7 @@ class NullaryAtom:
         _check_arity("nullary atom", 0, predicate)
         self.name = predicate.symbol
         self.depth = 0
-        self.hash = hash((self.__class__, self.name))
+        self.hash = consistent_hash((self.__class__, self.name))
 
     def __hash__(self):
         return self.hash
@@ -72,7 +73,7 @@ class Role:
 class UniversalConcept(Concept):
     def __init__(self, universal_sort):
         Concept.__init__(self, universal_sort, 0)
-        self.hash = hash(self.__class__)
+        self.hash = consistent_hash((self.__class__, ))
 
     def __hash__(self):
         return self.hash
@@ -95,7 +96,7 @@ class UniversalConcept(Concept):
 class EmptyConcept(Concept):
     def __init__(self, universal_sort):
         Concept.__init__(self, universal_sort, 0)
-        self.hash = hash(self.__class__)
+        self.hash = consistent_hash((self.__class__, ))
 
     def __hash__(self):
         return self.hash
@@ -119,7 +120,7 @@ class NominalConcept(Concept):
     def __init__(self, name, sort):
         Concept.__init__(self, sort.name, 1)
         self.name = name
-        self.hash = hash((self.__class__, self.name))
+        self.hash = consistent_hash((self.__class__, self.name))
 
     def __hash__(self):
         return self.hash
@@ -152,7 +153,7 @@ class PrimitiveConcept(Concept):
         else:
             Concept.__init__(self, predicate.name, 1)
             self.name = predicate.name
-        self.hash = hash((self.__class__, self.name))
+        self.hash = consistent_hash((self.__class__, self.name))
 
     def __hash__(self):
         return self.hash
@@ -185,7 +186,7 @@ class NotConcept(Concept):
         assert isinstance(c, Concept)
         Concept.__init__(self, universal_sort.name, 1 + c.size)
         self.c = c
-        self.hash = hash((self.__class__, self.c))
+        self.hash = consistent_hash((self.__class__, self.c))
 
     def __hash__(self):
         return self.hash
@@ -213,7 +214,7 @@ class AndConcept(Concept):
         Concept.__init__(self, sort, 1 + c1.size + c2.size)
         self.c1 = c1
         self.c2 = c2
-        self.hash = hash((self.__class__, self.c1, self.c2))
+        self.hash = consistent_hash((self.__class__, self.c1, self.c2))
 
     def __hash__(self):
         return self.hash
@@ -229,7 +230,38 @@ class AndConcept(Concept):
         return ext_c1 & ext_c2
 
     def __repr__(self):
-        return 'And({}, {})'.format(self.c1, self.c2)
+        return 'And({},{})'.format(self.c1, self.c2)
+
+    __str__ = __repr__
+
+    def flatten(self):
+        return [self] + self.c1.flatten() + self.c2.flatten()
+
+
+class OrConcept(Concept):
+    def __init__(self, c1, c2, sort):
+        assert isinstance(c1, Concept)
+        assert isinstance(c2, Concept)
+        Concept.__init__(self, sort, 1 + c1.size + c2.size)
+        self.c1 = c1
+        self.c2 = c2
+        self.hash = consistent_hash((self.__class__, self.c1, self.c2))
+
+    def __hash__(self):
+        return self.hash
+
+    def __eq__(self, other):
+        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
+                self.c1 == other.c1 and
+                self.c2 == other.c2)
+
+    def denotation(self, model):
+        ext_c1 = model.compressed_denotation(self.c1)
+        ext_c2 = model.compressed_denotation(self.c2)
+        return ext_c1 | ext_c2
+
+    def __repr__(self):
+        return 'Or({},{})'.format(self.c1, self.c2)
 
     __str__ = __repr__
 
@@ -245,7 +277,7 @@ class ExistsConcept(Concept):
         Concept.__init__(self, r.sort[0], 1 + r.size + c.size)
         self.r = r
         self.c = c
-        self.hash = hash((self.__class__, self.r, self.c))
+        self.hash = consistent_hash((self.__class__, self.r, self.c))
 
     def __hash__(self):
         return self.hash
@@ -279,7 +311,7 @@ class ForallConcept(Concept):
         Concept.__init__(self, r.sort[0], 1 + r.size + c.size)
         self.r = r
         self.c = c
-        self.hash = hash((self.__class__, self.r, self.c))
+        self.hash = consistent_hash((self.__class__, self.r, self.c))
 
     def __hash__(self):
         return self.hash
@@ -316,7 +348,7 @@ class EqualConcept(Concept):
         Concept.__init__(self, sort, 1 + r1.size + r2.size)
         self.r1 = r1
         self.r2 = r2
-        self.hash = hash((self.__class__, self.r1, self.r2))
+        self.hash = consistent_hash((self.__class__, self.r1, self.r2))
 
     def __hash__(self):
         return self.hash
@@ -356,7 +388,7 @@ class PrimitiveRole(Role):
         self.name = predicate.symbol
 
         # This is a bit aggressive, but we assume that predicate names are unique
-        self.hash = hash((self.__class__, self.name))
+        self.hash = consistent_hash((self.__class__, self.name))
 
     def __hash__(self):
         return self.hash
@@ -390,7 +422,7 @@ class InverseRole(Role):
         s1, s2 = r.sort
         super().__init__([s2, s1], 1 + r.size)
         self.r = r
-        self.hash = hash((self.__class__, self.r))
+        self.hash = consistent_hash((self.__class__, self.r))
 
     def __hash__(self):
         return self.hash
@@ -418,7 +450,7 @@ class StarRole(Role):
         assert isinstance(r, Role)
         Role.__init__(self, r.sort, 1 + r.size)
         self.r = r
-        self.hash = hash((self.__class__, self.r))
+        self.hash = consistent_hash((self.__class__, self.r))
 
     def __hash__(self):
         return self.hash
@@ -448,7 +480,7 @@ class CompositionRole(Role):
         Role.__init__(self, [r1.sort[0], r2.sort[1]], 1 + r1.size + r2.size)
         self.r1 = r1
         self.r2 = r2
-        self.hash = hash((self.__class__, self.r1, self.r2))
+        self.hash = consistent_hash((self.__class__, self.r1, self.r2))
 
     def __hash__(self):
         return self.hash
@@ -487,7 +519,7 @@ class RestrictRole(Role):
         Role.__init__(self, r.sort, 1 + r.size + c.size)
         self.r = r
         self.c = c
-        self.hash = hash((self.__class__, self.r, self.c))
+        self.hash = consistent_hash((self.__class__, self.r, self.c))
 
     def __hash__(self):
         return self.hash

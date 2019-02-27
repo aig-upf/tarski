@@ -251,6 +251,15 @@ class FStripsParser(fstripsVisitor):
             formula = self.visit(ctx.goalDesc())
         return variables, formula
 
+    def _visit_quantified_effect(self, ctx):
+        """ Universally-quantified effects are different to formulas in that they are shorthand
+            for a list of effects """
+        variables = self.visit(ctx.possibly_typed_variable_list())
+
+        with self.push_variables(variables, root=False) as _:
+            formula = self.visit(ctx.effect())
+        return variables, formula
+
     def visitExistentialGoalDesc(self, ctx):
         variables, formula = self._visit_quantified_formula(ctx)
         return exists(*variables, formula)
@@ -290,7 +299,8 @@ class FStripsParser(fstripsVisitor):
         return FunctionalEffect(self.visit(ctx.functionTerm()), self.visit(ctx.term()))
 
     def visitUniversallyQuantifiedEffect(self, ctx):
-        return UniversalEffect(self.visit(ctx.possibly_typed_variable_list()), self.visit(ctx.effect()))
+        variables, effect = self._visit_quantified_effect(ctx)
+        return UniversalEffect(variables, effect)
 
     def visitSingleConditionalEffect(self, ctx):
         effect = self.visit(ctx.atomic_effect())

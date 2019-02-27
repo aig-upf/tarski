@@ -6,7 +6,8 @@ from ..syntax import builtins
 
 from .concepts import GoalNullaryAtom, GoalConcept, GoalRole
 from . import Concept, Role, UniversalConcept, PrimitiveConcept, NotConcept, ExistsConcept, ForallConcept, \
-    EqualConcept, PrimitiveRole, RestrictRole, AndConcept, EmptyConcept, CompositionRole, NominalConcept, NullaryAtom
+    EqualConcept, PrimitiveRole, RestrictRole, AndConcept, EmptyConcept, CompositionRole, NominalConcept, NullaryAtom, \
+    GoalNullaryAtom, GoalConcept, GoalRole, OrConcept
 
 
 def filter_subnodes(elem, t):
@@ -16,10 +17,11 @@ def filter_subnodes(elem, t):
 
 def compute_dl_vocabulary(lang):
     """ Return the DL vocabulary for the given language.
-    This is the list of all predicates of arity 0, 1 and 2, and all functions of arity 0 and 1
+    This is the list of all predicates of arity 0, 1 and 2, all types, and all functions of arity 0 and 1
     """
     v = [(p.symbol, p) for p in lang.predicates if not builtins.is_builtin_predicate(p) and 0 <= p.arity <= 2] +\
-        [(f.symbol, f) for f in lang.functions if not builtins.is_builtin_function(f) and f.arity in (0, 1)]
+        [(f.symbol, f) for f in lang.functions if not builtins.is_builtin_function(f) and f.arity in (0, 1)] + \
+        [(s.name, s) for s in lang.sorts if not s.builtin]
     return dict(v)
 
 
@@ -61,10 +63,8 @@ class SyntacticFactory:
         for c in nominals:
             concepts.append(NominalConcept(c.symbol, c.sort))
 
-        # TODO Generate primitive "type" predicates again
-        # Temporally deactivated
-        # for t in types:
-        #     concepts.append(PrimitiveConcept(t))
+        for t in types:
+            concepts.append(PrimitiveConcept(t))
 
         logging.info('Primitive (nullary) atoms : {}'.format(", ".join(map(str, primitive_atoms))))
         logging.info('Primitive (unary) concepts: {}'.format(", ".join(map(str, concepts))))
@@ -133,6 +133,18 @@ class SyntacticFactory:
             return None
 
         return AndConcept(c1, c2, sort)
+
+    def create_or_concept(self, c1: Concept, c2: Concept):
+        sort = self.language.most_restricted_type(c1.sort, c2.sort)
+
+        if c1 == c2:
+            return None  # No sense in C OR C
+
+        if c1 in (self.top, self.bot) or c2 in (self.top, self.bot):
+            logging.debug('OR of {} and {} pruned, no sense in OR\'ing with top or bot'.format(c1, c2))
+            return None
+
+        return OrConcept(c1, c2, sort)
 
     def create_equal_concept(self, r1: Role, r2: Role):
         assert isinstance(r1, Role) and isinstance(r2, Role)
