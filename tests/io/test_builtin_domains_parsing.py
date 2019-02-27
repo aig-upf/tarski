@@ -8,7 +8,7 @@ _data_dir = os.path.join(_this_dir, "..", "data", "pddl")
 
 
 BUILTIN_INSTANCES = [
-    "grid:problem12.pddl",  # universally-quantified effects
+    "grid:grid3x3.pddl",  # universally-quantified effects
 ]
 
 
