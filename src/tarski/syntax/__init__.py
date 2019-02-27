@@ -2,15 +2,10 @@
 from .function import Function
 from .predicate import Predicate
 from .sorts import Sort, Interval, inclusion_closure
-from .terms import Term, Constant, Variable, CompoundTerm, TermReference, IfThenElse, ite, AggregateCompoundTerm
+from .terms import Term, Constant, Variable, CompoundTerm, IfThenElse, ite, AggregateCompoundTerm
 from .formulas import land, lor, neg, implies, forall, exists, equiv, Connective, Atom, Formula,\
-    CompoundFormula, QuantifiedFormula, Tautology, Contradiction, top, bot, Quantifier, FormulaReference
+    CompoundFormula, QuantifiedFormula, Tautology, Contradiction, top, bot, Quantifier
 from .builtins import BuiltinFunctionSymbol, BuiltinPredicateSymbol
+from .symrefs import symref, TermReference, FormulaReference
 
 
-def symref(sym):
-    if isinstance(sym, Term):
-        return TermReference(sym)
-    if isinstance(sym, Formula):
-        return FormulaReference(sym)
-    assert False

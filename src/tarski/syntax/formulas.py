@@ -247,43 +247,6 @@ class Atom(Formula):
     __repr__ = __str__
 
 
-# TODO (GFM) Revise this after the refactoring. The distinction between whether a formula is axiomatic, external, etc.
-# TODO should probably be done elsewhere, not here (possibly at the evaluation level)
-# class AxiomaticFormula(Formula):
-#     def __init__(self, head, body):
-#         super().__init__()
-#         if not isinstance(head, Formula):
-#             raise err.LanguageError("The head of an axiomatic formulae can only be a Formula, was '{}'".
-# format(type(head)))
-#         self._head = head
-#         if not isinstance(body, Formula):
-#             raise err.LanguageError("The body of an axiomatic formulae can only be a Formula, was '{}'".
-# format(type(body)))
-#         self._body = body
-#
-#     def __str__(self):
-#         return '{} : {}'.format(self._head, self._body)
-#
-#     def satisfiable(self, s):
-#         return s.check_satisfiability(implies(self._head, self._body)) and \
-#                s.check_satisfiability(implies(self._body, self._head))
-
-# axiom = AxiomaticFormula
-
-# TODO (GFM) Revise this after the refactoring. The distinction between whether a formula is axiomatic, external, etc.
-# TODO should probably be done elsewhere, not here (possibly at the evaluation level)
-# class ExternallyDefinedFormula(Atom):
-#     def __init__(self, *args):
-#         super().__init__(*args)
-#
-#     # @property
-#     # def name(self):
-#     #     return self._name
-#
-#     def __str__(self):
-#         return '{}({})'.format(self.name, ','.join([str(t) for t in self._subterms]))
-
-
 class VariableBinding:
     """ A VariableBinding contains a set of logical variables which are _bound_ in some formula or term """
 
@@ -308,31 +271,3 @@ class VariableBinding:
         """ Merge the given binding into the current binding, inplace """
         raise NotImplementedError()
 
-
-class FormulaReference:
-    """ A simple wrapper to provide a purely syntactic __eq__ operator for formulas.
-     To be used whenever equality and hashing is required, e.g. in dictionaries, etc.,
-     since the __eq__ operator in the Term hierarchy is used for other purposes,
-     namely, to construct equality atoms in a user-readable manner. """
-
-    def __init__(self, phi):
-        assert isinstance(phi, Formula)
-        self.phi = phi
-
-    def __hash__(self):
-        return hash(self.phi)
-
-    def __eq__(self, other):
-        return self.__class__ is other.__class__ and self.phi.is_syntactically_equal(other.phi)
-
-    def __str__(self):
-        return "FormulaRef[{}]".format(self.phi)
-
-    @property
-    def expr(self):
-        """
-            Property shared with TermReference, enabling static polymorphism
-        """
-        return self.phi
-
-    __repr__ = __str__

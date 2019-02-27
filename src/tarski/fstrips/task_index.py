@@ -33,21 +33,18 @@ class TaskIndex:
         # print('Statics (after filtering): {}'.format(','.join([str(var) for var in self.static_terms])))
 
     def process_symbols(self, problem):
-
+        lang = problem.language
         self.fluent_terms = set()
         self.static_terms = set()
 
-        prec_visitor = FluentSymbolCollector(problem.language, self.fluent_terms, self.static_terms,
-                                             FluentHeuristic.precondition)
-        eff_visitor = FluentSymbolCollector(problem.language, self.fluent_terms, self.static_terms,
-                                            FluentHeuristic.action_effects)
-        constraint_visitor = FluentSymbolCollector(problem.language, self.fluent_terms, self.static_terms,
-                                                   FluentHeuristic.constraint)
+        prec_visitor = FluentSymbolCollector(lang, self.fluent_terms, self.static_terms, FluentHeuristic.precondition)
+        eff_visitor = FluentSymbolCollector(lang, self.fluent_terms, self.static_terms, FluentHeuristic.action_effects)
+        constr_visitor = FluentSymbolCollector(lang, self.fluent_terms, self.static_terms, FluentHeuristic.constraint)
 
         o_f = len(self.fluent_terms)
         o_s = len(self.static_terms)
         while True:
-            problem.get_symbols(prec_visitor, eff_visitor, constraint_visitor)
+            problem.get_symbols(prec_visitor, eff_visitor, constr_visitor)
 
             # print('Fluents: {}'.format(','.join([str(x) for x in self.fluent_terms])))
             # print('Statics: {}'.format(','.join([str(x) for x in self.static_terms])))

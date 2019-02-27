@@ -2,7 +2,8 @@
 from collections import defaultdict
 
 from . import errors as err
-from .syntax import Function, Constant, CompoundTerm, TermReference
+from .syntax import Function, Constant, CompoundTerm
+from tarski.syntax import TermReference
 from .syntax.predicate import Predicate
 
 

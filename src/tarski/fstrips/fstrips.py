@@ -2,7 +2,8 @@
 from enum import Enum
 from typing import List
 
-from ..syntax import Tautology, CompoundTerm, TermReference, Term, Constant
+from ..syntax import Tautology, CompoundTerm, Term, Constant
+from tarski.syntax import TermReference
 from .errors import InvalidEffectError
 from .. import theories as ths
 
