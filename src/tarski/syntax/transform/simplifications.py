@@ -17,18 +17,19 @@ def unpack_element_subterms(element):
 def unpack_atom(atom):
     assert isinstance(atom, Atom)
 
-    if atom.predicate.builtin:
-        if not atom.predicate.symbol == BuiltinPredicateSymbol.EQ:
+    if atom.head.builtin:
+        if not atom.head.name == BuiltinPredicateSymbol.EQ:
             raise TransformationError("transform-to-ground-atoms", atom, "Cannot unpack non-equality atom")
         x = [x for x in atom.subterms if isinstance(x, CompoundTerm)]
         c = [c for c in atom.subterms if isinstance(c, Constant)]
         if len(x) != 1 or len(c) != 1:
-            raise TransformationError("transform-to-ground-atoms", atom, "Can only use functional atoms of the form f(c) = d, where c and d are constants")
+            raise TransformationError("transform-to-ground-atoms", atom,
+                                      "Can only use functional atoms of the form f(c) = d, where c and d are constants")
         x, c = x[0], c[0]
-        return tuple([x.symbol.name] + unpack_element_subterms(x) + [c.symbol])
+        return tuple([x.head.name] + unpack_element_subterms(x) + [c.symbol])
 
     else:
-        return tuple([atom.predicate.name] + unpack_element_subterms(atom))
+        return tuple([atom.head.name] + unpack_element_subterms(atom))
 
 
 def transform_to_ground_atoms(phi):

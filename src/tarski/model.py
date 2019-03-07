@@ -50,18 +50,18 @@ class Model:
         self.predicate_extensions = defaultdict(set)
 
     def setx(self, t: CompoundTerm, value: Constant):
-        if not isinstance(t.symbol, FunctionSymbol):
+        if not isinstance(t.head, FunctionSymbol):
             raise err.SemanticError("Model.set() can only set the value of functions")
-        if t.symbol.builtin:
-            raise err.SemanticError("Model.set() cannot redefine builtin symbols like '{}'".format(str(t.symbol)))
+        if t.head.builtin:
+            raise err.SemanticError("Model.set() cannot redefine builtin symbols like '{}'".format(str(t.head)))
         for st in t.subterms:
             if not isinstance(st, Constant):
                 raise err.SemanticError("Model.set(): subterms of '{}' need to be constants".format(str(t)))
-        point, value = _check_assignment(t.symbol, tuple(t.subterms), value)
-        if t.symbol.signature not in self.function_extensions:
-            definition = self.function_extensions[t.symbol.signature] = ExtensionalFunctionDefinition()
+        point, value = _check_assignment(t.head, tuple(t.subterms), value)
+        if t.head.signature not in self.function_extensions:
+            definition = self.function_extensions[t.head.signature] = ExtensionalFunctionDefinition()
         else:
-            definition = self.function_extensions[t.symbol.signature]
+            definition = self.function_extensions[t.head.signature]
             if not isinstance(definition, ExtensionalFunctionDefinition):
                 raise err.SemanticError("Cannot define extension of intensional definition")
 

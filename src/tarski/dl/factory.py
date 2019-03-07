@@ -19,8 +19,8 @@ def compute_dl_vocabulary(lang):
     """ Return the DL vocabulary for the given language.
     This is the list of all predicates of arity 0, 1 and 2, all types, and all functions of arity 0 and 1
     """
-    v = [(p.symbol, p) for p in lang.predicates if not builtins.is_builtin_predicate(p) and 0 <= p.arity <= 2] +\
-        [(f.symbol, f) for f in lang.functions if not builtins.is_builtin_function(f) and f.arity in (0, 1)] + \
+    v = [(p.name, p) for p in lang.predicates if not builtins.is_builtin_predicate(p) and 0 <= p.arity <= 2] +\
+        [(f.name, f) for f in lang.functions if not builtins.is_builtin_function(f) and f.arity in (0, 1)] + \
         [(s.name, s) for s in lang.sorts if not s.builtin]
     return dict(v)
 
@@ -36,29 +36,29 @@ class SyntacticFactory:
         """ Generate primitive concepts from the language taking into account only the given nominals """
 
         concepts, roles, primitive_atoms = [], [], []
-        for predfun in list(self.language.predicates) + list(self.language.functions):
-            if builtins.is_builtin_predicate(predfun) or builtins.is_builtin_function(predfun):
+        for symbol in list(self.language.predicates) + list(self.language.functions):
+            if builtins.is_builtin_predicate(symbol) or builtins.is_builtin_function(symbol):
                 # Skip "=" and other built-in symbols
                 # TODO We might want to revise this and allow for certain builtins
                 continue
 
-            if predfun.uniform_arity() == 0:
-                primitive_atoms.append(NullaryAtom(predfun))
-                if predfun.symbol in goal_predicates:
-                    primitive_atoms.append(GoalNullaryAtom(predfun))
+            if symbol.uniform_arity() == 0:
+                primitive_atoms.append(NullaryAtom(symbol))
+                if symbol.name in goal_predicates:
+                    primitive_atoms.append(GoalNullaryAtom(symbol))
 
-            elif predfun.uniform_arity() == 1:
-                concepts.append(PrimitiveConcept(predfun))
-                if predfun.symbol in goal_predicates:
-                    concepts.append(GoalConcept(predfun))
+            elif symbol.uniform_arity() == 1:
+                concepts.append(PrimitiveConcept(symbol))
+                if symbol.name in goal_predicates:
+                    concepts.append(GoalConcept(symbol))
 
-            elif predfun.uniform_arity() == 2:
-                roles.append(PrimitiveRole(predfun))
-                if predfun.symbol in goal_predicates:
-                    roles.append(GoalRole(predfun))
+            elif symbol.uniform_arity() == 2:
+                roles.append(PrimitiveRole(symbol))
+                if symbol.name in goal_predicates:
+                    roles.append(GoalRole(symbol))
 
             else:
-                logging.warning('Predicate/Function "{}" with normalized arity > 2 ignored'.format(predfun))
+                logging.warning('Predicate/Function "{}" with normalized arity > 2 ignored'.format(symbol))
 
         for c in nominals:
             concepts.append(NominalConcept(c.symbol, c.sort))

@@ -211,7 +211,7 @@ def test_term_refs_compound():
     t1 = f(o1)
     t2 = f(o1)
     t3 = f(o2)
-    assert t1.symbol == t2.symbol
+    assert t1.head == t2.head
     tr1 = symref(t1)
     tr2 = symref(t2)
     tr3 = symref(t3)

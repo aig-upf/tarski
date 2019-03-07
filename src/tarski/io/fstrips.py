@@ -330,7 +330,7 @@ def print_term(term):
     if isinstance(term, Variable):
         return "?{}".format(term.name)
     elif isinstance(term, CompoundTerm):
-        return "({} {})".format(term.symbol.name, print_term_list(term.subterms))
+        return "({} {})".format(term.head.name, print_term_list(term.subterms))
     elif isinstance(term, Constant):
         return "{}".format(term.symbol)
     raise RuntimeError("Unexpected element type: {}".format(term))
@@ -338,7 +338,7 @@ def print_term(term):
 
 def print_atom(atom):
     assert isinstance(atom, Atom)
-    return "({} {})".format(atom.predicate.name, print_term_list(atom.subterms))
+    return "({} {})".format(atom.head.name, print_term_list(atom.subterms))
 
 
 def print_term_list(terms):

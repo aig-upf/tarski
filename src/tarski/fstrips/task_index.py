@@ -57,8 +57,8 @@ class TaskIndex:
         """ Return sets with fluent and static predicate / function symbols """
         # print([dir(x.expr) for x in self.fluent_terms][0])
         # print([type(x.expr.symbol) for x in self.fluent_terms][0])
-        fluents = set(ref.expr.predicate for ref in self.fluent_terms)
-        statics = set(ref.expr.predicate for ref in self.static_terms)
+        fluents = set(ref.expr.head for ref in self.fluent_terms)
+        statics = set(ref.expr.head for ref in self.static_terms)
         statics = set(x for x in statics if x not in fluents and not x.builtin)
         return fluents, statics
 

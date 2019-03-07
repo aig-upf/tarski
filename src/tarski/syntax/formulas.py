@@ -203,18 +203,18 @@ class Atom(Formula):
 
     def __init__(self, predicate, arguments):
         super().__init__()
-        self.predicate = predicate
+        self.head = predicate
         self.subterms = arguments
         self._check_well_formed()
 
     def _check_well_formed(self):
-        head = self.predicate
+        head = self.head
 
         if not isinstance(head, PredicateSymbol):
             raise err.LanguageError("Incorrect atom head: '{}' ".format(head))
 
         # Check arities match
-        if len(self.subterms) != self.predicate.arity:
+        if len(self.subterms) != self.head.arity:
             raise err.ArityMismatch(head, self.subterms)
 
         language = head.language
@@ -234,11 +234,11 @@ class Atom(Formula):
         return hash(str(self))
 
     def __str__(self):
-        return '{}({})'.format(self.predicate.name, ','.join([str(t) for t in self.subterms]))
+        return '{}({})'.format(self.head.name, ','.join([str(t) for t in self.subterms]))
 
     def is_syntactically_equal(self, other):
         if (self.__class__ is not other.__class__ or
-                self.predicate != other.predicate or len(self.subterms) != len(other.subterms)):
+                self.head != other.head or len(self.subterms) != len(other.subterms)):
             return False
 
         # Else we just need to recursively check if all subterms are syntactically equal

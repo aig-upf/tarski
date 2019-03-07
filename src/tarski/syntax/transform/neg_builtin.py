@@ -29,9 +29,9 @@ class NegatedBuiltinAbsorption:
             if phi.connective == Connective.Not:
                 p = phi.subformulas[0]
                 if isinstance(p, Atom):
-                    if p.predicate.builtin:
+                    if p.head.builtin:
                         try:
-                            c = p.predicate.name.complement()
+                            c = p.head.name.complement()
                             return create_atom(self.lang, c, p.subterms[0], p.subterms[1])
                         except (AttributeError, KeyError):
                             pass

@@ -48,12 +48,12 @@ _compound_evaluators = {
 
 
 def evaluate_atom(atom: Atom, m: Model, sigma):
-    if builtins.is_builtin_predicate(atom.predicate):
+    if builtins.is_builtin_predicate(atom.head):
         return evaluate_builtin_predicate(atom, m, sigma)
 
     # Otherwise, the extension is given by the model
     point = tuple(evaluate(t, m, sigma) for t in atom.subterms)
-    return m.holds(atom.predicate, point)
+    return m.holds(atom.head, point)
 
 
 def evaluate_quantified(formula: Formula, m: Model, sigma):
@@ -76,7 +76,7 @@ def evaluate_term(term, m: Model, sigma):
             result.append(row)
         return Matrix(result, term.sort)
 
-    if isinstance(term, CompoundTerm) and builtins.is_builtin_function(term.symbol):
+    if isinstance(term, CompoundTerm) and builtins.is_builtin_function(term.head):
         return evaluate_builtin_function(term, m, sigma)
     # MRJ: Coerce float and int Python literals into constants
     if isinstance(term, float):
@@ -100,7 +100,7 @@ def evaluate_term(term, m: Model, sigma):
         arguments = tuple(evaluate(a, m, sigma) for a in term.subterms)
 
     try:
-        return m.value(term.symbol, arguments)
+        return m.value(term.head, arguments)
     except KeyError:
         raise err.UndefinedTerm(term)
 
@@ -116,7 +116,7 @@ def evaluate_builtin_predicate(atom, model, sigma):
         bip.GE: lambda f, m, s: evaluate(f.subterms[0], m, s).symbol >= evaluate(f.subterms[1], m, s).symbol,
     }
 
-    return _evaluators[atom.predicate.name](atom, model, sigma)
+    return _evaluators[atom.head.name](atom, model, sigma)
 
 
 def symbolic_matrix_multiplication(lhs: Matrix, rhs: Matrix):
@@ -162,7 +162,7 @@ def evaluate_builtin_function(term, model, sigma):
         bif.GAMMA: lambda f, m, s: ae2(funcsym.impl[bif.GAMMA.value], f.subterms[0], f.subterms[1], m, s),
     }
 
-    return _evaluators[term.symbol.name](term, model, sigma)
+    return _evaluators[term.head.name](term, model, sigma)
 
 
 def _arithmetic_evaluator_1(operation, expr, model, sigma):

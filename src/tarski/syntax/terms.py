@@ -152,46 +152,46 @@ class CompoundTerm(Term):
         Function-like interface.
     """
 
-    def __init__(self, symbol, subterms: Tuple[Term]):
-        assert isinstance(symbol, FunctionSymbol)
-        self.symbol = symbol
+    def __init__(self, head, subterms: Tuple[Term]):
+        assert isinstance(head, FunctionSymbol)
+        self.head = head
 
-        if len(subterms) != self.symbol.arity:
-            raise err.ArityMismatch(symbol, subterms)
-        argument_sorts = list(self.symbol.sort)[:-1]
+        if len(subterms) != self.head.arity:
+            raise err.ArityMismatch(head, subterms)
+        argument_sorts = list(self.head.sort)[:-1]
         processed_st = []
         for k, s in enumerate(argument_sorts):
             # @TODO Implement upcasting for non built-in compound terms
             try:
-                if subterms[k].sort.name != s.name and not self.symbol.language.is_subtype(subterms[k].sort, s):
-                    raise err.SortMismatch(self.symbol, subterms[k].sort, s)
+                if subterms[k].sort.name != s.name and not self.head.language.is_subtype(subterms[k].sort, s):
+                    raise err.SortMismatch(self.head, subterms[k].sort, s)
                 processed_st.append(subterms[k])
             except AttributeError:
                 s_k = s.cast(subterms[k])
                 if s_k is None:
-                    raise err.SortMismatch(self.symbol, subterms[k], s)
+                    raise err.SortMismatch(self.head, subterms[k], s)
                 processed_st.append(s_k)
         self.subterms = tuple(processed_st)
-        self.symbol.language.language_components_frozen = True
+        self.head.language.language_components_frozen = True
 
     @property
     def language(self):
-        return self.symbol.language
+        return self.head.language
 
     @property
     def sort(self):
-        return self.symbol.codomain
+        return self.head.codomain
 
     def __str__(self):
-        return '{}({})'.format(self.symbol.name, ', '.join([str(t) for t in self.subterms]))
+        return '{}({})'.format(self.head.name, ', '.join([str(t) for t in self.subterms]))
 
     __repr__ = __str__
 
     def __hash__(self):
-        return hash((self.symbol, tuple(x for x in self.subterms)))
+        return hash((self.head, tuple(x for x in self.subterms)))
 
     def is_syntactically_equal(self, other):
-        if (self.__class__ is not other.__class__ or self.symbol != other.symbol
+        if (self.__class__ is not other.__class__ or self.head != other.head
                 or len(self.subterms) != len(other.subterms)):
             return False
 

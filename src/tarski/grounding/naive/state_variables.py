@@ -22,7 +22,7 @@ class StateVariable:
     def __init__(self, term, instantiation):
         assert isinstance(term, (Atom, CompoundTerm))
         self.term = term
-        self.head = term.predicate if isinstance(term, Atom) else term.symbol
+        self.head = term.head if isinstance(term, Atom) else term.head
         assert isinstance(self.head, Symbol)
         self.instantiation = instantiation
 
