@@ -1,4 +1,6 @@
 from typing import Set
+
+from .util import get_id_from_literal
 from .. import errors as err
 
 
@@ -35,22 +37,14 @@ class Sort:
 
     def contains(self, x):
         """ Return true iff the current sort contains a constant with the given value  """
-        # TODO - Refactor this, we shouldn't be checking for two different ways of representing a value
-        try:
-            return x.symbol in self._domain
-        except AttributeError:
-            return x in self._domain
+        return get_id_from_literal(x) in self._domain
 
     def cast(self, x):
-        # TODO - Refactor this, we shouldn't be checking for two different ways of representing a value
-        try:
-            if x.symbol in self._domain:
-                return x.symbol
-        except AttributeError:
-            if x in self._domain:
-                return x
-            raise ValueError("Cast: Symbol '{}' does not belong to domain {}".format(x, self))
-        return None
+        """ Try to cast the given object into an element of the current sort """
+        value = get_id_from_literal(x)
+        if value in self._domain:
+            return value
+        raise ValueError("Cast: Symbol '{}' does not belong to domain {}".format(x, self))
 
     def cardinality(self):
         return len(self._domain)

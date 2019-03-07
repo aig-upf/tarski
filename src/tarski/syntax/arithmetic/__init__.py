@@ -124,15 +124,16 @@ def transpose(m: Term):
         m_t.matrix = m_t.matrix.T
         return m_t
     elif isinstance(m, CompoundTerm):
-        if m.symbol.symbol in get_arithmetic_binary_functions():
+        name = m.symbol.name
+        if name in get_arithmetic_binary_functions():
             # handle as an operator
-            if m.symbol.symbol == BuiltinFunctionSymbol.ADD:
+            if name == BuiltinFunctionSymbol.ADD:
                 m.subterms = (transpose(m.subterms[0]), transpose(m.subterms[1]))
                 return m
-            if m.symbol.symbol == BuiltinFunctionSymbol.SUB:
+            if name == BuiltinFunctionSymbol.SUB:
                 m.subterms = (transpose(m.subterms[0]), transpose(m.subterms[1]))
                 return m
-            elif m.symbol.symbol == BuiltinFunctionSymbol.MUL:
+            elif name == BuiltinFunctionSymbol.MUL:
                 m.subterms = (transpose(m.subterms[1]), transpose(m.subterms[0]))
                 return m
         raise err.SyntacticError("transpose() only applicable on scalars (constants, variables), "
@@ -161,9 +162,10 @@ def simplify(expr: Term):
     elif isinstance(expr, Variable):
         return expr
     elif isinstance(expr, CompoundTerm):
+        name = expr.symbol.name
         if not expr.symbol.builtin:
             return expr
-        if expr.symbol.symbol == BuiltinFunctionSymbol.ADD:
+        if name == BuiltinFunctionSymbol.ADD:
             simp_st = (simplify(expr.subterms[0]), simplify(expr.subterms[1]))
             if simp_st[0].is_syntactically_equal(zero(expr.sort)):
                 return simp_st[1]
@@ -171,7 +173,7 @@ def simplify(expr: Term):
                 return simp_st[0]
             expr.subterms = simp_st
             return expr
-        if expr.symbol.symbol == BuiltinFunctionSymbol.SUB:
+        if name == BuiltinFunctionSymbol.SUB:
             simp_st = (simplify(expr.subterms[0]), simplify(expr.subterms[1]))
             if simp_st[0].is_syntactically_equal(zero(expr.sort)):
                 return -1 * simp_st[1]
@@ -179,7 +181,7 @@ def simplify(expr: Term):
                 return simp_st[0]
             expr.subterms = simp_st
             return expr
-        if expr.symbol.symbol == BuiltinFunctionSymbol.MUL:
+        if name == BuiltinFunctionSymbol.MUL:
             simp_st = (simplify(expr.subterms[0]), simplify(expr.subterms[1]))
             if simp_st[0].is_syntactically_equal(zero(expr.sort)):
                 return zero(expr.sort)
@@ -191,7 +193,7 @@ def simplify(expr: Term):
                 return simp_st[0]
             expr.subterms = simp_st
             return expr
-        if expr.symbol.symbol == BuiltinFunctionSymbol.DIV:
+        if name == BuiltinFunctionSymbol.DIV:
             simp_st = (simplify(expr.subterms[0]), simplify(expr.subterms[1]))
             if simp_st[0].is_syntactically_equal(zero(expr.sort)):
                 return zero(expr.sort)
@@ -202,7 +204,7 @@ def simplify(expr: Term):
                 return simp_st[0]
             expr.subterms = simp_st
             return expr
-        if expr.symbol.symbol == BuiltinFunctionSymbol.EXP:
+        if name == BuiltinFunctionSymbol.EXP:
             simp_st = simplify(expr.subterms[0])
             if simp_st.is_syntactically_equal(zero(expr.sort)):
                 return one(expr.sort)

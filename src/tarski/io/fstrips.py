@@ -224,7 +224,7 @@ class FstripsWriter:
                 continue  # Don't declare builtin elements
             domain_str = build_signature_string(fun.domain)
             codomain_str = tarsky_to_pddl_type(fun.codomain)
-            res.append("({} {}) - {}".format(fun.symbol, domain_str, codomain_str))
+            res.append("({} {}) - {}".format(fun.name, domain_str, codomain_str))
         return ("\n" + _TAB * 2).join(res)
 
     def get_predicates(self):
@@ -233,7 +233,7 @@ class FstripsWriter:
             if fun.builtin:
                 continue  # Don't declare builtin elements
             domain_str = build_signature_string(fun.sort)
-            res.append("({} {})".format(fun.symbol, domain_str))
+            res.append("({} {})".format(fun.name, domain_str))
         return ("\n" + _TAB * 2).join(res)
 
     def get_actions(self):
@@ -253,7 +253,7 @@ class FstripsWriter:
 
     def get_derived(self, d):
         return derived_tpl.format(
-            name=d.predicate.symbol,
+            name=d.predicate.name,
             parameters=print_variable_list(d.parameters),
             formula=print_formula(d.formula))
 
@@ -266,7 +266,7 @@ def build_signature_string(domain):
 
 
 def print_variable_list(parameters):
-    return " ".join("?{} - {}".format(p.symbol, p.sort.name) for p in parameters)
+    return " ".join("?{} - {}".format(p.name, p.sort.name) for p in parameters)
 
 
 def print_formula(formula, indentation=0):
@@ -328,9 +328,9 @@ def print_effect(eff, indentation=0):
 def print_term(term):
     assert isinstance(term, Term)
     if isinstance(term, Variable):
-        return "?{}".format(term.symbol)
+        return "?{}".format(term.name)
     elif isinstance(term, CompoundTerm):
-        return "({} {})".format(term.symbol.symbol, print_term_list(term.subterms))
+        return "({} {})".format(term.symbol.name, print_term_list(term.subterms))
     elif isinstance(term, Constant):
         return "{}".format(term.symbol)
     raise RuntimeError("Unexpected element type: {}".format(term))
@@ -338,7 +338,7 @@ def print_term(term):
 
 def print_atom(atom):
     assert isinstance(atom, Atom)
-    return "({} {})".format(atom.predicate.symbol, print_term_list(atom.subterms))
+    return "({} {})".format(atom.predicate.name, print_term_list(atom.subterms))
 
 
 def print_term_list(terms):

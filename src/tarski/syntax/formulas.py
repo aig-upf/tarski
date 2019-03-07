@@ -234,7 +234,7 @@ class Atom(Formula):
         return hash(str(self))
 
     def __str__(self):
-        return '{}({})'.format(self.predicate.symbol, ','.join([str(t) for t in self.subterms]))
+        return '{}({})'.format(self.predicate.name, ','.join([str(t) for t in self.subterms]))
 
     def is_syntactically_equal(self, other):
         if (self.__class__ is not other.__class__ or
@@ -253,13 +253,13 @@ class VariableBinding:
     def __init__(self, variables=None):
         variables = variables or []
         # An (ordered) map between variable name and the variable itself:
-        self.variables = OrderedDict((v.symbol, v) for v in variables)
+        self.variables = OrderedDict((v.name, v) for v in variables)
 
     def add(self, variable: Variable):
-        other = self.variables.get(variable.symbol, None)
+        other = self.variables.get(variable.name, None)
         if other is not None:
             raise err.DuplicateVariableDefinition(variable, other)
-        self.variables[variable.symbol] = variable
+        self.variables[variable.name] = variable
 
     def get(self, name):
         var = self.variables.get(name, None)

@@ -3,25 +3,24 @@
 """
 
 from .sorts import Sort
-from .terms import CompoundTerm
 from ..errors import LanguageError, LanguageMismatch
 
 
 class Symbol:
     """ A symbol is defined by its name (a string) and its sort """
-    def __init__(self, symbol, language, *args):
+    def __init__(self, name, language, *args):
         """ Construct a new symbol with given name, pertaining to the given language, and with sort given by
         the tuple of Sort objects in *args
         """
-        _validate_expression_arguments(language, symbol, args)
-        self.symbol = symbol
+        _validate_expression_arguments(language, name, args)
+        self.name = name
         self.language = language
         self.sort = tuple(args)
         self.builtin = False  # By default we assume that the symbol is not built-in
 
     @property
     def signature(self):
-        return tuple([self.symbol] + self.sort_names())
+        return tuple([self.name] + self.sort_names())
 
     @property
     def arity(self):
@@ -40,30 +39,30 @@ class Symbol:
         return len(self.sort)
 
     def __str__(self):
-        return "{}/{}".format(self.symbol, self.arity)
+        return "{}/{}".format(self.name, self.arity)
 
     __repr__ = __str__
 
 
 class PredicateSymbol(Symbol):
-    def __init__(self, symbol, language, *args):
-        super().__init__(symbol, language, *args)
+    def __init__(self, name, language, *args):
+        super().__init__(name, language, *args)
 
     @property
     def arity(self):
         return self.uniform_arity()
 
     def dump(self):
-        return dict(symbol=self.symbol, sort=[a.name for a in self.sort])
+        return dict(symbol=self.name, sort=[a.name for a in self.sort])
 
     def __call__(self, *args):
-        from .formulas import Atom  # Place import here to avoid cyclic reference. TODO Place elsewhere
+        from .formulas import Atom  # import placed here to avoid cyclic reference.
         return Atom(self, args)
 
 
 class FunctionSymbol(Symbol):
-    def __init__(self, symbol, language, *args):
-        super().__init__(symbol, language, *args)
+    def __init__(self, name, language, *args):
+        super().__init__(name, language, *args)
 
     @property
     def domain(self):
@@ -78,9 +77,10 @@ class FunctionSymbol(Symbol):
         return len(self.sort) - 1  # The arity of a function does not count its codomain
 
     def dump(self):
-        return dict(symbol=self.symbol, domain=[a.name for a in self.domain], codomain=self.codomain.name)
+        return dict(symbol=self.name, domain=[a.name for a in self.domain], codomain=self.codomain.name)
 
     def __call__(self, *args):
+        from .terms import CompoundTerm  # import placed here to avoid cyclic reference.
         return CompoundTerm(self, args)
 
 

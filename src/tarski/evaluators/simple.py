@@ -116,7 +116,7 @@ def evaluate_builtin_predicate(atom, model, sigma):
         bip.GE: lambda f, m, s: evaluate(f.subterms[0], m, s).symbol >= evaluate(f.subterms[1], m, s).symbol,
     }
 
-    return _evaluators[atom.predicate.symbol](atom, model, sigma)
+    return _evaluators[atom.predicate.name](atom, model, sigma)
 
 
 def symbolic_matrix_multiplication(lhs: Matrix, rhs: Matrix):
@@ -162,7 +162,7 @@ def evaluate_builtin_function(term, model, sigma):
         bif.GAMMA: lambda f, m, s: ae2(funcsym.impl[bif.GAMMA.value], f.subterms[0], f.subterms[1], m, s),
     }
 
-    return _evaluators[term.symbol.symbol](term, model, sigma)
+    return _evaluators[term.symbol.name](term, model, sigma)
 
 
 def _arithmetic_evaluator_1(operation, expr, model, sigma):

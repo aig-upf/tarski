@@ -6,10 +6,10 @@
 import itertools
 import copy
 
+from ...syntax import Atom, CompoundTerm, Symbol
 from ...util import IndexDictionary, DuplicateElementError
 from ... import Variable, Constant
 from ...syntax.transform.subst import TermSubstitution
-
 from ..errors import UnableToGroundError
 
 
@@ -20,27 +20,26 @@ class StateVariable:
     """
 
     def __init__(self, term, instantiation):
+        assert isinstance(term, (Atom, CompoundTerm))
         self.term = term
-        try:
-            self.head = term.predicate
-        except AttributeError:
-            self.head = term.symbol
+        self.head = term.predicate if isinstance(term, Atom) else term.symbol
+        assert isinstance(self.head, Symbol)
         self.instantiation = instantiation
 
     def __hash__(self):
         if len(self.instantiation) == 0:
-            return hash(self.head.symbol)
+            return hash(self.head.name)
         accum = hash(self.instantiation[0])
         for k in range(1, len(self.instantiation)):
             accum = accum ^ hash(self.instantiation[k])
-        return hash(self.head.symbol) ^ accum
+        return hash(self.head.name) ^ accum
 
     def __eq__(self, other):
-        return self.head.symbol == other.head.symbol \
+        return self.head == other.head \
                and all(lhs.symbol == rhs.symbol for lhs, rhs, in zip(self.instantiation, other.instantiation))
 
     def __str__(self):
-        return '{}({})'.format(self.head.symbol, ','.join([str(a) for a in self.instantiation]))
+        return '{}({})'.format(self.head.name, ','.join([str(a) for a in self.instantiation]))
 
     @property
     def ground(self):

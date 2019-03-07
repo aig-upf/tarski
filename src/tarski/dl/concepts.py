@@ -13,7 +13,7 @@ class NullaryAtom:
     def __init__(self, predicate):
         assert isinstance(predicate, PredicateSymbol)
         _check_arity("nullary atom", 0, predicate)
-        self.name = predicate.symbol
+        self.name = predicate.name
         self.depth = 0
         self.hash = consistent_hash((self.__class__, self.name))
 
@@ -148,7 +148,7 @@ class PrimitiveConcept(Concept):
         if isinstance(predicate, (PredicateSymbol, FunctionSymbol)):
             _check_arity("concept", 1, predicate)
             Concept.__init__(self, predicate.sort[0].name, 1)
-            self.name = predicate.symbol  # This is a bit aggressive, but we assume that uniqueness of names
+            self.name = predicate.name  # This is a bit aggressive, but we assume that uniqueness of names
 
         else:
             Concept.__init__(self, predicate.name, 1)
@@ -385,7 +385,7 @@ class PrimitiveRole(Role):
         _check_arity("role", 2, predicate)
 
         super().__init__([s.name for s in predicate.sort], 1)
-        self.name = predicate.symbol
+        self.name = predicate.name
 
         # This is a bit aggressive, but we assume that predicate names are unique
         self.hash = consistent_hash((self.__class__, self.name))

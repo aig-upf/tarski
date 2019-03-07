@@ -25,17 +25,17 @@ class PrenexTransformation:
     def _merge_quantified_subformulas(self, lhs, rhs, renaming=True):
         assert isinstance(lhs, QuantifiedFormula)
         assert isinstance(rhs, QuantifiedFormula)
-        new_variables = {(x.symbol, x.sort.name): x for x in lhs.variables}
+        new_variables = {(x.name, x.sort.name): x for x in lhs.variables}
         subst = {}
         for y in rhs.variables:
-            key_y = (y.symbol, y.sort.name)
+            key_y = (y.name, y.sort.name)
             if key_y not in new_variables:
                 new_variables[key_y] = y
             else:
                 if renaming:
-                    y2 = self.L.variable("{}'".format(y.symbol), y.sort)
+                    y2 = self.L.variable("{}'".format(y.name), y.sort)
                     subst[y] = y2
-                    new_variables[(y2.symbol, y2.sort.name)] = y2
+                    new_variables[(y2.name, y2.sort.name)] = y2
         if len(subst) > 0:
             substitution = TermSubstitution(self.L, subst)
             rhs.formula.accept(substitution)
@@ -47,15 +47,15 @@ class PrenexTransformation:
             Note that out_phi is either lhs or rhs, we have the parameter duplicated so we
             can preserve the ordering of subformulas
         """
-        in_vars_dict = {(x.symbol, x.sort.name): x for x in inner_vars}
+        in_vars_dict = {(x.name, x.sort.name): x for x in inner_vars}
         new_out_vars = []
         subst = {}
         for y in out_vars:
-            key_y = (y.symbol, y.sort.name)
+            key_y = (y.name, y.sort.name)
             if key_y not in in_vars_dict:
                 new_out_vars.append(y)
             else:
-                y2 = self.L.variable("{}'".format(y.symbol), y.sort)
+                y2 = self.L.variable("{}'".format(y.name), y.sort)
                 subst[y] = y2
                 new_out_vars.append(y2)
         if len(subst) > 0:

@@ -31,7 +31,7 @@ class NegatedBuiltinAbsorption:
                 if isinstance(p, Atom):
                     if p.predicate.builtin:
                         try:
-                            c = p.predicate.symbol.complement()
+                            c = p.predicate.name.complement()
                             return create_atom(self.lang, c, p.subterms[0], p.subterms[1])
                         except (AttributeError, KeyError):
                             pass
@@ -39,9 +39,7 @@ class NegatedBuiltinAbsorption:
 
             else:
                 assert phi.connective == Connective.And or phi.connective == Connective.Or
-                new_sub = [self._convert(phi.subformulas[0]),
-                           self._convert(phi.subformulas[1])]
-                phi.subformulas = tuple(new_sub)
+                phi.subformulas = tuple(self._convert(x) for x in phi.subformulas)
                 return phi
         elif isinstance(phi, QuantifiedFormula):
             phi.formula = self._convert(phi.formula)

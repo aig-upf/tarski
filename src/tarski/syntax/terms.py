@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from typing import Tuple
+
+from .symbols import FunctionSymbol
 from .sorts import Sort, parent
 from .. import errors as err
 from .builtins import BuiltinPredicateSymbol, BuiltinFunctionSymbol
@@ -116,8 +118,9 @@ class Term:
 
 class Variable(Term):
 
-    def __init__(self, symbol: str, sort: Sort):
-        self.symbol = symbol
+    def __init__(self, name: str, sort: Sort):
+        assert isinstance(name, str)
+        self.name = name
         self._sort = sort
         self.sort.language.language_components_frozen = True
         # TODO VALIDATE
@@ -131,15 +134,15 @@ class Variable(Term):
         return self._sort
 
     def __str__(self):
-        return '{}/{}'.format(self.symbol, self.sort.name)
+        return '{}/{}'.format(self.name, self.sort.name)
 
     __repr__ = __str__
 
     def __hash__(self):
-        return hash((self.symbol, self.sort.name))
+        return hash((self.name, self.sort.name))
 
     def is_syntactically_equal(self, other):
-        return self.__class__ is other.__class__ and self.symbol == other.symbol and self.sort.name == other.sort.name
+        return self.__class__ is other.__class__ and self.name == other.name and self.sort.name == other.sort.name
 
 
 class CompoundTerm(Term):
@@ -150,7 +153,7 @@ class CompoundTerm(Term):
     """
 
     def __init__(self, symbol, subterms: Tuple[Term]):
-
+        assert isinstance(symbol, FunctionSymbol)
         self.symbol = symbol
 
         if len(subterms) != self.symbol.arity:
@@ -180,12 +183,12 @@ class CompoundTerm(Term):
         return self.symbol.codomain
 
     def __str__(self):
-        return '{}({})'.format(self.symbol.symbol, ', '.join([str(t) for t in self.subterms]))
+        return '{}({})'.format(self.symbol.name, ', '.join([str(t) for t in self.subterms]))
 
     __repr__ = __str__
 
     def __hash__(self):
-        return hash((self.symbol.symbol, tuple(x for x in self.subterms)))
+        return hash((self.symbol, tuple(x for x in self.subterms)))
 
     def is_syntactically_equal(self, other):
         if (self.__class__ is not other.__class__ or self.symbol != other.symbol
@@ -223,14 +226,14 @@ class AggregateCompoundTerm(Term):
     __repr__ = __str__
 
     def __hash__(self):
-        return hash((self.symbol.symbol, self.subterms))
+        return hash((self.symbol, self.subterm))
 
     def is_syntactically_equal(self, other):
         if (self.__class__ is not other.__class__ or self.symbol != other.symbol
                 or len(self.bound_vars) != len(other.bound_vars)):
             return False
 
-        return all(x.is_syntactically_equal(y) for x, y in zip(self.bound_vars, other.bound_vars)) \
+        return all(x.is_syntactically_equal(y) for x, y in zip(self.bound_vars, other.bound_vars))\
                and self.subterm.is_syntactically_equal(other.subterm)
 
 
@@ -294,8 +297,10 @@ class IfThenElse(Term):
 def ite(c, t1, t2):
     return IfThenElse(c, (t1, t2))
 
+
 class Constant(Term):
     def __init__(self, symbol, sort: Sort):
+        assert isinstance(symbol, (str, int, float))
         self.symbol = symbol
         self._sort = sort
         # symbol validation

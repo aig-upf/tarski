@@ -599,38 +599,40 @@ class Writer(object):
         return '\n'.join(init_list)
 
     def rewrite(self, expr):
-        if expr is None: return '0.0'
+        if expr is None:
+            return '0.0'
         if isinstance(expr, CompoundTerm):
+            name = expr.symbol.name
             re_st = [self.rewrite(st) for st in expr.subterms]
             if expr.symbol.builtin:
-                if expr.symbol.symbol in symbol_map.keys():
-                    return '({} {} {})'.format(re_st[0], symbol_map[expr.symbol.symbol], re_st[1])
+                if name in symbol_map.keys():
+                    return '({} {} {})'.format(re_st[0], symbol_map[name], re_st[1])
             st_str = ''
             if expr.symbol.builtin:
-                if expr.symbol.symbol in function_map.keys():
+                if name in function_map.keys():
                     if len(re_st) > 0:
                         # MRJ: Random variables need parenthesis, other functions need
                         # brackets...
-                        if expr.symbol.symbol in get_random_binary_functions():
+                        if name in get_random_binary_functions():
                             st_str = '({})'.format(','.join(re_st))
                         else:
                             st_str = '[{}]'.format(','.join(re_st))
-                    return '{}{}'.format(function_map[expr.symbol.symbol], st_str)
+                    return '{}{}'.format(function_map[name], st_str)
             if len(re_st) > 0:
                 st_str = '({})'.format(','.join(re_st))
             return '{}{}'.format(expr.symbol.signature[0], st_str)
         elif isinstance(expr, Atom):
             re_st = [self.rewrite(st) for st in expr.subterms]
             if expr.predicate.builtin:
-                if expr.predicate.symbol in symbol_map.keys():
-                    return '({} {} {})'.format(re_st[0], symbol_map[expr.predicate.symbol], re_st[1])
+                if expr.predicate.name in symbol_map.keys():
+                    return '({} {} {})'.format(re_st[0], symbol_map[expr.predicate.name], re_st[1])
             st_str = ''
             if len(re_st) > 0:
                 st_str = '({})'.format(','.join(re_st))
             return '{}{}'.format(expr.predicate.signature[0], st_str)
         elif isinstance(expr, Variable):
             # remove ? just in case
-            return '?{}'.format(expr.symbol.replace('?', ''))
+            return '?{}'.format(expr.name.replace('?', ''))
         elif isinstance(expr, Constant):
             return str(expr)
         elif isinstance(expr, IfThenElse):
@@ -650,12 +652,12 @@ class Writer(object):
             return '({} {} {})'.format(re_sf[0], re_sym, re_sf[1])
         elif isinstance(expr, QuantifiedFormula):
             re_f = self.rewrite(expr.formula)
-            re_vars = ['?{} : {}'.format(x.symbol, x.sort.name) for x in expr.variables]
+            re_vars = ['?{} : {}'.format(x.name, x.sort.name) for x in expr.variables]
             re_sym = symbol_map[expr.quantifier]
             return '{}_{{{}}} ({})'.format(re_sym, ','.join(re_vars), re_f)
         elif isinstance(expr, AggregateCompoundTerm):
             re_expr = self.rewrite(expr.subterm)
-            re_vars = ['?{} : {}'.format(x.symbol, x.sort.name) for x in expr.bound_vars]
+            re_vars = ['?{} : {}'.format(x.name, x.sort.name) for x in expr.bound_vars]
             if expr.symbol == BFS.ADD:
                 re_sym = 'sum'
             elif expr.symbol == BFS.MUL:
@@ -673,7 +675,7 @@ class Writer(object):
             for st in fl.subterms:
                 if isinstance(st, Variable):
                     # remove any ? from symbol just in case
-                    subterms_str += ['?{}'.format(st.symbol.replace('?', ''))]
+                    subterms_str += ['?{}'.format(st.name.replace('?', ''))]
                 else:
                     subterms_str += [str(st)]
             subterms_str = '({})'.format(','.join(subterms_str))
