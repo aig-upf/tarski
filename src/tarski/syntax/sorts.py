@@ -102,28 +102,6 @@ class Interval(Sort):
             return False
         return self.is_within_bounds(y)
 
-    def _downcast(self, x):
-        """ Check whether the given value belongs to the current sort _or_ can be downcasted to it.
-        e.g. Integer.downcast(1.0) would return 1; whereas Integer.downcast(1.4) would return None. """
-        # TODO (GFM) - Not sure we need this, and not sure whether the method works as it is
-        # TODO (GFM) - If noone is using this we should remove it soon
-        if self.contains(x):
-            return self.encode(x)
-
-        # Downcasting Python literals from their type to a subtype (i.e. Real to Integer) works
-        # whenever the resulting instance of the subtype belongs
-        # to the domain *and* Python equality over the subtype instance and the
-        # supertype instance returns true.
-        p = parent(self)
-        while p is not None:
-            try:
-                z = p.cast(x)
-            except ValueError:
-                raise err.LanguageError()
-            if z is not None and x != z:
-                return None
-            p = parent(p)
-
     def dump(self):
         return dict(name=self.name, domain=[self.lower_bound, self.upper_bound])
 

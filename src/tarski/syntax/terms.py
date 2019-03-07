@@ -106,7 +106,6 @@ class Variable(Term):
         self.name = name
         self._sort = sort
         self.sort.language.language_components_frozen = True
-        # TODO VALIDATE
 
     @property
     def language(self):
@@ -174,12 +173,10 @@ class CompoundTerm(Term):
         return hash((self.head, tuple(x for x in self.subterms)))
 
     def is_syntactically_equal(self, other):
-        if (self.__class__ is not other.__class__ or self.head != other.head
-                or len(self.subterms) != len(other.subterms)):
-            return False
-
-        # Else we just need to recursively check if all subterms are syntactically equal
-        return all(x.is_syntactically_equal(y) for x, y in zip(self.subterms, other.subterms))
+        # Check that head is the same and recursively that all subterms are syntactically equal
+        return (self.__class__ is other.__class__ and self.head == other.head
+                and len(self.subterms) != len(other.subterms)
+                and all(x.is_syntactically_equal(y) for x, y in zip(self.subterms, other.subterms)))
 
 
 class AggregateCompoundTerm(Term):
@@ -216,8 +213,8 @@ class AggregateCompoundTerm(Term):
                 or len(self.bound_vars) != len(other.bound_vars)):
             return False
 
-        return all(x.is_syntactically_equal(y) for x, y in zip(self.bound_vars, other.bound_vars))\
-               and self.subterm.is_syntactically_equal(other.subterm)
+        return (all(x.is_syntactically_equal(y) for x, y in zip(self.bound_vars, other.bound_vars))
+                and self.subterm.is_syntactically_equal(other.subterm))
 
 
 class IfThenElse(Term):
