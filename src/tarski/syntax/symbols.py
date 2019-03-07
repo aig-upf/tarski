@@ -2,6 +2,7 @@
     First-order symbols, which can be either predicate symbols or function symbols.
 """
 
+from .builtins import BuiltinPredicateSymbol, BuiltinFunctionSymbol
 from .sorts import Sort
 from ..errors import LanguageError, LanguageMismatch
 
@@ -85,6 +86,7 @@ class FunctionSymbol(Symbol):
 
 
 def _validate_expression_arguments(language, name, sort):
+    assert isinstance(name, (str, BuiltinPredicateSymbol, BuiltinFunctionSymbol))
     for k, a in enumerate(sort, start=1):
         if not isinstance(a, Sort):
             raise LanguageError('Argument #{} ("{}") of expression "{}" is of type "{}" instead of Sort'.format(

@@ -1,7 +1,7 @@
 # * coding: utf8 *
 from collections import OrderedDict
 from enum import Enum
-from typing import List
+from typing import Sequence
 
 from .. import errors as err
 from .terms import Variable, Term
@@ -104,7 +104,7 @@ class CompoundFormula(Formula):
 
 
 class QuantifiedFormula(Formula):
-    def __init__(self, quantifier: Quantifier, variables: List[Variable], formula: Formula):
+    def __init__(self, quantifier: Quantifier, variables: Sequence[Variable], formula: Formula):
         self.quantifier = quantifier
         self.variables = variables
         self.formula = formula
@@ -270,4 +270,3 @@ class VariableBinding:
     def merge(self, binding):
         """ Merge the given binding into the current binding, inplace """
         raise NotImplementedError()
-
