@@ -89,23 +89,6 @@ class Term:
     def __mod__(self, rhs):
         return self.language.dispatch_operator(BuiltinFunctionSymbol.MOD, Term, Term, self, rhs)
 
-    # TODO - THE OPERATORS BELOW PROBABLY NEED TO BE REFACTORED
-
-    def __floordiv__(self, rhs):
-        return self.language.dispatch_operator('//', Term, Term, self, rhs)
-
-    def __divmod__(self, rhs):
-        return self.language.dispatch_operator('divmod', Term, Term, self, rhs)
-
-    def __and__(self, rhs):
-        return self.language.dispatch_operator('&', Term, Term, self, rhs)
-
-    def __xor__(self, rhs):
-        return self.language.dispatch_operator('^', Term, Term, self, rhs)
-
-    def __or__(self, rhs):
-        return self.language.dispatch_operator('|', Term, Term, self, rhs)
-
     def accept(self, visitor):
         """ Visitor pattern """
         visitor.visit(self)
