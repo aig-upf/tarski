@@ -89,11 +89,6 @@ class Interval(Sort):
     def cast(self, x):
         """ Casts the given value as an element of the current domain,
         or raise ValueError if it does not belong to it """
-        # if isinstance(x, str):
-        #     try:
-        #         return getattr(self, x)  # TODO: WHAT IS THIS?? ANSWER: MADNESS
-        #     except AttributeError:
-        #         pass
         y = self.encode(x)  # can raise ValueError
         if not self.is_within_bounds(y):
             raise ValueError("Cast: Symbol '{}' (encoded '{}') outside of defined interval bounds".format(x, y))
