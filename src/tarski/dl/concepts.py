@@ -1,7 +1,7 @@
 """
 
 """
-from ..syntax import Predicate, Function, Sort
+from ..syntax import Sort, FunctionSymbol, PredicateSymbol
 from ..utils.algorithms import transitive_closure
 from ..utils.hashing import consistent_hash
 from .errors import ArityDLMismatch
@@ -11,7 +11,7 @@ class NullaryAtom:
     ARITY = 0
 
     def __init__(self, predicate):
-        assert isinstance(predicate, Predicate)
+        assert isinstance(predicate, PredicateSymbol)
         _check_arity("nullary atom", 0, predicate)
         self.name = predicate.symbol
         self.depth = 0
@@ -143,9 +143,9 @@ class NominalConcept(Concept):
 
 class PrimitiveConcept(Concept):
     def __init__(self, predicate):
-        assert isinstance(predicate, (Predicate, Function, Sort))
+        assert isinstance(predicate, (PredicateSymbol, FunctionSymbol, Sort))
 
-        if isinstance(predicate, (Predicate, Function)):
+        if isinstance(predicate, (PredicateSymbol, FunctionSymbol)):
             _check_arity("concept", 1, predicate)
             Concept.__init__(self, predicate.sort[0].name, 1)
             self.name = predicate.symbol  # This is a bit aggressive, but we assume that uniqueness of names
@@ -381,7 +381,7 @@ class EqualConcept(Concept):
 
 class PrimitiveRole(Role):
     def __init__(self, predicate):
-        assert isinstance(predicate, (Predicate, Function))
+        assert isinstance(predicate, (PredicateSymbol, FunctionSymbol))
         _check_arity("role", 2, predicate)
 
         super().__init__([s.name for s in predicate.sort], 1)

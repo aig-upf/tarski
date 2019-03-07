@@ -2,9 +2,8 @@
 from collections import defaultdict
 
 from . import errors as err
-from .syntax import Function, Constant, CompoundTerm
-from tarski.syntax import symref
-from .syntax.predicate import Predicate
+from .syntax import Constant, CompoundTerm
+from .syntax import symref, FunctionSymbol, PredicateSymbol
 
 
 def _check_assignment(fun, point, value=None):
@@ -51,7 +50,7 @@ class Model:
         self.predicate_extensions = defaultdict(set)
 
     def setx(self, t: CompoundTerm, value: Constant):
-        if not isinstance(t.symbol, Function):
+        if not isinstance(t.symbol, FunctionSymbol):
             raise err.SemanticError("Model.set() can only set the value of functions")
         if t.symbol.builtin:
             raise err.SemanticError("Model.set() cannot redefine builtin symbols like '{}'".format(str(t.symbol)))
@@ -72,7 +71,7 @@ class Model:
         """ Set the value of fucntion 'fun' at point 'point' to be equal to 'value'
             'point' needs to be a tuple of constants, and value a single constant.
         """
-        if not isinstance(fun, Function):
+        if not isinstance(fun, FunctionSymbol):
             raise err.SemanticError("Model.set() can only set the value of functions")
         point, value = args[:-1], args[-1]
         point, value = _check_assignment(fun, point, value)
@@ -85,21 +84,21 @@ class Model:
 
         definition.set(point, value)
 
-    def add(self, predicate: Predicate, *args):
-        if not isinstance(predicate, Predicate):
+    def add(self, predicate: PredicateSymbol, *args):
+        if not isinstance(predicate, PredicateSymbol):
             raise err.SemanticError("Model.add() can only set the value of predicates")
         point = _check_assignment(predicate, args)
         self.predicate_extensions[predicate.signature].add(wrap_tuple(point))
 
-    def remove(self, predicate: Predicate, *args):
+    def remove(self, predicate: PredicateSymbol, *args):
         self.predicate_extensions[predicate.signature].remove(wrap_tuple(args))
 
-    def value(self, fun: Function, point):
+    def value(self, fun: FunctionSymbol, point):
         """ Return the value of the given function on the given point in the current model """
         definition = self.function_extensions[fun.signature]
         return definition.get(point)
 
-    def holds(self, predicate: Predicate, point):
+    def holds(self, predicate: PredicateSymbol, point):
         """ Return true iff the given predicate is true on the given point in the current model """
         # return tuple(c.symbol for c in point) in self.predicate_extensions[predicate.signature]
         return wrap_tuple(point) in self.predicate_extensions[predicate.signature]

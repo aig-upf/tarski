@@ -1,12 +1,13 @@
-import tarski
-from tarski.io import rddl
-from tarski.model import Model
-from tarski.evaluators.simple import evaluate
+
+from ..fol import FirstOrderLanguage
+from ..io.rddl import Parameters
+from ..model import Model
+from ..evaluators.simple import evaluate
 
 
 class Task(object):
 
-    def __init__(self, lang: tarski.FirstOrderLanguage, domain_name: str, instance_name: str):
+    def __init__(self, lang: FirstOrderLanguage, domain_name: str, instance_name: str):
         self.L = lang
         self.state_fluents = []
         self.interm_fluents = []
@@ -15,7 +16,7 @@ class Task(object):
         self.cpfs = []
         self.constraints = []
         self.reward = None
-        self.parameters = rddl.Parameters()
+        self.parameters = Parameters()
         self.domain_name = domain_name
         self.instance_name = instance_name
         self.x0 = Model(self.L)

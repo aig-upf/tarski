@@ -5,7 +5,7 @@ from typing import List
 
 from .. import errors as err
 from .terms import Variable, Term
-from .predicate import Predicate
+from . import PredicateSymbol
 
 
 class Connective(Enum):
@@ -210,7 +210,7 @@ class Atom(Formula):
     def _check_well_formed(self):
         head = self.predicate
 
-        if not isinstance(head, Predicate):
+        if not isinstance(head, PredicateSymbol):
             raise err.LanguageError("Incorrect atom head: '{}' ".format(head))
 
         # Check arities match

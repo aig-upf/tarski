@@ -1,5 +1,5 @@
 
-from tarski.evaluators.simple import evaluate
+from ..evaluators.simple import evaluate
 
 
 class SearchModel:

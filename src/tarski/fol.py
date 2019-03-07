@@ -4,7 +4,7 @@ import itertools
 from collections import defaultdict, OrderedDict
 
 from . import errors as err
-from .syntax import Function, Constant, Variable, Sort, inclusion_closure, Predicate, Interval, sorts
+from .syntax import Constant, Variable, Sort, inclusion_closure, Interval, sorts, PredicateSymbol, FunctionSymbol
 from .syntax.algebra import Matrix
 
 
@@ -37,8 +37,8 @@ class FirstOrderLanguage:
         self._operators = dict()
         self._global_index = dict()
         self._element_containers = {Sort: self._sorts,
-                                    Function: self._functions,
-                                    Predicate: self._predicates}
+                                    FunctionSymbol: self._functions,
+                                    PredicateSymbol: self._predicates}
 
         self.language_components_frozen = False
         self.theories = []
@@ -264,7 +264,7 @@ class FirstOrderLanguage:
         self._check_name_not_defined(name, self._predicates, err.DuplicatePredicateDefinition)
 
         types = [self._retrieve_object(a, Sort) for a in args]  # Convert possible strings into Sort objects
-        predicate = Predicate(name, self, *types)
+        predicate = PredicateSymbol(name, self, *types)
         self._predicates[name] = predicate
         self._global_index[name] = predicate
         # self._predicates_by_sort[(name,) + tuple(*args)] = predicate
@@ -282,7 +282,7 @@ class FirstOrderLanguage:
         self._check_name_not_defined(name, self._functions, err.DuplicateFunctionDefinition)
 
         types = [self._retrieve_object(a, Sort) for a in args]  # Convert possible strings into Sort objects
-        func = Function(name, self, *types)
+        func = FunctionSymbol(name, self, *types)
         self._functions[name] = func
         self._global_index[name] = func
         # self._functions_by_sort[(name,) + tuple(*args)] = func

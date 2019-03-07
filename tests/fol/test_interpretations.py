@@ -457,5 +457,5 @@ def test_matrix_evaluation_case_2():
     x0.setx(x(), 1.0)
     x0.setx(y(), 2.0)
     x0.setx(z(), 3.0)
-    print(x0[I @ v][2, 0])
+    # print(x0[I @ v][2, 0])
     assert x0[I @ v][2, 0].is_syntactically_equal(lang.constant(3.0, lang.Real))

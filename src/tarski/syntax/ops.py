@@ -1,6 +1,6 @@
 from .terms import Term, Constant
 import numpy as np
-from tarski.syntax.algebra import Matrix
+from ..syntax.algebra import Matrix
 
 
 def cast_to_closest_common_ancestor(lhs, rhs):

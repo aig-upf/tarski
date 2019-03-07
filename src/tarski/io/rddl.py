@@ -6,16 +6,16 @@ from enum import Enum
 
 from pyrddl.parser import RDDLParser
 
-import tarski
-from tarski.syntax import *
-import tarski.syntax.arithmetic as tm
-import tarski.syntax.temporal.ltl as tt
-
-from ..syntax.builtins import create_atom, BuiltinPredicateSymbol as BPS, BuiltinFunctionSymbol as BFS
+from ..fol import FirstOrderLanguage
+from ..syntax import *
+from ..syntax.temporal import ltl as tt
+from ..syntax import arithmetic as tm
+from ..syntax.builtins import create_atom, BuiltinPredicateSymbol as BPS, BuiltinFunctionSymbol as BFS, \
+    get_random_binary_functions
 from ..model import Model
 from ..evaluators.simple import evaluate
 from ..errors import LanguageError
-from ..theories import Theory
+from ..theories import Theory, language
 
 _CURRENT_DIR_ = os.path.dirname(os.path.realpath(__file__))
 
@@ -77,9 +77,9 @@ def translate_expression(L, rddl_expr):
         if args is not None:
             for k, arg in enumerate(args):
                 if arg[0] == '?':
-                    if isinstance(tsym, Function):
+                    if isinstance(tsym, FunctionSymbol):
                         targs += [Variable(arg, tsym.domain[k])]
-                    elif isinstance(tsym, Predicate):
+                    elif isinstance(tsym, PredicateSymbol):
                         targs += [Variable(arg, tsym.sort[k])]
                     else:
                         assert False
@@ -88,7 +88,7 @@ def translate_expression(L, rddl_expr):
                 elif isinstance(arg, int):
                     targs += [Constant(arg, L.Integer)]
                 else:
-                    print(arg)
+                    # print(arg)
                     targs += [L.get(arg)]  # named constant?
         return tsym(*targs)
 
@@ -100,16 +100,16 @@ def translate_expression(L, rddl_expr):
         tsym = L.get(rddl_expr.args[0].replace("'", ""))
         if len(rddl_expr.args) == 2 and rddl_expr.args[1] is None:
             if prima_fluent:
-                if not isinstance(tsym, Predicate):
+                if not isinstance(tsym, PredicateSymbol):
                     raise LanguageError("Temporal operator X only defined for predicates!")
                 return tt.X(tsym())
             return tsym()  # 0-ary
         targs = []
         for k, arg in enumerate(rddl_expr.args[1]):
             if arg[0] == '?':
-                if isinstance(tsym, Function):
+                if isinstance(tsym, FunctionSymbol):
                     targs += [Variable(arg, tsym.domain[k])]
-                elif isinstance(tsym, Predicate):
+                elif isinstance(tsym, PredicateSymbol):
                     targs += [Variable(arg, tsym.sort[k])]
                 else:
                     assert False
@@ -118,10 +118,10 @@ def translate_expression(L, rddl_expr):
             elif isinstance(arg, int):
                 targs += [Constant(arg, L.Integer)]
             else:
-                print(arg)
+                # print(arg)
                 targs += [L.get(arg)]  # named constant?
         if prima_fluent:
-            if not isinstance(tsym, Predicate):
+            if not isinstance(tsym, PredicateSymbol):
                 raise LanguageError("Temporal operator X only defined for predicates!")
             return tt.X(tsym(*targs))
 
@@ -192,7 +192,7 @@ def translate_expression(L, rddl_expr):
             k = Constant(rddl_expr.args, L.Real)
             return k
 
-    print(rddl_expr, expr_type, type(expr_sym))
+    # print(rddl_expr, expr_type, type(expr_sym))
     assert False
 
 
@@ -250,8 +250,8 @@ class Reader(object):
 
     def translate_rddl_model(self):
         # 0. create language
-        self.language = tarski.language(self.rddl_model.domain.name,
-                                        theories=[Theory.EQUALITY, Theory.ARITHMETIC, Theory.SPECIAL, Theory.RANDOM])
+        self.language = language(self.rddl_model.domain.name,
+                                 theories=[Theory.EQUALITY, Theory.ARITHMETIC, Theory.SPECIAL, Theory.RANDOM])
 
         # 1. create types
         self._translate_types()
@@ -287,11 +287,11 @@ built_in_type_map = {'object': 'Object', 'real': 'Real', 'int': 'Integer'}
 reverse_built_in_type_map = {'Object': 'object', 'Real': 'real', 'Integer': 'int'}
 
 
-def translate_builtin_type(L: tarski.FirstOrderLanguage, name):
+def translate_builtin_type(L: FirstOrderLanguage, name):
     return L.get(built_in_type_map[name])
 
 
-def translate_variable(L: tarski.FirstOrderLanguage, name, term):
+def translate_variable(L: FirstOrderLanguage, name, term):
     name = name.split('/')[0]  # forget about the arity of the symbol
     params = []
     if term.param_types is not None:
@@ -447,7 +447,7 @@ class Writer(object):
         return ', '.join([str(r) for r in self.task.requirements])
 
     def get_types(self):
-        from tarski.syntax.sorts import parent
+        from ..syntax.sorts import parent
         type_decl_list = []
         for S in self.task.L.sorts:
             if S.builtin or S.name == 'object':
@@ -611,7 +611,7 @@ class Writer(object):
                     if len(re_st) > 0:
                         # MRJ: Random variables need parenthesis, other functions need
                         # brackets...
-                        if expr.symbol.symbol in tarski.syntax.builtins.get_random_binary_functions():
+                        if expr.symbol.symbol in get_random_binary_functions():
                             st_str = '({})'.format(','.join(re_st))
                         else:
                             st_str = '[{}]'.format(','.join(re_st))

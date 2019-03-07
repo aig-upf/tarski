@@ -17,5 +17,5 @@ def test_reaction_creation():
     constraint = hybrid.Reaction(lang, 'principle_of_superposition',
                                  [b, d, ftype], top,
                                  fs.FunctionalEffect(a(d, b), summation(ftype, F(ftype, d, b)) / m(b)))
-    print(constraint)
+    # print(constraint)
     assert isinstance(constraint, hybrid.Reaction)
