@@ -175,7 +175,7 @@ class CompoundTerm(Term):
     def is_syntactically_equal(self, other):
         # Check that head is the same and recursively that all subterms are syntactically equal
         return (self.__class__ is other.__class__ and self.head == other.head
-                and len(self.subterms) != len(other.subterms)
+                and len(self.subterms) == len(other.subterms)
                 and all(x.is_syntactically_equal(y) for x, y in zip(self.subterms, other.subterms)))
 
 
