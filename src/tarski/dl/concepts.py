@@ -133,7 +133,7 @@ class NominalConcept(Concept):
         return model.compressed(model.primitive_denotation(self), self.ARITY)
 
     def __repr__(self):
-        return "{{{}}}".format(self.name)
+        return "Nominal({})".format(self.name)
 
     __str__ = __repr__
 
