@@ -254,6 +254,8 @@ class VariableBinding:
         variables = variables or []
         # An (ordered) map between variable name and the variable itself:
         self.variables = OrderedDict((v.symbol, v) for v in variables)
+        self.idx = 0
+        self.v_values = []
 
     def add(self, variable: Variable):
         other = self.variables.get(variable.symbol, None)
@@ -271,3 +273,13 @@ class VariableBinding:
         """ Merge the given binding into the current binding, inplace """
         raise NotImplementedError()
 
+    def __iter__(self):
+        self.v_values = [v for _, v in self.variables.items()]
+        self.idx = 0
+        return self
+
+    def __next__(self):
+        if self.idx == len(self.v_values):
+            raise StopIteration()
+        self.idx += 1
+        return self.v_values[self.idx - 1]
