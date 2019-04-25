@@ -9,13 +9,9 @@ from ..utils.hashing import consistent_hash
 
 
 class FeatureValueChange(Enum):
-    ADD = 1
-    DEL = 2
-    INC = 3
-    DEC = 4
-    NIL = 5
-    INC_OR_NIL = 6
-    ADD_OR_NIL = 7
+    INC = 1
+    DEC = 2
+    NIL = 3
 
 
 class Feature:
@@ -23,7 +19,7 @@ class Feature:
         raise NotImplementedError()
 
     def diff(self, x, y):
-        raise NotImplementedError()
+        return compute_feature_diff(x, y)
 
     def __hash__(self):
         raise NotImplementedError()
@@ -44,34 +40,15 @@ class Feature:
         raise NotImplementedError()
 
 
-def compute_int_feature_diff(x, y):
-    assert type(x) is int and x >= 0
-    assert type(y) is int and y >= 0
+def compute_feature_diff(x, y):
+    assert type(x) in (int, bool) and x >= 0
+    assert type(y) in (int, bool) and y >= 0
     if x == y:
         return FeatureValueChange.NIL
     if x > y:
         return FeatureValueChange.DEC
     else:
         return FeatureValueChange.INC
-
-
-def compute_bool_feature_diff(x, y):
-    assert type(x) is bool
-    assert type(y) is bool
-    if y and not x:
-        return FeatureValueChange.ADD
-    if x and not y:
-        return FeatureValueChange.DEL
-    else:
-        return FeatureValueChange.NIL
-
-
-def are_feature_changes_analogous(x, y):
-    return x == y or \
-           (x == FeatureValueChange.DEL and y == FeatureValueChange.DEC) or \
-           (x == FeatureValueChange.DEC and y == FeatureValueChange.DEL) or \
-           (x == FeatureValueChange.ADD and y == FeatureValueChange.INC) or \
-           (x == FeatureValueChange.INC and y == FeatureValueChange.ADD)
 
 
 class ConceptCardinalityFeature(Feature):
@@ -83,9 +60,6 @@ class ConceptCardinalityFeature(Feature):
 
     def denotation(self, model):
         return model.compressed_denotation(self.c).count()
-
-    def diff(self, x, y):
-        return compute_int_feature_diff(x, y)
 
     def __repr__(self):
         return 'Num[{}]'.format(self.c)
@@ -114,12 +88,7 @@ class EmpiricalBinaryConcept(Feature):
         self.hash = consistent_hash((self.__class__, self.c))
 
     def denotation(self, model):
-        val = model.compressed_denotation(self.c).count()
-        assert val in (0, 1)  # By definition of "empirical binary concept"
-        return bool(val)
-
-    def diff(self, x, y):
-        return compute_bool_feature_diff(x, y)
+        return model.compressed_denotation(self.c).count()
 
     def __repr__(self):
         return 'Bool[{}]'.format(self.c)
@@ -156,9 +125,6 @@ class EmpiricalBinaryConcept(Feature):
 #         raise RuntimeError("Unimplemented")
 #         # ext = self.c.extension(cache, state)
 #         # return ext.count()
-#
-#     def diff(self, x, y):
-#         return compute_int_feature_diff(x, y)
 #
 #     def __repr__(self):
 #         return 'int[{}]'.format(self.fun(*self.point))
@@ -205,9 +171,6 @@ class MinDistanceFeature(Feature):
 
         return compute_min_distance(ext_c1, ext_r, ext_c2)
 
-    def diff(self, x, y):
-        return compute_int_feature_diff(x, y)
-
     def __repr__(self):
         return 'Dist[{}, {}, {}]'.format(self.c1, self.r, self.c2)
 
@@ -225,11 +188,7 @@ class NullaryAtomFeature(Feature):
 
     def denotation(self, model):
         """ The feature evaluates to true iff the nullary atom is true in the given state """
-        # return self.atom.extension(cache, state)
         return model.primitive_denotation(self.atom)
-
-    def diff(self, x, y):
-        return compute_bool_feature_diff(x, y)
 
     def __repr__(self):
         return 'Atom[{}]'.format(self.atom)
