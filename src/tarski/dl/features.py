@@ -172,7 +172,7 @@ class MinDistanceFeature(Feature):
         return compute_min_distance(ext_c1, ext_r, ext_c2)
 
     def __repr__(self):
-        return 'Dist[{}, {}, {}]'.format(self.c1, self.r, self.c2)
+        return 'Dist[{};{};{}]'.format(self.c1, self.r, self.c2)
 
     __str__ = __repr__
 
