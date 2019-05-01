@@ -1,6 +1,7 @@
 """
 
 """
+import sys
 from enum import Enum
 
 from .concepts import Concept, Role, NullaryAtom
@@ -204,3 +205,32 @@ class NullaryAtomFeature(Feature):
 
     def complexity(self):
         return 1
+
+
+class ConditionalFeature(Feature):
+    def __init__(self, condition, body):
+        assert isinstance(condition, Feature)
+        assert isinstance(body, Feature)
+        self.condition = condition
+        self.body = body
+        self.hash = consistent_hash((self.__class__, condition, body))
+
+    def denotation(self, model):
+        """ The feature evaluates to self.value if self.condition is true, else evaluates to infinity """
+        cd = self.condition.denotation(model)
+        return self.body.denotation(model) if cd else sys.maxsize
+
+    def __repr__(self):
+        return "If{" + str(self.condition) + "}{" + str(self.body) + "}{Infty}"
+
+    __str__ = __repr__
+
+    def __hash__(self):
+        return self.hash
+
+    def __eq__(self, other):
+        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
+                self.condition == other.condition and self.body == other.value)
+
+    def complexity(self):
+        return 1 + self.condition.complexity() + self.body.complexity()
