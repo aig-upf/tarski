@@ -21,7 +21,6 @@ def get_symbols(lang, type_="all", include_builtin=True):
 def get_id_from_literal(val):
     """ Return the (string) name of the given constant, if a constant, or the actual value, if it is a literal """
     from . import Constant
-    assert isinstance(val, (Constant, int, float))
     if isinstance(val, Constant):
         return val.symbol
     return val
