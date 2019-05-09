@@ -231,8 +231,9 @@ class Reader(object):
         for typename, parent_type in self.rddl_model.domain.types:
             assert parent_type == 'object'
             self.language.sort(typename, self.language.Object)
-        if not hasattr(self.rddl_model.non_fluents, 'objects') \
-            or self.rddl_model.non_fluents.objects[0] is None: return
+        non_fluents = self.rddl_model.non_fluents
+        if not hasattr(non_fluents, 'objects') or not non_fluents.objects or non_fluents.objects[0] is None:
+            return
         for typename, dom in self.rddl_model.non_fluents.objects:
             for o in dom:
                 self.language.constant(o, self.language.get(typename))
