@@ -281,7 +281,7 @@ def language(name="Unnamed FOL Language", theories=None):
     """ Create an FSTRIPS-oriented First-Order Language.
         This is a standard FOL with a few convenient add-ons.
     """
-    # By default, when defining a FSTRIPS problem we use a FOL with equality
+    # By default, when defining a FSTRIPS problem we use FOL with equality
     theories = theories or [ths.Theory.EQUALITY]
     lang = ths.language(name, theories)
     lang.register_operator_handler("<<", Term, Term, FunctionalEffect)

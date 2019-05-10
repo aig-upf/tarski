@@ -294,6 +294,7 @@ class IfThenElse(Term):
 def ite(c, t1, t2):
     return IfThenElse(c, (t1, t2))
 
+
 class Constant(Term):
     def __init__(self, symbol, sort: Sort):
         self.symbol = symbol

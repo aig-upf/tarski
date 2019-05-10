@@ -50,6 +50,16 @@ def generate_small_fstrips_bw_problem():
     problem = create_fstrips_problem(domain_name='blocksworld', problem_name='test-instance', language=lang)
     b1, b2, b3, clear, loc = lang.get('b1', 'b2', 'b3', 'clear', 'loc')
     problem.goal = (loc(b1) == b2) & (loc(b2) == b3) & (clear(b1))
+    # TODO Create and assign initial state
+    return problem
+
+
+def generate_small_strips_bw_problem():
+    lang = generate_small_strips_bw_language()
+    problem = create_fstrips_problem(domain_name='blocksworld', problem_name='test-instance', language=lang)
+    b1, b2, b3, clear, on = lang.get('b1', 'b2', 'b3', 'clear', 'on')
+    problem.goal = (on(b1, b2)) & (on(b2, b3)) & (clear(b1))
+    # TODO Create and assign initial state
     return problem
 
 

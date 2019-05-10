@@ -22,8 +22,6 @@ class Problem:
         self.derived_ = OrderedDict()
         self.metric_ = None
 
-        # TODO Add state constraints, etc.
-
     @property
     def derived_predicates(self):
         return self.derived_
