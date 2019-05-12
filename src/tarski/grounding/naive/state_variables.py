@@ -6,7 +6,8 @@
 import itertools
 import copy
 
-from ...util import IndexDictionary, DuplicateElementError
+from tarski.errors import DuplicateDefinition
+from ...util import IndexDictionary
 from ... import Variable, Constant
 from ...syntax.transform.subst import TermSubstitution
 
@@ -77,7 +78,7 @@ def create_all_possible_state_variables(fluent_terms):
         for instantiation in itertools.product(*instantiations):
             try:
                 variables.add(StateVariable(ref.expr, instantiation))
-            except DuplicateElementError:
+            except DuplicateDefinition:
                 pass
     return variables
 

@@ -3,9 +3,7 @@
 """
 from collections import OrderedDict
 
-
-class DuplicateElementError(Exception):
-    pass
+from .errors import DuplicateDefinition
 
 
 class IndexDictionary:
@@ -28,7 +26,7 @@ class IndexDictionary:
 
     def add(self, obj):
         if obj in self.data:
-            raise DuplicateElementError("Duplicate element '{}'".format(obj))
+            raise DuplicateDefinition(obj, self.data[obj])
         self.data[obj] = len(self.data)
         self.objects.append(obj)
 
