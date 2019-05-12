@@ -44,4 +44,4 @@ def test_lp_compilation():
 def test_lp_on_bw():
     problem = create_sample_problem()
     lp = create_reachability_lp(problem)
-    assert lp
+    assert lp.nrules() == 31

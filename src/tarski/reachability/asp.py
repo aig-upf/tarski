@@ -75,6 +75,8 @@ class ReachabilityLPCompiler:
         body = self.process_formula(problem.goal)
         lp.rule(self.lp_atom(SOLVABLE), body)
 
+        return lp
+
     def process_formula(self, f: Formula):
         """ Process a given formula and return the corresponding LP rule body, along with declaring in the given LP
         any number of extra rules necessary to ensure equivalence of the body with the truth value of the formula.
