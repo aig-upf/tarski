@@ -12,7 +12,7 @@ def process_expression(language, schema, op, copy_schema=True):
     else:
         g_expr = schema
     g_expr.accept(op)
-    var_collector = CollectVariables(language)
+    var_collector = CollectVariables()
     g_expr.accept(var_collector)
     assert len(var_collector.variables) == 0
     return g_expr
@@ -37,7 +37,7 @@ def process_effect(language, eff_schema, op):
         eff_schema.formula.accept(op)
 
     # MRJ: invariant
-    var_collector = CollectVariables(language)
+    var_collector = CollectVariables()
     if isinstance(eff_schema, fs.AddEffect):
         eff_schema.atom.accept(var_collector)
     elif isinstance(eff_schema, fs.DelEffect):

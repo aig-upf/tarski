@@ -1,6 +1,8 @@
-from .terms import Term, Constant
+
 import numpy as np
-from tarski.syntax.algebra import Matrix
+
+from .visitors import CollectFreeVariables
+from .terms import Term, Constant
 
 
 def cast_to_closest_common_ancestor(lhs, rhs):
@@ -34,3 +36,9 @@ def infer_numeric_sort(value, language):
 def cast_to_number(rhs):
     assert isinstance(rhs, Constant)
     return rhs.symbol
+
+
+def free_variables(formula):
+    visitor = CollectFreeVariables()
+    formula.accept(visitor)
+    return list(visitor.free_variables)

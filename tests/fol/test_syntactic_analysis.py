@@ -1,5 +1,5 @@
 from tarski.syntax import *
-from tarski.syntax.visitors import CollectFreeVariables
+from tarski.syntax.ops import free_variables
 from tests.common import tarskiworld
 
 
@@ -22,6 +22,4 @@ def test_detect_free_variables():
     x = tw.variable('x', tw.Object)
     y = tw.variable('y', tw.Object)
     s = neg(land(tw.Cube(x), exists(y, land(tw.Tet(x), tw.LeftOf(x, y)))))
-    v = CollectFreeVariables(tw)
-    s.accept(v)
-    assert len(list(v.free_variables)) == 1
+    assert len(free_variables(s)) == 1
