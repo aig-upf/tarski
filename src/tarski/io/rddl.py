@@ -88,7 +88,7 @@ def translate_expression(L, rddl_expr):
                 elif isinstance(arg, int):
                     targs += [Constant(arg, L.Integer)]
                 else:
-                    print(arg)
+                    # print(arg)
                     targs += [L.get(arg)]  # named constant?
         return tsym(*targs)
 
@@ -118,7 +118,7 @@ def translate_expression(L, rddl_expr):
             elif isinstance(arg, int):
                 targs += [Constant(arg, L.Integer)]
             else:
-                print(arg)
+                # print(arg)
                 targs += [L.get(arg)]  # named constant?
         if prima_fluent:
             if not isinstance(tsym, Predicate):
@@ -192,7 +192,7 @@ def translate_expression(L, rddl_expr):
             k = Constant(rddl_expr.args, L.Real)
             return k
 
-    print(rddl_expr, expr_type, type(expr_sym))
+    # print(rddl_expr, expr_type, type(expr_sym))
     assert False
 
 
