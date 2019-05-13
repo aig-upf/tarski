@@ -41,7 +41,7 @@ def test_lp_compilation():
     assert str(a1) == "__f1()" and c.lp.nrules() == 1
 
 
-def test_lp_on_bw():
+def test_lp_on_gripper():
     problem = create_sample_problem()
-    lp = create_reachability_lp(problem)
+    lp, _ = create_reachability_lp(problem)
     assert lp.nrules() == 31

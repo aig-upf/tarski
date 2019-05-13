@@ -10,12 +10,14 @@ from ..syntax.sorts import parent
 from ..fstrips import Problem, SingleEffect, UniversalEffect, AddEffect, DelEffect
 
 SOLVABLE = "solvable"
-SUBFORMULA = "_sf"
 
 
 def create_reachability_lp(problem: Problem):
+    """ Return a reachability logic program, along with the symbol translation dictionary used to create it """
     lp = LogicProgram()
-    return ReachabilityLPCompiler(problem, lp).create()
+    compiler = ReachabilityLPCompiler(problem, lp)
+    compiler.create()
+    return lp, compiler.tr
 
 
 class ReachabilityLPCompiler:
@@ -74,8 +76,6 @@ class ReachabilityLPCompiler:
         # Process goal, e.g. "solvable :- on(a,b), on(b,c)." (note that the goal is always ground)
         body = self.process_formula(problem.goal)
         lp.rule(self.lp_atom(SOLVABLE), body)
-
-        return lp
 
     def process_formula(self, f: Formula):
         """ Process a given formula and return the corresponding LP rule body, along with declaring in the given LP
@@ -206,18 +206,23 @@ class Translator:
         """ Translate a given name and keep the translation """
         translated = self.d.get(name, None)
         if translated is None:
-            sanitized = sanitize(name)
-            if name in self.inv or sanitized in self.inv:
+            translated = sanitize(name)
+            if name in self.inv or translated in self.inv:
                 raise RuntimeError('Sanitization of STRIPS name for ASP purposes would create a name clash for key '
                                    '"{}"'.format(name))
 
-            translated = self._insert(name, sanitized)
+            if translated != name:
+                translated = self._insert(name, translated)
         return translated
 
     def _insert(self, k, v):
         self.d[k] = v
         self.inv[v] = k
         return v
+
+    def back(self, name):
+        """ Return the  unnormalized version of the given string, assuming it has been normalized on this translator """
+        return self.inv.get(name, name)
 
 
 class LogicProgram:

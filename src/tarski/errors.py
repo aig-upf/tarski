@@ -133,3 +133,14 @@ class IncorrectExtensionDefinition(SemanticError):
 class UnknownTheory(LanguageError):
     def __init__(self, theory):
         super().__init__('Unknown first-order theory "{}"'.format(theory))
+
+
+class CommandNotFoundError(TarskiError):
+    def __init__(self, name, msg=None):
+        msg = msg or 'Necessary command "{}" could not be found'.format(name)
+        super().__init__(msg)
+
+
+class ExternalCommandError(TarskiError):
+    def __init__(self, msg):
+        super().__init__(msg)

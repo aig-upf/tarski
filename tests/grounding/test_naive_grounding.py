@@ -1,3 +1,4 @@
+
 from tarski import fstrips as fs
 from tarski.grounding.naive import state_variables as sv
 from tarski.grounding.naive import instantiation
@@ -8,9 +9,9 @@ from tarski.grounding.naive.constraints import ConstraintGrounder
 from tarski.grounding.naive.diff_constraints import DifferentialConstraintGrounder
 from tarski.grounding.naive.reactions import ReactionGrounder
 
-from tests.common.blocksworld import create_4blocks_task
-from tests.fstrips.contingent import localize
-from tests.fstrips.hybrid.tasks import create_particles_world, create_billiards_world
+from ..common.blocksworld import create_4blocks_task
+from ..fstrips.contingent import localize
+from ..fstrips.hybrid.tasks import create_particles_world, create_billiards_world
 
 
 def create_small_bw_with_index():
