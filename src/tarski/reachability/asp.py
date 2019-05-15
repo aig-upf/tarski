@@ -3,6 +3,7 @@
 """
 import itertools
 
+from ..syntax.builtins import symbol_complements
 from ..syntax.ops import free_variables
 from ..syntax import Formula, Atom, CompoundFormula, Connective, Term, Variable, Constant, Tautology, Contradiction, \
     BuiltinPredicateSymbol, QuantifiedFormula, symref, Quantifier
@@ -56,7 +57,7 @@ class ReachabilityLPCompiler:
         for _, action in problem.actions.items():
             # Construct the head and part of the body of the action atom, e.g. "move(X, Y) :- object(X), object(Y)"
             # Note that we need to capitalize the parameters of the action schema, as they are LP variables.
-            action_atom = self.lp_atom(action.name, [_capitalize(v.symbol) for v in action.parameters])
+            action_atom = self.lp_atom(action.name, [make_variable_name(v.symbol) for v in action.parameters])
             body = [self.lp_type_atom_from_term(v) for v in action.parameters]
 
             # Add precondition atoms to the body
@@ -105,6 +106,14 @@ class ReachabilityLPCompiler:
                     self.lp.rule(aux, body)
                 return [aux]
 
+            elif f.connective == Connective.Not:
+                assert len(f.subformulas) == 1
+                subf = f.subformulas[0]
+                if not isinstance(subf, Atom):
+                    raise RuntimeError("Negation of compound formulas not yet implemented")
+                processed, = self.process_formula(subf)  # Unpack the length-1 list
+                return [negate_lp_atom(processed)]
+
             else:
                 raise RuntimeError('Unexpected connective "{}" within CompoundFormula "{}"'.format(f.connective, f))
 
@@ -125,7 +134,7 @@ class ReachabilityLPCompiler:
         type "place" will get transformed into a name "From" (capitalized), whereas the constant "b1" of type block will
         get transformed into a name "b1". We assume that the type information is used elsewhere. """
         if isinstance(t, Variable):
-            return _capitalize(t.symbol)  # lp_atom_from_term(t)
+            return make_variable_name(t.symbol)  # lp_atom_from_term(t)
         elif isinstance(t, Constant):
             return t.symbol
 
@@ -154,7 +163,7 @@ class ReachabilityLPCompiler:
         or block(X) for a variable. """
         if not isinstance(t, (Constant, Variable)):
             raise RuntimeError("Rechability logic program not ready for functional terms")
-        name = _capitalize(t.symbol) if isinstance(t, Variable) else _uncapitalize(t.symbol)
+        name = make_variable_name(t.symbol) if isinstance(t, Variable) else _uncapitalize(t.symbol)
         return self.lp_atom(t.sort.name, [name])
 
     def lp_atom(self, symbol, args=None):
@@ -181,6 +190,23 @@ class LPAtom:
         return "{}({})".format(self.symbol, arglist)
 
     __repr__ = __str__
+
+
+def negate_lp_atom(atom: LPAtom):
+    negated = symbol_complements.get(atom.symbol, None)
+    if negated is None:
+        # We must have a non-builtin predicate symbol, hence we use the classical ASP negation symbol "-"
+        assert not atom.infix
+        negated = "-{}".format(negated)
+    else:
+        assert atom.infix
+    return LPAtom(negated, atom.args, atom.infix)
+
+
+def make_variable_name(name: str):
+    if not name[0].isalpha():  # ASP variable names must start with a capital letter
+        name = name[1:]
+    return _capitalize(name)
 
 
 def _capitalize(name: str):

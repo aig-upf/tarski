@@ -2,7 +2,7 @@ from enum import Enum
 
 # MRJ: Table with negated counterparts of builtin predicates. Used
 # by the method ```complement``` of enum class BuiltinPredicateSymbol.
-BuiltinPredicateSymbol_complement = {"=": "!=", "!=": "=", "<": ">=", "<=": ">", ">": "<=", ">=": "<"}
+symbol_complements = {"=": "!=", "!=": "=", "<": ">=", "<=": ">", ">": "<=", ">=": "<"}
 
 
 class BuiltinPredicateSymbol(Enum):
@@ -17,7 +17,7 @@ class BuiltinPredicateSymbol(Enum):
         return self.value.lower()
 
     def complement(self):
-        return BuiltinPredicateSymbol(BuiltinPredicateSymbol_complement[self.value])
+        return BuiltinPredicateSymbol(symbol_complements[self.value])
 
 
 class BuiltinFunctionSymbol(Enum):
