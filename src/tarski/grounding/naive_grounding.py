@@ -126,7 +126,7 @@ class StateVariable:
     __repr__ = __str__
 
 
-class NaiveProblemGrounding:
+class NaiveGroundingStrategy:
     """ A naive problem grounding grounds actions and state variables of a lifted Tarski problem by (type-informed)
     exhaustive enumeration of all possible subsitutions of the representation variables.
     Note: This is a lightweight version of the ProblemGrounding class above, hoping that it can eventually replace it.
@@ -148,7 +148,7 @@ class NaiveProblemGrounding:
         raise NotImplementedError()
 
     def __str__(self):
-        return 'NaiveProblemGrounding["{}"]'.format(self.problem.name)
+        return 'NaiveGroundingStrategy["{}"]'.format(self.problem.name)
 
     __repr__ = __str__
 

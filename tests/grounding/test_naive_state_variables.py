@@ -1,5 +1,5 @@
 
-from tarski.grounding import ProblemGrounding, NaiveProblemGrounding, create_all_possible_state_variables
+from tarski.grounding import ProblemGrounding, NaiveGroundingStrategy, create_all_possible_state_variables
 from tarski.util import IndexDictionary
 
 from tests.common.blocksworld import create_4blocks_task, generate_small_strips_bw_problem, \
@@ -20,7 +20,7 @@ def test_problem_grounding_on_two_domains():
 
     # Test some grounding routines on parcprinter
     problem = parcprinter.create_small_task()
-    grounding = NaiveProblemGrounding(problem)
+    grounding = NaiveGroundingStrategy(problem)
 
     as_list1 = lambda symbols: sorted(s.symbol for s in symbols)
     # ATM we consider the grounding should not be responsible for including / discarding "total-cost"
@@ -42,7 +42,7 @@ def test_problem_grounding_on_two_domains():
 
     # Test some grounding routines on a STRIPS blocksworld
     problem = generate_small_strips_bw_problem()
-    grounding = NaiveProblemGrounding(problem)
+    grounding = NaiveGroundingStrategy(problem)
     assert as_list1(grounding.static_symbols) == []
     assert as_list1(grounding.fluent_symbols) == ['clear', 'handempty', 'holding', 'on', 'ontable']
 
@@ -51,7 +51,7 @@ def test_problem_grounding_on_two_domains():
 
     # Test some grounding routines on a (typed) Functional STRIPS blocksworld
     problem = generate_small_fstrips_bw_problem()
-    grounding = NaiveProblemGrounding(problem)
+    grounding = NaiveGroundingStrategy(problem)
     assert as_list1(grounding.static_symbols) == []
     assert as_list1(grounding.fluent_symbols) == ['clear', 'loc']
 

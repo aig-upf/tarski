@@ -9,7 +9,7 @@ from ..util import IndexDictionary
 from .common import StateVariableLite, approximate_symbol_fluency
 
 
-class LPProblemGrounding:
+class LPGroundingStrategy:
     """ An LP problem grounding grounds actions and state variables of a lifted Tarski problem by creating a relaxed
     reachability logic program, solving it with an ASP solver, and parsing the result.
     """
@@ -51,7 +51,7 @@ class LPProblemGrounding:
         return self.model
 
     def __str__(self):
-        return 'LPProblemGrounding["{}"]'.format(self.problem.name)
+        return 'LPGroundingStrategy["{}"]'.format(self.problem.name)
 
     __repr__ = __str__
 
