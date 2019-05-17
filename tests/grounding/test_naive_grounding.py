@@ -1,6 +1,5 @@
 
-from tarski import fstrips as fs
-from tarski.grounding.naive import state_variables as sv
+from tarski.grounding import ProblemGrounding, create_all_possible_state_variables
 from tarski.grounding.naive import instantiation
 from tarski.util import IndexDictionary
 from tarski.grounding.naive.actions import ActionGrounder
@@ -15,15 +14,15 @@ from ..fstrips.hybrid.tasks import create_particles_world, create_billiards_worl
 
 
 def create_small_bw_with_index():
-    prob = create_4blocks_task()
-    index = fs.TaskIndex(prob.language.name, prob.name)
-    index.process_symbols(prob)
-    index.state_variables = IndexDictionary()
+    problem = create_4blocks_task()
+    grounding = ProblemGrounding(problem)
+    grounding.process_symbols(problem)
+    grounding.state_variables = IndexDictionary()
 
-    for var in sv.create_all_possible_state_variables(index.fluent_terms):
-        index.state_variables.add(var)
+    for var in create_all_possible_state_variables(grounding.fluent_terms):
+        grounding.state_variables.add(var)
 
-    return prob, index
+    return problem, grounding
 
 
 def test_enumeration_of_action_parameters_for_small_bw():
@@ -67,7 +66,7 @@ def test_ground_constraints_for_small_bw():
 
 def test_ground_sensors_for_small_contingent_problem():
     prob = localize.create_small_task()
-    index = fs.TaskIndex(prob.language.name, prob.name)
+    index = ProblemGrounding(prob)
     index.process_symbols(prob)
     index.state_variables = IndexDictionary()
 
@@ -78,7 +77,7 @@ def test_ground_sensors_for_small_contingent_problem():
 
 def test_ground_differential_constraints_for_hybrid_problem():
     prob = create_particles_world()
-    index = fs.TaskIndex(prob.language.name, prob.name)
+    index = ProblemGrounding(prob)
     index.process_symbols(prob)
     index.state_variables = IndexDictionary()
     grounder = DifferentialConstraintGrounder(prob, index)
@@ -88,7 +87,7 @@ def test_ground_differential_constraints_for_hybrid_problem():
 
 def test_ground_reactions_for_hybrid_problem():
     prob = create_billiards_world()
-    index = fs.TaskIndex(prob.language.name, prob.name)
+    index = ProblemGrounding(prob)
     index.process_symbols(prob)
     index.state_variables = IndexDictionary()
     grounder = ReactionGrounder(prob, index)

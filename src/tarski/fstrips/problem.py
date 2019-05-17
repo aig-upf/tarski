@@ -66,9 +66,7 @@ class Problem:
             act.precondition.accept(pv)
             for eff in act.effects:
                 eff.condition.accept(pv)
-                if isinstance(eff, fs.AddEffect):
-                    eff.atom.accept(ev)
-                elif isinstance(eff, fs.DelEffect):
+                if isinstance(eff, (fs.AddEffect, fs.DelEffect)):
                     eff.atom.accept(ev)
                 elif isinstance(eff, fs.FunctionalEffect):
                     eff.lhs.accept(ev)
@@ -76,8 +74,6 @@ class Problem:
                     eff.obj.accept(ev)
                     for x in eff.variables:
                         x.accept(ev)
-                elif isinstance(eff, fs.LogicalEffect):
-                    eff.formula.accept(ev)
                 else:
                     raise RuntimeError("Effect type '{}' cannot be analysed".format(type(eff)))
 

@@ -49,16 +49,12 @@ class HybridProblem(Problem):
         for _, react in self.reactions.items():
             react.condition.accept(pv)
             eff = react.effect
-            if isinstance(eff, AddEffect):
-                eff.atom.accept(ev)
-            elif isinstance(eff, DelEffect):
+            if isinstance(eff, (AddEffect, DelEffect)):
                 eff.atom.accept(ev)
             elif isinstance(eff, FunctionalEffect):
                 eff.lhs.accept(ev)
             elif isinstance(eff, ChoiceEffect):
                 eff.lhs.accept(ev)
-            elif isinstance(eff, LogicalEffect):
-                eff.formula.accept(ev)
             elif isinstance(eff, BlackBoxEffect):
                 for yk in eff.lhs[:, 0]:
                     yk.accept(ev)

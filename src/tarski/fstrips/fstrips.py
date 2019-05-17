@@ -141,15 +141,6 @@ class ChoiceEffect(SingleEffect):
                                                        self.condition)
 
 
-class LogicalEffect(SingleEffect):
-    def __init__(self, phi, condition=Tautology()):
-        super().__init__(condition)
-        self.formula = phi
-
-    def tostring(self):
-        return "{}".format(self.formula)
-
-
 class VectorisedEffect(SingleEffect):
     """
         Action effects that modify the denotation of a vector (tuple) of terms

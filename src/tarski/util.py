@@ -7,10 +7,7 @@ from .errors import DuplicateDefinition
 
 
 class IndexDictionary:
-    """
-    A very basic indexing mechanism object that assigns consecutive indexes to the indexed objects.
-    """
-
+    """ A basic indexing object that assigns consecutive indexes to the indexed objects. """
     def __init__(self, elements=None):
         self.data = OrderedDict()
         self.objects = []

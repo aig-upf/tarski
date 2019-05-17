@@ -19,9 +19,7 @@ def process_expression(language, schema, op, copy_schema=True):
 
 
 def process_effect(language, eff_schema, op):
-    if isinstance(eff_schema, fs.AddEffect):
-        eff_schema.atom.accept(op)
-    elif isinstance(eff_schema, fs.DelEffect):
+    if isinstance(eff_schema, (fs.AddEffect, fs.DelEffect)):
         eff_schema.atom.accept(op)
     elif isinstance(eff_schema, fs.FunctionalEffect):
         eff_schema.lhs.accept(op)
@@ -33,14 +31,10 @@ def process_effect(language, eff_schema, op):
         eff_schema.obj.accept(op)
         for x in eff_schema.variables:
             x.accept(op)
-    elif isinstance(eff_schema, fs.LogicalEffect):
-        eff_schema.formula.accept(op)
 
     # MRJ: invariant
     var_collector = CollectVariables()
-    if isinstance(eff_schema, fs.AddEffect):
-        eff_schema.atom.accept(var_collector)
-    elif isinstance(eff_schema, fs.DelEffect):
+    if isinstance(eff_schema, (fs.AddEffect, fs.DelEffect)):
         eff_schema.atom.accept(var_collector)
     elif isinstance(eff_schema, fs.FunctionalEffect):
         eff_schema.lhs.accept(var_collector)
@@ -49,7 +43,5 @@ def process_effect(language, eff_schema, op):
         eff_schema.obj.accept(var_collector)
         for x in eff_schema.variables:
             x.accept(var_collector)
-    elif isinstance(eff_schema, fs.LogicalEffect):
-        eff_schema.formula.accept(var_collector)
     assert len(var_collector.variables) == 0
     return eff_schema
