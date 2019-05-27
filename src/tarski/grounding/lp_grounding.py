@@ -40,6 +40,11 @@ class LPGroundingStrategy:
         model = self._solve_lp()
         return {k: model[k] for k in self.problem.actions.keys()}
 
+    def iterate_over_schema_groundings(self, schema_name: str):
+        """  """
+        model = self._solve_lp()
+        return (x for x in model[schema_name])
+
     def _solve_lp(self):
         if self.model is None:
             lp, tr = create_reachability_lp(self.problem)
