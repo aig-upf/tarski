@@ -544,6 +544,38 @@ class RestrictRole(Role):
         return [self] + self.r.flatten() + self.c.flatten()
 
 
+class RoleDifference(Role):
+    def __init__(self, r1, r2):
+        assert isinstance(r1, Role)
+        assert isinstance(r2, Role)
+        Role.__init__(self, [r1.sort[0], r1.sort[1]], 1 + r1.size + r2.size)
+        self.r1 = r1
+        self.r2 = r2
+        self.hash = consistent_hash((self.__class__, self.r1, self.r2))
+
+    def __hash__(self):
+        return self.hash
+
+    def __eq__(self, other):
+        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
+                self.r1 == other.r1 and
+                self.r2 == other.r2)
+
+    def denotation(self, model):
+        ext_r1 = model.uncompressed_denotation(self.r1)
+        ext_r2 = model.uncompressed_denotation(self.r2)
+        result = set((a, b) for a, b in ext_r1 if (a, b) not in ext_r2)
+        return model.compressed(result, self.ARITY)
+
+    def __repr__(self):
+        return 'RoleDifference({},{})'.format(self.r1, self.r2)
+
+    __str__ = __repr__
+
+    def flatten(self):
+        return [self] + self.r1.flatten() + self.r2.flatten()
+
+
 def _check_arity(term, expected_arity, predfun):
     if expected_arity != predfun.uniform_arity():
         raise ArityDLMismatch('Cannot create {} from predicate "{}"'.format(term, predfun))
