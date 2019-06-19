@@ -11,7 +11,7 @@ from antlr4.error.ErrorListener import ErrorListener
 from .common import parse_number, process_requirements, create_sort
 from ...errors import SyntacticError
 from ...fstrips import DelEffect, AddEffect, FunctionalEffect, UniversalEffect, OptimizationMetric
-from ...syntax import neg, land, lor, Tautology, implies, exists, forall, Term, Interval
+from ...syntax import CompoundFormula, Connective, neg, Tautology, implies, exists, forall, Term, Interval
 from ...syntax.builtins import get_predicate_from_symbol, get_function_from_symbol
 from ...syntax.formulas import VariableBinding
 
@@ -230,11 +230,11 @@ class FStripsParser(fstripsVisitor):
             return Tautology
         elif len(conjuncts) == 1:
             return conjuncts[0]
-        return land(*conjuncts)
+        return CompoundFormula(Connective.And, conjuncts)
 
     def visitOrGoalDesc(self, ctx):
         conjuncts = [self.visit(sub_ctx) for sub_ctx in ctx.goalDesc()]
-        return lor(*conjuncts)
+        return CompoundFormula(Connective.Or, conjuncts)
 
     def visitNotGoalDesc(self, ctx):
         return neg(self.visit(ctx.goalDesc()))
