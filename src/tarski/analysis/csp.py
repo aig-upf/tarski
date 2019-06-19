@@ -2,6 +2,7 @@
  Structural CSP decomposition methods
 """
 import itertools
+from collections import defaultdict
 
 from ..syntax import CompoundFormula, Atom, Connective, Variable, Constant
 
@@ -19,10 +20,49 @@ def compute_schema_primal_graph(action):
     """ Compute the primal graph corresponding to the precondition of the given action schema.
     This is the graph with one node v for each action parameter, and one edge {v1, v2} for every pair of variables
     v1, v2 that appear together in some atom p(..., v1, ..., v2, ...) in the conjunctive precondition of the schema. """
+    return compute_primal_graph_from_hypergraph(compute_schema_constraint_hypergraph(action))
+
+
+def compute_primal_graph_from_hypergraph(hypergraph):
+    """ Compute the primal graph corresponding to the given hypergraph. """
     edges = set()
-    for hyperedge in compute_schema_constraint_hypergraph(action):
+    for hyperedge in hypergraph:
         edges.update(itertools.combinations(hyperedge, 2))
     return edges
+
+
+def _remove_ear_if_exists(edges, node_counts):
+    """ A helper to find a so-called ear of the hypergraph """
+    for e1, e2 in itertools.product(edges, edges):
+        diff = e1-e2
+        if diff and all(node_counts[node] == 1 for node in diff):
+            # e1 is an ear and can be removed. We update node count as well
+            for node in e1:
+                node_counts[node] -= 1
+            edges.remove(e1)
+            return True
+    return False
+
+
+def check_hypergraph_acyclicity(hypergraph):
+    """ Check whether the given hypergraph is acyclic by applying the GYO reduction as described in
+        Jeffrey D. Ullman, Principles of Database and Knowledge-Base Systems, Vol. II
+    """
+    nodes = set(itertools.chain.from_iterable(hypergraph))
+    edges = set(frozenset(x) for x in hypergraph)  # simply convert the tuple into frozensets
+    if len(edges) <= 1 or len(nodes) <= 1:
+        return True
+
+    # Compute a mapping storing in how many hyperedges each node appears
+    node_counts = defaultdict(int)
+    for edge in edges:
+        for n in edge:
+            node_counts[n] += 1
+
+    while _remove_ear_if_exists(edges, node_counts):
+        pass
+
+    return len(edges) == 0
 
 
 def _collect_hyperedges(phi, edges):
