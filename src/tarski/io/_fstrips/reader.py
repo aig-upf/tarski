@@ -80,7 +80,7 @@ class FStripsParser(fstripsVisitor):
         process_requirements(self.requirements, self.language)
 
     def visitDeclaration_of_types(self, ctx):
-        for typename, basename in self.visit(ctx.possibly_typed_name_list()):
+        for typename, basename in self.visit(ctx.possibly_typed_type_list()):
             create_sort(self.language, typename, basename)
 
     def extract_namelist(self, ctx):
@@ -96,11 +96,22 @@ class FStripsParser(fstripsVisitor):
         return [(name, typename) for name in names]
 
     def visitComplexNameList(self, ctx):
-        simple = self.visitSimpleNameList(ctx)
-        derived = []
+        untyped = self.visitSimpleNameList(ctx)
+        typed = []
         for sub in ctx.name_list_with_type():
-            derived += self.visit(sub)
-        return simple + derived
+            typed += self.visit(sub)
+        return untyped + typed
+
+    def visitUntypedTypenameList(self, ctx):
+        names = self.extract_namelist(ctx)
+        return [(name, 'object') for name in names]
+
+    def visitTypedTypenameList(self, ctx):
+        untyped = self.visitUntypedTypenameList(ctx)
+        typed = []
+        for sub in ctx.name_list_with_type():
+            typed += self.visit(sub)
+        return untyped + typed
 
     def visitSingle_predicate_definition(self, ctx):
         predicate = ctx.predicate().getText().lower()

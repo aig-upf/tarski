@@ -1,4 +1,4 @@
-# Generated from /mnt/c/Sandboxes/tarski/utils/parsers/grammars/fstrips.g4 by ANTLR 4.7.1
+# Generated from /home/frances/projects/code/tarski/utils/parsers/grammars/fstrips.g4 by ANTLR 4.7.1
 from antlr4 import *
 if __name__ is not None and "." in __name__:
     from .parser import fstripsParser
@@ -71,6 +71,16 @@ class fstripsVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by fstripsParser#name_list_with_type.
     def visitName_list_with_type(self, ctx:fstripsParser.Name_list_with_typeContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by fstripsParser#UntypedTypenameList.
+    def visitUntypedTypenameList(self, ctx:fstripsParser.UntypedTypenameListContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by fstripsParser#TypedTypenameList.
+    def visitTypedTypenameList(self, ctx:fstripsParser.TypedTypenameListContext):
         return self.visitChildren(ctx)
 
 
