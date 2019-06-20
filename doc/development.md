@@ -46,7 +46,10 @@ doing a system-wide installation of all the project dependencies. This can be au
 running `detox` on the project root directory
 
 ## Uploading a Release to Pypi
-Make sure you are on the master branch!
+
+Docs: <https://packaging.python.org/tutorials/packaging-projects/>
+
+!! Make sure you are on the master branch and on the right commit !!
 
     
     python3 -m pip install --upgrade twine setuptools wheel  # (optional)
