@@ -4,7 +4,13 @@
 import itertools
 from collections import defaultdict
 
+from ..errors import TarskiError
 from ..syntax import CompoundFormula, Atom, Connective, Variable, Constant
+
+
+class WrongFormalismError(TarskiError):
+    def __init__(self, msg=None):
+        super().__init__(msg)
 
 
 def compute_schema_constraint_hypergraph(action):
@@ -80,6 +86,6 @@ def _collect_hyperedges(phi, edges):
         elif phi.connective == Connective.Not:
             _collect_hyperedges(phi.subformulas[0], edges)
         else:
-            raise RuntimeError("Can only process conjunctive queries")
+            raise WrongFormalismError("Can only process conjunctive queries")
     else:
-        raise RuntimeError("Can only process conjunctive queries")
+        raise WrongFormalismError("Can only process conjunctive queries")
