@@ -62,7 +62,7 @@ def check_hypergraph_acyclicity(hypergraph):
     while _remove_ear_if_exists(edges, node_counts):
         pass
 
-    return len(edges) == 0
+    return len(edges) <= 1
 
 
 def _collect_hyperedges(phi, edges):
