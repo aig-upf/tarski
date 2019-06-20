@@ -2,14 +2,14 @@ import logging
 import os
 from collections import defaultdict
 
-from ..fstrips.fstrips import SingleEffect
 from ..model import ExtensionalFunctionDefinition
 from ..syntax import Tautology, Contradiction, Atom, CompoundTerm, CompoundFormula, QuantifiedFormula, \
     Term, Variable, Constant, Formula
 from ..syntax.sorts import parent, Interval, ancestors
 
 from ._fstrips.common import tarsky_to_pddl_type, get_requirements_string
-from ..fstrips import create_fstrips_problem, language, FunctionalEffect, AddEffect, DelEffect, IncreaseEffect, UniversalEffect
+from ..fstrips import create_fstrips_problem, language, FunctionalEffect, AddEffect, DelEffect, IncreaseEffect,\
+    UniversalEffect
 
 from ._fstrips.reader import FStripsParser
 
