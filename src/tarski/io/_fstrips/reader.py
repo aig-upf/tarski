@@ -31,7 +31,7 @@ class FStripsParser(fstripsVisitor):
 
     def parse_file(self, filename, start_rule='pddlDoc'):
         """ Parse a given filename starting from a given grammar rule """
-        return self._parse_stream(FileStream(filename), start_rule)
+        return self._parse_stream(FileStream(filename, encoding='utf-8'), start_rule)
 
     def _parse_stream(self, filestream, start_rule='pddlDoc'):
         lexer = self._configure_error_handling(fstripsLexer(filestream))
