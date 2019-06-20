@@ -156,7 +156,7 @@ def serializedATN():
         buf.write("\27\3\2\2\2\u0102\u0104\7W\2\2\u0103\u0102\3\2\2\2\u0104")
         buf.write("\u0105\3\2\2\2\u0105\u0103\3\2\2\2\u0105\u0106\3\2\2\2")
         buf.write("\u0106\u0107\3\2\2\2\u0107\u0108\7\t\2\2\u0108\u0109\5")
-        buf.write("\34\17\2\u0109\31\3\2\2\2\u010a\u010b\7\3\2\2\u010b\u010d")
+        buf.write("\32\16\2\u0109\31\3\2\2\2\u010a\u010b\7\3\2\2\u010b\u010d")
         buf.write("\7\n\2\2\u010c\u010e\5\34\17\2\u010d\u010c\3\2\2\2\u010e")
         buf.write("\u010f\3\2\2\2\u010f\u010d\3\2\2\2\u010f\u0110\3\2\2\2")
         buf.write("\u0110\u0111\3\2\2\2\u0111\u0112\7\5\2\2\u0112\u0115\3")
@@ -1779,8 +1779,8 @@ class fstripsParser ( Parser ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def primitive_type(self):
-            return self.getTypedRuleContext(fstripsParser.Primitive_typeContext,0)
+        def typename(self):
+            return self.getTypedRuleContext(fstripsParser.TypenameContext,0)
 
 
         def VARIABLE(self, i:int=None):
@@ -1831,7 +1831,7 @@ class fstripsParser ( Parser ):
             self.state = 261
             self.match(fstripsParser.T__6)
             self.state = 262
-            self.primitive_type()
+            self.typename()
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -1846,6 +1846,47 @@ class fstripsParser ( Parser ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
+
+        def getRuleIndex(self):
+            return fstripsParser.RULE_typename
+
+     
+        def copyFrom(self, ctx:ParserRuleContext):
+            super().copyFrom(ctx)
+
+
+
+    class PrimitiveTypenameContext(TypenameContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.TypenameContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def primitive_type(self):
+            return self.getTypedRuleContext(fstripsParser.Primitive_typeContext,0)
+
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterPrimitiveTypename" ):
+                listener.enterPrimitiveTypename(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitPrimitiveTypename" ):
+                listener.exitPrimitiveTypename(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitPrimitiveTypename" ):
+                return visitor.visitPrimitiveTypename(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+    class EitherTypenameContext(TypenameContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a fstripsParser.TypenameContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
         def primitive_type(self, i:int=None):
             if i is None:
                 return self.getTypedRuleContexts(fstripsParser.Primitive_typeContext)
@@ -1853,23 +1894,19 @@ class fstripsParser ( Parser ):
                 return self.getTypedRuleContext(fstripsParser.Primitive_typeContext,i)
 
 
-        def getRuleIndex(self):
-            return fstripsParser.RULE_typename
-
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterTypename" ):
-                listener.enterTypename(self)
+            if hasattr( listener, "enterEitherTypename" ):
+                listener.enterEitherTypename(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitTypename" ):
-                listener.exitTypename(self)
+            if hasattr( listener, "exitEitherTypename" ):
+                listener.exitEitherTypename(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitTypename" ):
-                return visitor.visitTypename(self)
+            if hasattr( visitor, "visitEitherTypename" ):
+                return visitor.visitEitherTypename(self)
             else:
                 return visitor.visitChildren(self)
-
 
 
 
@@ -1883,6 +1920,7 @@ class fstripsParser ( Parser ):
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [fstripsParser.T__0]:
+                localctx = fstripsParser.EitherTypenameContext(self, localctx)
                 self.enterOuterAlt(localctx, 1)
                 self.state = 264
                 self.match(fstripsParser.T__0)
@@ -1904,6 +1942,7 @@ class fstripsParser ( Parser ):
                 self.match(fstripsParser.T__2)
                 pass
             elif token in [fstripsParser.INT_T, fstripsParser.FLOAT_T, fstripsParser.OBJECT_T, fstripsParser.NUMBER_T, fstripsParser.NAME]:
+                localctx = fstripsParser.PrimitiveTypenameContext(self, localctx)
                 self.enterOuterAlt(localctx, 2)
                 self.state = 273
                 self.primitive_type()

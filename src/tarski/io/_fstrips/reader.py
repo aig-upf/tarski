@@ -91,9 +91,15 @@ class FStripsParser(fstripsVisitor):
         return [(name, 'object') for name in names]
 
     def visitName_list_with_type(self, ctx):
-        typename = ctx.typename().getText().lower()
+        typename = self.visit(ctx.typename())
         names = self.extract_namelist(ctx)
         return [(name, typename) for name in names]
+
+    def visitPrimitiveTypename(self, ctx):
+        return ctx.primitive_type().getText().lower()
+
+    def visitEitherTypename(self, ctx):
+        raise UnsupportedLanguageFeature('"either"-based types not supported in Tarski PDDL parser')
 
     def visitComplexNameList(self, ctx):
         untyped = self.visitSimpleNameList(ctx)
@@ -130,7 +136,7 @@ class FStripsParser(fstripsVisitor):
         return typed_var_names + untyped_var_names
 
     def visitVariable_list_with_type(self, ctx):
-        typename = ctx.primitive_type().getText().lower()  # This is the type of all variables in the list
+        typename = self.visit(ctx.typename())  # This is the type of all variables in the list
         return [self.language.variable(name.getText().lower(), typename) for name in ctx.VARIABLE()]
 
     def visitTyped_function_definition(self, ctx, return_type=None):
@@ -147,7 +153,7 @@ class FStripsParser(fstripsVisitor):
         typename = ctx.NAME().getText().lower()
         sort = self.language.get_sort(typename)
         if not isinstance(sort, Interval):
-            raise RuntimeError("Attempt at bounding symbolic non-interval sort '{}'".format(sort))
+            raise ParsingError("Attempt at bounding symbolic non-interval sort '{}'".format(sort))
 
         # Encode the bounds and set them into the sort
         lower = sort.encode(ctx.NUMBER(0).getText())
@@ -206,7 +212,7 @@ class FStripsParser(fstripsVisitor):
 
     def _recover_variable_from_context(self, name):
         if self.current_binding is None:
-            raise RuntimeError("Variable '{}' used declared outside variable binding".format(name))
+            raise ParsingError("Variable '{}' used declared outside variable binding".format(name))
 
         return self.current_binding.get(name)
 
@@ -404,10 +410,10 @@ class FStripsParser(fstripsVisitor):
         return self.visit(ctx.functionTerm())
 
     def visitTotalTimeMetric(self, ctx):
-        raise SystemExit("Unsupported feature: Minimize total-time metric is not supported")
+        raise UnsupportedLanguageFeature("Unsupported feature: Minimize total-time metric is not supported")
 
     def visitIsViolatedMetric(self, ctx):
-        raise SystemExit("Unsupported feature: Count of violated constraints metric is not supported")
+        raise UnsupportedLanguageFeature("Unsupported feature: Count of violated constraints metric is not supported")
 
     def visitAssignEffect(self, ctx):
         operation = ctx.assignOp().getText().lower()
@@ -418,7 +424,7 @@ class FStripsParser(fstripsVisitor):
         return FunctionalEffect(lhs, self.visit(ctx.term()), rhs)
 
     def visitDerivedDef(self, ctx):
-        raise NotImplementedError("Parsing of derived predicates in Tarski not yet implemented")
+        raise UnsupportedLanguageFeature("Parsing of derived predicates in Tarski not yet implemented")
 
 
 class UnresolvedVariableError(Exception):
@@ -448,7 +454,7 @@ class ParserVariableContext:
     def __enter__(self):
         # Merge the new variable binding with the previous one, if it existed
         if self.root and self.parser.current_binding is not None:
-            raise RuntimeError("Clean ParserVariableContext opened upon existing context")
+            raise ParsingError("Clean ParserVariableContext opened upon existing context")
 
         if self.parser.current_binding is None:
             self.parser.current_binding = VariableBinding(self.variables)
@@ -466,6 +472,8 @@ class ParserVariableContext:
 class ParsingError(SyntacticError):
     pass
 
+class UnsupportedLanguageFeature(ParsingError):
+    pass
 
 class ExceptionRaiserListener(ErrorListener):
     """ An ANTLR ErrorListener that simply transforms any syntax error into a Tarski parsing error.

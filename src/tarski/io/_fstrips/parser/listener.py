@@ -170,12 +170,21 @@ class fstripsListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by fstripsParser#typename.
-    def enterTypename(self, ctx:fstripsParser.TypenameContext):
+    # Enter a parse tree produced by fstripsParser#EitherTypename.
+    def enterEitherTypename(self, ctx:fstripsParser.EitherTypenameContext):
         pass
 
-    # Exit a parse tree produced by fstripsParser#typename.
-    def exitTypename(self, ctx:fstripsParser.TypenameContext):
+    # Exit a parse tree produced by fstripsParser#EitherTypename.
+    def exitEitherTypename(self, ctx:fstripsParser.EitherTypenameContext):
+        pass
+
+
+    # Enter a parse tree produced by fstripsParser#PrimitiveTypename.
+    def enterPrimitiveTypename(self, ctx:fstripsParser.PrimitiveTypenameContext):
+        pass
+
+    # Exit a parse tree produced by fstripsParser#PrimitiveTypename.
+    def exitPrimitiveTypename(self, ctx:fstripsParser.PrimitiveTypenameContext):
         pass
 
 

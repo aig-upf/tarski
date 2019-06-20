@@ -99,8 +99,13 @@ class fstripsVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by fstripsParser#typename.
-    def visitTypename(self, ctx:fstripsParser.TypenameContext):
+    # Visit a parse tree produced by fstripsParser#EitherTypename.
+    def visitEitherTypename(self, ctx:fstripsParser.EitherTypenameContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by fstripsParser#PrimitiveTypename.
+    def visitPrimitiveTypename(self, ctx:fstripsParser.PrimitiveTypenameContext):
         return self.visitChildren(ctx)
 
 

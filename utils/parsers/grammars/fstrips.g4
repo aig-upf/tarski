@@ -129,13 +129,13 @@ possibly_typed_variable_list
     ;
 
 variable_list_with_type
-    : VARIABLE+ '-' primitive_type
+    : VARIABLE+ '-' typename
     ;
 
 
 typename
-	: '(' 'either' primitive_type+ ')'
-	| primitive_type
+	: '(' 'either' primitive_type+ ')'  # EitherTypename
+	| primitive_type                    # PrimitiveTypename
 	;
 
 primitive_type : NAME | builtinType;
