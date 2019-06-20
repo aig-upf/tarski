@@ -277,9 +277,10 @@ processEffect
 */
 
 /************* DERIVED DEFINITIONS ****************************/
+// TODO Not fully implemented yet
 
 derivedDef
-	: '(' ':derived' possibly_typed_variable_list goalDesc ')'
+	: '(' ':derived' '(' NAME possibly_typed_variable_list ')' goalDesc ')'
 	;
 
 /************* EXPRESSIONS ****************************/

@@ -417,6 +417,9 @@ class FStripsParser(fstripsVisitor):
         rhs = self.language.dispatch_operator(get_function_from_symbol(operator), Term, Term, lhs, rhs)
         return FunctionalEffect(lhs, self.visit(ctx.term()), rhs)
 
+    def visitDerivedDef(self, ctx):
+        raise NotImplementedError("Parsing of derived predicates in Tarski not yet implemented")
+
 
 class UnresolvedVariableError(Exception):
     def __init__(self, value):
