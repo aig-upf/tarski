@@ -472,8 +472,10 @@ class ParserVariableContext:
 class ParsingError(SyntacticError):
     pass
 
+
 class UnsupportedLanguageFeature(ParsingError):
     pass
+
 
 class ExceptionRaiserListener(ErrorListener):
     """ An ANTLR ErrorListener that simply transforms any syntax error into a Tarski parsing error.
