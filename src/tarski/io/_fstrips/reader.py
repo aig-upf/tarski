@@ -129,7 +129,8 @@ class FStripsParser(fstripsVisitor):
         return self.language.function(name, *argument_types, return_type)
 
     def visitUntyped_function_definition(self, ctx):
-        return self.visitTyped_function_definition(ctx, 'object')
+        # According to Daniel Kovacs' PDDL 3.1 BNF spec, the default type for functions is 'number'
+        return self.visitTyped_function_definition(ctx, 'number')
 
     def visitTypeBoundsDefinition(self, ctx):
         typename = ctx.NAME().getText().lower()
