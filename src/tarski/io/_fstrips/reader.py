@@ -128,7 +128,7 @@ class FStripsParser(fstripsVisitor):
         argument_types = [a.sort for a in self.visit(ctx.possibly_typed_variable_list())]
         return self.language.function(name, *argument_types, return_type)
 
-    def visitUnTyped_function_definition(self, ctx):
+    def visitUntyped_function_definition(self, ctx):
         return self.visitTyped_function_definition(ctx, 'object')
 
     def visitTypeBoundsDefinition(self, ctx):
