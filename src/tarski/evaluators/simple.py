@@ -183,9 +183,9 @@ def _arithmetic_evaluator_2(operation, lhs, rhs, model, sigma):
     lhs = evaluate_term(lhs, model, sigma)
     rhs = evaluate_term(rhs, model, sigma)
     if isinstance(lhs, Matrix) and isinstance(rhs, Matrix):
-        print("Matrix op Matrix")
+        # print("Matrix op Matrix")
         value = operation(lhs, rhs)
-        print('Result : {}'.format(value))
+        # print('Result : {}'.format(value))
         return evaluate_term(Matrix(value, lhs.sort), model, sigma)
     elif isinstance(lhs, Matrix) and not isinstance(rhs, Matrix):
         value = operation(lhs.matrix, ops.cast_to_number(rhs))
