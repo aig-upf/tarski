@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from ..syntax import *
+from ..syntax import symref, CompoundFormula, QuantifiedFormula, Atom, CompoundTerm, Variable
 
 
-class MatchExpression(object):
+class MatchExpression:
     """
         This Visitor traverses a formula/expression stopping when
         finding an exact syntactic match for the target
@@ -29,13 +29,13 @@ class MatchExpression(object):
             if symref(phi) == self.target:
                 self.hits += 1
                 return
-            for k, t in enumerate(phi.subterms):
+            for t in phi.subterms:
                 t.accept(self)
         elif isinstance(phi, CompoundTerm):
             if symref(phi) == self.target:
                 self.hits += 1
                 return
-            for k, t in enumerate(phi.subterms):
+            for t in phi.subterms:
                 t.accept(self)
 
 

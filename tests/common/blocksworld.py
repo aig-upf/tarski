@@ -4,6 +4,7 @@
 import tarski as tsk
 import tarski.model
 from tarski import fstrips as fs
+from tarski.syntax.formulas import VariableBinding
 from tarski.fstrips import create_fstrips_problem
 from tarski.syntax import forall, equiv, neg, land, exists
 from tarski.theories import Theory
@@ -83,7 +84,7 @@ def create_small_bw_task():
     problem.init = init
     problem.goal = G
     problem.constraints += [clear_constraint]
-    problem.action('move', [src, dest], land(clear(src), clear(dest)), [fs.FunctionalEffect(loc(src), dest)])
+    problem.action('move', VariableBinding(variables=[src, dest]), land(clear(src), clear(dest)), [fs.FunctionalEffect(loc(src), dest)])
     return problem
 
 
@@ -135,13 +136,13 @@ def create_4blocks_task():
     P.state_variables = []  # [StateVariable(clear(dest), [tb]) for tb in [tb1, tb2, tb3, tb4, table]]
 
     b = bw.variable('b', bw.Object)
-    P.action('pick_up', [b],
+    P.action('pick_up', VariableBinding(variables=[b]),
              land(clear(b), clear(hand), loc(b) == table, b != hand, b != table),
              [fs.FunctionalEffect(loc(b), hand),
               fs.LogicalEffect(neg(clear(b))),
               fs.LogicalEffect(neg(clear(hand)))])
 
-    P.action('put_down', [b],
+    P.action('put_down', VariableBinding(variables=[b]),
              land(loc(b) == hand, b != table, b != hand),
              [fs.FunctionalEffect(loc(b), table),
               fs.LogicalEffect(clear(b)),
@@ -150,7 +151,7 @@ def create_4blocks_task():
     src = bw.variable('src', bw.Object)
     dest = bw.variable('dest', bw.Object)
 
-    P.action('stack', [src, dest],
+    P.action('stack', VariableBinding(variables=[src, dest]),
              land(loc(src) == hand, clear(dest), src != dest, src != table,
                   src != hand, dest != table, dest != hand),
              [fs.FunctionalEffect(loc(src), dest),
@@ -158,7 +159,7 @@ def create_4blocks_task():
               fs.LogicalEffect(clear(src)),
               fs.LogicalEffect(clear(hand))])
 
-    P.action('unstack', [src, dest],
+    P.action('unstack', VariableBinding(variables=[src, dest]),
              land(clear(hand), loc(src) == dest, clear(src), src != dest, src != table,
                   src != hand, dest != table, dest != hand),
              [fs.FunctionalEffect(loc(src), hand),

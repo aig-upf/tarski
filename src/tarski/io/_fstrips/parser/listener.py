@@ -1,4 +1,4 @@
-# Generated from /mnt/c/Sandboxes/tarski/utils/parsers/grammars/fstrips.g4 by ANTLR 4.7.1
+# Generated from /home/frances/projects/code/tarski/utils/parsers/grammars/fstrips.g4 by ANTLR 4.7.1
 from antlr4 import *
 if __name__ is not None and "." in __name__:
     from .parser import fstripsParser
@@ -125,6 +125,24 @@ class fstripsListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by fstripsParser#UntypedTypenameList.
+    def enterUntypedTypenameList(self, ctx:fstripsParser.UntypedTypenameListContext):
+        pass
+
+    # Exit a parse tree produced by fstripsParser#UntypedTypenameList.
+    def exitUntypedTypenameList(self, ctx:fstripsParser.UntypedTypenameListContext):
+        pass
+
+
+    # Enter a parse tree produced by fstripsParser#TypedTypenameList.
+    def enterTypedTypenameList(self, ctx:fstripsParser.TypedTypenameListContext):
+        pass
+
+    # Exit a parse tree produced by fstripsParser#TypedTypenameList.
+    def exitTypedTypenameList(self, ctx:fstripsParser.TypedTypenameListContext):
+        pass
+
+
     # Enter a parse tree produced by fstripsParser#UntypedVariableList.
     def enterUntypedVariableList(self, ctx:fstripsParser.UntypedVariableListContext):
         pass
@@ -152,12 +170,21 @@ class fstripsListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by fstripsParser#typename.
-    def enterTypename(self, ctx:fstripsParser.TypenameContext):
+    # Enter a parse tree produced by fstripsParser#EitherTypename.
+    def enterEitherTypename(self, ctx:fstripsParser.EitherTypenameContext):
         pass
 
-    # Exit a parse tree produced by fstripsParser#typename.
-    def exitTypename(self, ctx:fstripsParser.TypenameContext):
+    # Exit a parse tree produced by fstripsParser#EitherTypename.
+    def exitEitherTypename(self, ctx:fstripsParser.EitherTypenameContext):
+        pass
+
+
+    # Enter a parse tree produced by fstripsParser#PrimitiveTypename.
+    def enterPrimitiveTypename(self, ctx:fstripsParser.PrimitiveTypenameContext):
+        pass
+
+    # Exit a parse tree produced by fstripsParser#PrimitiveTypename.
+    def exitPrimitiveTypename(self, ctx:fstripsParser.PrimitiveTypenameContext):
         pass
 
 

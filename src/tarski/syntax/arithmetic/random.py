@@ -1,5 +1,7 @@
-from ..builtins import BuiltinFunctionSymbol as BFS
+
 import numpy as np
+
+from ..builtins import BuiltinFunctionSymbol as BFS
 
 
 def normal(mu, sigma):

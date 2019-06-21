@@ -6,5 +6,3 @@ from .formulas import land, lor, neg, implies, forall, exists, equiv, Connective
     CompoundFormula, QuantifiedFormula, Tautology, Contradiction, top, bot, Quantifier
 from .builtins import BuiltinFunctionSymbol, BuiltinPredicateSymbol
 from .symrefs import symref
-
-

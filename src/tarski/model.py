@@ -2,8 +2,7 @@
 from collections import defaultdict
 
 from . import errors as err
-from .syntax import Constant, CompoundTerm
-from .syntax import symref, FunctionSymbol, PredicateSymbol
+from .syntax import Constant, CompoundTerm, symref, FunctionSymbol, PredicateSymbol
 
 
 def _check_assignment(fun, point, value=None):

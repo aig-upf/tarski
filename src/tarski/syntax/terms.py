@@ -310,4 +310,3 @@ class Constant(Term):
 
     def is_syntactically_equal(self, other):
         return self.__class__ is other.__class__ and self.symbol == other.symbol and self.sort == other.sort
-

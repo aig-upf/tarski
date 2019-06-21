@@ -14,4 +14,12 @@ Java packages into your local machine, as explained in [ANTLR4 website](http://w
 Once that is done, you should be able to run the `build.py` script in the `${TARSKI_ROOT}/utils/parsers` directory. 
 At the moment `PDDL` and `FSTRIPS` grammars are supported. 
 
+## Debugging the grammar
+If the grammar doesn't do exactly what you expect, in `${TARSKI_ROOT}/utils/parsers/grammars` you can find
+a useful debugging script. To illustrate, running
+
+    ./antlr4-tester.sh fstrips.g4 $DOWNWARD_BENCHMARKS/tidybot-sat11-strips/domain.pddl domain
+    
+will print on screen the stream of tokens and then attempt at parsing it.         
+
 

@@ -11,7 +11,8 @@ class Derived:
         self.language = language
         # Check arity and type
         if len(parameters) != self.predicate.arity:
-            raise err.InvalidDerivedPredicateError(name, formula, "Arity of predicate does not match length of parameter list")
+            raise err.InvalidDerivedPredicateError(name, formula,
+                                                   "Arity of predicate does not match length of parameter list")
         for k, param in enumerate(parameters):
             if self.predicate.sort[k] != param.sort:
                 raise err.InvalidDerivedPredicateError(name, formula, "Type mismatch of parameter \

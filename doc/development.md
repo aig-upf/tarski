@@ -44,3 +44,23 @@ Once this has been done, running `pytest` will work the same, but we avoid the n
 doing a system-wide installation of all the project dependencies. This can be automated by using
 [tox](https://tox.readthedocs.io/en/latest/) & [detox](https://pypi.python.org/pypi/detox): if you have it installed, you can run all tests by simply
 running `detox` on the project root directory
+
+## Uploading a Release to Pypi
+
+Docs: <https://packaging.python.org/tutorials/packaging-projects/>
+
+!! Make sure you are on the master branch and on the right commit !!
+
+    
+    python3 -m pip install --upgrade twine setuptools wheel  # (optional)
+
+    python3 setup.py sdist bdist_wheel
+    
+    # Test first:
+    python3 -m twine upload --skip-existing --repository-url https://test.pypi.org/legacy/ dist/*
+    
+    # Then go!
+    python3 -m twine upload --skip-existing dist/*
+
+
+

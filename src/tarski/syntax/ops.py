@@ -1,6 +1,7 @@
-from .terms import Term, Constant
+
 import numpy as np
-from ..syntax.algebra import Matrix
+
+from .terms import Term, Constant
 
 
 def cast_to_closest_common_ancestor(lhs, rhs):

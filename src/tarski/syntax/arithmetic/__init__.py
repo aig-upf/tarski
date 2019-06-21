@@ -7,7 +7,7 @@ from ...syntax.algebra import Matrix
 from ... import errors as err
 from ... grounding.naive import instantiation
 from .. transform import TermSubstitution
-from ..builtins import BuiltinPredicateSymbol, BuiltinFunctionSymbol, get_arithmetic_binary_functions
+from ..builtins import BuiltinFunctionSymbol, get_arithmetic_binary_functions
 
 
 def sumterm(*args):
@@ -59,7 +59,7 @@ def summation(*args):
         variables.append(x)
 
     L = expr.language
-    K, syms, substs = instantiation.enumerate_groundings(L, list(variables))
+    _, syms, substs = instantiation.enumerate_groundings(L, list(variables))
     processed_expr = []
     for values in itertools.product(*substs):
         subst = {syms[k]: v for k, v in enumerate(values)}
@@ -92,7 +92,7 @@ def product(*args):
         variables.append(x)
 
     L = expr.language
-    K, syms, substs = instantiation.enumerate_groundings(L, list(variables))
+    _, syms, substs = instantiation.enumerate_groundings(L, list(variables))
     processed_expr = []
     for values in itertools.product(*substs):
         subst = {syms[k]: v for k, v in enumerate(values)}
@@ -210,7 +210,7 @@ def simplify(expr: Term):
                 return one(expr.sort)
             expr.subterms = (simp_st,)
             return expr
-    elif isinstance(expr, Matrix) or isinstance(expr, np.ndarray):
+    elif isinstance(expr, (Matrix, np.ndarray)):
         N, M = expr.shape
         for i in range(N):
             for j in range(M):

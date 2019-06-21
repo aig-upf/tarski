@@ -39,7 +39,8 @@ class CNFTransformation:
 
         if isinstance(phi, QuantifiedFormula):
             raise TransformationError("cnf transformation", phi, "Formula is not quantifier free!")
-        elif isinstance(phi, CompoundFormula):
+
+        if isinstance(phi, CompoundFormula):
             if phi.connective == Connective.Not:
                 return phi  # already CNF
             elif phi.connective == Connective.And:
@@ -55,7 +56,8 @@ class CNFTransformation:
     def collect_clauses(self, phi):
         if isinstance(phi, QuantifiedFormula):
             raise TransformationError("cnf transformation", phi, "Formula is not quantifier free!")
-        elif isinstance(phi, CompoundFormula):
+
+        if isinstance(phi, CompoundFormula):
             if phi.connective == Connective.Not:
                 self.current_clause.append(phi)
                 return None

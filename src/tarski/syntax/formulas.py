@@ -254,12 +254,21 @@ class VariableBinding:
         variables = variables or []
         # An (ordered) map between variable name and the variable itself:
         self.variables = OrderedDict((v.name, v) for v in variables)
+        self._idx = 0
+        self._v_values = list(self.variables.values())
+
+    def __len__(self):
+        return len(self.variables)
+
+    def __getitem__(self, index):
+        return self._v_values[index]
 
     def add(self, variable: Variable):
         other = self.variables.get(variable.name, None)
         if other is not None:
             raise err.DuplicateVariableDefinition(variable, other)
         self.variables[variable.name] = variable
+        self._v_values += [variable]
 
     def get(self, name):
         var = self.variables.get(name, None)
@@ -270,3 +279,14 @@ class VariableBinding:
     def merge(self, binding):
         """ Merge the given binding into the current binding, inplace """
         raise NotImplementedError()
+
+    def __iter__(self):
+        self._v_values = [v for _, v in self.variables.items()]
+        self._idx = 0
+        return self
+
+    def __next__(self):
+        if self._idx == len(self._v_values):
+            raise StopIteration()
+        self._idx += 1
+        return self._v_values[self._idx - 1]

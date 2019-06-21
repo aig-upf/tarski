@@ -33,7 +33,7 @@ class BreadthFirstSearch:
             node = open_.popleft()
             is_goal = self.model.is_goal(node.state)
 
-            space.expand(node, is_goal)
+            space.expand(node)
 
             # we manage the closed list here to allow the parents update
             if node.state in closed:
@@ -46,7 +46,8 @@ class BreadthFirstSearch:
             # exploring the node or if it is a goal node extracting the plan
             if is_goal:
                 num_goals_found += 1
-                logging.info("Goal found after %d expansions. Number of goal states found: %d" % (node_id, num_goals_found))
+                logging.info("Goal found after {} expansions. Number of goal states found: {}".format(
+                    node_id, num_goals_found))
 
             if 0 <= self.max_expansions <= node_id:
                 logging.info("Max. expansions reached. # expanded: {}, # goals: {}".format(node_id, num_goals_found))
@@ -74,7 +75,7 @@ class SearchSpace:
         self.last_node_id = 0
         self.complete = False  # Whether the state space contains all states reachable from the initial state
 
-    def expand(self, node: SearchNode, is_goal):
+    def expand(self, node: SearchNode):
         self.nodes.add(node)
 
 

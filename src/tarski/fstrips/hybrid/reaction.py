@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-class Reaction(object):
+class Reaction:
     """ A (possibly lifted) reaction """
 
     def __init__(self, language, name, parameters, condition, effect):

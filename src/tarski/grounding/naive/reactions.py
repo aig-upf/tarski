@@ -3,15 +3,14 @@ import itertools
 import copy
 from collections import OrderedDict
 
-from ...fstrips import hybrid as hybrid
+from ...fstrips import hybrid
 from ...syntax.transform import TermSubstitution
 from ...util import IndexDictionary
-
 from . import instantiation
 from .elements import process_expression, process_effect
 
 
-class ReactionGrounder(object):
+class ReactionGrounder:
 
     def __init__(self, prob, index):
         self.problem = prob

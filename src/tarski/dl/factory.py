@@ -3,8 +3,6 @@ import logging
 
 from .. import FirstOrderLanguage
 from ..syntax import builtins
-
-from .concepts import GoalNullaryAtom, GoalConcept, GoalRole
 from . import Concept, Role, UniversalConcept, PrimitiveConcept, NotConcept, ExistsConcept, ForallConcept, \
     EqualConcept, PrimitiveRole, RestrictRole, AndConcept, EmptyConcept, CompositionRole, NominalConcept, NullaryAtom, \
     GoalNullaryAtom, GoalConcept, GoalRole, OrConcept

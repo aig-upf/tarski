@@ -1,5 +1,6 @@
 
 import pytest
+from tarski.errors import UndefinedSort
 from tarski.io.fstrips import ParsingError
 from tarski.syntax import Atom
 from tarski.theories import Theory
@@ -27,10 +28,11 @@ def _test_input(string, rule, reader_):
 def _test_inputs(inputs, r=None):
     """
         Test a list of pairs (x, y): x is string to be parsed, y is rule name
-        and return a list with the corresponding outputs of the parser
+        and return a list with the corresponding outputs of the parser.
+        If no reader `r` is passed, each test is run on a different reader. This might be useful
+        for avoiding duplicate name exceptions, etc, in a sequence of tests.
      """
-    r = r or reader()
-    return [_test_input(string, rule, r) for string, rule in inputs]
+    return [_test_input(string, rule, r or reader()) for string, rule in inputs]
 
 
 def test_pddl_type_declaration():
@@ -206,3 +208,18 @@ def test_strips_atoms():
         ("(forall (?x - t) (p ?x))", "formula"),
         ("(exists (?x - t) (p ?x))", "formula"),
     ], r=read)
+
+
+def test_types():
+    _test_inputs([
+        ("(:types t1 t2 t3)", "declaration_of_types"),
+        ("(:types t1 t2 t3 - object)", "declaration_of_types"),
+        ("(:types t1 - object\n t2 - t1\n t3 - t2)", "declaration_of_types"),
+        # i.e. t4 and t5 are untyped. Ugly, but allowed by the grammar:
+        ("(:types t1 t2 t3 - object t4 t5)", "declaration_of_types"),
+        ("(:types t1 object t3)", "declaration_of_types"),
+    ])
+
+    with pytest.raises(UndefinedSort):
+        # Cannot start  the list of types with "untyped" types and continue with typed ones
+        _test_inputs([("(:types t1\n t2 - t1\n t3 - t2)", "declaration_of_types")])

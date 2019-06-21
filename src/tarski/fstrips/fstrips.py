@@ -76,10 +76,8 @@ class FunctionalEffect(SingleEffect):
 
 class IncreaseEffect(FunctionalEffect):
     def __init__(self, lhs, rhs, condition=Tautology()):
-        self.lhs = lhs
-        self.rhs = rhs
-        self.condition = condition
-        self.check_well_formed()
+        super().__init__(lhs, rhs, condition)
+
         # MRJ: normalise rhs so it is easier to handle later on
         if type(self.rhs) == int:
             self.rhs = Constant(self.rhs, self.lhs.language.Integer)
@@ -151,15 +149,16 @@ class LogicalEffect(SingleEffect):
 
 
 class VectorisedEffect(SingleEffect):
-    """
-        Action effects that modify the denotation of a vector (tuple) of terms
-    """
+    """ Action effects that modify the denotation of a vector (tuple) of terms """
 
     def __init__(self, lhs, rhs, condition=Tautology()):
         super().__init__(condition)
         self.lhs = lhs
         self.rhs = rhs
         self.check_well_formed()
+
+    def tostring(self):
+        return "VectorisedEffect({} := {})".format(self.lhs, self.rhs)
 
     def check_well_formed(self):
         if not hasattr(self.lhs, 'shape'):
@@ -189,13 +188,16 @@ class LinearEffect(SingleEffect):
             Ax + b
     """
 
-    def __init__(self, y, A, x, b, condition=Tautology()):
+    def __init__(self, y, a, x, b, condition=Tautology()):
         super().__init__(condition)
         self.y = y
-        self.A = A
+        self.A = a
         self.x = x
         self.b = b
         self.check_well_formed()
+
+    def tostring(self):
+        return "LinearEffect({} := {} * {} + {})".format(self.y, self.A, self.x, self.b)
 
     def check_well_formed(self):
         if not hasattr(self.y, 'shape'):

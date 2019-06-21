@@ -1,23 +1,23 @@
 """
     RDDL model acquisition module
 """
-import os
 from enum import Enum
 
 from pyrddl.parser import RDDLParser
 
+from .common import load_tpl
 from ..fol import FirstOrderLanguage
-from ..syntax import *
-from ..syntax.temporal import ltl as tt
+from ..syntax import implies, land, lor, neg, Connective, Quantifier, CompoundTerm, Interval, Atom, IfThenElse, \
+    Contradiction, Tautology, CompoundFormula, forall, ite, AggregateCompoundTerm, QuantifiedFormula, Term, \
+    FunctionSymbol, Variable, PredicateSymbol, Constant, Formula
 from ..syntax import arithmetic as tm
+from ..syntax.temporal import ltl as tt
 from ..syntax.builtins import create_atom, BuiltinPredicateSymbol as BPS, BuiltinFunctionSymbol as BFS, \
     get_random_binary_functions
 from ..model import Model
 from ..evaluators.simple import evaluate
 from ..errors import LanguageError
 from ..theories import Theory, language
-
-_CURRENT_DIR_ = os.path.dirname(os.path.realpath(__file__))
 
 
 class TranslationError(Exception):
@@ -31,30 +31,30 @@ logic_rddl_to_tarski = {
     '~': neg}
 
 relational_rddl_to_tarski = {
-    '==': BuiltinPredicateSymbol.EQ,
-    '<=': BuiltinPredicateSymbol.LE,
-    '>=': BuiltinPredicateSymbol.GE
+    '==': BPS.EQ,
+    '<=': BPS.LE,
+    '>=': BPS.GE
 }
 
 arithmetic_rddl_to_tarski = {
-    '-': lambda L, x, y: L.dispatch_operator(BuiltinFunctionSymbol.SUB, Term, Term, x, y),
-    '+': lambda L, x, y: L.dispatch_operator(BuiltinFunctionSymbol.ADD, Term, Term, x, y),
-    '*': lambda L, x, y: L.dispatch_operator(BuiltinFunctionSymbol.MUL, Term, Term, x, y),
-    '/': lambda L, x, y: L.dispatch_operator(BuiltinFunctionSymbol.DIV, Term, Term, x, y)
+    '-': lambda lang, x, y: lang.dispatch_operator(BFS.SUB, Term, Term, x, y),
+    '+': lambda lang, x, y: lang.dispatch_operator(BFS.ADD, Term, Term, x, y),
+    '*': lambda lang, x, y: lang.dispatch_operator(BFS.MUL, Term, Term, x, y),
+    '/': lambda lang, x, y: lang.dispatch_operator(BFS.DIV, Term, Term, x, y)
 }
 
 func_rddl_to_tarski = {
-    'abs': BuiltinFunctionSymbol.ABS,
-    'Normal': BuiltinFunctionSymbol.NORMAL,
-    'sqrt': BuiltinFunctionSymbol.SQRT,
-    'pow': BuiltinFunctionSymbol.POW,
-    'exp': BuiltinFunctionSymbol.EXP,
-    'max': BuiltinFunctionSymbol.MAX,
-    'Gamma': BuiltinFunctionSymbol.GAMMA
+    'abs': BFS.ABS,
+    'Normal': BFS.NORMAL,
+    'sqrt': BFS.SQRT,
+    'pow': BFS.POW,
+    'exp': BFS.EXP,
+    'max': BFS.MAX,
+    'Gamma': BFS.GAMMA
 }
 
 
-def translate_expression(L, rddl_expr):
+def translate_expression(lang, rddl_expr):
     try:
         expr_type, expr_sym = rddl_expr.etype
     except AttributeError:
@@ -62,16 +62,16 @@ def translate_expression(L, rddl_expr):
 
     if expr_type == 'number':
         if 'float' in expr_sym:
-            return Constant(rddl_expr.args, L.Real)
+            return Constant(rddl_expr.args, lang.Real)
         elif 'int' in expr_sym:
-            return Constant(rddl_expr.args, L.Integer)
+            return Constant(rddl_expr.args, lang.Integer)
     elif expr_type == 'pvar_expr':
         # MRJ: this is a next state fluent
-        prima_fluent = False
+        # prima_fluent = False
         pvar_name = expr_sym[0]
-        if "'" in pvar_name:
-            prima_fluent = True
-        tsym = L.get(pvar_name.replace("'", ""))
+        # if "'" in pvar_name:
+        #     prima_fluent = True
+        tsym = lang.get(pvar_name.replace("'", ""))
         args = expr_sym[1]
         targs = []
         if args is not None:
@@ -84,12 +84,12 @@ def translate_expression(L, rddl_expr):
                     else:
                         assert False
                 elif isinstance(arg, float):
-                    targs += [Constant(arg, L.Real)]
+                    targs += [Constant(arg, lang.Real)]
                 elif isinstance(arg, int):
-                    targs += [Constant(arg, L.Integer)]
+                    targs += [Constant(arg, lang.Integer)]
                 else:
                     # print(arg)
-                    targs += [L.get(arg)]  # named constant?
+                    targs += [lang.get(arg)]  # named constant?
         return tsym(*targs)
 
     elif expr_type == 'pvar':
@@ -97,7 +97,7 @@ def translate_expression(L, rddl_expr):
         prima_fluent = False
         if "'" in rddl_expr.args[0]:
             prima_fluent = True
-        tsym = L.get(rddl_expr.args[0].replace("'", ""))
+        tsym = lang.get(rddl_expr.args[0].replace("'", ""))
         if len(rddl_expr.args) == 2 and rddl_expr.args[1] is None:
             if prima_fluent:
                 if not isinstance(tsym, PredicateSymbol):
@@ -114,12 +114,12 @@ def translate_expression(L, rddl_expr):
                 else:
                     assert False
             elif isinstance(arg, float):
-                targs += [Constant(arg, L.Real)]
+                targs += [Constant(arg, lang.Real)]
             elif isinstance(arg, int):
-                targs += [Constant(arg, L.Integer)]
+                targs += [Constant(arg, lang.Integer)]
             else:
                 # print(arg)
-                targs += [L.get(arg)]  # named constant?
+                targs += [lang.get(arg)]  # named constant?
         if prima_fluent:
             if not isinstance(tsym, PredicateSymbol):
                 raise LanguageError("Temporal operator X only defined for predicates!")
@@ -128,35 +128,35 @@ def translate_expression(L, rddl_expr):
         return tsym(*targs)
     elif expr_type == 'typed_var':
         var_name, var_type = expr_sym
-        return Variable(var_name, L.get(var_type))
+        return Variable(var_name, lang.get(var_type))
     elif expr_type == 'control':
         assert expr_sym == 'if'
-        targs = [translate_expression(L, arg) for arg in rddl_expr.args]
+        targs = [translate_expression(lang, arg) for arg in rddl_expr.args]
         return ite(*targs)
     elif expr_type == 'relational':
         tsym = relational_rddl_to_tarski[expr_sym]
-        targs = [translate_expression(L, arg) for arg in rddl_expr.args]
-        return create_atom(L, tsym, targs[0], targs[1])
+        targs = [translate_expression(lang, arg) for arg in rddl_expr.args]
+        return create_atom(lang, tsym, targs[0], targs[1])
     elif expr_type == 'aggregation':
         if expr_sym == 'sum':
-            var = translate_expression(L, rddl_expr.args[0])
-            sum_expr = translate_expression(L, rddl_expr.args[1])
+            var = translate_expression(lang, rddl_expr.args[0])
+            sum_expr = translate_expression(lang, rddl_expr.args[1])
             if isinstance(sum_expr, Formula):
-                sum_expr = ite(sum_expr, Constant(1, L.Integer), Constant(0, L.Integer))
+                sum_expr = ite(sum_expr, Constant(1, lang.Integer), Constant(0, lang.Integer))
             return tm.summation(var, sum_expr)
         elif expr_sym == 'prod':
-            var = translate_expression(L, rddl_expr.args[0])
-            prod_expr = translate_expression(L, rddl_expr.args[1])
+            var = translate_expression(lang, rddl_expr.args[0])
+            prod_expr = translate_expression(lang, rddl_expr.args[1])
             if isinstance(prod_expr, Formula):
-                prod_expr = ite(prod_expr, Constant(1, L.Integer), Constant(0, L.Integer))
+                prod_expr = ite(prod_expr, Constant(1, lang.Integer), Constant(0, lang.Integer))
             return tm.product(var, prod_expr)
         elif expr_sym == 'forall':
-            var = translate_expression(L, rddl_expr.args[0])
-            forall_expr = translate_expression(L, rddl_expr.args[1])
+            var = translate_expression(lang, rddl_expr.args[0])
+            forall_expr = translate_expression(lang, rddl_expr.args[1])
             return forall(var, forall_expr)
     elif expr_type == 'arithmetic':
         op = arithmetic_rddl_to_tarski[expr_sym]
-        targs = [L] + [translate_expression(L, arg) for arg in rddl_expr.args]
+        targs = [lang] + [translate_expression(lang, arg) for arg in rddl_expr.args]
         # MRJ: in some domains (e.g. Mars Rovers) there's stuff like a boolean multiplying an
         # expression
         if expr_sym == '*':
@@ -169,34 +169,34 @@ def translate_expression(L, rddl_expr):
             if expr_sym == '-':
                 # replace -x by -1 * x
                 actual_op = arithmetic_rddl_to_tarski['*']
-                targs = [targs[0]] + [Constant(-1.0, L.Real)] + [targs[1]]
+                targs = [targs[0]] + [Constant(-1.0, lang.Real)] + [targs[1]]
                 return actual_op(*targs)
         return op(*targs)
     elif expr_type == 'func':
         func = func_rddl_to_tarski[expr_sym]
-        targs = [translate_expression(L, arg) for arg in rddl_expr.args]
-        return L.get(func)(*targs)
+        targs = [translate_expression(lang, arg) for arg in rddl_expr.args]
+        return lang.get(func)(*targs)
     elif expr_type == 'randomvar':
         func = func_rddl_to_tarski[expr_sym]
-        targs = [translate_expression(L, arg) for arg in rddl_expr.args]
-        return L.get(func)(*targs)
+        targs = [translate_expression(lang, arg) for arg in rddl_expr.args]
+        return lang.get(func)(*targs)
     elif expr_type == 'boolean':
         connective = logic_rddl_to_tarski[expr_sym]
-        targs = [translate_expression(L, arg) for arg in rddl_expr.args]
+        targs = [translate_expression(lang, arg) for arg in rddl_expr.args]
         return connective(*targs)
     elif expr_type == 'constant':
         if "class 'float'" in expr_sym:
-            k = Constant(rddl_expr.args, L.Real)
+            k = Constant(rddl_expr.args, lang.Real)
             return k
         if "class 'int'" in expr_sym:
-            k = Constant(rddl_expr.args, L.Real)
+            k = Constant(rddl_expr.args, lang.Real)
             return k
 
     # print(rddl_expr, expr_type, type(expr_sym))
     assert False
 
 
-class Parameters(object):
+class Parameters:
     """
         RDDL instance parameters
     """
@@ -207,7 +207,7 @@ class Parameters(object):
         self.max_actions = None
 
 
-class Reader(object):
+class Reader:
     """
         Reader creates a FOL and several language components
         that specify a RDDL task
@@ -231,8 +231,9 @@ class Reader(object):
         for typename, parent_type in self.rddl_model.domain.types:
             assert parent_type == 'object'
             self.language.sort(typename, self.language.Object)
-        if not hasattr(self.rddl_model.non_fluents, 'objects') \
-            or self.rddl_model.non_fluents.objects[0] is None: return
+        non_fluents = self.rddl_model.non_fluents
+        if not hasattr(non_fluents, 'objects') or not non_fluents.objects or non_fluents.objects[0] is None:
+            return
         for typename, dom in self.rddl_model.non_fluents.objects:
             for o in dom:
                 self.language.constant(o, self.language.get(typename))
@@ -287,11 +288,11 @@ built_in_type_map = {'object': 'Object', 'real': 'Real', 'int': 'Integer'}
 reverse_built_in_type_map = {'Object': 'object', 'Real': 'real', 'Integer': 'int'}
 
 
-def translate_builtin_type(L: FirstOrderLanguage, name):
-    return L.get(built_in_type_map[name])
+def translate_builtin_type(lang: FirstOrderLanguage, name):
+    return lang.get(built_in_type_map[name])
 
 
-def translate_variable(L: FirstOrderLanguage, name, term):
+def translate_variable(lang: FirstOrderLanguage, name, term):
     name = name.split('/')[0]  # forget about the arity of the symbol
     params = []
     if term.param_types is not None:
@@ -304,13 +305,13 @@ def translate_variable(L: FirstOrderLanguage, name, term):
     t_signature = []
     for s in signature:
         try:
-            t_s = L.get(s)
+            t_s = lang.get(s)
         except LanguageError:
-            t_s = translate_builtin_type(L, s)
+            t_s = translate_builtin_type(lang, s)
         t_signature += [t_s]
     if term.range in ('bool', 'boolean'):
-        return L.predicate(name, *t_signature)
-    return L.function(name, *t_signature)
+        return lang.predicate(name, *t_signature)
+    return lang.function(name, *t_signature)
 
 
 class Requirements(Enum):
@@ -402,7 +403,7 @@ function_map = {
 }
 
 
-class Writer(object):
+class Writer:
     """
         Writer compiles the specification of a planning task
         into RDDL
@@ -415,12 +416,8 @@ class Writer(object):
         self.non_fluent_signatures = set()
         self.interm_signatures = set()
 
-    def load_tpl(self, name):
-        with open(os.path.join(_CURRENT_DIR_, "templates", name), 'r') as file:
-            return file.read()
-
     def write_model(self, filename):
-        tpl = self.load_tpl("rddl_model.tpl")
+        tpl = load_tpl("rddl_model.tpl")
         content = tpl.format(
             domain_name=self.task.domain_name,
             req_list=self.get_requirements(),
