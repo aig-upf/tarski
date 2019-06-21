@@ -22,30 +22,30 @@ class StateVariable:
     def __init__(self, term, instantiation):
         assert isinstance(term, (Atom, CompoundTerm))
         self.term = term
-        self.head = term.symbol if isinstance(term, Atom) else term.symbol
-        assert isinstance(self.head, Symbol)
+        self.symbol = term.symbol if isinstance(term, Atom) else term.symbol
+        assert isinstance(self.symbol, Symbol)
         self.instantiation = instantiation
 
     def __hash__(self):
         if len(self.instantiation) == 0:
-            return hash(self.head.name)
+            return hash(self.symbol.name)
         accum = hash(self.instantiation[0])
         for k in range(1, len(self.instantiation)):
             accum = accum ^ hash(self.instantiation[k])
-        return hash(self.head.name) ^ accum
+        return hash(self.symbol.name) ^ accum
 
     def __eq__(self, other):
-        return self.head == other.head \
+        return self.symbol == other.symbol \
                and all(lhs.name == rhs.name for lhs, rhs, in zip(self.instantiation, other.instantiation))
 
     def __str__(self):
-        return '{}({})'.format(self.head.name, ','.join([str(a) for a in self.instantiation]))
+        return '{}({})'.format(self.symbol.name, ','.join([str(a) for a in self.instantiation]))
 
     @property
     def ground(self):
         subst = {k: v for k, v in zip(self.term.subterms, self.instantiation)}
         g = copy.deepcopy(self.term)
-        v = TermSubstitution(self.head.language, subst)
+        v = TermSubstitution(self.symbol.language, subst)
         g.accept(v)
         return g
 
