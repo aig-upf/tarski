@@ -1,12 +1,13 @@
-import tarski
-from tarski.io import rddl
-from tarski.model import Model
-from tarski.evaluators.simple import evaluate
+
+from ..fol import FirstOrderLanguage
+from ..io import rddl
+from ..model import Model
+from ..evaluators.simple import evaluate
 
 
-class Task(object):
+class Task:
 
-    def __init__(self, lang: tarski.FirstOrderLanguage, domain_name: str, instance_name: str):
+    def __init__(self, lang: FirstOrderLanguage, domain_name: str, instance_name: str):
         self.L = lang
         self.state_fluents = []
         self.interm_fluents = []

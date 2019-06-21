@@ -9,8 +9,7 @@ from ..syntax import CompoundFormula, Atom, Connective, Variable, Constant
 
 
 class WrongFormalismError(TarskiError):
-    def __init__(self, msg=None):
-        super().__init__(msg)
+    pass
 
 
 def compute_schema_constraint_hypergraph(action):
@@ -82,7 +81,7 @@ def _collect_hyperedges(phi, edges):
             edges.add(tuple(sorted(edge)))  # Sort to prevent counting both (x,y) and (y,x) as different hyperedges
     elif isinstance(phi, CompoundFormula):
         if phi.connective == Connective.And:
-            [_collect_hyperedges(sub, edges) for sub in phi.subformulas]
+            _ = [_collect_hyperedges(sub, edges) for sub in phi.subformulas]
         elif phi.connective == Connective.Not:
             _collect_hyperedges(phi.subformulas[0], edges)
         else:

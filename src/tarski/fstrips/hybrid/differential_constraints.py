@@ -4,7 +4,7 @@ from ...syntax import BuiltinFunctionSymbol, CompoundTerm
 from . import errors as err
 
 
-class DifferentialConstraint(object):
+class DifferentialConstraint:
     """ A (possibly lifted) reaction """
 
     def __init__(self, language, name, parameters, condition, variate, ode):

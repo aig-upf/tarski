@@ -1,5 +1,8 @@
-from ..builtins import BuiltinFunctionSymbol as BFS
+
 import numpy as np
+
+from ..builtins import BuiltinFunctionSymbol as BFS
+
 
 def normal(mu, sigma):
     try:
@@ -10,6 +13,7 @@ def normal(mu, sigma):
         except AttributeError:
             return np.random.normal(mu, sigma)
     return normal_func(mu, sigma)
+
 
 def gamma(shape, scale):
     try:

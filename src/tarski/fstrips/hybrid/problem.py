@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
+
 from ..problem import Problem
 from .reaction import Reaction
 from .differential_constraints import DifferentialConstraint
 from . import errors as err
-from ..fstrips import *
+from .. import fstrips as fs
 
 
 class HybridProblem(Problem):
@@ -49,17 +50,17 @@ class HybridProblem(Problem):
         for _, react in self.reactions.items():
             react.condition.accept(pv)
             eff = react.effect
-            if isinstance(eff, AddEffect):
+            if isinstance(eff, fs.AddEffect):
                 eff.atom.accept(ev)
-            elif isinstance(eff, DelEffect):
+            elif isinstance(eff, fs.DelEffect):
                 eff.atom.accept(ev)
-            elif isinstance(eff, FunctionalEffect):
+            elif isinstance(eff, fs.FunctionalEffect):
                 eff.lhs.accept(ev)
-            elif isinstance(eff, ChoiceEffect):
+            elif isinstance(eff, fs.ChoiceEffect):
                 eff.lhs.accept(ev)
-            elif isinstance(eff, LogicalEffect):
+            elif isinstance(eff, fs.LogicalEffect):
                 eff.formula.accept(ev)
-            elif isinstance(eff, BlackBoxEffect):
+            elif isinstance(eff, fs.BlackBoxEffect):
                 for yk in eff.lhs[:, 0]:
                     yk.accept(ev)
             else:

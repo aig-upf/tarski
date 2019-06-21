@@ -9,7 +9,7 @@ from .elements import process_expression
 from . import instantiation
 
 
-class SensorGrounder(object):
+class SensorGrounder:
 
     def __init__(self, prob, index):
         self.problem = prob

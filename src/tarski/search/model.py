@@ -1,5 +1,5 @@
 
-from tarski.evaluators.simple import evaluate
+from ..evaluators.simple import evaluate
 
 
 class SearchModel:
@@ -28,5 +28,3 @@ class ForwardSearchModel(SearchModel):
     def is_goal(self, state):
         state.evaluator = evaluate  # TODO This is a bit hacky
         return state[self.problem.goal]  # This triggers the logical interpretation of the goal formula
-
-

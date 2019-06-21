@@ -1,7 +1,6 @@
 import operator
-from .. import funcsym as funcsym
+from .. import funcsym
 from .. import errors as err
-
 from ..syntax import ops, Connective, Atom, Formula, CompoundFormula, QuantifiedFormula, builtins, Variable, \
     Constant, CompoundTerm, Tautology, Contradiction, IfThenElse, AggregateCompoundTerm
 from ..syntax.algebra import Matrix

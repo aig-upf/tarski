@@ -113,7 +113,7 @@ def test_language_mars_rovers_load_reward():
     _ = mr_reader.rddl_model.non_fluents
     mr_reader.translate_rddl_model()
     reward_func = rddl.translate_expression(mr_reader.language, domain.reward)
-    print(reward_func)
+    # print(reward_func)
     assert isinstance(reward_func, Term)
 
 
@@ -212,7 +212,7 @@ def test_language_reservoir_load_constraints():
 
     state_constraints = []
     for c in domain.invariants:
-        print(c)
+        # print(c)
         state_constraints += [rddl.translate_expression(res_reader.language, c)]
     assert len(state_constraints) == 2
 
@@ -252,7 +252,7 @@ def test_mars_rovers_load_initial_state():
     # create sorts and initialize constants
     _ = mr_reader.rddl_model.domain
     _ = mr_reader.rddl_model.non_fluents
-    print(mr_reader.rddl_model.instance.init_state)
+    # print(mr_reader.rddl_model.instance.init_state)
     mr_reader.translate_rddl_model()
     xPos = mr_reader.language.get('xPos')
     yPos = mr_reader.language.get('yPos')
