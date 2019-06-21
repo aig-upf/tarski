@@ -191,9 +191,8 @@ def _quantified(quantifier, *args):
     if not isinstance(formula, Formula):
         raise err.LanguageError('Illformed arguments for quantified formula: {}'.format(args))
 
-    for x in variables:
-        if not isinstance(x, Variable) or not hasattr(x, "language"):
-            raise err.LanguageError('Illformed arguments for quantified formula: {}'.format(args))
+    if not all(isinstance(x, Variable) for x in variables):
+        raise err.LanguageError('Illformed arguments for quantified formula: {}'.format(args))
 
     return QuantifiedFormula(quantifier, variables, args[-1])
 
