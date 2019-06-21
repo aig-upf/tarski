@@ -142,5 +142,4 @@ class CommandNotFoundError(TarskiError):
 
 
 class ExternalCommandError(TarskiError):
-    def __init__(self, msg):
-        super().__init__(msg)
+    pass

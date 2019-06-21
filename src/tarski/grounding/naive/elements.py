@@ -7,6 +7,7 @@ from ...syntax.visitors import CollectVariables
 
 
 def process_expression(language, schema, op, copy_schema=True):
+    # pylint: disable=unused-argument
     if copy_schema:
         g_expr = copy.deepcopy(schema)
     else:
@@ -19,6 +20,7 @@ def process_expression(language, schema, op, copy_schema=True):
 
 
 def process_effect(language, eff_schema, op):
+    # pylint: disable=unused-argument
     if isinstance(eff_schema, (fs.AddEffect, fs.DelEffect)):
         eff_schema.atom.accept(op)
     elif isinstance(eff_schema, fs.FunctionalEffect):

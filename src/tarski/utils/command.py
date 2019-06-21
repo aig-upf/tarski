@@ -1,6 +1,5 @@
 import logging
 import os
-import shutil
 import subprocess
 
 
@@ -54,4 +53,3 @@ def execute(command, **kwargs):
         os.remove(stderr.name)
 
     return retcode
-

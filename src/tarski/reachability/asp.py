@@ -5,7 +5,7 @@ import itertools
 
 from ..syntax.builtins import symbol_complements
 from ..syntax.ops import free_variables
-from ..syntax import Formula, Atom, CompoundFormula, Connective, Term, Variable, Constant, Tautology, Contradiction, \
+from ..syntax import Formula, Atom, CompoundFormula, Connective, Term, Variable, Constant, Tautology, \
     BuiltinPredicateSymbol, QuantifiedFormula, symref, Quantifier
 from ..syntax.sorts import parent
 from ..fstrips import Problem, SingleEffect, UniversalEffect, AddEffect, DelEffect

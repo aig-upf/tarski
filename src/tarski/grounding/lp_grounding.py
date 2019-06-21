@@ -59,4 +59,3 @@ class LPGroundingStrategy:
         return 'LPGroundingStrategy["{}"]'.format(self.problem.name)
 
     __repr__ = __str__
-

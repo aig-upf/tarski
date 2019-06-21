@@ -11,7 +11,7 @@ class IndexDictionary:
     def __init__(self, elements=None):
         self.data = OrderedDict()
         self.objects = []
-        [self.add(element) for element in (elements or [])]
+        _ = [self.add(element) for element in (elements or [])]
 
     def get_index(self, key):
         return self.data[key]
