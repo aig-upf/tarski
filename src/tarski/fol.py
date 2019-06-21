@@ -257,7 +257,8 @@ class FirstOrderLanguage:
         more generic DuplicateDefinition exception if it is. """
         if name in where:
             raise exception(name, where[name])
-        elif name in self._global_index:
+
+        if name in self._global_index:
             raise err.DuplicateDefinition(name, self._global_index[name])
 
     def predicate(self, name: str, *args):

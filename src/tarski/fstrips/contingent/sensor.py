@@ -2,7 +2,7 @@ from ...syntax import CompoundFormula, Atom, Connective
 from . import errors as err
 
 
-class Sensor(object):
+class Sensor:
     """ A (possibly lifted) sensing action """
 
     def __init__(self, language, name, parameters, condition, obs):

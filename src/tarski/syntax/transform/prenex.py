@@ -80,10 +80,11 @@ class PrenexTransformation:
         if phi.connective == Connective.Not:
             if isinstance(phi.subformulas[0], QuantifiedFormula):
                 raise TransformationError('prenex', phi, 'Subformula is not in NNF!')
-            elif isinstance(phi.subformulas[0], CompoundFormula):
+
+            if isinstance(phi.subformulas[0], CompoundFormula):
                 raise TransformationError('prenex', phi, 'Subformula is not in NNF!')
-            else:
-                return phi
+
+            return phi
         else:
             # and/or
             return self.convert_and_or(phi)

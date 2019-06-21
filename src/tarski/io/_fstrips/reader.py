@@ -11,7 +11,7 @@ from antlr4.error.ErrorListener import ErrorListener
 from .common import parse_number, process_requirements, create_sort
 from ...errors import SyntacticError
 from ...fstrips import DelEffect, AddEffect, FunctionalEffect, UniversalEffect, OptimizationMetric
-from ...syntax import neg, land, lor, Tautology, implies, exists, forall, Term, Interval
+from ...syntax import CompoundFormula, Connective, neg, Tautology, implies, exists, forall, Term, Interval
 from ...syntax.builtins import get_predicate_from_symbol, get_function_from_symbol
 from ...syntax.formulas import VariableBinding
 
@@ -31,7 +31,7 @@ class FStripsParser(fstripsVisitor):
 
     def parse_file(self, filename, start_rule='pddlDoc'):
         """ Parse a given filename starting from a given grammar rule """
-        return self._parse_stream(FileStream(filename), start_rule)
+        return self._parse_stream(FileStream(filename, encoding='utf-8'), start_rule)
 
     def _parse_stream(self, filestream, start_rule='pddlDoc'):
         lexer = self._configure_error_handling(fstripsLexer(filestream))
@@ -80,7 +80,7 @@ class FStripsParser(fstripsVisitor):
         process_requirements(self.requirements, self.language)
 
     def visitDeclaration_of_types(self, ctx):
-        for typename, basename in self.visit(ctx.possibly_typed_name_list()):
+        for typename, basename in self.visit(ctx.possibly_typed_type_list()):
             create_sort(self.language, typename, basename)
 
     def extract_namelist(self, ctx):
@@ -91,16 +91,33 @@ class FStripsParser(fstripsVisitor):
         return [(name, 'object') for name in names]
 
     def visitName_list_with_type(self, ctx):
-        typename = ctx.typename().getText().lower()
+        typename = self.visit(ctx.typename())
         names = self.extract_namelist(ctx)
         return [(name, typename) for name in names]
 
+    def visitPrimitiveTypename(self, ctx):
+        return ctx.primitive_type().getText().lower()
+
+    def visitEitherTypename(self, ctx):
+        raise UnsupportedLanguageFeature('"either"-based types not supported in Tarski PDDL parser')
+
     def visitComplexNameList(self, ctx):
-        simple = self.visitSimpleNameList(ctx)
-        derived = []
+        untyped = self.visitSimpleNameList(ctx)
+        typed = []
         for sub in ctx.name_list_with_type():
-            derived += self.visit(sub)
-        return simple + derived
+            typed += self.visit(sub)
+        return untyped + typed
+
+    def visitUntypedTypenameList(self, ctx):
+        names = self.extract_namelist(ctx)
+        return [(name, 'object') for name in names]
+
+    def visitTypedTypenameList(self, ctx):
+        untyped = self.visitUntypedTypenameList(ctx)
+        typed = []
+        for sub in ctx.name_list_with_type():
+            typed += self.visit(sub)
+        return untyped + typed
 
     def visitSingle_predicate_definition(self, ctx):
         predicate = ctx.predicate().getText().lower()
@@ -119,7 +136,7 @@ class FStripsParser(fstripsVisitor):
         return typed_var_names + untyped_var_names
 
     def visitVariable_list_with_type(self, ctx):
-        typename = ctx.primitive_type().getText().lower()  # This is the type of all variables in the list
+        typename = self.visit(ctx.typename())  # This is the type of all variables in the list
         return [self.language.variable(name.getText().lower(), typename) for name in ctx.VARIABLE()]
 
     def visitTyped_function_definition(self, ctx, return_type=None):
@@ -128,14 +145,15 @@ class FStripsParser(fstripsVisitor):
         argument_types = [a.sort for a in self.visit(ctx.possibly_typed_variable_list())]
         return self.language.function(name, *argument_types, return_type)
 
-    def visitUnTyped_function_definition(self, ctx):
-        return self.visitTyped_function_definition(ctx, 'object')
+    def visitUntyped_function_definition(self, ctx):
+        # According to Daniel Kovacs' PDDL 3.1 BNF spec, the default type for functions is 'number'
+        return self.visitTyped_function_definition(ctx, 'number')
 
     def visitTypeBoundsDefinition(self, ctx):
         typename = ctx.NAME().getText().lower()
         sort = self.language.get_sort(typename)
         if not isinstance(sort, Interval):
-            raise RuntimeError("Attempt at bounding symbolic non-interval sort '{}'".format(sort))
+            raise ParsingError("Attempt at bounding symbolic non-interval sort '{}'".format(sort))
 
         # Encode the bounds and set them into the sort
         lower = sort.encode(ctx.NUMBER(0).getText())
@@ -194,7 +212,7 @@ class FStripsParser(fstripsVisitor):
 
     def _recover_variable_from_context(self, name):
         if self.current_binding is None:
-            raise RuntimeError("Variable '{}' used declared outside variable binding".format(name))
+            raise ParsingError("Variable '{}' used declared outside variable binding".format(name))
 
         return self.current_binding.get(name)
 
@@ -230,11 +248,11 @@ class FStripsParser(fstripsVisitor):
             return Tautology
         elif len(conjuncts) == 1:
             return conjuncts[0]
-        return land(*conjuncts)
+        return CompoundFormula(Connective.And, conjuncts)
 
     def visitOrGoalDesc(self, ctx):
         conjuncts = [self.visit(sub_ctx) for sub_ctx in ctx.goalDesc()]
-        return lor(*conjuncts)
+        return CompoundFormula(Connective.Or, conjuncts)
 
     def visitNotGoalDesc(self, ctx):
         return neg(self.visit(ctx.goalDesc()))
@@ -392,10 +410,10 @@ class FStripsParser(fstripsVisitor):
         return self.visit(ctx.functionTerm())
 
     def visitTotalTimeMetric(self, ctx):
-        raise SystemExit("Unsupported feature: Minimize total-time metric is not supported")
+        raise UnsupportedLanguageFeature("Unsupported feature: Minimize total-time metric is not supported")
 
     def visitIsViolatedMetric(self, ctx):
-        raise SystemExit("Unsupported feature: Count of violated constraints metric is not supported")
+        raise UnsupportedLanguageFeature("Unsupported feature: Count of violated constraints metric is not supported")
 
     def visitAssignEffect(self, ctx):
         operation = ctx.assignOp().getText().lower()
@@ -405,109 +423,8 @@ class FStripsParser(fstripsVisitor):
         rhs = self.language.dispatch_operator(get_function_from_symbol(operator), Term, Term, lhs, rhs)
         return FunctionalEffect(lhs, self.visit(ctx.term()), rhs)
 
-    # ------------- PROCESS STUFF - UNREVISED -------------
-
-    # def visitProcessAssignEffect(self, ctx):
-    #     operation = ctx.processEffectOp().getText().lower()
-    #     lhs = self.visit(ctx.functionTerm())
-    #     rhs = self.visit(ctx.processEffectExp())
-    #     if operation in ['assign', 'scale-up', 'scale-down']:
-    #         raise SystemExit("Assign/scale up/scale down effects not allowed in processes")
-    #     trans_op = {'increase': '+', 'decrease': '-'}
-    #     new_rhs = FunctionalTerm(trans_op[operation], [lhs, rhs])
-    #     return AssignmentEffect(lhs, new_rhs)  # This effectively normalizes effects
-    #
-    # def visitFunctionalProcessEffectExpr(self, ctx):
-    #     return self.visit(ctx.processFunctionEff())
-    #
-    # def visitConstProcessEffectExpr(self, ctx):
-    #     return self.visit(ctx.processConstEff())
-    #
-    # def visitVariableProcessEffectExpr(self, ctx):
-    #     return self.visit(ctx.processVarEff())
-    #
-    # def visitProcessFunctionEff(self, ctx):
-    #     return self.visit(ctx.functionTerm())
-    #
-    # def visitProcessConstEff(self, ctx):
-    #     try:
-    #         return NumericConstant(int(ctx.NUMBER().getText().lower()))
-    #     except ValueError:
-    #         return NumericConstant(float(ctx.NUMBER().getText().lower()))
-    #
-    # def visitProcessVarEff(self, ctx):
-    #     variable_name = ctx.VARIABLE().getText().lower()
-    #     return self._recover_variable_from_context(variable_name)
-    #
-    # def visitProcessSingleEffect(self, ctx):
-    #     return ConjunctiveEffect([self.visit(ctx.processEffect())])
-    #
-    # def visitProcessConjunctiveEffectFormula(self, ctx):
-    #     effects = []
-    #     for sub_ctx in ctx.processEffect():
-    #         effects.append(self.visit(sub_ctx))
-    #     return ConjunctiveEffect(effects)
-    #
-    # def visitProcessDef(self, ctx):
-    #     name = ctx.actionName().getText().lower()
-    #     params = self.visit(ctx.possibly_typed_variable_list())
-    #     self.current_params = params
-    #     try:
-    #         precondition, effect = self.visit(ctx.processDefBody())
-    #     except UndeclaredVariable as error:
-    #         raise SystemExit("Parsing process {}: undeclared variable {}".format(name, error))
-    #     self.current_params = None
-    #     process = Action(name, params, len(params), precondition, effect, None)
-    #     self.processes.append(process)
-
-    # def visitProcessDefBody(self, ctx):
-    #     try:
-    #         prec = self.visit(ctx.precondition())
-    #     except UnresolvedVariableError as e:
-    #         raise UndeclaredVariable('precondition', str(e))
-    #     try:
-    #         unnorm_eff = self.visit(ctx.processEffectList())
-    #     except UnresolvedVariableError as e:
-    #         raise UndeclaredVariable('effect', str(e))
-    #     norm_eff = unnorm_eff.normalize()
-    #     norm_eff_list = []
-    #     add_effect(norm_eff, norm_eff_list)
-    #
-    #     return prec, norm_eff_list
-    #
-    # def visitEventDef(self, ctx):
-    #     name = ctx.eventSymbol().getText().lower()
-    #     params = self.visit(ctx.possibly_typed_variable_list())
-    #     self.current_params = params
-    #     try:
-    #         precondition, effect = self.visit(ctx.actionDefBody())
-    #     except UndeclaredVariable as error:
-    #         raise SystemExit("Parsing event {}: undeclared variable {}".format(name, error))
-    #     self.current_params = None
-    #     evt = Event(name, params, len(params), precondition, effect)
-    #     self.events.append(evt)
-    #     # print( 'Action: {0}'.format(name) )
-    #     # print( 'Parameters: {0}'.format(len(params)))
-    #     # for parm in params :
-    #     #    print(parm)
-    #     # precondition.dump()
-    #     # effect.dump()
-    #
-    # def visitConstraintDef(self, ctx):
-    #     name = ctx.constraintSymbol().getText().lower()
-    #     params = self.visit(ctx.possibly_typed_variable_list())
-    #     self.current_params = params
-    #
-    #     try:
-    #         conditions = self.visit(ctx.goalDesc())
-    #     except UndeclaredVariable as error:
-    #         raise SystemExit(
-    #             "Parsing process {}: undeclared variable in {} found undeclared variable {}".
-    #             format('state constraint', repr(error)))
-    #
-    #     self.current_params = None
-    #     state_constraint = Constraint(name, params, conditions)
-    #     self.constraint_schemata.append(state_constraint)
+    def visitDerivedDef(self, ctx):
+        raise UnsupportedLanguageFeature("Parsing of derived predicates in Tarski not yet implemented")
 
 
 class UnresolvedVariableError(Exception):
@@ -537,7 +454,7 @@ class ParserVariableContext:
     def __enter__(self):
         # Merge the new variable binding with the previous one, if it existed
         if self.root and self.parser.current_binding is not None:
-            raise RuntimeError("Clean ParserVariableContext opened upon existing context")
+            raise ParsingError("Clean ParserVariableContext opened upon existing context")
 
         if self.parser.current_binding is None:
             self.parser.current_binding = VariableBinding(self.variables)
@@ -553,6 +470,10 @@ class ParserVariableContext:
 
 
 class ParsingError(SyntacticError):
+    pass
+
+
+class UnsupportedLanguageFeature(ParsingError):
     pass
 
 

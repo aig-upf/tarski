@@ -2,14 +2,14 @@
 import itertools
 from collections import OrderedDict
 
-from ...fstrips import hybrid as hybrid
+from ...fstrips import hybrid
 from ...syntax.transform import TermSubstitution
 from ...util import IndexDictionary
 from . import instantiation
 from .elements import process_expression
 
 
-class DifferentialConstraintGrounder(object):
+class DifferentialConstraintGrounder:
 
     def __init__(self, prob, index):
         self.problem = prob

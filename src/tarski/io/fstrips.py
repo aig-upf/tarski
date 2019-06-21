@@ -1,22 +1,21 @@
 import logging
-import os
 from collections import defaultdict
 
-from ..fstrips.fstrips import SingleEffect
+from .common import load_tpl
 from ..model import ExtensionalFunctionDefinition
 from ..syntax import Tautology, Contradiction, Atom, CompoundTerm, CompoundFormula, QuantifiedFormula, \
     Term, Variable, Constant, Formula
 from ..syntax.sorts import parent, Interval, ancestors
 
 from ._fstrips.common import tarsky_to_pddl_type, get_requirements_string
-from ..fstrips import create_fstrips_problem, language, FunctionalEffect, AddEffect, DelEffect, IncreaseEffect, UniversalEffect
+from ..fstrips import create_fstrips_problem, language, FunctionalEffect, AddEffect, DelEffect, IncreaseEffect,\
+    UniversalEffect
 
 from ._fstrips.reader import FStripsParser
 
 # Leave the next import so that it can be imported from the outside without warnings of importing a private module
+# pylint: disable=unused-import
 from ._fstrips.reader import ParsingError
-
-_CURRENT_DIR_ = os.path.dirname(os.path.realpath(__file__))
 
 
 class FstripsReader:
@@ -156,12 +155,8 @@ class FstripsWriter:
         self.write_domain(domain_filename, domain_constants)
         self.write_instance(instance_filename, domain_constants)
 
-    def load_tpl(self, name):
-        with open(os.path.join(_CURRENT_DIR_, "templates", name), 'r') as file:
-            return file.read()
-
     def print_domain(self, constant_objects=None):
-        tpl = self.load_tpl("fstrips_domain.tpl")
+        tpl = load_tpl("fstrips_domain.tpl")
         content = tpl.format(
             header_info="",
             domain_name=self.problem.domain_name,
@@ -180,7 +175,7 @@ class FstripsWriter:
             file.write(self.print_domain(constant_objects))
 
     def print_instance(self, constant_objects=None):
-        tpl = self.load_tpl("fstrips_instance.tpl")
+        tpl = load_tpl("fstrips_instance.tpl")
 
         # Only objects which are not declared in the domain file need to be printed in the instance file
         constant_objs_set = set(constant_objects) if constant_objects else set()
@@ -239,7 +234,8 @@ class FstripsWriter:
     def get_actions(self):
         return "\n".join(self.get_action(a) for a in self.problem.actions.values())
 
-    def get_action(self, a):
+    @staticmethod
+    def get_action(a):
         base_indentation = 1
         return action_tpl.format(
             name=a.name,
@@ -251,7 +247,8 @@ class FstripsWriter:
     def get_derived_predicates(self):
         return "\n".join(self.get_derived(d) for d in self.problem.derived_predicates.values())
 
-    def get_derived(self, d):
+    @staticmethod
+    def get_derived(d):
         return derived_tpl.format(
             name=d.predicate.symbol,
             parameters=print_variable_list(d.parameters),

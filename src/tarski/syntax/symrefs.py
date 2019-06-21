@@ -9,7 +9,7 @@ def symref(sym):
         return TermReference(sym)
     if isinstance(sym, Formula):
         return FormulaReference(sym)
-    assert False
+    raise RuntimeError("Unexpected symbol type \"{}\"".format(type(sym)))
 
 
 class TermReference:

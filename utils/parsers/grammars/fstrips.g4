@@ -84,7 +84,7 @@ requireDef
 	;
 
 declaration_of_types
-	: '(' ':types' possibly_typed_name_list ')'
+	: '(' ':types' possibly_typed_type_list ')'
 	;
 
 numericBuiltinType
@@ -102,30 +102,40 @@ builtinType
 possibly_typed_name_list
     : NAME*                        # SimpleNameList
     // If there is a mixture of names with and without types,
-    // those _with_ types need to come first:
+    // those *with* types need to come first:
     | name_list_with_type+ NAME*   # ComplexNameList
     ;
 
 name_list_with_type
     : NAME+ '-' typename
 	;
+	
+// A possibly_typed_type_list is different from a possibly_typed_name_list in that it can include 'object'
+// in the *untyped* part of the list (note that 'object' will get tokenized as an OBJECT_T even if it 
+// is also a NAME simply because of the priority of OBJECT_T
+possibly_typed_type_list
+    : (NAME | OBJECT_T)*                       # UntypedTypenameList
+    // If there is a mixture of names with and without types,
+    // those *with* types need to come first:
+    | name_list_with_type+ (NAME | OBJECT_T)*  # TypedTypenameList
+    ;
 
 // If have any typed variables, they must come FIRST!
 possibly_typed_variable_list
     : VARIABLE*                               # UntypedVariableList
     // If there is a mixture of names with and without types,
-    // those _with_ types need to come first:
+    // those *with* types need to come first:
     | variable_list_with_type+ VARIABLE*      # TypedVariableList
     ;
 
 variable_list_with_type
-    : VARIABLE+ '-' primitive_type
+    : VARIABLE+ '-' typename
     ;
 
 
 typename
-	: '(' 'either' primitive_type+ ')'
-	| primitive_type
+	: '(' 'either' primitive_type+ ')'  # EitherTypename
+	| primitive_type                    # PrimitiveTypename
 	;
 
 primitive_type : NAME | builtinType;
@@ -267,9 +277,10 @@ processEffect
 */
 
 /************* DERIVED DEFINITIONS ****************************/
+// TODO Not fully implemented yet
 
 derivedDef
-	: '(' ':derived' possibly_typed_variable_list goalDesc ')'
+	: '(' ':derived' '(' NAME possibly_typed_variable_list ')' goalDesc ')'
 	;
 
 /************* EXPRESSIONS ****************************/

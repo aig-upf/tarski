@@ -64,6 +64,9 @@ def create_number_type(lang):
 
 def create_sort(lang, typename, basename):
     """ Create a Tarski sort from a PDDL type, performing a few checks and translations to ensure consistency """
+    if typename == 'object':
+        return
+    
     typename = pddl_to_tarsky_type(typename)
     basename = pddl_to_tarsky_type(basename)
 
