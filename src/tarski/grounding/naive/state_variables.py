@@ -22,7 +22,7 @@ class StateVariable:
     def __init__(self, term, instantiation):
         assert isinstance(term, (Atom, CompoundTerm))
         self.term = term
-        self.head = term.head if isinstance(term, Atom) else term.head
+        self.head = term.symbol if isinstance(term, Atom) else term.symbol
         assert isinstance(self.head, Symbol)
         self.instantiation = instantiation
 
@@ -36,7 +36,7 @@ class StateVariable:
 
     def __eq__(self, other):
         return self.head == other.head \
-               and all(lhs.symbol == rhs.symbol for lhs, rhs, in zip(self.instantiation, other.instantiation))
+               and all(lhs.name == rhs.name for lhs, rhs, in zip(self.instantiation, other.instantiation))
 
     def __str__(self):
         return '{}({})'.format(self.head.name, ','.join([str(a) for a in self.instantiation]))

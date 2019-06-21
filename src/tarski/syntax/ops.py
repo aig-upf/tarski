@@ -34,4 +34,4 @@ def infer_numeric_sort(value, language):
 
 def cast_to_number(rhs):
     assert isinstance(rhs, Constant)
-    return rhs.symbol
+    return rhs.name

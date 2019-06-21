@@ -9,6 +9,7 @@ from ..errors import LanguageError, LanguageMismatch
 
 class Symbol:
     """ A symbol is defined by its name (a string) and its sort """
+
     def __init__(self, name, language, *args):
         """ Construct a new symbol with given name, pertaining to the given language, and with sort given by
         the tuple of Sort objects in *args
@@ -46,8 +47,6 @@ class Symbol:
 
 
 class PredicateSymbol(Symbol):
-    def __init__(self, name, language, *args):
-        super().__init__(name, language, *args)
 
     @property
     def arity(self):
@@ -62,8 +61,6 @@ class PredicateSymbol(Symbol):
 
 
 class FunctionSymbol(Symbol):
-    def __init__(self, name, language, *args):
-        super().__init__(name, language, *args)
 
     @property
     def domain(self):
@@ -75,7 +72,7 @@ class FunctionSymbol(Symbol):
 
     @property
     def arity(self):
-        return len(self.sort) - 1  # The arity of a function does not count its codomain
+        return self.uniform_arity() - 1  # The arity of a function does not count its codomain
 
     def dump(self):
         return dict(symbol=self.name, domain=[a.name for a in self.domain], codomain=self.codomain.name)

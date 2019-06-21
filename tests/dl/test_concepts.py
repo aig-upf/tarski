@@ -34,7 +34,7 @@ def test_basic_concept_creation():
     ##
     not_holding = factory.create_not_concept(holding_c)
     blocks = language.get_constant("b1")
-    a = NominalConcept(blocks.symbol, blocks.sort)
+    a = NominalConcept(blocks.name, blocks.sort)
     not_a = factory.create_not_concept(a)
 
     # Forall(Star(on),Not({a}))

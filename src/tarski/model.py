@@ -49,18 +49,18 @@ class Model:
         self.predicate_extensions = defaultdict(set)
 
     def setx(self, t: CompoundTerm, value: Constant):
-        if not isinstance(t.head, FunctionSymbol):
+        if not isinstance(t.symbol, FunctionSymbol):
             raise err.SemanticError("Model.set() can only set the value of functions")
-        if t.head.builtin:
-            raise err.SemanticError("Model.set() cannot redefine builtin symbols like '{}'".format(str(t.head)))
+        if t.symbol.builtin:
+            raise err.SemanticError("Model.set() cannot redefine builtin symbols like '{}'".format(str(t.symbol)))
         for st in t.subterms:
             if not isinstance(st, Constant):
                 raise err.SemanticError("Model.set(): subterms of '{}' need to be constants".format(str(t)))
-        point, value = _check_assignment(t.head, tuple(t.subterms), value)
-        if t.head.signature not in self.function_extensions:
-            definition = self.function_extensions[t.head.signature] = ExtensionalFunctionDefinition()
+        point, value = _check_assignment(t.symbol, tuple(t.subterms), value)
+        if t.symbol.signature not in self.function_extensions:
+            definition = self.function_extensions[t.symbol.signature] = ExtensionalFunctionDefinition()
         else:
-            definition = self.function_extensions[t.head.signature]
+            definition = self.function_extensions[t.symbol.signature]
             if not isinstance(definition, ExtensionalFunctionDefinition):
                 raise err.SemanticError("Cannot define extension of intensional definition")
 
@@ -99,7 +99,7 @@ class Model:
 
     def holds(self, predicate: PredicateSymbol, point):
         """ Return true iff the given predicate is true on the given point in the current model """
-        # return tuple(c.symbol for c in point) in self.predicate_extensions[predicate.signature]
+        # return tuple(c.name for c in point) in self.predicate_extensions[predicate.signature]
         return wrap_tuple(point) in self.predicate_extensions[predicate.signature]
 
     def list_all_extensions(self):

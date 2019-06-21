@@ -55,7 +55,7 @@ class Sort:
 
     def extend(self, constant):
         """ Extend the domain of the current sort, and recursively of the parent sorts, with a new constant. """
-        self._domain.add(constant.symbol)
+        self._domain.add(constant.name)
         for p in ancestors(self):
             p.extend(constant)
 

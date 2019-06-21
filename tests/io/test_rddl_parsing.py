@@ -257,9 +257,9 @@ def test_mars_rovers_load_initial_state():
     xPos = mr_reader.language.get('xPos')
     yPos = mr_reader.language.get('yPos')
     time = mr_reader.language.get('time')
-    assert mr_reader.x0[xPos()].symbol == 0.0
-    assert mr_reader.x0[yPos()].symbol == 0.0
-    assert mr_reader.x0[time()].symbol == 0.0
+    assert mr_reader.x0[xPos()].name == 0.0
+    assert mr_reader.x0[yPos()].name == 0.0
+    assert mr_reader.x0[time()].name == 0.0
 
 
 def test_language_navigation_load_initial_state():
@@ -273,8 +273,8 @@ def test_language_navigation_load_initial_state():
     y = nav_reader.language.get('y')
     location = nav_reader.language.get('location')
 
-    assert nav_reader.x0[location(x)].symbol == 0.0
-    assert nav_reader.x0[location(y)].symbol == 0.0
+    assert nav_reader.x0[location(x)].name == 0.0
+    assert nav_reader.x0[location(y)].name == 0.0
 
 
 def test_language_reservoir_load_initial_state():
@@ -289,4 +289,4 @@ def test_language_reservoir_load_initial_state():
     t1 = res_reader.language.get('t1')
     rlevel = res_reader.language.get('rlevel')
 
-    assert res_reader.x0[rlevel(t1)].symbol == 75.0
+    assert res_reader.x0[rlevel(t1)].name == 75.0

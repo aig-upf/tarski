@@ -59,7 +59,7 @@ class SyntacticFactory:
                 logging.warning('Predicate/Function "{}" with normalized arity > 2 ignored'.format(symbol))
 
         for c in nominals:
-            concepts.append(NominalConcept(c.symbol, c.sort))
+            concepts.append(NominalConcept(c.name, c.sort))
 
         for t in types:
             concepts.append(PrimitiveConcept(t))

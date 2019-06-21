@@ -201,26 +201,26 @@ def _quantified(quantifier, *args):
 class Atom(Formula):
     """ A first-order atom """
 
-    def __init__(self, predicate, arguments):
+    def __init__(self, predicate, subterms):
         super().__init__()
-        self.head = predicate
-        self.subterms = arguments
+        self.symbol = predicate
+        self.subterms = subterms
         self._check_well_formed()
 
     def _check_well_formed(self):
-        head = self.head
+        symbol = self.symbol
 
-        if not isinstance(head, PredicateSymbol):
-            raise err.LanguageError("Incorrect atom head: '{}' ".format(head))
+        if not isinstance(symbol, PredicateSymbol):
+            raise err.LanguageError("Incorrect atom symbol: '{}' ".format(symbol))
 
         # Check arities match
-        if len(self.subterms) != self.head.arity:
-            raise err.ArityMismatch(head, self.subterms)
+        if len(self.subterms) != self.symbol.arity:
+            raise err.ArityMismatch(symbol, self.subterms)
 
-        language = head.language
+        language = symbol.language
 
         # Check arguments are all terms of the appropriate type and matching language
-        for arg, expected_sort in zip(self.subterms, head.sort):
+        for arg, expected_sort in zip(self.subterms, symbol.sort):
             if not isinstance(arg, Term):
                 raise err.LanguageError("Wrong argument for atomic formula: '{}' ".format(arg))
 
@@ -234,11 +234,11 @@ class Atom(Formula):
         return hash(str(self))
 
     def __str__(self):
-        return '{}({})'.format(self.head.name, ','.join([str(t) for t in self.subterms]))
+        return '{}({})'.format(self.symbol.name, ','.join([str(t) for t in self.subterms]))
 
     def is_syntactically_equal(self, other):
         if (self.__class__ is not other.__class__ or
-                self.head != other.head or len(self.subterms) != len(other.subterms)):
+                self.symbol != other.symbol or len(self.subterms) != len(other.subterms)):
             return False
 
         # Else we just need to recursively check if all subterms are syntactically equal

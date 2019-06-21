@@ -69,7 +69,7 @@ def print_objects(constants):
     Objects are sorted by name and grouped by type, and types sorted by name as well """
     constants_by_sort = defaultdict(list)
     for c in constants:
-        constants_by_sort[c.sort.name].append(c.symbol)
+        constants_by_sort[c.sort.name].append(c.name)
 
     elements = []
     for sort in sorted(constants_by_sort.keys()):
@@ -327,15 +327,15 @@ def print_term(term):
     if isinstance(term, Variable):
         return "?{}".format(term.name)
     elif isinstance(term, CompoundTerm):
-        return "({} {})".format(term.head.name, print_term_list(term.subterms))
+        return "({} {})".format(term.symbol.name, print_term_list(term.subterms))
     elif isinstance(term, Constant):
-        return "{}".format(term.symbol)
+        return "{}".format(term.name)
     raise RuntimeError("Unexpected element type: {}".format(term))
 
 
 def print_atom(atom):
     assert isinstance(atom, Atom)
-    return "({} {})".format(atom.head.name, print_term_list(atom.subterms))
+    return "({} {})".format(atom.symbol.name, print_term_list(atom.subterms))
 
 
 def print_term_list(terms):

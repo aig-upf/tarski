@@ -134,47 +134,47 @@ class CompoundTerm(Term):
         Function-like interface.
     """
 
-    def __init__(self, head, subterms: Tuple[Term]):
-        assert isinstance(head, FunctionSymbol)
-        self.head = head
+    def __init__(self, symbol, subterms: Tuple[Term]):
+        assert isinstance(symbol, FunctionSymbol)
+        self.symbol = symbol
 
-        if len(subterms) != self.head.arity:
-            raise err.ArityMismatch(head, subterms)
-        argument_sorts = list(self.head.sort)[:-1]
+        if len(subterms) != self.symbol.arity:
+            raise err.ArityMismatch(symbol, subterms)
+        argument_sorts = list(self.symbol.sort)[:-1]
         processed_st = []
         for k, s in enumerate(argument_sorts):
             # @TODO Implement upcasting for non built-in compound terms
             try:
-                if subterms[k].sort.name != s.name and not self.head.language.is_subtype(subterms[k].sort, s):
-                    raise err.SortMismatch(self.head, subterms[k].sort, s)
+                if subterms[k].sort.name != s.name and not self.symbol.language.is_subtype(subterms[k].sort, s):
+                    raise err.SortMismatch(self.symbol, subterms[k].sort, s)
                 processed_st.append(subterms[k])
             except AttributeError:
                 s_k = s.cast(subterms[k])
                 if s_k is None:
-                    raise err.SortMismatch(self.head, subterms[k], s)
+                    raise err.SortMismatch(self.symbol, subterms[k], s)
                 processed_st.append(s_k)
         self.subterms = tuple(processed_st)
-        self.head.language.language_components_frozen = True
+        self.symbol.language.language_components_frozen = True
 
     @property
     def language(self):
-        return self.head.language
+        return self.symbol.language
 
     @property
     def sort(self):
-        return self.head.codomain
+        return self.symbol.codomain
 
     def __str__(self):
-        return '{}({})'.format(self.head.name, ', '.join([str(t) for t in self.subterms]))
+        return '{}({})'.format(self.symbol.name, ', '.join([str(t) for t in self.subterms]))
 
     __repr__ = __str__
 
     def __hash__(self):
-        return hash((self.head, tuple(x for x in self.subterms)))
+        return hash((self.symbol, tuple(x for x in self.subterms)))
 
     def is_syntactically_equal(self, other):
-        # Check that head is the same and recursively that all subterms are syntactically equal
-        return (self.__class__ is other.__class__ and self.head == other.head
+        # Check that symbol is the same and recursively that all subterms are syntactically equal
+        return (self.__class__ is other.__class__ and self.symbol == other.symbol
                 and len(self.subterms) == len(other.subterms)
                 and all(x.is_syntactically_equal(y) for x, y in zip(self.subterms, other.subterms)))
 
@@ -265,9 +265,8 @@ class IfThenElse(Term):
         return hash(('ite', self.condition, tuple(x for x in self.subterms)))
 
     def is_syntactically_equal(self, other):
-        if (self.__class__ is not other.__class__ or self.symbol != other.symbol \
-            or len(self.subterms) != len(other.subterms)) \
-                or (not self.condition.is_syntactically_equal(other.condition)):
+        if self.__class__ is not other.__class__ or self.symbol != other.symbol or \
+                len(self.subterms) != len(other.subterms) or not self.condition.is_syntactically_equal(other.condition):
             return False
 
         # Else we just need to recursively check if all subterms are syntactically equal
@@ -279,16 +278,16 @@ def ite(c, t1, t2):
 
 
 class Constant(Term):
-    def __init__(self, symbol, sort: Sort):
-        assert isinstance(symbol, (str, int, float))
-        self.symbol = symbol
+    def __init__(self, name, sort: Sort):
+        assert isinstance(name, (str, int, float))
+        self.name = name
         self._sort = sort
         # symbol validation
         if not self._sort.builtin:
             # construction of constants extends the domain of sorts
             self._sort.extend(self)
         else:
-            self.symbol = self._sort.cast(self.symbol)
+            self.name = self._sort.cast(self.name)
         self.sort.language.language_components_frozen = True
 
     @property
@@ -300,13 +299,13 @@ class Constant(Term):
         return self._sort
 
     def __str__(self):
-        return '{}'.format(self.symbol)
+        return '{}'.format(self.name)
 
     def __repr__(self):
-        return '{} ({})'.format(self.symbol, self.sort.name)
+        return '{} ({})'.format(self.name, self.sort.name)
 
     def __hash__(self):
-        return hash((self.symbol, self.sort))
+        return hash((self.name, self.sort))
 
     def is_syntactically_equal(self, other):
-        return self.__class__ is other.__class__ and self.symbol == other.symbol and self.sort == other.sort
+        return self.__class__ is other.__class__ and self.name == other.name and self.sort == other.sort

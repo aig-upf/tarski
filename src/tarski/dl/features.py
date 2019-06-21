@@ -19,7 +19,8 @@ class Feature:
     def denotation(self, model):
         raise NotImplementedError()
 
-    def diff(self, x, y):
+    @staticmethod
+    def diff(x, y):
         return compute_feature_diff(x, y)
 
     def __hash__(self):

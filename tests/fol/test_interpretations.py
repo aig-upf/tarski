@@ -35,7 +35,7 @@ def test_numeric_builtin_addition():
     expr = model[x(p1) + 1.0]
 
     assert isinstance(expr, Constant)
-    assert expr.symbol == 2.0
+    assert expr.name == 2.0
 
 
 def test_numeric_rel_formula_evaluation():
@@ -80,7 +80,7 @@ def test_special_function_max():
     reals = lang.Real
     a, b = lang.constant(3.14, reals), lang.constant(1.24, reals)
 
-    assert model[max(a, b)].symbol == 3.14
+    assert model[max(a, b)].name == 3.14
 
 
 def test_special_function_min():
@@ -90,7 +90,7 @@ def test_special_function_min():
     model.evaluator = evaluate
     reals = lang.Real
     a, b = lang.constant(3.14, reals), lang.constant(1.24, reals)
-    assert model[min(a, b)].symbol == 1.24
+    assert model[min(a, b)].name == 1.24
 
 
 def test_special_function_abs():
@@ -102,8 +102,8 @@ def test_special_function_abs():
     a = lang.constant(5.01, reals)
     b = lang.constant(-5.01, reals)
     c = lang.constant(0.001, reals)
-    assert model[abs(a)].symbol == 5.01
-    assert model[abs(b)].symbol == 5.01
+    assert model[abs(a)].name == 5.01
+    assert model[abs(b)].name == 5.01
     assert model[abs(a) > c] is True
     assert model[abs(b) > c] is True
 
@@ -116,7 +116,7 @@ def test_special_function_pow():
     model.evaluator = evaluate
     reals = lang.Real
     alpha = lang.constant(0.5, reals)
-    assert model[pow(alpha, 2.0)].symbol == np.power(0.5, 2.0)
+    assert model[pow(alpha, 2.0)].name == np.power(0.5, 2.0)
 
 
 def test_special_function_sin():
@@ -127,7 +127,7 @@ def test_special_function_sin():
     model.evaluator = evaluate
     reals = lang.Real
     alpha = lang.constant(0.5, reals)
-    assert model[sin(alpha)].symbol == np.sin(0.5)
+    assert model[sin(alpha)].name == np.sin(0.5)
 
 
 def test_special_function_sqrt():
@@ -138,7 +138,7 @@ def test_special_function_sqrt():
     model.evaluator = evaluate
     reals = lang.Real
     alpha = lang.constant(0.5, reals)
-    assert model[sqrt(alpha)].symbol == np.sqrt(0.5)
+    assert model[sqrt(alpha)].name == np.sqrt(0.5)
 
 
 def test_special_function_cos():
@@ -149,7 +149,7 @@ def test_special_function_cos():
     model.evaluator = evaluate
     reals = lang.Real
     alpha = lang.constant(0.5, reals)
-    assert model[cos(alpha)].symbol == np.cos(0.5)
+    assert model[cos(alpha)].name == np.cos(0.5)
 
 
 def test_special_function_tan():
@@ -160,7 +160,7 @@ def test_special_function_tan():
     model.evaluator = evaluate
     reals = lang.Real
     alpha = lang.constant(0.5, reals)
-    assert model[tan(alpha)].symbol == np.tan(0.5)
+    assert model[tan(alpha)].name == np.tan(0.5)
 
 
 def test_special_function_atan():
@@ -171,7 +171,7 @@ def test_special_function_atan():
     model.evaluator = evaluate
     reals = lang.Real
     alpha = lang.constant(0.5, reals)
-    assert model[atan(alpha)].symbol == np.arctan(0.5)
+    assert model[atan(alpha)].name == np.arctan(0.5)
 
 
 def test_special_function_exp():
@@ -182,7 +182,7 @@ def test_special_function_exp():
     model.evaluator = evaluate
     reals = lang.Real
     alpha = lang.constant(0.5, reals)
-    assert model[exp(alpha)].symbol == np.exp(0.5)
+    assert model[exp(alpha)].name == np.exp(0.5)
 
 
 def test_special_function_log():
@@ -193,7 +193,7 @@ def test_special_function_log():
     model.evaluator = evaluate
     reals = lang.Real
     alpha = lang.constant(0.5, reals)
-    assert model[log(alpha)].symbol == np.log(0.5)
+    assert model[log(alpha)].name == np.log(0.5)
 
 
 def test_special_function_erf():
@@ -204,7 +204,7 @@ def test_special_function_erf():
     model.evaluator = evaluate
     reals = lang.Real
     x = lang.constant(0.5, reals)
-    assert model[erf(x)].symbol == sci.erf(0.5)
+    assert model[erf(x)].name == sci.erf(0.5)
 
 
 def test_special_function_erfc():
@@ -215,7 +215,7 @@ def test_special_function_erfc():
     model.evaluator = evaluate
     reals = lang.Real
     x = lang.constant(0.5, reals)
-    assert model[erfc(x)].symbol == sci.erfc(0.5)
+    assert model[erfc(x)].name == sci.erfc(0.5)
 
 
 def test_special_function_sgn():
@@ -226,7 +226,7 @@ def test_special_function_sgn():
     model.evaluator = evaluate
     reals = lang.Real
     x = lang.constant(0.5, reals)
-    assert model[sgn(x)].symbol == np.sign(0.5)
+    assert model[sgn(x)].name == np.sign(0.5)
 
 
 def test_random_function_normal():
@@ -241,7 +241,7 @@ def test_random_function_normal():
     sigma = lang.constant(1.0, reals)
     the_term = normal(mu, sigma)
     assert isinstance(the_term, tarski.syntax.Term)
-    assert model[normal(mu, sigma)].symbol == 0.9714351637324931
+    assert model[normal(mu, sigma)].name == 0.9714351637324931
 
 
 def test_random_function_gamma():
@@ -256,7 +256,7 @@ def test_random_function_gamma():
     scale = lang.constant(5.0, reals)
     the_term = gamma(shape, scale)
     assert isinstance(the_term, tarski.syntax.Term)
-    assert model[gamma(shape, scale)].symbol == 1.0629932880924005
+    assert model[gamma(shape, scale)].name == 1.0629932880924005
 
 
 def test_arcsin():
@@ -267,7 +267,7 @@ def test_arcsin():
     model.evaluator = evaluate
     reals = lang.Real
     alpha = lang.constant(0.5, reals)
-    assert model[asin(alpha)].symbol == np.arcsin(0.5)
+    assert model[asin(alpha)].name == np.arcsin(0.5)
 
 
 def test_blocksworld_add():
@@ -430,7 +430,7 @@ def test_ite():
     model.setx(x(), 1)
     model.setx(y(), 2)
 
-    assert model[tau].symbol == 5
+    assert model[tau].name == 5
 
 
 def test_matrix_evaluation_case_1():

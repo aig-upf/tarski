@@ -275,13 +275,13 @@ class Reader:
             if isinstance(expr, Term):
                 self.x0.setx(expr, value)
             if isinstance(expr, Atom) and value is True:
-                self.x0.add(expr.head, *expr.subterms)
+                self.x0.add(expr.symbol, *expr.subterms)
         for fluent, value in self.rddl_model.non_fluents.init_non_fluent:
             expr = translate_expression(self.language, ('pvar_expr', fluent))
             if isinstance(expr, Term):
                 self.x0.setx(expr, value)
             if isinstance(expr, Atom) and value is True:
-                self.x0.add(expr.head, *expr.subterms)
+                self.x0.add(expr.symbol, *expr.subterms)
 
 
 built_in_type_map = {'object': 'Object', 'real': 'Real', 'int': 'Integer'}
@@ -459,16 +459,16 @@ class Writer:
     def get_type(self, fl):
         if isinstance(fl, Atom):
             return 'bool'
-        name = fl.head.codomain.name
+        name = fl.symbol.codomain.name
         return reverse_built_in_type_map.get(name, name)
 
     def get_signature(self, fl):
         if isinstance(fl, CompoundTerm):
-            sig = fl.head.signature
+            sig = fl.symbol.signature
             head = sig[0]
             domain = sig[1:-1]
         elif isinstance(fl, Atom):
-            sig = fl.head.signature
+            sig = fl.symbol.signature
             head = sig[0]
             domain = sig[1:]
         else:
@@ -485,14 +485,14 @@ class Writer:
             pvar_decl_list += ['\t{} : {{state-fluent, {}, default = {}}};'.format(rsig, self.get_type(fl), str(v))]
         for fl, level in self.task.interm_fluents:
             rsig = self.get_signature(fl)
-            self.interm_signatures.add(fl.head.signature)
+            self.interm_signatures.add(fl.symbol.signature)
             pvar_decl_list += ['\t{} : {{interm-fluent, {}, level = {}}};'.format(rsig, self.get_type(fl), str(level))]
         for fl, v in self.task.action_fluents:
             rsig = self.get_signature(fl)
             pvar_decl_list += ['\t{} : {{action-fluent, {}, default = {}}};'.format(rsig, self.get_type(fl), str(v))]
         for fl, v in self.task.non_fluents:
             rsig = self.get_signature(fl)
-            self.non_fluent_signatures.add(fl.head.signature)
+            self.non_fluent_signatures.add(fl.symbol.signature)
             pvar_decl_list += ['\t{} : {{non-fluent, {}, default = {}}};'.format(rsig, self.get_type(fl), str(v))]
         return '\n'.join(pvar_decl_list)
 
@@ -527,7 +527,7 @@ class Writer:
 
         # initialize
         for S in self.need_obj_decl:
-            domain_str = ','.join([str(c.symbol) for c in S.domain()])
+            domain_str = ','.join([str(c.name) for c in S.domain()])
             obj_decl_blocks += ['\t{} : {{{}}};'.format(S.name, domain_str)]
 
         return 'objects {{{}}};'.format('\n'.join(obj_decl_blocks))
@@ -591,13 +591,13 @@ class Writer:
         if expr is None:
             return '0.0'
         if isinstance(expr, CompoundTerm):
-            name = expr.head.name
+            name = expr.symbol.name
             re_st = [self.rewrite(st) for st in expr.subterms]
-            if expr.head.builtin:
+            if expr.symbol.builtin:
                 if name in symbol_map.keys():
                     return '({} {} {})'.format(re_st[0], symbol_map[name], re_st[1])
             st_str = ''
-            if expr.head.builtin:
+            if expr.symbol.builtin:
                 if name in function_map.keys():
                     if len(re_st) > 0:
                         # MRJ: Random variables need parenthesis, other functions need
@@ -609,16 +609,16 @@ class Writer:
                     return '{}{}'.format(function_map[name], st_str)
             if len(re_st) > 0:
                 st_str = '({})'.format(','.join(re_st))
-            return '{}{}'.format(expr.head.signature[0], st_str)
+            return '{}{}'.format(expr.symbol.signature[0], st_str)
         elif isinstance(expr, Atom):
             re_st = [self.rewrite(st) for st in expr.subterms]
-            if expr.head.builtin:
-                if expr.head.name in symbol_map.keys():
-                    return '({} {} {})'.format(re_st[0], symbol_map[expr.head.name], re_st[1])
+            if expr.symbol.builtin:
+                if expr.symbol.name in symbol_map.keys():
+                    return '({} {} {})'.format(re_st[0], symbol_map[expr.symbol.name], re_st[1])
             st_str = ''
             if len(re_st) > 0:
                 st_str = '({})'.format(','.join(re_st))
-            return '{}{}'.format(expr.head.signature[0], st_str)
+            return '{}{}'.format(expr.symbol.signature[0], st_str)
         elif isinstance(expr, Variable):
             # remove ? just in case
             return '?{}'.format(expr.name.replace('?', ''))
@@ -654,7 +654,7 @@ class Writer:
             return '{}_{{{}}} ({})'.format(re_sym, ','.join(re_vars), re_expr)
 
     def get_fluent(self, fl, next_state=False):
-        head = fl.head.signature[0]
+        head = fl.symbol.signature[0]
         subterms_str = ''
         if len(fl.subterms) > 0:
             subterms_str = []

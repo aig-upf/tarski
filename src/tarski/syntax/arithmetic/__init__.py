@@ -124,7 +124,7 @@ def transpose(m: Term):
         m_t.matrix = m_t.matrix.T
         return m_t
     elif isinstance(m, CompoundTerm):
-        name = m.head.name
+        name = m.symbol.name
         if name in get_arithmetic_binary_functions():
             # handle as an operator
             if name == BuiltinFunctionSymbol.ADD:
@@ -162,8 +162,8 @@ def simplify(expr: Term):
     elif isinstance(expr, Variable):
         return expr
     elif isinstance(expr, CompoundTerm):
-        name = expr.head.name
-        if not expr.head.builtin:
+        name = expr.symbol.name
+        if not expr.symbol.builtin:
             return expr
         if name == BuiltinFunctionSymbol.ADD:
             simp_st = (simplify(expr.subterms[0]), simplify(expr.subterms[1]))
