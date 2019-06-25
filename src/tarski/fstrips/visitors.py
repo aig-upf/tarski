@@ -35,36 +35,34 @@ class FluentSymbolCollector:
     def _visit_action_effect_formula(self, phi):
 
         if isinstance(phi, CompoundFormula):
-            for f in phi.subformulas:
-                f.accept(self)
+            _ = [self.visit(f) for f in phi.subformulas]
+
         elif isinstance(phi, QuantifiedFormula):
-            phi.formula.accept(self)
+            self.visit(phi.formula)
+
         elif isinstance(phi, Atom):
-            # print("Atom: {}".format(str(phi)))
             if not phi.predicate.builtin:
                 self.fluents.add(symref(phi))
             else:
-                for t in phi.subterms:
-                    t.accept(self)
+                _ = [self.visit(f) for f in phi.subterms]
+
         elif isinstance(phi, CompoundTerm):
             # print("Compound Term: {}, {}, {}".format(str(phi), phi.symbol, phi.symbol.builtin))
             if not phi.symbol.builtin:
                 self.fluents.add(symref(phi))
             else:
-                for t in phi.subterms:
-                    t.accept(self)
+                _ = [self.visit(f) for f in phi.subterms]
 
     def _visit_constraint_formula(self, phi):
         if isinstance(phi, ltl.TemporalCompoundFormula) and phi.connective == ltl.TemporalConnective.X:
             old_value = self.under_next
             self.under_next = True
-            for f in phi.subformulas:
-                f.accept(self)
+            _ = [self.visit(f) for f in phi.subformulas]
             self.under_next = old_value
+
         elif isinstance(phi, CompoundFormula):
             old_visited = self.visited.copy()
-            for f in phi.subformulas:
-                f.accept(self)
+            _ = [self.visit(f) for f in phi.subformulas]
             delta = self.visited - old_visited
             # print('Fluents: {}'.format([str(x) for x in self.fluents]))
             # print('Delta: {}'.format([str(x) for x in delta]))
@@ -72,8 +70,10 @@ class FluentSymbolCollector:
                 # print("Fluency propagates")
                 for f in delta:
                     self.fluents.add(f)
+
         elif isinstance(phi, QuantifiedFormula):
-            phi.formula.accept(self)
+            self.visit(phi.formula)
+
         elif isinstance(phi, Atom):
             if not phi.predicate.builtin:
                 self.visited.add(symref(phi))
@@ -82,8 +82,7 @@ class FluentSymbolCollector:
                     self.fluents.add(symref(phi))
             else:
                 self.statics.add(symref(phi))
-            for t in phi.subterms:
-                t.accept(self)
+            _ = [self.visit(f) for f in phi.subterms]
 
         elif isinstance(phi, CompoundTerm):
             if not phi.symbol.builtin:
@@ -93,17 +92,18 @@ class FluentSymbolCollector:
                     self.fluents.add(symref(phi))
             else:
                 self.statics.add(symref(phi))
-            for t in phi.subterms:
-                t.accept(self)
+            _ = [self.visit(f) for f in phi.subterms]
 
     def _visit_precondition_formula(self, phi):
         if isinstance(phi, CompoundFormula):
-            for f in phi.subformulas:
-                f.accept(self)
+            _ = [self.visit(f) for f in phi.subformulas]
+
         elif isinstance(phi, QuantifiedFormula):
-            phi.formula.accept(self)
+            self.visit(phi.formula)
+
         elif isinstance(phi, Atom):
             self.statics.add(symref(phi))
+
         elif isinstance(phi, CompoundTerm):
             self.statics.add(symref(phi))
 

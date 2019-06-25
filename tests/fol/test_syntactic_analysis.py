@@ -23,5 +23,5 @@ def test_detect_free_variables():
     y = tw.variable('y', tw.Object)
     s = neg(land(tw.Cube(x), exists(y, land(tw.Tet(x), tw.LeftOf(x, y)))))
     v = CollectFreeVariables(tw)
-    s.accept(v)
+    v.visit(s)
     assert len(list(v.free_variables)) == 1

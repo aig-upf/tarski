@@ -1,4 +1,5 @@
-from . subst import TermSubstitution
+
+from . subst import TermSubstitution, term_substitution
 from . nnf import NNFTransformation
 from . cnf import CNFTransformation
 from . prenex import PrenexTransformation

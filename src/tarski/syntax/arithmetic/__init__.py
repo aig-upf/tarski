@@ -6,7 +6,7 @@ from ...syntax import Term, AggregateCompoundTerm, CompoundTerm, Constant, Varia
 from ...syntax.algebra import Matrix
 from ... import errors as err
 from ... grounding.naive import instantiation
-from .. transform import TermSubstitution
+from .. transform import term_substitution
 from ..builtins import BuiltinFunctionSymbol, get_arithmetic_binary_functions
 
 
@@ -63,10 +63,7 @@ def summation(*args):
     processed_expr = []
     for values in itertools.product(*substs):
         subst = {syms[k]: v for k, v in enumerate(values)}
-        expr_subst = copy.deepcopy(expr)
-        op = TermSubstitution(L, subst)
-        expr_subst.accept(op)
-        processed_expr.append(expr_subst)
+        processed_expr.append(term_substitution(L, expr, subst))
 
     lhs = processed_expr[0]
     for k in range(1, len(processed_expr)):
@@ -96,10 +93,7 @@ def product(*args):
     processed_expr = []
     for values in itertools.product(*substs):
         subst = {syms[k]: v for k, v in enumerate(values)}
-        expr_subst = copy.deepcopy(expr)
-        op = TermSubstitution(L, subst)
-        expr_subst.accept(op)
-        processed_expr.append(expr_subst)
+        processed_expr.append(term_substitution(L, expr, subst))
 
     lhs = processed_expr[0]
     for k in range(1, len(processed_expr)):

@@ -42,12 +42,6 @@ class Formula:
     def __gt__(self, rhs):
         return implies(self, rhs)
 
-    def accept(self, visitor):
-        """
-            Visitor pattern
-        """
-        visitor.visit(self)
-
     def is_syntactically_equal(self, other):
         """ Strict syntactic equivalence, which would tipically be in `__eq__`,
         but here we use `__eq__` for a different purpose """

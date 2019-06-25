@@ -13,63 +13,53 @@ class MatchExpression:
         self.target = symref(target)
         self.hits = 0
 
+    def _check_match(self, phi):
+        if symref(phi) == self.target:
+            self.hits += 1
+            return True
+        return False
+
     def visit(self, phi):
         if isinstance(phi, CompoundFormula):
-            if symref(phi) == self.target:
-                self.hits += 1
+            if self._check_match(phi):
                 return
-            for f in phi.subformulas:
-                f.accept(self)
+            _ = [self.visit(f) for f in phi.subformulas]
+
         elif isinstance(phi, QuantifiedFormula):
-            if symref(phi) == self.target:
-                self.hits += 1
+            if self._check_match(phi):
                 return
-            phi.formula.accept(self)
-        elif isinstance(phi, Atom):
-            if symref(phi) == self.target:
-                self.hits += 1
+            self.visit(phi.formula)
+
+        elif isinstance(phi, (Atom, CompoundTerm)):
+            if self._check_match(phi):
                 return
-            for t in phi.subterms:
-                t.accept(self)
-        elif isinstance(phi, CompoundTerm):
-            if symref(phi) == self.target:
-                self.hits += 1
-                return
-            for t in phi.subterms:
-                t.accept(self)
+            _ = [self.visit(f) for f in phi.subterms]
 
 
 class CollectVariables:
-    """
-        This Visitor collects all Variables in a given formula
-    """
+    """ Collect all variables in a given formula """
 
     def __init__(self, lang):
         self.L = lang
         self.variables = set()
 
     def visit(self, phi):
+        if isinstance(phi, Variable):
+            self.variables.add(phi)
 
-        if isinstance(phi, CompoundFormula):
-            for f in phi.subformulas:
-                f.accept(self)
+        elif isinstance(phi, CompoundFormula):
+            _ = [self.visit(f) for f in phi.subformulas]
+
         elif isinstance(phi, QuantifiedFormula):
-            phi.formula.accept(self)
-        elif isinstance(phi, Atom):
-            for _, t in enumerate(phi.subterms):
-                if isinstance(t, Variable):
-                    self.variables.add(t)
-                else:
-                    t.accept(self)
-        elif isinstance(phi, CompoundTerm):
-            for _, t in enumerate(phi.subterms):
-                if isinstance(t, Variable):
-                    self.variables.add(t)
-                else:
-                    t.accept(self)
+            self.visit(phi.formula)
+
+        elif isinstance(phi, (Atom, CompoundTerm)):
+            _ = [self.visit(f) for f in phi.subterms]
 
 
 class CollectFreeVariables:
+    """ Collect all free variables in a given formula """
+
     def __init__(self, lang):
         self.L = lang
         self.quantified_vars = set()
@@ -81,31 +71,17 @@ class CollectFreeVariables:
             yield ref.expr
 
     def visit(self, phi):
-        if isinstance(phi, CompoundFormula):
-            for f in phi.subformulas:
-                f.accept(self)
-        elif isinstance(phi, QuantifiedFormula):
-            for x in phi.variables:
-                x_ref = symref(x)
-                self.quantified_vars.add(x_ref)
-            phi.formula.accept(self)
-            for x in phi.variables:
-                x_ref = symref(x)
-                self.quantified_vars.remove(x_ref)
+        if isinstance(phi, Variable):
+            t_ref = symref(phi)
+            if t_ref not in self.quantified_vars:
+                self._free_variables.add(t_ref)
+        elif isinstance(phi, CompoundFormula):
+            _ = [self.visit(f) for f in phi.subformulas]
 
-        elif isinstance(phi, Atom):
-            for _, t in enumerate(phi.subterms):
-                if isinstance(t, Variable):
-                    t_ref = symref(t)
-                    if t_ref not in self.quantified_vars:
-                        self._free_variables.add(t_ref)
-                else:
-                    t.accept(self)
-        elif isinstance(phi, CompoundTerm):
-            for _, t in enumerate(phi.subterms):
-                if isinstance(t, Variable):
-                    t_ref = symref(t)
-                    if t_ref not in self.quantified_vars:
-                        self._free_variables.add(t_ref)
-                else:
-                    t.accept(self)
+        elif isinstance(phi, QuantifiedFormula):
+            _ = [self.quantified_vars.add(symref(x)) for x in phi.variables]
+            self.visit(phi.formula)
+            _ = [self.quantified_vars.remove(symref(x)) for x in phi.variables]
+
+        elif isinstance(phi, (Atom, CompoundTerm)):
+            _ = [self.visit(f) for f in phi.subterms]
