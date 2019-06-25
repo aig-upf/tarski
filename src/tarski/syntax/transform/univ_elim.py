@@ -3,11 +3,8 @@
     Universal Quantification Elimination
 """
 import itertools
-import copy
 from ..formulas import land, Quantifier, QuantifiedFormula
-from ..transform.prenex import PrenexTransformation
-from ..transform.subst import TermSubstitution
-
+from ..transform import term_substitution, PrenexTransformation
 from .errors import TransformationError
 
 
@@ -34,10 +31,7 @@ class UniversalQuantifierElimination:
                 conjuncts = []
                 for values in itertools.product(*substs):
                     subst = {syms[k]: v for k, v in enumerate(values)}
-                    g_const = copy.deepcopy(phi.formula)
-                    op = TermSubstitution(self.L, subst)
-                    g_const.accept(op)
-                    conjuncts.append(g_const)
+                    conjuncts.append(term_substitution(self.L, phi.formula, subst))
                 # print(len(conjuncts))
                 return land(*conjuncts)
 

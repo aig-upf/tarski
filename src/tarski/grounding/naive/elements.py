@@ -11,45 +11,41 @@ def process_expression(language, schema, op, copy_schema=True):
         g_expr = copy.deepcopy(schema)
     else:
         g_expr = schema
-    g_expr.accept(op)
+    op.visit(g_expr)
     var_collector = CollectVariables(language)
-    g_expr.accept(var_collector)
+    var_collector.visit(g_expr)
     assert len(var_collector.variables) == 0
     return g_expr
 
 
 def process_effect(language, eff_schema, op):
-    if isinstance(eff_schema, fs.AddEffect):
-        eff_schema.atom.accept(op)
-    elif isinstance(eff_schema, fs.DelEffect):
-        eff_schema.atom.accept(op)
+    if isinstance(eff_schema, (fs.AddEffect, fs.DelEffect)):
+        op.visit(eff_schema.atom)
     elif isinstance(eff_schema, fs.FunctionalEffect):
-        eff_schema.lhs.accept(op)
+        op.visit(eff_schema.lhs)
         if isinstance(eff_schema.rhs, Variable):
             eff_schema.rhs = op.subst.get(eff_schema.rhs, None)
         else:
-            eff_schema.rhs.accept(op)
+            op.visit(eff_schema.rhs)
     elif isinstance(eff_schema, fs.ChoiceEffect):
-        eff_schema.obj.accept(op)
+        op.visit(eff_schema.obj)
         for x in eff_schema.variables:
-            x.accept(op)
+            op.visit(x)
     elif isinstance(eff_schema, fs.LogicalEffect):
-        eff_schema.formula.accept(op)
+        op.visit(eff_schema)
 
     # MRJ: invariant
     var_collector = CollectVariables(language)
-    if isinstance(eff_schema, fs.AddEffect):
-        eff_schema.atom.accept(var_collector)
-    elif isinstance(eff_schema, fs.DelEffect):
-        eff_schema.atom.accept(var_collector)
+    if isinstance(eff_schema, (fs.AddEffect, fs.DelEffect)):
+        var_collector.visit(eff_schema.atom)
     elif isinstance(eff_schema, fs.FunctionalEffect):
-        eff_schema.lhs.accept(var_collector)
-        eff_schema.rhs.accept(var_collector)
+        var_collector.visit(eff_schema.lhs)
+        var_collector.visit(eff_schema.rhs)
     elif isinstance(eff_schema, fs.ChoiceEffect):
-        eff_schema.obj.accept(var_collector)
+        var_collector.visit(eff_schema.obj)
         for x in eff_schema.variables:
-            x.accept(var_collector)
+            var_collector.visit(x)
     elif isinstance(eff_schema, fs.LogicalEffect):
-        eff_schema.formula.accept(var_collector)
+        var_collector.visit(eff_schema)
     assert len(var_collector.variables) == 0
     return eff_schema

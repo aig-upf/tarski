@@ -4,12 +4,10 @@
 """
 
 import itertools
-import copy
 
 from ...util import IndexDictionary, DuplicateElementError
 from ... import Variable, Constant
-from ...syntax.transform.subst import TermSubstitution
-
+from ...syntax.transform import term_substitution
 from ..errors import UnableToGroundError
 
 
@@ -45,10 +43,7 @@ class StateVariable:
     @property
     def ground(self):
         subst = {k: v for k, v in zip(self.term.subterms, self.instantiation)}
-        g = copy.deepcopy(self.term)
-        v = TermSubstitution(self.head.language, subst)
-        g.accept(v)
-        return g
+        return term_substitution(self.head.language, self.term, subst)
 
     __repr__ = __str__
 
