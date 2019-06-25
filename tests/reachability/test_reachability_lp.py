@@ -42,6 +42,10 @@ def test_lp_compilation():
 
 
 def test_lp_on_gripper():
+    # Test on an untyped problem
     problem = create_sample_problem()
     lp, _ = create_reachability_lp(problem)
     assert lp.nrules() == 31
+
+    # TODO Test also on an problem with types
+

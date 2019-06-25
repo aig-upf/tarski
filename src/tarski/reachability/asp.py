@@ -46,7 +46,7 @@ class ReachabilityLPCompiler:
             if not s.builtin:  # TODO Decide what to do with builtins
                 p = parent(s)
                 if p is not None:
-                    lp.rule(self.lp_atom(p.name, [_var()]), self.lp_atom(s.name, [_var()]))
+                    lp.rule(self.lp_atom(p.name, [_var()]), [self.lp_atom(s.name, [_var()])])
 
         # Process all atoms in the initial state, e.g. "on(b1, b2)."
         for atom in problem.init.as_atoms():
@@ -271,6 +271,7 @@ class InFileLogicProgram:
 
 
 def _print_rule(head, body):
+    assert body is None or isinstance(body, (list, tuple))
     return "{}.".format(head) if body is None else "{} :- {}.".format(head, _print_body(body))
 
 
