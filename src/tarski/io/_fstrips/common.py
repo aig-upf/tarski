@@ -4,7 +4,7 @@ from ... import theories
 from ...theories import Theory
 
 
-def pddl_to_tarsky_type(typename):
+def pddl_to_tarski_type(typename):
     """ Translate a few PDDL types into their corresponding Tarski names
         (e.g. the FSTRIPS type "int" corresponds to the Tarski type "Integer").
     """
@@ -12,7 +12,7 @@ def pddl_to_tarsky_type(typename):
     return translations.get(typename, typename)
 
 
-def tarsky_to_pddl_type(typename):
+def tarski_to_pddl_type(typename):
     """ Translate a few Tarski types into their corresponding FSTRIPS names
     """
     translations = {"Integer": "int", "Natural": "int", "Real": "number"}
@@ -69,8 +69,8 @@ def create_sort(lang, typename, basename):
     if typename == 'object':
         return
     
-    typename = pddl_to_tarsky_type(typename)
-    basename = pddl_to_tarsky_type(basename)
+    typename = pddl_to_tarski_type(typename)
+    basename = pddl_to_tarski_type(basename)
 
     if basename in ("Natural", "Integer", "Real"):
         # The new type will necesarily be an interval subset of it parent

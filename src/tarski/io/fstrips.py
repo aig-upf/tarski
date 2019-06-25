@@ -7,7 +7,7 @@ from ..syntax import Tautology, Contradiction, Atom, CompoundTerm, CompoundFormu
     Term, Variable, Constant, Formula
 from ..syntax.sorts import parent, Interval, ancestors
 
-from ._fstrips.common import tarsky_to_pddl_type, get_requirements_string
+from ._fstrips.common import tarski_to_pddl_type, get_requirements_string
 from ..fstrips import create_fstrips_problem, language, FunctionalEffect, AddEffect, DelEffect, IncreaseEffect,\
     UniversalEffect
 
@@ -204,10 +204,10 @@ class FstripsWriter:
         for t in self.lang.sorts:
             if t.builtin or t == self.lang.Object:
                 continue  # Don't declare builtin elements
-            tname = tarsky_to_pddl_type(t)
+            tname = tarski_to_pddl_type(t)
             p = parent(t)
             if p:
-                res.append("{} - {}".format(tname, tarsky_to_pddl_type(p)))
+                res.append("{} - {}".format(tname, tarski_to_pddl_type(p)))
             else:
                 res.append(tname)
         return ("\n" + _TAB * 2).join(res)
@@ -218,7 +218,7 @@ class FstripsWriter:
             if fun.builtin:
                 continue  # Don't declare builtin elements
             domain_str = build_signature_string(fun.domain)
-            codomain_str = tarsky_to_pddl_type(fun.codomain)
+            codomain_str = tarski_to_pddl_type(fun.codomain)
             res.append("({} {}) - {}".format(fun.symbol, domain_str, codomain_str))
         return ("\n" + _TAB * 2).join(res)
 
@@ -259,7 +259,7 @@ def build_signature_string(domain):
     if not domain:
         return ""
 
-    return " ".join("?x{} - {}".format(i, tarsky_to_pddl_type(t)) for i, t in enumerate(domain, 1))
+    return " ".join("?x{} - {}".format(i, tarski_to_pddl_type(t)) for i, t in enumerate(domain, 1))
 
 
 def print_variable_list(parameters):
