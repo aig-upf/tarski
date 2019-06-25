@@ -10,7 +10,7 @@ from ..utils import command as cmd
 def run_clingo(lp):
     gringo = shutil.which("gringo")
     if gringo is None:
-        raise CommandNotFoundError("clingo")
+        raise CommandNotFoundError("gringo")
 
     with tempfile.NamedTemporaryFile(mode='w+t', delete=False) as f:
         _ = [print(str(r), file=f) for r in lp.rules]
