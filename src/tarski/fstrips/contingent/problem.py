@@ -29,8 +29,8 @@ class ContingentProblem(Problem):
     def get_symbols(self, pv, ev, cv):
         super().get_symbols(pv, ev, cv)
         for _, sensor in self.sensors.items():
-            sensor.condition.accept(pv)
-            sensor.obs.accept(pv)
+            pv.visit(sensor.condition)
+            pv.visit(sensor.obs)
 
     def __str__(self):
         return 'FSTRIPS Contingent Problem "{}", domain "{}"'.format(self.name, self.domain_name)

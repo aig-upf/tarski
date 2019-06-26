@@ -12,9 +12,9 @@ def process_expression(language, schema, op, copy_schema=True):
         g_expr = copy.deepcopy(schema)
     else:
         g_expr = schema
-    g_expr.accept(op)
+    op.visit(g_expr)
     var_collector = CollectVariables()
-    g_expr.accept(var_collector)
+    var_collector.visit(g_expr)
     assert len(var_collector.variables) == 0
     return g_expr
 
@@ -22,28 +22,26 @@ def process_expression(language, schema, op, copy_schema=True):
 def process_effect(language, eff_schema, op):
     # pylint: disable=unused-argument
     if isinstance(eff_schema, (fs.AddEffect, fs.DelEffect)):
-        eff_schema.atom.accept(op)
+        op.visit(eff_schema.atom)
     elif isinstance(eff_schema, fs.FunctionalEffect):
-        eff_schema.lhs.accept(op)
+        op.visit(eff_schema.lhs)
         if isinstance(eff_schema.rhs, Variable):
             eff_schema.rhs = op.subst.get(eff_schema.rhs, None)
         else:
-            eff_schema.rhs.accept(op)
+            op.visit(eff_schema.rhs)
     elif isinstance(eff_schema, fs.ChoiceEffect):
-        eff_schema.obj.accept(op)
-        for x in eff_schema.variables:
-            x.accept(op)
+        op.visit(eff_schema.obj)
+        _ = [op.visit(x) for x in eff_schema.variables]
 
     # MRJ: invariant
     var_collector = CollectVariables()
     if isinstance(eff_schema, (fs.AddEffect, fs.DelEffect)):
-        eff_schema.atom.accept(var_collector)
+        var_collector.visit(eff_schema.atom)
     elif isinstance(eff_schema, fs.FunctionalEffect):
-        eff_schema.lhs.accept(var_collector)
-        eff_schema.rhs.accept(var_collector)
+        var_collector.visit(eff_schema.lhs)
+        var_collector.visit(eff_schema.rhs)
     elif isinstance(eff_schema, fs.ChoiceEffect):
-        eff_schema.obj.accept(var_collector)
-        for x in eff_schema.variables:
-            x.accept(var_collector)
+        var_collector.visit(eff_schema.obj)
+        _ = [var_collector.visit(x) for x in eff_schema.variables]
     assert len(var_collector.variables) == 0
     return eff_schema

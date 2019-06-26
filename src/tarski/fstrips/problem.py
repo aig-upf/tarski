@@ -63,23 +63,22 @@ class Problem:
                 - cv: FluentSymbolCollector tuned for constraints
         """
         for _, act in self.actions.items():
-            act.precondition.accept(pv)
+            pv.visit(act.precondition)
             for eff in act.effects:
-                eff.condition.accept(pv)
+                pv.visit(eff.condition)
                 if isinstance(eff, (fs.AddEffect, fs.DelEffect)):
-                    eff.atom.accept(ev)
+                    ev.visit(eff.atom)
                 elif isinstance(eff, fs.FunctionalEffect):
-                    eff.lhs.accept(ev)
+                    ev.visit(eff.lhs)
                 elif isinstance(eff, fs.ChoiceEffect):
-                    eff.obj.accept(ev)
-                    for x in eff.variables:
-                        x.accept(ev)
+                    ev.visit(eff.obj)
+                    _ = [ev.visit(x) for x in eff.variables]
                 else:
                     raise RuntimeError("Effect type '{}' cannot be analysed".format(type(eff)))
 
         for const in self.constraints:
             cv.reset()
-            const.accept(cv)
+            cv.visit(const)
 
     def metric(self, opt_expression, opt_type):
         self.metric_ = fs.OptimizationMetric(opt_expression, opt_type)

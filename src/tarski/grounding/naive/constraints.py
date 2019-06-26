@@ -30,7 +30,7 @@ class ConstraintGrounder:
             # 1. Collect set of free variables in the constraint
             const_schema = UniversalQuantifierElimination.rewrite(self.L, const_schema).universal_free
             var_collector = CollectVariables()
-            const_schema.accept(var_collector)
+            var_collector.visit(const_schema)
             K, syms, substs = instantiation.enumerate_groundings(self.L, list(var_collector.variables))
             for values in itertools.product(*substs):
                 subst = OrderedDict({syms[k]: v for k, v in enumerate(values)})

@@ -5,7 +5,7 @@
 """
 from ..formulas import CompoundFormula, QuantifiedFormula, Connective, Quantifier, lor
 from ..transform.nnf import NNFTransformation
-from ..transform.subst import TermSubstitution
+from ..transform import term_substitution
 
 from .errors import TransformationError
 
@@ -37,8 +37,7 @@ class PrenexTransformation:
                     subst[y] = y2
                     new_variables[(y2.symbol, y2.sort.name)] = y2
         if len(subst) > 0:
-            substitution = TermSubstitution(self.L, subst)
-            rhs.formula.accept(substitution)
+            rhs.formula = term_substitution(self.L, rhs.formula, subst, inplace=True)
         new_phi = QuantifiedFormula(lhs.quantifier, list(new_variables.values()), lor(lhs.formula, rhs.formula))
         return new_phi
 
@@ -59,8 +58,7 @@ class PrenexTransformation:
                 subst[y] = y2
                 new_out_vars.append(y2)
         if len(subst) > 0:
-            substitution = TermSubstitution(self.L, subst)
-            out_phi.accept(substitution)
+            term_substitution(self.L, out_phi, subst, inplace=True)
         phi = CompoundFormula(conn, tuple([lhs, rhs]))
         inner = QuantifiedFormula(inner_q, inner_vars, phi)
         return QuantifiedFormula(out_q, new_out_vars, inner)

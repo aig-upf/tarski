@@ -48,20 +48,20 @@ class HybridProblem(Problem):
     def get_symbols(self, pv, ev, cv):
         super().get_symbols(pv, ev, cv)
         for _, react in self.reactions.items():
-            react.condition.accept(pv)
+            pv.visit(react.condition)
             eff = react.effect
             if isinstance(eff, (fs.AddEffect, fs.DelEffect)):
-                eff.atom.accept(ev)
-            elif isinstance(eff, (fs.FunctionalEffect, fs.ChoiceEffect)):
-                eff.lhs.accept(ev)
+                ev.visit(eff.atom)
+            elif isinstance(eff, fs.(fs.FunctionalEffect, fs.ChoiceEffect)):
+                ev.visit(eff.lhs)
             elif isinstance(eff, fs.BlackBoxEffect):
                 for yk in eff.lhs[:, 0]:
-                    yk.accept(ev)
+                    ev.visit(yk)
             else:
                 raise RuntimeError("Effect type '{}' cannot be analysed".format(type(eff)))
         for _, dc in self.differential_constraints.items():
-            dc.condition.accept(pv)
-            dc.variate.accept(ev)
+            pv.visit(dc.condition)
+            pv.visit(dc.variate)
 
     def __str__(self):
         return 'FSTRIPS Hybrid Problem "{}", domain "{}"'.format(self.name, self.domain_name)

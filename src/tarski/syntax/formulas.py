@@ -42,12 +42,6 @@ class Formula:
     def __gt__(self, rhs):
         return implies(self, rhs)
 
-    def accept(self, visitor):
-        """
-            Visitor pattern
-        """
-        visitor.visit(self)
-
     def is_syntactically_equal(self, other):
         """ Strict syntactic equivalence, which would tipically be in `__eq__`,
         but here we use `__eq__` for a different purpose """
@@ -191,9 +185,8 @@ def _quantified(quantifier, *args):
     if not isinstance(formula, Formula):
         raise err.LanguageError('Illformed arguments for quantified formula: {}'.format(args))
 
-    for x in variables:
-        if not isinstance(x, Variable) or not hasattr(x, "language"):
-            raise err.LanguageError('Illformed arguments for quantified formula: {}'.format(args))
+    if not all(isinstance(x, Variable) for x in variables):
+        raise err.LanguageError('Illformed arguments for quantified formula: {}'.format(args))
 
     return QuantifiedFormula(quantifier, variables, args[-1])
 
