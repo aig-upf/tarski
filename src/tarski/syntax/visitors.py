@@ -37,10 +37,9 @@ class MatchExpression:
 
 
 class CollectVariables:
-    """ Collect all variables in a given formula """
+    """ Collect all variables in a given formula or term """
 
-    def __init__(self, lang):
-        self.L = lang
+    def __init__(self):
         self.variables = set()
 
     def visit(self, phi):
@@ -58,10 +57,8 @@ class CollectVariables:
 
 
 class CollectFreeVariables:
-    """ Collect all free variables in a given formula """
-
-    def __init__(self, lang):
-        self.L = lang
+    """ Collect all free variables in a given formula or term """
+    def __init__(self):
         self.quantified_vars = set()
         self._free_variables = set()
 

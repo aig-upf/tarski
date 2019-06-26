@@ -249,6 +249,7 @@ class VariableBinding:
         self.variables = OrderedDict((v.symbol, v) for v in variables)
         self._idx = 0
         self._v_values = list(self.variables.values())
+        self.index_ = {v.symbol: i for i, v in enumerate(variables)}
 
     def __len__(self):
         return len(self.variables)
@@ -262,6 +263,7 @@ class VariableBinding:
             raise err.DuplicateVariableDefinition(variable, other)
         self.variables[variable.symbol] = variable
         self._v_values += [variable]
+        self.index_[variable.symbol] = len(self.index_)
 
     def get(self, name):
         var = self.variables.get(name, None)
@@ -269,9 +271,22 @@ class VariableBinding:
             raise err.UndefinedVariable(name)
         return var
 
+    def index(self, name):
+        idx = self.index_.get(name, None)
+        if idx is None:
+            raise err.UndefinedVariable(name)
+        return idx
+
     def merge(self, binding):
         """ Merge the given binding into the current binding, inplace """
         raise NotImplementedError()
+
+    @staticmethod
+    def empty():
+        return VariableBinding()
+
+    def vars(self):
+        return list(self.variables.values())
 
     def __iter__(self):
         self._v_values = [v for _, v in self.variables.items()]

@@ -4,21 +4,22 @@ import copy
 from ... import fstrips as fs
 from ...syntax import Variable
 from ...syntax.visitors import CollectVariables
+from ...syntax.ops import all_variables
 
 
 def process_expression(language, schema, op, copy_schema=True):
+    # pylint: disable=unused-argument
     if copy_schema:
         g_expr = copy.deepcopy(schema)
     else:
         g_expr = schema
     op.visit(g_expr)
-    var_collector = CollectVariables(language)
-    var_collector.visit(g_expr)
-    assert len(var_collector.variables) == 0
+    assert len(all_variables(g_expr)) == 0
     return g_expr
 
 
 def process_effect(language, eff_schema, op):
+    # pylint: disable=unused-argument
     if isinstance(eff_schema, (fs.AddEffect, fs.DelEffect)):
         op.visit(eff_schema.atom)
     elif isinstance(eff_schema, fs.FunctionalEffect):
@@ -29,13 +30,10 @@ def process_effect(language, eff_schema, op):
             op.visit(eff_schema.rhs)
     elif isinstance(eff_schema, fs.ChoiceEffect):
         op.visit(eff_schema.obj)
-        for x in eff_schema.variables:
-            op.visit(x)
-    elif isinstance(eff_schema, fs.LogicalEffect):
-        op.visit(eff_schema)
+        _ = [op.visit(x) for x in eff_schema.variables]
 
     # MRJ: invariant
-    var_collector = CollectVariables(language)
+    var_collector = CollectVariables()
     if isinstance(eff_schema, (fs.AddEffect, fs.DelEffect)):
         var_collector.visit(eff_schema.atom)
     elif isinstance(eff_schema, fs.FunctionalEffect):
@@ -43,9 +41,6 @@ def process_effect(language, eff_schema, op):
         var_collector.visit(eff_schema.rhs)
     elif isinstance(eff_schema, fs.ChoiceEffect):
         var_collector.visit(eff_schema.obj)
-        for x in eff_schema.variables:
-            var_collector.visit(x)
-    elif isinstance(eff_schema, fs.LogicalEffect):
-        var_collector.visit(eff_schema)
+        _ = [var_collector.visit(x) for x in eff_schema.variables]
     assert len(var_collector.variables) == 0
     return eff_schema

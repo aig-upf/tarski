@@ -350,10 +350,11 @@ class FirstOrderLanguage:
     def dispatch_operator(self, operator, t1, t2, lhs, rhs):
         # assert isinstance(lhs, t1)
         # assert isinstance(rhs, t2)
-        try:
-            return self._operators[(operator, t1, t2)](lhs, rhs)
-        except KeyError:
+        op = self._operators.get((operator, t1, t2), None)
+        if op is None:
             raise err.LanguageError("Operator '{}' not defined on domain ({}, {})".format(operator, t1, t2))
+
+        return op(lhs, rhs)
 
     def get(self, first, *args):
         """ Return the language element with given name(s).

@@ -108,10 +108,27 @@ class Model:
         This list *unwraps* the TermReference's used internally in this class back into plain Tarski terms, so that
         you can rely on the returned extensions being made up of Constant's, Variables, etc., not TermReference's
         """
-        exts = {k: [unwrap_tuple(ref) for ref in refs] for k, refs in self.predicate_extensions.items()}
+        exts = {k: [unwrap_tuple(tup) for tup in ext] for k, ext in self.predicate_extensions.items()}
         exts.update((k, [unwrap_tuple(point) + (value, ) for point, value in ext.data.items()])
                     for k, ext in self.function_extensions.items())
         return exts
+
+    def as_atoms(self):
+        """ Return a representation of the model as a list of atoms that are true. For functional symbols f, return
+        tuples of the form (f(o1, ..., on), value)
+         """
+        atoms = []
+        for k, ext in self.predicate_extensions.items():
+            pred = self.language.get_predicate(k[0])
+            # create one atom per tuple in the predicate's extension:
+            atoms += [pred(*unwrap_tuple(tup)) for tup in ext]
+
+        for k, ext in self.function_extensions.items():
+            fun = self.language.get_function(k[0])
+            for point, value in ext.data.items():
+                atoms.append((fun(*unwrap_tuple(point)), value))
+
+        return atoms
 
     def __getitem__(self, arg):
         try:

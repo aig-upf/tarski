@@ -387,6 +387,27 @@ def test_model_list_extensions():
     assert symref(v1) == symref(o1) and symref(v2) == symref(o2)
 
 
+def test_model_as_atoms():
+    lang = tarski.language(theories=[])
+    p = lang.predicate('p', lang.Object, lang.Object)
+    f = lang.function('f', lang.Object, lang.Object)
+    o1 = lang.constant("o1", lang.Object)
+    o2 = lang.constant("o2", lang.Object)
+
+    model = Model(lang)
+    model.evaluator = evaluate
+
+    model.set(f, o1, o2)
+    model.add(p, o1, o2)
+
+    atoms = model.as_atoms()
+
+    patom, fatom = atoms
+    assert patom.is_syntactically_equal(p(o1, o2))
+    term, value = fatom
+    assert term.is_syntactically_equal(f(o1)) and value.is_syntactically_equal(o2)
+
+
 def test_predicate_without_equality_reals():
     import numpy
 

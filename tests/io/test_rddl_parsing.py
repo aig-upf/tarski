@@ -113,7 +113,6 @@ def test_language_mars_rovers_load_reward():
     _ = mr_reader.rddl_model.non_fluents
     mr_reader.translate_rddl_model()
     reward_func = rddl.translate_expression(mr_reader.language, domain.reward)
-    # print(reward_func)
     assert isinstance(reward_func, Term)
 
 
@@ -166,7 +165,6 @@ def test_language_navigation_load_reward():
     domain = nav_reader.rddl_model.domain
     nav_reader.translate_rddl_model()
     reward_func = rddl.translate_expression(nav_reader.language, domain.reward)
-    # print(reward_func)
     assert isinstance(reward_func, Term)
     assert nav_reader.parameters.horizon == 20
     assert nav_reader.parameters.discount == 1.0
@@ -212,7 +210,6 @@ def test_language_reservoir_load_constraints():
 
     state_constraints = []
     for c in domain.invariants:
-        # print(c)
         state_constraints += [rddl.translate_expression(res_reader.language, c)]
     assert len(state_constraints) == 2
 
@@ -229,9 +226,7 @@ def test_language_reservoir_load_reward():
     assert res_reader.parameters.discount == 1.0
     assert res_reader.parameters.max_actions is None
 
-    # print(domain.reward)
     reward_func = rddl.translate_expression(res_reader.language, domain.reward)
-    # print(reward_func)
     assert isinstance(reward_func, Term)
 
 
@@ -252,7 +247,6 @@ def test_mars_rovers_load_initial_state():
     # create sorts and initialize constants
     _ = mr_reader.rddl_model.domain
     _ = mr_reader.rddl_model.non_fluents
-    # print(mr_reader.rddl_model.instance.init_state)
     mr_reader.translate_rddl_model()
     xPos = mr_reader.language.get('xPos')
     yPos = mr_reader.language.get('yPos')
@@ -268,7 +262,6 @@ def test_language_navigation_load_initial_state():
     # create sorts and initialize constants
     _ = nav_reader.rddl_model.domain
     nav_reader.translate_rddl_model()
-    # print(nav_reader.rddl_model.instance.init_state)
     x = nav_reader.language.get('x')
     y = nav_reader.language.get('y')
     location = nav_reader.language.get('location')
@@ -284,7 +277,6 @@ def test_language_reservoir_load_initial_state():
     _ = res_reader.rddl_model.domain
     _ = res_reader.rddl_model.non_fluents
     res_reader.translate_rddl_model()
-    # print(res_reader.rddl_model.instance.init_state)
 
     t1 = res_reader.language.get('t1')
     rlevel = res_reader.language.get('rlevel')

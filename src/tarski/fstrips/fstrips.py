@@ -139,15 +139,6 @@ class ChoiceEffect(SingleEffect):
                                                        self.condition)
 
 
-class LogicalEffect(SingleEffect):
-    def __init__(self, phi, condition=Tautology()):
-        super().__init__(condition)
-        self.formula = phi
-
-    def tostring(self):
-        return "{}".format(self.formula)
-
-
 class VectorisedEffect(SingleEffect):
     """ Action effects that modify the denotation of a vector (tuple) of terms """
 
@@ -283,7 +274,7 @@ def language(name="Unnamed FOL Language", theories=None):
     """ Create an FSTRIPS-oriented First-Order Language.
         This is a standard FOL with a few convenient add-ons.
     """
-    # By default, when defining a FSTRIPS problem we use a FOL with equality
+    # By default, when defining a FSTRIPS problem we use FOL with equality
     theories = theories or [ths.Theory.EQUALITY]
     lang = ths.language(name, theories)
     lang.register_operator_handler("<<", Term, Term, FunctionalEffect)

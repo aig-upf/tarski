@@ -141,11 +141,9 @@ class Interval(Sort):
 
 def inclusion_closure(s: Sort) -> Set[Sort]:
     """ Calculates the inclusion closure over given sort s """
-    closure = set()
     while s is not None:
-        closure.add(s)
+        yield s
         s = parent(s)
-    return closure
 
 
 def parent(s: Sort) -> Sort:

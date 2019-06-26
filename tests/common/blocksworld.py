@@ -4,32 +4,27 @@
 import tarski as tsk
 import tarski.model
 from tarski import fstrips as fs
-from tarski.syntax.formulas import VariableBinding
 from tarski.fstrips import create_fstrips_problem
 from tarski.syntax import forall, equiv, neg, land, exists
 from tarski.theories import Theory
 
 
-def generate_small_strips_bw_language():
+def generate_small_strips_bw_language(nblocks=4):
     """ The standard, untyped version of blocksworld, with a predicate handempty """
     lang = tsk.fstrips.language("blocksworld")
 
-    # The sorts
     object_t = lang.get_sort('object')
 
     lang.predicate('handempty')
     lang.predicate('on', object_t, object_t)
+    [lang.predicate(p, object_t) for p in "ontable clear holding".split()]
 
-    unary_predicates = ["ontable", "clear", "holding"]
-    [lang.predicate(p, object_t) for p in unary_predicates]
-
-    # A few blocks
-    [lang.constant('b{}'.format(k), object_t) for k in range(1, 5)]
+    [lang.constant('b{}'.format(k), object_t) for k in range(1, nblocks+1)]
     return lang
 
 
-def generate_small_fstrips_bw_language():
-    """ A sample FSTRIPS BW encoding, with no need of handempty """
+def generate_small_fstrips_bw_language(nblocks=4):
+    """ A sample (typed) FSTRIPS BW encoding, one single move action """
     lang = tsk.fstrips.language("blocksworld-fn", theories=[Theory.EQUALITY])
 
     # The sorts
@@ -41,15 +36,83 @@ def generate_small_fstrips_bw_language():
 
     # Table and blocks
     lang.constant('table', place)
-    [lang.constant('b{}'.format(k), block) for k in range(1, 5)]
+    [lang.constant('b{}'.format(k), block) for k in range(1, nblocks+1)]
     return lang
 
 
 def generate_small_fstrips_bw_problem():
-    lang = generate_small_fstrips_bw_language()
+    """ Generate a small Functional STRIPS BW problem with a few blocks, types, and one single action"""
+    lang = generate_small_fstrips_bw_language(nblocks=4)
     problem = create_fstrips_problem(domain_name='blocksworld', problem_name='test-instance', language=lang)
-    b1, b2, b3, clear, loc = lang.get('b1', 'b2', 'b3', 'clear', 'loc')
+    b1, b2, b3, b4, clear, loc, table = lang.get('b1', 'b2', 'b3', 'b4', 'clear', 'loc', 'table')
     problem.goal = (loc(b1) == b2) & (loc(b2) == b3) & (clear(b1))
+
+    to = lang.variable('to', 'place')
+    b = lang.variable('b', 'block')
+
+    problem.action("move", [b, to],
+                   precondition=land(b != to, loc(b) != to, clear(b), clear(to)),
+                   effects=[loc(b) << to,
+                            fs.AddEffect(clear(loc(b))),
+                            fs.DelEffect(clear(loc(b)), condition=to != table)
+    ])
+
+    init = tarski.model.create(lang)
+
+    init.set(loc, b1, b2)     # loc(b1) := b2
+    init.set(loc, b2, b3)     # loc(b2) := b3
+    init.set(loc, b3, table)  # loc(b3) := table
+    init.set(loc, b4, table)  # loc(b4) := table
+
+    init.add(clear, b1)     # clear(b1)
+    init.add(clear, b4)     # clear(b4)
+    init.add(clear, table)  # clear(table)
+    problem.init = init
+
+    return problem
+
+
+def generate_small_strips_bw_problem():
+    """ Generate the standard BW encoding, untyped and with 4 action schemas """
+    lang = generate_small_strips_bw_language()
+    problem = create_fstrips_problem(domain_name='blocksworld', problem_name='test', language=lang)
+    b1, b2, b3, clear, on, ontable, handempty, holding = \
+        lang.get('b1', 'b2', 'b3', 'clear', 'on', 'ontable', 'handempty', 'holding')
+    problem.goal = (on(b1, b2)) & (on(b2, b3)) & (clear(b1))
+
+    x = lang.variable('b', 'object')
+    y = lang.variable('y', 'object')
+
+    problem.action('pick-up', [x],
+                   precondition=clear(x) & ontable(x) & handempty(),
+                   effects=[fs.DelEffect(ontable(x)),
+                            fs.DelEffect(clear(x)),
+                            fs.DelEffect(handempty()),
+                            fs.AddEffect(holding(x))])
+
+    problem.action('put-down', [x],
+                   precondition=holding(x),
+                   effects=[fs.AddEffect(ontable(x)),
+                            fs.AddEffect(clear(x)),
+                            fs.AddEffect(handempty()),
+                            fs.DelEffect(holding(x))])
+
+    problem.action('unstack', [x, y],
+                   precondition=on(x, y) & clear(x) & handempty(),
+                   effects=[fs.DelEffect(on(x, y)),
+                            fs.AddEffect(clear(y)),
+                            fs.DelEffect(clear(x)),
+                            fs.DelEffect(handempty()),
+                            fs.AddEffect(holding(x))])
+
+    problem.action('stack', [x, y],
+                   precondition= (x != y) & holding(x) & clear(y),
+                   effects=[fs.AddEffect(on(x, y)),
+                            fs.DelEffect(clear(y)),
+                            fs.AddEffect(clear(x)),
+                            fs.AddEffect(handempty()),
+                            fs.DelEffect(holding(x))])
+
     return problem
 
 
@@ -77,14 +140,12 @@ def create_small_bw_task():
     clear_constraint = forall(x, equiv(neg(clear(x)), land(x != table, exists(y, loc(y) == x))))
     G = land(loc(b1) == b2, loc(b2) == b3, loc(b3) == b4, loc(b4) == table)
 
-    problem = fs.Problem()
-    problem.name = "tower4"
-    problem.domain_name = "blocksworld"
+    problem = fs.Problem("tower4", "blocksworld")
     problem.language = lang
     problem.init = init
     problem.goal = G
     problem.constraints += [clear_constraint]
-    problem.action('move', VariableBinding(variables=[src, dest]), land(clear(src), clear(dest)), [fs.FunctionalEffect(loc(src), dest)])
+    problem.action('move', [src, dest], land(clear(src), clear(dest)), [fs.FunctionalEffect(loc(src), dest)])
     return problem
 
 
@@ -136,35 +197,35 @@ def create_4blocks_task():
     P.state_variables = []  # [StateVariable(clear(dest), [tb]) for tb in [tb1, tb2, tb3, tb4, table]]
 
     b = bw.variable('b', bw.Object)
-    P.action('pick_up', VariableBinding(variables=[b]),
+    P.action('pick_up', [b],
              land(clear(b), clear(hand), loc(b) == table, b != hand, b != table),
              [fs.FunctionalEffect(loc(b), hand),
-              fs.LogicalEffect(neg(clear(b))),
-              fs.LogicalEffect(neg(clear(hand)))])
+              fs.DelEffect(clear(b)),
+              fs.DelEffect(clear(hand))])
 
-    P.action('put_down', VariableBinding(variables=[b]),
+    P.action('put_down', [b],
              land(loc(b) == hand, b != table, b != hand),
              [fs.FunctionalEffect(loc(b), table),
-              fs.LogicalEffect(clear(b)),
-              fs.LogicalEffect(clear(hand))])
+              fs.AddEffect(clear(b)),
+              fs.AddEffect(clear(hand))])
 
     src = bw.variable('src', bw.Object)
     dest = bw.variable('dest', bw.Object)
 
-    P.action('stack', VariableBinding(variables=[src, dest]),
+    P.action('stack', [src, dest],
              land(loc(src) == hand, clear(dest), src != dest, src != table,
                   src != hand, dest != table, dest != hand),
              [fs.FunctionalEffect(loc(src), dest),
-              fs.LogicalEffect(neg(clear(dest))),
-              fs.LogicalEffect(clear(src)),
-              fs.LogicalEffect(clear(hand))])
+              fs.DelEffect(clear(dest)),
+              fs.AddEffect(clear(src)),
+              fs.AddEffect(clear(hand))])
 
-    P.action('unstack', VariableBinding(variables=[src, dest]),
+    P.action('unstack', [src, dest],
              land(clear(hand), loc(src) == dest, clear(src), src != dest, src != table,
                   src != hand, dest != table, dest != hand),
              [fs.FunctionalEffect(loc(src), hand),
-              fs.LogicalEffect(neg(clear(src))),
-              fs.LogicalEffect(clear(dest)),
-              fs.LogicalEffect(neg(clear(hand)))])
+              fs.DelEffect(clear(src)),
+              fs.AddEffect(clear(dest)),
+              fs.DelEffect(clear(hand))])
 
     return P

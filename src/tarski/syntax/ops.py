@@ -1,6 +1,7 @@
 
 import numpy as np
 
+from .visitors import CollectFreeVariables, CollectVariables
 from .terms import Term, Constant
 
 
@@ -35,3 +36,15 @@ def infer_numeric_sort(value, language):
 def cast_to_number(rhs):
     assert isinstance(rhs, Constant)
     return rhs.symbol
+
+
+def free_variables(formula):
+    visitor = CollectFreeVariables()
+    visitor.visit(formula)
+    return list(visitor.free_variables)
+
+
+def all_variables(formula):
+    visitor = CollectVariables()
+    visitor.visit(formula)
+    return list(visitor.variables)

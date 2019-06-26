@@ -52,12 +52,8 @@ class HybridProblem(Problem):
             eff = react.effect
             if isinstance(eff, (fs.AddEffect, fs.DelEffect)):
                 ev.visit(eff.atom)
-            elif isinstance(eff, fs.FunctionalEffect):
+            elif isinstance(eff, (fs.FunctionalEffect, fs.ChoiceEffect)):
                 ev.visit(eff.lhs)
-            elif isinstance(eff, fs.ChoiceEffect):
-                ev.visit(eff.lhs)
-            elif isinstance(eff, fs.LogicalEffect):
-                ev.visit(eff.formula)
             elif isinstance(eff, fs.BlackBoxEffect):
                 for yk in eff.lhs[:, 0]:
                     ev.visit(yk)

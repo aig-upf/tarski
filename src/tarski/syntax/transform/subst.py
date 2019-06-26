@@ -1,28 +1,20 @@
 # -*- coding: utf-8 -*-
-
-"""
-    Substitution Operator
-"""
 import copy
 
 from ..formulas import CompoundFormula, QuantifiedFormula, Variable, Atom, Formula
-from ..terms import CompoundTerm, Term
+from ..terms import Term, CompoundTerm
 from .errors import SubstitutionError
 
 
 class TermSubstitution:
-    """
-        This Visitor applies a substitution operation on
-        a given formula, replacing terms in the dictionary
-        ```subst``` by the associated term.
-    """
+    """ This Visitor applies a substitution operation on a given formula, replacing terms in the dictionary
+        'subst' by the associated term. """
 
     def __init__(self, lang, subst):
-        self.L = lang
+        self.lang = lang
         self.subst = subst
 
     def visit(self, phi):
-
         if isinstance(phi, CompoundFormula):
             _ = [self.visit(f) for f in phi.subformulas]
 

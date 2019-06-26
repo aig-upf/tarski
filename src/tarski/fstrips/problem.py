@@ -22,8 +22,6 @@ class Problem:
         self.derived_ = OrderedDict()
         self.metric_ = None
 
-        # TODO Add state constraints, etc.
-
     @property
     def derived_predicates(self):
         return self.derived_
@@ -74,10 +72,7 @@ class Problem:
                     ev.visit(eff.lhs)
                 elif isinstance(eff, fs.ChoiceEffect):
                     ev.visit(eff.obj)
-                    for x in eff.variables:
-                        ev.visit(x)
-                elif isinstance(eff, fs.LogicalEffect):
-                    ev.visit(eff.formula)
+                    _ = [ev.visit(x) for x in eff.variables]
                 else:
                     raise RuntimeError("Effect type '{}' cannot be analysed".format(type(eff)))
 
