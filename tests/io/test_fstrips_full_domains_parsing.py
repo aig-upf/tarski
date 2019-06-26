@@ -23,6 +23,7 @@ SAMPLE_STRIPS_INSTANCES = [
 
     "sokoban-opt08-strips:p01.pddl",  # action costs
     "parking-sat11-strips:pfile08-031.pddl",  # action costs
+    "transport-opt08-strips:p01.pddl",  # action costs
 ]
 
 SAMPLE_FSTRIPS_INSTANCES = [
