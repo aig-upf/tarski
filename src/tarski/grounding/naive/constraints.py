@@ -4,7 +4,7 @@ from collections import OrderedDict
 
 from ...syntax.transform import TermSubstitution, UniversalQuantifierElimination, NegatedBuiltinAbsorption
 from ...syntax.transform import CNFTransformation
-from ...syntax.visitors import CollectVariables
+from ...syntax.ops import all_variables
 from ...util import IndexDictionary
 from ...syntax import QuantifiedFormula, Quantifier
 from . import instantiation
@@ -29,9 +29,7 @@ class ConstraintGrounder:
         for const_schema in self.schemas:
             # 1. Collect set of free variables in the constraint
             const_schema = UniversalQuantifierElimination.rewrite(self.L, const_schema).universal_free
-            var_collector = CollectVariables()
-            var_collector.visit(const_schema)
-            K, syms, substs = instantiation.enumerate_groundings(self.L, list(var_collector.variables))
+            K, syms, substs = instantiation.enumerate_groundings(self.L, all_variables(const_schema))
             for values in itertools.product(*substs):
                 subst = OrderedDict({syms[k]: v for k, v in enumerate(values)})
                 op = TermSubstitution(self.L, subst)

@@ -4,6 +4,7 @@ import copy
 from ... import fstrips as fs
 from ...syntax import Variable
 from ...syntax.visitors import CollectVariables
+from ...syntax.ops import all_variables
 
 
 def process_expression(language, schema, op, copy_schema=True):
@@ -13,9 +14,7 @@ def process_expression(language, schema, op, copy_schema=True):
     else:
         g_expr = schema
     op.visit(g_expr)
-    var_collector = CollectVariables()
-    var_collector.visit(g_expr)
-    assert len(var_collector.variables) == 0
+    assert len(all_variables(g_expr)) == 0
     return g_expr
 
 

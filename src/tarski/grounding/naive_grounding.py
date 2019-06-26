@@ -2,11 +2,10 @@
 """
  Classes and methods related to the naive grounding strategy of planning problems.
 """
-import copy
 import itertools
 
 from ..syntax import Constant, Variable, CompoundTerm, Atom
-from ..syntax.transform import TermSubstitution
+from ..syntax.transform import term_substitution
 from ..errors import DuplicateDefinition
 from .errors import UnableToGroundError
 from .common import approximate_symbol_fluency, StateVariableLite
@@ -118,10 +117,7 @@ class StateVariable:
     @property
     def ground(self):
         subst = {k: v for k, v in zip(self.term.subterms, self.instantiation)}
-        g = copy.deepcopy(self.term)
-        v = TermSubstitution(self.head.language, subst)
-        g.accept(v)
-        return g
+        return term_substitution(self.head.language, self.term, subst)
 
     __repr__ = __str__
 

@@ -1,7 +1,7 @@
 
 import numpy as np
 
-from .visitors import CollectFreeVariables
+from .visitors import CollectFreeVariables, CollectVariables
 from .terms import Term, Constant
 
 
@@ -40,5 +40,11 @@ def cast_to_number(rhs):
 
 def free_variables(formula):
     visitor = CollectFreeVariables()
-    formula.accept(visitor)
+    visitor.visit(formula)
     return list(visitor.free_variables)
+
+
+def all_variables(formula):
+    visitor = CollectVariables()
+    visitor.visit(formula)
+    return list(visitor.variables)
