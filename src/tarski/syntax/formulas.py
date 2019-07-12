@@ -123,26 +123,32 @@ top = Tautology()
 bot = Contradiction()
 
 
-def land(*args):
-    if len(args) > 2:
-        args = list(args)
-        args.reverse()
-        phi = CompoundFormula(Connective.And, (args[1], args[0]))
-        for k in range(2, len(args)):
-            phi = CompoundFormula(Connective.And, (args[k], phi))
-        return phi
-    return CompoundFormula(Connective.And, args)
+def _to_binary_tree(args, connective):
+    assert len(args) > 1
+    phi = CompoundFormula(connective, (args[-2], args[-1]))
+    for arg in reversed(args[:-2]):
+        phi = CompoundFormula(connective, (arg, phi))
+    return phi
 
 
-def lor(*args):
-    if len(args) > 2:
-        args = list(args)
-        args.reverse()
-        phi = CompoundFormula(Connective.Or, (args[1], args[0]))
-        for k in range(2, len(args)):
-            phi = CompoundFormula(Connective.Or, (args[k], phi))
-        return phi
-    return CompoundFormula(Connective.Or, args)
+def _create_compound(args, connective, binary):
+    if binary:
+        return _to_binary_tree(args, connective)
+    return CompoundFormula(connective, args)
+
+
+def land(*args, binary=True):
+    """ Create an and-formula with the given subformulas. If binary is true, the and-formula will be shaped as a binary
+     tree (e.g. (...((p1 and p2) and p3) and ...))), otherwise it will have a flat structure. This is an implementation
+     detail, but might be relevant performance-wise when dealing with large structures """
+    return _create_compound(args, Connective.And, binary)
+
+
+def lor(*args, binary=True):
+    """ Create an or-formula with the given subformulas. If binary is true, the or-formula will be shaped as a binary
+    tree (e.g. (...((p1 or p2) or p3) or ...))), otherwise it will have a flat structure. This is an implementation
+    detail, but might be relevant performance-wise when dealing with large structures """
+    return _create_compound(args, Connective.Or, binary)
 
 
 def neg(phi):
