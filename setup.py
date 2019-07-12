@@ -2,6 +2,7 @@
 from setuptools import setup, find_packages
 from codecs import open
 from os import path
+import importlib
 
 here = path.abspath(path.dirname(__file__))
 
@@ -10,11 +11,17 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 
+# Load the version from ./src/tarski/version.py
+spec = importlib.util.spec_from_file_location('tsk.version', path.join(here, 'src/tarski/version.py'))
+version = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(version)
+
+
 def main():
 
     setup(
         name='tarski',
-        version='0.2.0',
+        version=version.__version__,
         description='Tarski is a parser and preprocessor to define and manipulate '
                     'classical planning problems',
         long_description=long_description,
