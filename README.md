@@ -2,18 +2,24 @@
 # Tarski - The Planning Problem Definition Module [![Build Status](https://travis-ci.com/aig-upf/tarski.svg?branch=master)](https://travis-ci.com/aig-upf/tarski)
 
 ## What is Tarski
-To be defined :-)
+Tarski is a parser and preprocessor to create, manipulate and transform 
+[AI planning](https://en.wikipedia.org/wiki/Automated_planning_and_scheduling) problems. 
 
-## Installation and Usage
 
-You can install the latest version of Tarski through pip by issuing the following on the root directory of the project: 
+## Installation
+
+You can install the latest official Tarski release with
+
+    pip install tarski
+
+If instead you want to use the latest code available on the Github repository, use 
     
     pip install -U git+https://github.com/aig-upf/tarski.git
- 
 
-If you are developing Tarski, we strongly recommend cloning from the Github repository and using a [virtual 
-environment](https://docs.python.org/3/tutorial/venv.html) and installing in development mode
-by using the `-e` flag:  
+
+## Development
+If developing Tarski, we recommend cloning from the Github repository and doing a development installation
+(`pip`'s `-e` flag) on a [virtual environment](https://docs.python.org/3/tutorial/venv.html):
     
     git clone https://github.com/aig-upf/tarski
     cd tarski
@@ -27,7 +33,7 @@ will thus be immediately reflected in the _installed_ library.
 ## Testing 
 All of Tarski's tests live under the `tests` directory (shocking!).
 To run them, you just need to run `pytest` (`pip install pytest`) on the root directory.
-You can also run `tox` (`pip install tox`) to have some additional style checks.
+You can also run `tox` (`pip install tox`) to have some additional checks (e.g., style checks) run.
 
 
 
