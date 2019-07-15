@@ -1,8 +1,10 @@
 import logging
 import operator
 import itertools
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from functools import reduce
+
+from tarski.grounding import ProblemGrounding
 
 try:
     from pysdd.sdd import Vtree, SddManager
@@ -39,33 +41,20 @@ def scout_actions(task, data_df):
     return actions
 
 
-def find_static_predicates(task):  # TODO Use Tarski native static predicate detection
-    prec_atoms = set()
-    for _, act in task.actions.items():
-        extract_regular_atoms(act.precondition, prec_atoms)
-
-    eff_atoms = set()
-    for _, act in task.actions.items():
-        # MRJ: needs to take into account conditional effects and non-STRIPS ones
-        for eff in act.effects:
-            eff_atoms.add(eff.atom.predicate.symbol)
-
-    static_predicates = set()
-    for p in prec_atoms:
-        if p.expr.predicate.symbol in eff_atoms:
-            continue
-        static_predicates.add(p.expr.predicate.symbol)
-    print(f"Static predicates: {static_predicates}")
-    return static_predicates
+def is_static(a: Atom, statics):
+    return a.predicate in statics
 
 
-def is_static(a: Atom, st_table):  # TODO Use Tarski native static predicate detection
-    return a.predicate.symbol in st_table
+def compute_statics(problem):
+    index = ProblemGrounding(problem)
+    index.process_symbols(problem)
+    fluents, statics = index.compute_fluent_and_statics()
+    return statics
 
 
 def extract_regular_atoms(phi, atoms):
     if isinstance(phi, Atom):
-        if phi.predicate.symbol != BuiltinPredicateSymbol.EQ:  # TODO Use Tarski native static predicate detection
+        if phi.predicate.symbol != BuiltinPredicateSymbol.EQ:
             atoms.add(symref(phi))
     elif isinstance(phi, CompoundFormula):
         if phi.connective == Connective.Not:
@@ -127,7 +116,7 @@ def create_grounding_constraints_with_statics(count, selects, statics, init, pre
             if len(body) == 1:
                 body = body[0]
 
-            if not is_static(p.expr, statics):
+            if is_static(p.expr, statics):
                 if symref(head) not in state_atoms:
                     state_atoms.add(symref(head))
                 if arity == 0:  # 0-arity predicate
@@ -140,9 +129,8 @@ def create_grounding_constraints_with_statics(count, selects, statics, init, pre
                 constraints += [lor(body, head)]
                 continue
 
-            # static predicate handling
-            if init[head]:
-                continue  # no grounding constraint is generated
+            if init[head]:  # If the atom is static and holds in the initial state, no grounding constraint is necessary
+                continue
 
             # only selects
             try:
@@ -221,55 +209,40 @@ def process_problem(the_task):
     # setup model evaluator
     the_task.init.evaluator = evaluate
 
-    data_df = {'instance': [],
-               'action': [],
-               'arity': [],
-               'groundings': [],
-               'selects': [],
-               'atoms': [],
-               'DOM': [],
-               'EQ': [],
-               'GROUND': [],
-               'nclauses': [],
-               'nvars': [],
-               'sdd_size': [],
-               'sdd_sizes': [],
-               'A(s0)': [],
-               'runtime': []
-               }
-    actions = scout_actions(the_task, data_df)
-    static_predicates = find_static_predicates(the_task)
+    data = defaultdict(list)
+    actions = scout_actions(the_task, data)
+    statics = compute_statics(the_task)
 
-    for act in actions:
-        data_df['instance'] += [the_task.name]
+    for actions in actions:
+        data['instance'] += [the_task.name]
         nvars = 0
-        selects, reified, n = create_select_atoms(act)
+        selects, reified, n = create_select_atoms(actions)
         nvars += n
-        data_df['selects'] += [nvars]
+        data['selects'] += [nvars]
         dom_constraints = []
-        create_domain_constraints(act, selects, dom_constraints)
-        equalities = extract_equalities(act.precondition)
+        create_domain_constraints(actions, selects, dom_constraints)
+        equalities = extract_equalities(actions.precondition)
         eq_constraints = []
         create_equality_constraints(equalities, selects, eq_constraints)
         state_atoms = set()
         grounding_constraints = []
         prec_atoms = set()
-        extract_regular_atoms(act.precondition, prec_atoms)
+        extract_regular_atoms(actions.precondition, prec_atoms)
         # Create the constraints of the form
         #     select(X1, x1) and ... and select (Xn, xn) --> p(x1, ..., xn)
         # for each atom p in the precondition conjunction.
         count = OrderedDict({x: 0 for x in selects})
         # create_grounding_constraints(count, S_a, prec_atoms, grounding_constraints, state_atoms)
-        create_grounding_constraints_with_statics(count, selects, static_predicates, the_task.init, prec_atoms,
+        create_grounding_constraints_with_statics(count, selects, statics, the_task.init, prec_atoms,
                                                   grounding_constraints, state_atoms)
         nvars += len(state_atoms)
 
-        data_df['atoms'] += [len(state_atoms)]
-        data_df['DOM'] += [len(dom_constraints)]
-        data_df['EQ'] += [len(eq_constraints)]
-        data_df['GROUND'] += [len(grounding_constraints)]
-        data_df['nclauses'] += [len(dom_constraints) + len(eq_constraints) + len(grounding_constraints)]
-        data_df['nvars'] += [nvars]
+        data['atoms'] += [len(state_atoms)]
+        data['DOM'] += [len(dom_constraints)]
+        data['EQ'] += [len(eq_constraints)]
+        data['GROUND'] += [len(grounding_constraints)]
+        data['nclauses'] += [len(dom_constraints) + len(eq_constraints) + len(grounding_constraints)]
+        data['nvars'] += [nvars]
 
         symbols = {}
         sdd_var_id = 1
@@ -335,8 +308,8 @@ def process_problem(the_task):
         # sdd_clauses = sdd_ground + sdd_eq + sdd_dom
         # plot_sdd_size(the_task.domain_name, the_task.name, act, sdd_sizes, sdd_clauses, sdd_eq, sdd_ground, sdd_dom)
 
-        data_df['sdd_sizes'] += [sdd_sizes]
-        data_df['sdd_size'] += [sdd_sizes[-1]]
+        data['sdd_sizes'] += [sdd_sizes]
+        data['sdd_size'] += [sdd_sizes[-1]]
 
         if not failed:
             s = []
@@ -356,10 +329,10 @@ def process_problem(the_task):
             app = sdd_pre & sdd_s
             wmc = app.wmc(log_mode=False)
             wmc.propagate()
-            data_df['A(s0)'] += [app.model_count()]
+            data['A(s0)'] += [app.model_count()]
         else:
-            data_df['A(s0)'] += [None]
-    return data_df
+            data['A(s0)'] += [None]
+    return data
 
 
 def translate(phi, syms, manager):
