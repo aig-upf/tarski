@@ -57,7 +57,7 @@ def main():
             'numpy',
             'scipy',
             'pyrddl',
-            'pysdd@git+ssh://git@github.com/wannesm/PySDD.git@259e8b5'
+            'pysdd@git+https://git@github.com/wannesm/PySDD.git@259e8b5'
         ],
 
         extras_require={
