@@ -19,11 +19,11 @@ class Action:
                     effects=[eff.dump() for eff in self.effects.dump()])
 
     def ident(self):
-        params = ', '.join([str(o) for o in self.parameters])
-        return '{}({})'.format(self.name, params)
+        paramlist = "{}".format(','.join("{}: {}".format(p.symbol, p.sort.name) for p in self.parameters))
+        return '{}({})'.format(self.name, paramlist)
 
     def __str__(self):
-        tokens = ['action {}:'.format(self.name),
+        tokens = ['{}:'.format(self.ident()),
                   'pre=({})'.format(self.precondition),
                   'eff=({})'.format(' & '.join(str(eff) for eff in self.effects))]
         return '\n'.join(tokens)
