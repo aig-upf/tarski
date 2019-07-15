@@ -56,7 +56,8 @@ def main():
             'antlr4-python3-runtime>=4.7.2',
             'numpy',
             'scipy',
-            'pyrddl'
+            'pyrddl',
+            'pysdd@git+ssh://git@github.com/wannesm/PySDD.git@259e8b5'
         ],
 
         extras_require={

@@ -38,7 +38,7 @@ You can also run `tox` (`pip install tox`) to have some additional checks (e.g.,
 
 
 ## Software Requirements
-Tarski requires Python >= 3.5.
+Tarski requires Python >= 3.6.
 The above installation instructions will install under the hood a number of dependencies, among which
 numpy and scipy.
 
