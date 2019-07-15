@@ -275,7 +275,8 @@ def language(name="Unnamed FOL Language", theories=None):
         This is a standard FOL with a few convenient add-ons.
     """
     # By default, when defining a FSTRIPS problem we use FOL with equality
-    theories = theories or [ths.Theory.EQUALITY]
+    if theories is None:
+        theories = [ths.Theory.EQUALITY]
     lang = ths.language(name, theories)
     lang.register_operator_handler("<<", Term, Term, FunctionalEffect)
     lang.register_operator_handler(">>", Term, Term, lambda lhs, rhs: FunctionalEffect(rhs, lhs))  # Inverted
