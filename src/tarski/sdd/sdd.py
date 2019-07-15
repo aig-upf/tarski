@@ -4,7 +4,6 @@ import itertools
 from collections import OrderedDict, defaultdict
 from functools import reduce
 
-from tarski.grounding import ProblemGrounding
 
 try:
     from pysdd.sdd import Vtree, SddManager
@@ -12,12 +11,14 @@ except ImportError as err:
     raise RuntimeError(f"Could not import pysdd - sdd module not available")
 
 
-from tarski.errors import DuplicatePredicateDefinition, DuplicateConstantDefinition
-from tarski.evaluators.simple import evaluate
-from tarski.syntax import symref, lor, neg, Atom, BuiltinPredicateSymbol, CompoundFormula, Connective
+from ..errors import DuplicatePredicateDefinition, DuplicateConstantDefinition
+from ..evaluators.simple import evaluate
+from ..syntax import symref, lor, neg, Atom, BuiltinPredicateSymbol, CompoundFormula, Connective
+from ..grounding import ProblemGrounding
 
 
 class MaxSizeError(Exception):
+    """ The maximum size of the SDD data structure has been surpassed """
     pass
 
 
@@ -199,8 +200,8 @@ def _extract_equalities_rec(phi, table):
             raise RuntimeError('Unsupported formula: {}'.format(str(phi)))
 
 
-def process_schema(problem, statics, action, data):
-    print(f"Processing action schema:\n{action}")
+def process_schema(problem, statics, action, data, max_size):
+    # print(f"Processing action schema:\n{action}")
     data['instance'] += [problem.name]
     nvars = 0
     selects, reified, n = create_select_atoms(action)
@@ -256,7 +257,6 @@ def process_schema(problem, statics, action, data):
     sdd_pre = sdd_dom[0]
     sdd_sizes = []
 
-    max_size = 20000000
     failed = False
     # t0 = time.time()
     try:
@@ -339,7 +339,7 @@ def setup_sdd_manager(nvars):
     return SddManager(var_count=nvars, auto_gc_and_minimize=1, vtree=vtree)
 
 
-def process_problem(problem):
+def process_problem(problem, max_size=20000000):
     # Make sure the initial state has some associated evaluator:
     problem.init.evaluator = problem.init.evaluator or evaluate
 
@@ -348,5 +348,5 @@ def process_problem(problem):
     statics = compute_statics(problem)
 
     for action in actions:
-        process_schema(problem, statics, action, data)
+        process_schema(problem, statics, action, data, max_size)
     return data
