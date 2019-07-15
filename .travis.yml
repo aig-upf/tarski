@@ -24,6 +24,7 @@ matrix:
 #    - python: pypy3.5
 #      env: TOXENV=pypy3
 install:
+  - python -m pip install --upgrade pip  # Upgrade pip to latest version
   - pip install tox
   - if [ "$TARSKI_BUILD_GRAMMARS" = "true" ]; then ./scripts/build-grammars; fi
 
