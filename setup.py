@@ -22,8 +22,7 @@ def main():
     setup(
         name='tarski',
         version=version.__version__,
-        description='Tarski is a parser and preprocessor to define and manipulate '
-                    'classical planning problems',
+        description='Tarski is a framework for the specification, modeling and manipulation of AI planning problems.',
         long_description=long_description,
         long_description_content_type='text/markdown',
 
@@ -31,7 +30,7 @@ def main():
         author='Miquel Ramírez and Guillem Francès',
         author_email='guillem.frances@unibas.ch',
 
-        keywords='planning logic STRIPS',
+        keywords='planning logic STRIPS RDDL',
         classifiers=[
             'Development Status :: 3 - Alpha',
 
@@ -43,9 +42,8 @@ def main():
             'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
 
             'Programming Language :: Python :: 3',
-            'Programming Language :: Python :: 3.4',
-            'Programming Language :: Python :: 3.5',
             'Programming Language :: Python :: 3.6',
+            'Programming Language :: Python :: 3.7',
         ],
 
         packages=find_packages('src'),  # include all packages under src
