@@ -9,3 +9,5 @@ curl -SL https://bitbucket.org/aibasel/downward-benchmarks/get/default.tgz | tar
 mkdir -p /tmp/fs-benchmarks
 cd /tmp/fs-benchmarks
 curl -SL https://bitbucket.org/gfrances/fs-benchmarks/get/master.tgz | tar xz --strip 1
+cd generators
+python generate.py --problems counters
