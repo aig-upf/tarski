@@ -18,15 +18,16 @@ matrix:
     - python: 3.8-dev
       env: TOXENV=py38
 
-    - python: pypy3.5
-      env: TOXENV=pypy35
+#  pypy doesn't seem to play nice with scipy?
+#    - python: pypy3.5
+#      env: TOXENV=pypy35
 
 before_install:
   - sudo apt-get install -y --no-install-recommends gringo  # For the ASP-based grounding & rechability tests
 
 install:
   - python -m pip install --upgrade pip setuptools wheel
-  - pip install --only-binary=numpy,scipy numpy scipy tox
+  - pip install --only-binary=numpy numpy scipy tox
   - tox --version
 
 script:
