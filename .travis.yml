@@ -3,14 +3,17 @@ language: python
 
 matrix:
   include:
+    # Test the lint script only with Python 3.6
     - python: 3.6
-      env: TOXENV=py36
+      env: TOXENV=pylint
 
-    - python: 3.6  # We test the building of the ANTLR grammars only with Python 3.6
+    # Test the building of the ANTLR grammars only with Python 3.6
+    - python: 3.6
       env: TOXENV=antlrgrammars
 
-    - python: 3.6 # We test the lint script only with Python 3.6
-      env: TOXENV=pylint
+    # Run the standard pytest tests with different python versions
+    - python: 3.6
+      env: TOXENV=py36
 
     - python: 3.7
       env: TOXENV=py37
@@ -27,7 +30,7 @@ before_install:
 
 install:
   - python -m pip install --upgrade pip setuptools wheel
-  - pip install --only-binary=numpy numpy scipy tox
+  - pip install numpy scipy tox
   - tox --version
 
 script:
