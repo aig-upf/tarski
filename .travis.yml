@@ -10,9 +10,10 @@ matrix:
       env: TOXENV=py37
 
     - python: 3.8-dev
-      env: TOXENV=py37
+      env: TOXENV=py38
 
-    - python: pypy3.6
+    - python: pypy3.5
+    - env: TOXENV=pypy35
 
     - python: 3.6  # We test the grammar-building scripts with Python 3.6 only
       env: TOXENV=py36 TARSKI_BUILD_GRAMMARS=true
