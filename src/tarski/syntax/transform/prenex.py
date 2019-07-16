@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
     Rewrite formulas into prenex normal form
 """

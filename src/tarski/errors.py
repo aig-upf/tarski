@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 
 class TarskiError(Exception):
     """ Common ancestor class to all of Tarski's exceptions """

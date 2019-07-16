@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 from ...syntax import BuiltinFunctionSymbol, CompoundTerm
 from . import errors as err

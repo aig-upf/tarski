@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 import logging
 from .version import __version__, __version_info__

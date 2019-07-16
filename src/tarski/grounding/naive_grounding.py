@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
  Classes and methods related to the naive grounding strategy of planning problems.
 """

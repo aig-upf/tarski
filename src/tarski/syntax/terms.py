@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+
 from typing import Tuple
 from .sorts import Sort, parent
 from .. import errors as err

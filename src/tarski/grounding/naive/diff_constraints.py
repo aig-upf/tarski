@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+
 import itertools
 
 from ...fstrips import hybrid

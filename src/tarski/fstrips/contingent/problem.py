@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+
 from collections import OrderedDict
 from ..problem import Problem
 from .sensor import Sensor
