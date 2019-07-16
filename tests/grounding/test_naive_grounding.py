@@ -1,6 +1,7 @@
 
 from tarski.grounding import ProblemGrounding, create_all_possible_state_variables
 from tarski.grounding.naive import instantiation
+from tarski.syntax import create_substitution
 from tarski.util import IndexDictionary
 from tarski.grounding.naive.actions import ActionGrounder
 from tarski.grounding.naive.sensors import SensorGrounder
@@ -44,7 +45,7 @@ def test_generate_substitutions_for_small_bw():
     card, syms, substs = instantiation.enumerate_groundings(prob.language, actions[0].parameters)
     for values in itertools.product(*substs):
         assert (len(syms) == len(values))
-        subst = {syms[k]: v for k, v in enumerate(values)}
+        subst = create_substitution(syms, values)
         assert len(subst) == 1
 
 

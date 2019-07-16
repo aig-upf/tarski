@@ -4,7 +4,7 @@ from enum import Enum
 from typing import List
 
 from .. import errors as err
-from .terms import Variable, Term
+from .terms import Variable, Term, termlists_are_equal, termlist_hash
 from .predicate import Predicate
 
 
@@ -26,9 +26,9 @@ class Quantifier(Enum):
 
 
 class Formula:
-
+    """ A first-order logical formula. """
     def __str__(self):
-        raise RuntimeError("Abstract Method Formula.__str__ was called!")
+        raise NotImplementedError()  # To be subclassed
 
     def __and__(self, rhs):
         return land(self, rhs)
@@ -42,26 +42,43 @@ class Formula:
     def __gt__(self, rhs):
         return implies(self, rhs)
 
-    def is_syntactically_equal(self, other):
-        """ Strict syntactic equivalence, which would tipically be in `__eq__`,
-        but here we use `__eq__` for a different purpose """
+    def __eq__(self, other):
         raise NotImplementedError()  # To be subclassed
+
+    def __hash__(self):
+        raise NotImplementedError()  # To be subclassed
+
+    def hash(self):
+        # Define a shortcut for uniformity with the Term class
+        return self.__hash__()
+
+    def is_syntactically_equal(self, other):
+        """ Return true if this formula and other are strictly syntactically equivalent.
+        This is equivalent to self == other, but is provided for reasons of uniformity with the Term class.
+        """
+        return self.__eq__(other)
 
 
 class Tautology(Formula):
     def __str__(self):
         return "T"
 
-    def is_syntactically_equal(self, other):
+    def __eq__(self, other):
         return self.__class__ is other.__class__
+
+    def __hash__(self):
+        return hash(self.__class__)
 
 
 class Contradiction(Formula):
     def __str__(self):
         return "F"
 
-    def is_syntactically_equal(self, other):
+    def __eq__(self, other):
         return self.__class__ is other.__class__
+
+    def __hash__(self):
+        return hash(self.__class__)
 
 
 class CompoundFormula(Formula):
@@ -91,10 +108,13 @@ class CompoundFormula(Formula):
         inner = " {} ".format(self.connective).join(str(f) for f in self.subformulas)
         return "({})".format(inner)
 
-    def is_syntactically_equal(self, other):
-        return self.__class__ is other.__class__ \
-               and self.connective == other.connective \
-               and all(x.is_syntactically_equal(y) for x, y in zip(self.subformulas, other.subformulas))
+    def __eq__(self, other):
+        return self.__class__ is other.__class__ and \
+               self.connective == other.connective and \
+               self.subformulas == other.subformulas
+
+    def __hash__(self):
+        return hash((self.__class__, self.connective, self.subformulas))
 
 
 class QuantifiedFormula(Formula):
@@ -112,11 +132,15 @@ class QuantifiedFormula(Formula):
         vars_ = ', '.join(str(x) for x in self.variables)
         return '{} {} : ({})'.format(self.quantifier, vars_, self.formula)
 
-    def is_syntactically_equal(self, other):
+    def __eq__(self, other):
         return self.__class__ is other.__class__ \
                and self.quantifier == other.quantifier \
-               and all(x.is_syntactically_equal(y) for x, y in zip(self.variables, other.variables)) \
-               and self.formula.is_syntactically_equal(other.formula)
+               and termlists_are_equal(self.variables, other.variables) \
+               and self.formula == other.formula
+
+    def __hash__(self):
+        return hash((self.__class__, self.quantifier, termlist_hash(self.variables), self.formula))
+
 
 
 top = Tautology()
@@ -198,7 +222,7 @@ def _quantified(quantifier, *args):
 
 
 class Atom(Formula):
-    """ A first-order atom """
+    """ A first-order atom. """
 
     def __init__(self, predicate, arguments):
         super().__init__()
@@ -229,26 +253,21 @@ class Atom(Formula):
             if not language.is_subtype(arg.sort, expected_sort):
                 raise err.SortMismatch(arg, arg.sort, expected_sort)
 
-    def __hash__(self):
-        return hash(str(self))
-
     def __str__(self):
         return '{}({})'.format(self.predicate.symbol, ','.join([str(t) for t in self.subterms]))
-
-    def is_syntactically_equal(self, other):
-        if (self.__class__ is not other.__class__ or
-                self.predicate != other.predicate or len(self.subterms) != len(other.subterms)):
-            return False
-
-        # Else we just need to recursively check if all subterms are syntactically equal
-        return all(x.is_syntactically_equal(y) for x, y in zip(self.subterms, other.subterms))
-
     __repr__ = __str__
+
+    def __eq__(self, other):
+        return self.__class__ is other.__class__ and \
+               self.predicate == other.predicate and \
+               termlists_are_equal(self.subterms, other.subterms)
+
+    def __hash__(self):
+        return hash((self.__class__, self.predicate, termlist_hash(self.subterms)))
 
 
 class VariableBinding:
     """ A VariableBinding contains a set of logical variables which are _bound_ in some formula or term """
-
     def __init__(self, variables=None):
         variables = variables or []
         # An (ordered) map between variable name and the variable itself:

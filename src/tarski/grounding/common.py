@@ -1,5 +1,5 @@
 
-from ..syntax import Predicate, Function, Constant
+from ..syntax import Predicate, Function, Constant, termlists_are_equal, termlist_hash
 from ..fstrips import AddEffect, DelEffect, FunctionalEffect
 
 
@@ -16,10 +16,10 @@ class StateVariableLite:
         self.binding = binding
 
     def __hash__(self):
-        return hash((self.symbol, self.binding))
+        return hash((self.symbol, termlist_hash(self.binding)))
 
     def __eq__(self, other):
-        return self.symbol == other.symbol and self.binding == other.binding
+        return self.symbol == other.symbol and termlists_are_equal(self.binding, other.binding)
 
     def __str__(self):
         return '{}({})'.format(self.symbol.symbol, ','.join(map(str, self.binding)))

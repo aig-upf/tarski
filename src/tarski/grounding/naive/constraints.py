@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 import itertools
-from collections import OrderedDict
 
-from ...syntax.transform import TermSubstitution, UniversalQuantifierElimination, NegatedBuiltinAbsorption
-from ...syntax.transform import CNFTransformation
+from ...syntax import QuantifiedFormula, Quantifier, create_substitution
+from ...syntax.transform import TermSubstitution, UniversalQuantifierElimination, NegatedBuiltinAbsorption, \
+    CNFTransformation
 from ...syntax.ops import all_variables
 from ...util import IndexDictionary
-from ...syntax import QuantifiedFormula, Quantifier
 from . import instantiation
 from .elements import process_expression
 
@@ -31,7 +30,7 @@ class ConstraintGrounder:
             const_schema = UniversalQuantifierElimination.rewrite(self.L, const_schema).universal_free
             K, syms, substs = instantiation.enumerate_groundings(self.L, all_variables(const_schema))
             for values in itertools.product(*substs):
-                subst = OrderedDict({syms[k]: v for k, v in enumerate(values)})
+                subst = create_substitution(syms, values)
                 op = TermSubstitution(self.L, subst)
                 g_const = process_expression(self.L, const_schema, op)
                 # Simplification steps

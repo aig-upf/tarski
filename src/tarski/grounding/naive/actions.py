@@ -2,10 +2,9 @@
 
 import itertools
 import copy
-from collections import OrderedDict
 
+from ...syntax import create_substitution, TermSubstitution
 from ... import fstrips as fs
-from ...syntax.transform import TermSubstitution
 from ...util import IndexDictionary
 from . import instantiation
 from .elements import process_expression, process_effect
@@ -25,11 +24,10 @@ class ActionGrounder:
         return 'Actions generated: {}'.format(self.actions_generated)
 
     def calculate_actions(self):
-
         for act_schema in self.schemas:
             k, syms, substs = instantiation.enumerate_groundings(self.L, act_schema.parameters)
             for values in itertools.product(*substs):
-                subst = OrderedDict({syms[k]: v for k, v in enumerate(values)})
+                subst = create_substitution(syms, values)
                 op = TermSubstitution(self.L, subst)
                 g_prec = process_expression(self.L, act_schema.precondition, op)
                 g_effs = []

@@ -6,11 +6,22 @@ from .builtins import BuiltinPredicateSymbol, BuiltinFunctionSymbol
 
 
 class Term:
-    """ A logical Term.
+    """ A first-order logical term.
 
-        Since we overload the equality operator `__eq__`, containers relying on that method
-        such as dictionaries or sets will not work correctly. In order to use them, terms
-        need to be wrapped within a `TermReference`.
+        Important note: Term objects overload the equality operator `__eq__` to provide syntactic sugar and allow the
+        construction of FOL atoms such as "loc(b1)==table". A side-effect of this is that Term objects cannot be
+        inserted as such into associative containers such as dictionaries or sets. In order to use those, you will
+        need to wrap the Term object with a call to `symref`, as e.g. in:
+        >>> from tarski.fstrips import language
+        >>> from tarski.syntax import symref
+        >>> lang = language("test")
+        >>> counter = dict()
+        >>> c = lang.constant('c', 'object')
+        >>> counter[c] = 2  # ERROR: will not work correctly
+        >>> counter[symref(c)] = 2  # This is the correct way of doing it
+
+        To prevent usage in such containers, Term objects are not hashable. If you need to hash them for other purposes,
+        use the `t.hash()` method.
     """
 
     @property
@@ -87,8 +98,6 @@ class Term:
     def __mod__(self, rhs):
         return self.language.dispatch_operator(BuiltinFunctionSymbol.MOD, Term, Term, self, rhs)
 
-    # TODO - THE OPERATORS BELOW PROBABLY NEED TO BE REFACTORED
-
     def __floordiv__(self, rhs):
         return self.language.dispatch_operator('//', Term, Term, self, rhs)
 
@@ -105,8 +114,20 @@ class Term:
         return self.language.dispatch_operator('|', Term, Term, self, rhs)
 
     def is_syntactically_equal(self, other):
-        """ Strict syntactic equivalence, which would tipically be in `__eq__`,
-        but here we use `__eq__` for a different purpose """
+        """ Return true if this term and other are strictly syntactically equivalent.
+        This would tipically be in the magic method `__eq__`, but we use `__eq__` for a different purpose,
+        namely, to be able to use Python expressions such as "loc(b1)==table" in order to construct a FOL atom. """
+        raise NotImplementedError()  # To be subclassed
+
+    # def __hash__(self):
+    #     Raise an informative exception to prevent wrong usage of terms in associative containers
+        # raise err.WrongTermUsageError()
+    # @see https://docs.python.org/3/reference/datamodel.html#object.__hash__
+    __hash__ = None
+
+    def hash(self):
+        """ Return a hash of the current object. Meant to be used by TermReference objects to wrap Terms appropriately
+        for use within associative containers. """
         raise NotImplementedError()  # To be subclassed
 
 
@@ -131,7 +152,7 @@ class Variable(Term):
 
     __repr__ = __str__
 
-    def __hash__(self):
+    def hash(self):
         return hash((self.symbol, self.sort.name))
 
     def is_syntactically_equal(self, other):
@@ -139,10 +160,9 @@ class Variable(Term):
 
 
 class CompoundTerm(Term):
-    """
-        Combinations of a functional symbol and a list of terms.
-        Argument symbol needs to be an instance of Function of have
-        Function-like interface.
+    """ A first order compound term such as "f(c, d)", where f is a function symbol of arity 2, and c and d are both
+    constant symbols. More generally, a compound term is a function symbol of a certain arity n paired with an n-tuple
+    of terms, sorts matching.
     """
 
     def __init__(self, symbol, subterms: Tuple[Term]):
@@ -180,16 +200,13 @@ class CompoundTerm(Term):
 
     __repr__ = __str__
 
-    def __hash__(self):
-        return hash((self.symbol.symbol, tuple(x for x in self.subterms)))
+    def hash(self):
+        return hash((self.symbol.symbol, termlist_hash(self.subterms)))
 
     def is_syntactically_equal(self, other):
-        if (self.__class__ is not other.__class__ or self.symbol != other.symbol
-                or len(self.subterms) != len(other.subterms)):
-            return False
-
-        # Else we just need to recursively check if all subterms are syntactically equal
-        return all(x.is_syntactically_equal(y) for x, y in zip(self.subterms, other.subterms))
+        return self.__class__ is other.__class__ and \
+               self.symbol == other.symbol and \
+               termlists_are_equal(self.subterms, other.subterms)
 
 
 class AggregateCompoundTerm(Term):
@@ -218,16 +235,14 @@ class AggregateCompoundTerm(Term):
 
     __repr__ = __str__
 
-    def __hash__(self):
-        return hash((self.symbol.symbol, self.subterms))
+    def hash(self):
+        raise NotImplementedError()
 
     def is_syntactically_equal(self, other):
-        if (self.__class__ is not other.__class__ or self.symbol != other.symbol
-                or len(self.bound_vars) != len(other.bound_vars)):
-            return False
-
-        return all(x.is_syntactically_equal(y) for x, y in zip(self.bound_vars, other.bound_vars)) \
-               and self.subterm.is_syntactically_equal(other.subterm)
+        return self.__class__ is other.__class__ and \
+               self.symbol == other.symbol and \
+               termlists_are_equal(self.bound_vars, other.bound_vars) and \
+               self.subterm.is_syntactically_equal(other.subterm)
 
 
 class IfThenElse(Term):
@@ -274,20 +289,17 @@ class IfThenElse(Term):
 
     __repr__ = __str__
 
-    def __hash__(self):
-        return hash(('ite', self.condition, tuple(x for x in self.subterms)))
+    def hash(self):
+        return hash(('ite', self.condition, termlist_hash(self.subterms)))
 
     def is_syntactically_equal(self, other):
-        if (self.__class__ is not other.__class__ or self.symbol != other.symbol \
-            or len(self.subterms) != len(other.subterms)) \
-                or (not self.condition.is_syntactically_equal(other.condition)):
-            return False
-
-        # Else we just need to recursively check if all subterms are syntactically equal
-        return all(x.is_syntactically_equal(y) for x, y in zip(self.subterms, other.subterms))
+        return self.__class__ is other.__class__ and \
+               self.symbol == other.symbol and \
+               self.condition.is_syntactically_equal(other.condition) and \
+               termlists_are_equal(self.subterms, other.subterms)
 
 
-def ite(c, t1, t2):
+def ite(c, t1: Term, t2: Term):
     return IfThenElse(c, (t1, t2))
 
 
@@ -317,8 +329,18 @@ class Constant(Term):
     def __repr__(self):
         return '{} ({})'.format(self.symbol, self.sort.name)
 
-    def __hash__(self):
+    def hash(self):
         return hash((self.symbol, self.sort))
 
     def is_syntactically_equal(self, other):
         return self.__class__ is other.__class__ and self.symbol == other.symbol and self.sort == other.sort
+
+
+def termlists_are_equal(terms1, terms2):
+    """ Check whether two given lists of terms are (syntactic-wise) equal. """
+    return len(terms1) == len(terms2) and all(x.is_syntactically_equal(y) for x, y in zip(terms1, terms2))
+
+
+def termlist_hash(terms):
+    """ Return a ready-to-hash tuple with the hashes of a list of terms. """
+    return tuple(x.hash() for x in terms)

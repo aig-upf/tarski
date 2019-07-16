@@ -143,3 +143,12 @@ class CommandNotFoundError(TarskiError):
 
 class ExternalCommandError(TarskiError):
     pass
+
+
+# class WrongTermUsageError(TarskiError):
+#     def __init__(self):
+#         super().__init__("""Tarski terms overload the equality operator `__eq__` to allow the
+#         construction of FOL atoms such as "loc(b1)==table". A side-effect of this is that Term objects cannot be
+#         inserted as such into associative containers such as dictionaries or sets. In order to use those, you will
+#         need to wrap the Term object with a call to `symref`, as e.g. in counter[symref(c)] = 2
+#         """)

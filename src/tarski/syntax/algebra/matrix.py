@@ -46,7 +46,7 @@ class Matrix(Term):
 
     __repr__ = __str__
 
-    def __hash__(self):
+    def hash(self):
         N, M = self.matrix.shape
         syms = []
         for i in range(N):
