@@ -6,6 +6,12 @@ matrix:
     - python: 3.6
       env: TOXENV=py36
 
+    - python: 3.6  # We test the building of the ANTLR grammars only with Python 3.6
+      env: TOXENV=antlrgrammars
+
+    - python: 3.6 # We test the lint script only with Python 3.6
+      env: TOXENV=pylint
+
     - python: 3.7
       env: TOXENV=py37
 
@@ -13,20 +19,12 @@ matrix:
       env: TOXENV=py38
 
     - python: pypy3.5
-    - env: TOXENV=pypy35
-
-    - python: 3.6  # We test the grammar-building scripts with Python 3.6 only
-      env: TOXENV=py36 TARSKI_BUILD_GRAMMARS=true
-
-    - python: 3.6 # We test the lint script with Python 3.6 only
-      env: TOXENV=pylint
+      env: TOXENV=pypy35
 
 install:
-  - python --version
   - python -m pip install --upgrade pip  # Upgrade pip to latest version
   - pip install tox
-  - if [ "$TARSKI_BUILD_GRAMMARS" = "true" ]; then ./scripts/build-grammars; fi
+  - tox --version
 
 script:
-  - tox --version
   - tox
