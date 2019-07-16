@@ -1,6 +1,12 @@
 dist: xenial   # required for Python >= 3.7
 language: python
 
+env:
+  global:
+    # Benchmark locations
+    - DOWNWARD_BENCHMARKS="/tmp/downward-benchmarks"
+    - FSBENCHMARKS="/tmp/fs-benchmarks"
+
 matrix:
   include:
     # Test the lint script only with Python 3.6
@@ -18,20 +24,24 @@ matrix:
     - python: 3.7
       env: TOXENV=py37
 
-    - python: 3.8-dev
-      env: TOXENV=py38
+# python 3.8 seems unable to install scipy, failing with a "No lapack/blas resources found" error.
+#    - python: 3.8-dev
+#      env: TOXENV=py38
 
 #  pypy doesn't seem to play nice with scipy?
 #    - python: pypy3.5
-#      env: TOXENV=pypy35
+#      env: TOXENV=pypy35 GETBENCHMARKS=true
 
 before_install:
-  - sudo apt-get install -y --no-install-recommends gringo  # For the ASP-based grounding & rechability tests
+  # Install Gringo only for the ASP-based grounding & rechability tests
+  - if [[ $TOXENV == py* ]]; then sudo apt-get install -y --no-install-recommends gringo; fi
 
 install:
   - python -m pip install --upgrade pip setuptools wheel
-  - pip install numpy scipy tox
+  - pip install tox
   - tox --version
+  # Download benchmarks only if necessary
+  - if [[ $TOXENV == py* ]]; then ./scripts/get-benchmarks; fi
 
 script:
   - tox
