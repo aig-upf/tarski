@@ -70,3 +70,7 @@ notebooks/exploratory/.ipynb_checkpoints/From_RDDL_to_Functional_STRIPS-checkpoi
 .idea/vcs.xml
 .idea/workspace.xml
 .idea/misc.xml
+
+# Code coverage reports
+.coverage
+coverage.xml

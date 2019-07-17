@@ -19,7 +19,7 @@ matrix:
 
     # Run the standard pytest tests with different python versions
     - python: 3.6
-      env: TOXENV=py36
+      env: TOXENV=coverage RUN_WITH_COVERAGE=true  # We check code coverage only with python 3.6
 
     - python: 3.7
       env: TOXENV=py37
@@ -37,11 +37,14 @@ before_install:
   - if [[ $TOXENV == py* ]]; then sudo apt-get install -y --no-install-recommends gringo; fi
 
 install:
-  - python -m pip install --upgrade pip setuptools wheel
-  - pip install tox
+  - python -m pip install --upgrade tox pip setuptools wheel
   - tox --version
-  # Download benchmarks only if necessary
-  - if [[ $TOXENV == py* ]]; then ./scripts/get-benchmarks; fi
+  - if [[ $TOXENV == py* ]]; then ./scripts/get-benchmarks; fi  # Download benchmarks only if necessary
+#  - if [[ $RUN_WITH_COVERAGE == true ]]; then pip install codecov; fi  # Install codecov only if necessary
 
 script:
   - tox
+
+# Push the results back to codecov
+#after_success:
+#  - if [[ $RUN_WITH_COVERAGE == true ]]; then codecov; fi  # Install codecov only if necessary
