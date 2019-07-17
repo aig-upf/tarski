@@ -19,7 +19,7 @@ matrix:
 
     # Run the standard pytest tests with different python versions
     - python: 3.6
-      env: TOXENV=py36
+      env: TOXENV=pycoverage # We check code coverage only with python 3.6
 
     - python: 3.7
       env: TOXENV=py37
@@ -36,12 +36,13 @@ before_install:
   # Install Gringo only for the ASP-based grounding & rechability tests
   - if [[ $TOXENV == py* ]]; then sudo apt-get install -y --no-install-recommends gringo; fi
 
+  # Install curl for running the codecov script
+  - if [[ $TOXENV == pycoverage ]]; then sudo apt-get install -y --no-install-recommends curl; fi
+
 install:
-  - python -m pip install --upgrade pip setuptools wheel
-  - pip install tox
+  - python -m pip install --upgrade tox pip setuptools wheel
   - tox --version
-  # Download benchmarks only if necessary
-  - if [[ $TOXENV == py* ]]; then ./scripts/get-benchmarks; fi
+  - if [[ $TOXENV == py* ]]; then ./scripts/get-benchmarks; fi  # Download benchmarks only if necessary
 
 script:
   - tox
