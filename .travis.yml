@@ -36,6 +36,9 @@ before_install:
   # Install Gringo only for the ASP-based grounding & rechability tests
   - if [[ $TOXENV == py* ]]; then sudo apt-get install -y --no-install-recommends gringo; fi
 
+  # Install curl for running the codecov script
+  - if [[ $TOXENV == pycoverage ]]; then sudo apt-get install -y --no-install-recommends curl; fi
+
 install:
   - python -m pip install --upgrade tox pip setuptools wheel
   - tox --version

@@ -1,0 +1,14 @@
+[paths]
+source =
+   src
+   */site-packages/tarski
+
+[run]
+branch = true
+source =
+    tarski
+    tests
+
+[report]
+; show_missing = true
+precision = 2
