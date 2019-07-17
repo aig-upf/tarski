@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+
 from collections import OrderedDict
 
 from .. import model
@@ -68,6 +68,8 @@ class Problem:
                 pv.visit(eff.condition)
                 if isinstance(eff, (fs.AddEffect, fs.DelEffect)):
                     ev.visit(eff.atom)
+                elif isinstance(eff, fs.LiteralEffect):
+                    ev.visit(eff.lit)
                 elif isinstance(eff, fs.FunctionalEffect):
                     ev.visit(eff.lhs)
                 elif isinstance(eff, fs.ChoiceEffect):

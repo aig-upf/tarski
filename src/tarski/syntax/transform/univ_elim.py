@@ -1,8 +1,9 @@
-# -*- coding: utf-8 -*-
 """
     Universal Quantification Elimination
 """
 import itertools
+
+from .subst import create_substitution
 from ..formulas import land, Quantifier, QuantifiedFormula
 from ..transform import term_substitution, PrenexTransformation
 from .errors import TransformationError
@@ -30,7 +31,7 @@ class UniversalQuantifierElimination:
                     raise TransformationError("universal elimination", phi, "No constants were defined!")
                 conjuncts = []
                 for values in itertools.product(*substs):
-                    subst = {syms[k]: v for k, v in enumerate(values)}
+                    subst = create_substitution(syms, values)
                     conjuncts.append(term_substitution(self.L, phi.formula, subst))
                 # print(len(conjuncts))
                 return land(*conjuncts)

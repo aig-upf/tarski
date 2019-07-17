@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 from ...fol import FirstOrderLanguage
 from ...syntax.terms import Constant, Variable

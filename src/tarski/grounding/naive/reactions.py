@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
+
 import itertools
 import copy
-from collections import OrderedDict
 
 from ...fstrips import hybrid
-from ...syntax.transform import TermSubstitution
+from ...syntax import create_substitution, TermSubstitution
 from ...util import IndexDictionary
 from . import instantiation
 from .elements import process_expression, process_effect
@@ -35,7 +34,7 @@ class ReactionGrounder:
 
             k, syms, substs = instantiation.enumerate_groundings(self.L, react_schema.parameters)
             for values in itertools.product(*substs):
-                subst = OrderedDict({syms[k]: v for k, v in enumerate(values)})
+                subst = create_substitution(syms, values)
 
                 op = TermSubstitution(self.L, subst)
 

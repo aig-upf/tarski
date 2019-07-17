@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
  Classes and methods related to the Logic-Program based grounding  strategy of planning problems.
 """

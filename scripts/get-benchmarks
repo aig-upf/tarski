@@ -1,0 +1,13 @@
+#!/bin/sh -ex
+
+# Download DOWNWARD-BENCHMARKS
+mkdir -p /tmp/downward-benchmarks
+cd /tmp/downward-benchmarks
+curl -SL https://bitbucket.org/aibasel/downward-benchmarks/get/default.tgz | tar -xz --strip 1
+
+# Download FS-BENCHMARKS
+mkdir -p /tmp/fs-benchmarks
+cd /tmp/fs-benchmarks
+curl -SL https://bitbucket.org/gfrances/fs-benchmarks/get/master.tgz | tar xz --strip 1
+cd generators
+python generate.py --problems counters

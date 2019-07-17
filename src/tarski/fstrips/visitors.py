@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     Visitors implementing diverse aspects of FSTRIPS problems translation,
     analysis and compilation.

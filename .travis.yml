@@ -1,32 +1,47 @@
+dist: xenial   # required for Python >= 3.7
 language: python
+
+env:
+  global:
+    # Benchmark locations
+    - DOWNWARD_BENCHMARKS="/tmp/downward-benchmarks"
+    - FSBENCHMARKS="/tmp/fs-benchmarks"
 
 matrix:
   include:
-    - python: 3.5
-      env: TOXENV=py35
+    # Test the lint script only with Python 3.6
+    - python: 3.6
+      env: TOXENV=stylechecks
 
+    # Test the building of the ANTLR grammars only with Python 3.6
+    - python: 3.6
+      env: TOXENV=antlrgrammars
+
+    # Run the standard pytest tests with different python versions
     - python: 3.6
       env: TOXENV=py36
 
-    - python: 3.7-dev
+    - python: 3.7
       env: TOXENV=py37
 
-    # We test the grammar-building scripts with Python 3.6 only
-    - python: 3.6
-      env: TOXENV=py36 TARSKI_BUILD_GRAMMARS=true
+# python 3.8 seems unable to install scipy, failing with a "No lapack/blas resources found" error.
+#    - python: 3.8-dev
+#      env: TOXENV=py38
 
-    # We test the lint script with Python 3.6 only
-    - python: 3.6
-      env: TOXENV=pylint
-
-#    - python: 3.7-dev
-#      env: TOXENV=py37
+#  pypy doesn't seem to play nice with scipy?
 #    - python: pypy3.5
-#      env: TOXENV=pypy3
+#      env: TOXENV=pypy35 GETBENCHMARKS=true
+
+before_install:
+  # Install Gringo only for the ASP-based grounding & rechability tests
+  - if [[ $TOXENV == py* ]]; then sudo apt-get install -y --no-install-recommends gringo; fi
+
 install:
+  - python -m pip install --upgrade pip setuptools wheel
   - pip install tox
-  - if [ "$TARSKI_BUILD_GRAMMARS" = "true" ]; then ./scripts/build-grammars; fi
+  - tox --version
+  # Download benchmarks only if necessary
+  - if [[ $TOXENV == py* ]]; then ./scripts/get-benchmarks; fi
 
 script:
-  - tox --version
   - tox

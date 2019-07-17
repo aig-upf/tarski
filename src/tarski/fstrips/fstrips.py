@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+
 from enum import Enum
 from typing import List
 
@@ -50,6 +50,15 @@ class DelEffect(SingleEffect):
 
     def tostring(self):
         return "DEL({})".format(self.atom)
+
+
+class LiteralEffect(SingleEffect):
+    def __init__(self, lit, condition=Tautology()):
+        super().__init__(condition)
+        self.lit = lit
+
+    def tostring(self):
+        return "LIT({})".format(self.lit)
 
 
 class FunctionalEffect(SingleEffect):

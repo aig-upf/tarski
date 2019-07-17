@@ -80,7 +80,7 @@ def generate_small_strips_bw_problem(use_inequalities=True):
         lang.get('b1', 'b2', 'b3', 'clear', 'on', 'ontable', 'handempty', 'holding')
     problem.goal = (on(b1, b2)) & (on(b2, b3)) & (clear(b1))
 
-    x = lang.variable('b', 'object')
+    x = lang.variable('x', 'object')
     y = lang.variable('y', 'object')
 
     problem.action('pick-up', [x],

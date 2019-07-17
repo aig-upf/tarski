@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+
 from enum import Enum
 from ... import errors as err
 from ..formulas import Formula, Connective, CompoundFormula, lor

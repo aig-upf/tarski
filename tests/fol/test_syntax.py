@@ -1,10 +1,13 @@
+
 import copy
+from collections import defaultdict
 
 import pytest
 import tarski as tsk
 from tarski import theories
 from tarski.theories import Theory
 from tarski import errors as err
+from tarski import fstrips as fs
 from tarski.syntax import *
 from tarski.syntax.algebra import Matrix
 
@@ -304,3 +307,32 @@ def test_matrices_constants():
     for i in range(N):
         for j in range(M):
             assert isinstance(A.matrix[i, j], Term)
+
+
+def test_term_hash_raises_exception():
+    # from tarski.fstrips import language
+    # from tarski.syntax import symref
+    lang = fs.language("test")
+    counter = defaultdict(int)
+
+    c = lang.constant('c', 'object')
+    f = lang.function('f', 'object', 'object')
+
+    # Trying to use associative containers on terms raises a standard TypeError
+    with pytest.raises(TypeError):
+        counter[c] += 2
+
+    with pytest.raises(TypeError):
+        counter[f(c)] += 2
+
+    # Using symrefs instead works correctly:
+    counter[symref(c)] += 2
+    assert counter[symref(c)] == 2
+
+    counter[symref(f(c))] += 2
+    assert counter[symref(f(c))] == 2
+
+    # Atoms and in general formulas can be used without problem
+    atom = f(c) == c
+    counter[atom] += 2
+    assert counter[atom] == 2

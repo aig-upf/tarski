@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
 """
  Classes and methods related to the naive grounding strategy of planning problems.
 """
 import itertools
 
-from ..syntax import Constant, Variable, CompoundTerm, Atom
-from ..syntax.transform import term_substitution
+from ..syntax import Constant, Variable, CompoundTerm, Atom, create_substitution, term_substitution,\
+    termlists_are_equal, termlist_hash
 from ..errors import DuplicateDefinition
 from .errors import UnableToGroundError
 from .common import approximate_symbol_fluency, StateVariableLite
@@ -30,7 +29,7 @@ class ProblemGrounding:
             as fluent by at least one of our heuristics.
         """
         self.static_terms = {x for x in self.static_terms if x not in self.fluent_terms}
-        assert all([x not in self.static_terms for x in self.fluent_terms])
+        assert all(x not in self.static_terms for x in self.fluent_terms)
 
     def process_symbols(self, problem):
         lang = problem.language
@@ -100,26 +99,20 @@ class StateVariable:
         self.instantiation = instantiation
 
     def __hash__(self):
-        if len(self.instantiation) == 0:
-            return hash(self.head.symbol)
-        accum = hash(self.instantiation[0])
-        for k in range(1, len(self.instantiation)):
-            accum = accum ^ hash(self.instantiation[k])
-        return hash(self.head.symbol) ^ accum
+        return hash((self.head.symbol, termlist_hash(self.instantiation)))
 
     def __eq__(self, other):
-        return self.head.symbol == other.head.symbol \
-               and all(lhs.symbol == rhs.symbol for lhs, rhs, in zip(self.instantiation, other.instantiation))
+        return self.head.symbol == other.head.symbol and termlists_are_equal(self.instantiation, other.instantiation)
 
     def __str__(self):
         return '{}({})'.format(self.head.symbol, ','.join(str(a) for a in self.instantiation))
 
+    __repr__ = __str__
+
     @property
     def ground(self):
-        subst = {k: v for k, v in zip(self.term.subterms, self.instantiation)}
+        subst = create_substitution(self.term.subterms, self.instantiation)
         return term_substitution(self.head.language, self.term, subst)
-
-    __repr__ = __str__
 
 
 class NaiveGroundingStrategy:

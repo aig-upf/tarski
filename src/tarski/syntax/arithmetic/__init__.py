@@ -2,11 +2,11 @@ import itertools
 import copy
 import numpy as np
 
-from ...syntax import Term, AggregateCompoundTerm, CompoundTerm, Constant, Variable, IfThenElse
+from ...syntax import Term, AggregateCompoundTerm, CompoundTerm, Constant, Variable, IfThenElse, create_substitution, \
+    term_substitution
 from ...syntax.algebra import Matrix
 from ... import errors as err
 from ... grounding.naive import instantiation
-from .. transform import term_substitution
 from ..builtins import BuiltinFunctionSymbol, get_arithmetic_binary_functions
 
 
@@ -62,7 +62,7 @@ def summation(*args):
     _, syms, substs = instantiation.enumerate_groundings(L, list(variables))
     processed_expr = []
     for values in itertools.product(*substs):
-        subst = {syms[k]: v for k, v in enumerate(values)}
+        subst = create_substitution(syms, values)
         processed_expr.append(term_substitution(L, expr, subst))
 
     lhs = processed_expr[0]
@@ -92,7 +92,7 @@ def product(*args):
     _, syms, substs = instantiation.enumerate_groundings(L, list(variables))
     processed_expr = []
     for values in itertools.product(*substs):
-        subst = {syms[k]: v for k, v in enumerate(values)}
+        subst = create_substitution(syms, values)
         processed_expr.append(term_substitution(L, expr, subst))
 
     lhs = processed_expr[0]

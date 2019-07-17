@@ -1,7 +1,8 @@
-# -*- coding: utf-8 -*-
+
 import copy
 
-from ..formulas import CompoundFormula, QuantifiedFormula, Variable, Atom, Formula
+from ..symrefs import symref
+from ..formulas import CompoundFormula, QuantifiedFormula, Atom, Formula
 from ..terms import Term, CompoundTerm
 from .errors import SubstitutionError
 
@@ -19,21 +20,18 @@ class TermSubstitution:
             _ = [self.visit(f) for f in phi.subformulas]
 
         elif isinstance(phi, QuantifiedFormula):
-            if any(x in self.subst for x in phi.variables):
+            if any(symref(x) in self.subst for x in phi.variables):
                 raise SubstitutionError(phi, self.subst, 'Attempted to substitute variable bound by quantifier')
             self.visit(phi.formula)
 
         elif isinstance(phi, (Atom, CompoundTerm)):
             new_subterms = list(phi.subterms)
             for k, t in enumerate(new_subterms):
-                rep = self.subst.get(t, None)
+                rep = self.subst.get(symref(t), None)
                 if rep is None:
                     self.visit(t)
                 else:
-                    if isinstance(rep, Variable):
-                        new_subterms[k] = rep
-                    else:
-                        new_subterms[k] = rep
+                    new_subterms[k] = rep
             phi.subterms = tuple(new_subterms)
 
 
@@ -46,3 +44,7 @@ def term_substitution(language, phi, substitution, inplace=False):
     op = TermSubstitution(language, substitution)
     op.visit(phi)
     return phi
+
+
+def create_substitution(symbols, values):
+    return {symref(symbols[k]): v for k, v in enumerate(values)}

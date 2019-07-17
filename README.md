@@ -1,14 +1,19 @@
 
-# Tarski - The Planning Problem Definition Module [![Build Status](https://travis-ci.com/aig-upf/tarski.svg?branch=master)](https://travis-ci.com/aig-upf/tarski)
+# Tarski - An AI Planning Modeling Framework [![Build Status](https://travis-ci.com/aig-upf/tarski.svg?branch=master)](https://travis-ci.com/aig-upf/tarski)
 
 ## What is Tarski
-Tarski is a parser and preprocessor to create, manipulate and transform 
-[AI planning](https://en.wikipedia.org/wiki/Automated_planning_and_scheduling) problems. 
+Tarski is a framework for the specification, modeling and manipulation of 
+[AI planning](https://en.wikipedia.org/wiki/Automated_planning_and_scheduling) problems.
+Tarski is written in Python and includes parsers for major modeling languages
+(e.g., [PDDL](https://en.wikipedia.org/wiki/Planning_Domain_Definition_Language),
+[FSTRIPS](https://dl.acm.org/citation.cfm?id=566359),
+[RDDL](https://en.wikipedia.org/wiki/Planning_Domain_Definition_Language#RDDL)), 
+along with modules to perform common tasks such as reachability analysis and grounding of first-order representations.
 
 
 ## Installation
 
-You can install the latest official Tarski release with
+You can install the latest Tarski release with
 
     pip install tarski
 
@@ -18,16 +23,15 @@ If instead you want to use the latest code available on the Github repository, u
 
 
 ## Development
-If developing Tarski, we recommend cloning from the Github repository and doing a development installation
-(`pip`'s `-e` flag) on a [virtual environment](https://docs.python.org/3/tutorial/venv.html):
+If developing Tarski, we recommend cloning from the Github repository and doing a dev installation
+(the`-e` flag for `pip`) on a [virtual environment](https://docs.python.org/3/tutorial/venv.html):
     
     git clone https://github.com/aig-upf/tarski
     cd tarski
     pip install -e .
 
-This will install the project in "editable mode", i.e., by using the actual files from the project directory
-tree, as opposed to a copy installed in some system or virtualenv directory. Any modification to the files
-will thus be immediately reflected in the _installed_ library.
+This will install the project in "editable mode", meaning that any modification to the files
+is immediately reflected in the _installed_ library.
 
 
 ## Testing 
@@ -39,20 +43,11 @@ You can also run `tox` (`pip install tox`) to have some additional checks (e.g.,
 
 ## Software Requirements
 Tarski requires Python >= 3.6.
-The above installation instructions will install under the hood a number of dependencies, among which
-numpy and scipy.
+The above installation instructions will install transparently for you a number of additional dependencies, among which
+`numpy`, `scipy` and `pyrddl`.
 
 
-### Supported Languages
-At the moment, Tarski is able to parse the following modeling languages:
-* PDDL
-* Functional STRIPS
-
-with the following limitations:
-* The PDDL `either` keyword for defining compound types is not supported. 
-* Parsing of derived predicates is not supported yet.
-
-## Modules
-
-* Description Logic (`tarski.dl`)
-* PDDL / FSTRIPS parsing and writing (`tarski.io`)
+## Known Limitations
+At the moment, Tarski is able to parse problems specified in PDDL, Functional STRIPS and RDDL, 
+but (1) parsing of derived predicates is not supported yet, and (2)
+the PDDL `either` keyword for defining compound types is not supported, and it is unlikely it will ever be. 

@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
+
 import itertools
-from collections import OrderedDict
 
 from ...fstrips import hybrid
-from ...syntax.transform import TermSubstitution
+from ...syntax import create_substitution, TermSubstitution
 from ...util import IndexDictionary
 from . import instantiation
 from .elements import process_expression
@@ -27,7 +26,7 @@ class DifferentialConstraintGrounder:
         for ode_schema in self.schemas:
             k, syms, substs = instantiation.enumerate_groundings(self.L, ode_schema.parameters)
             for values in itertools.product(*substs):
-                subst = OrderedDict({syms[k]: v for k, v in enumerate(values)})
+                subst = create_substitution(syms, values)
                 op = TermSubstitution(self.L, subst)
                 g_cond = process_expression(self.L, ode_schema.condition, op)
                 g_variate = process_expression(self.L, ode_schema.variate, op)

@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
-
 """
     Rewrite formulas into prenex normal form
 """
+from ..symrefs import symref
 from ..formulas import CompoundFormula, QuantifiedFormula, Connective, Quantifier, lor
 from ..transform.nnf import NNFTransformation
 from ..transform import term_substitution
@@ -55,7 +54,7 @@ class PrenexTransformation:
                 new_out_vars.append(y)
             else:
                 y2 = self.L.variable("{}'".format(y.symbol), y.sort)
-                subst[y] = y2
+                subst[symref(y)] = y2
                 new_out_vars.append(y2)
         if len(subst) > 0:
             term_substitution(self.L, out_phi, subst, inplace=True)
