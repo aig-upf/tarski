@@ -14,7 +14,7 @@ except ImportError as err:
 from ..errors import DuplicatePredicateDefinition, DuplicateConstantDefinition
 from ..evaluators.simple import evaluate
 from ..syntax import symref, lor, neg, Atom, BuiltinPredicateSymbol, CompoundFormula, Connective, Variable
-from ..syntax.ops import flatten
+from ..syntax.ops import flatten, collect_unique_nodes
 from ..grounding import ProblemGrounding
 from ..fstrips import fstrips
 
@@ -53,25 +53,6 @@ def compute_statics(problem):
     index.process_symbols(problem)
     fluents, statics = index.compute_fluent_and_statics()
     return statics
-
-
-def collect_non_builtin_atoms(phi):
-    """ Collect all atoms in the given formula that are not built-in (e.g. X=Y, X!=Y are built-in atoms) """
-    atoms = set()
-    _collect_non_builtin_atoms_rec(phi, atoms)
-    return [a.expr for a in atoms]  # Unpack the symrefs
-
-
-def _collect_non_builtin_atoms_rec(phi, atoms):
-    if isinstance(phi, Atom):
-        if not phi.predicate.builtin:
-            atoms.add(symref(phi))
-    elif isinstance(phi, CompoundFormula):
-        # We don't really care on the type of connective, only want to collect all atoms
-        assert phi.connective in (Connective.Not, Connective.And, Connective.Or)
-        _ = [_collect_non_builtin_atoms_rec(sub, atoms) for sub in phi.subformulas]
-    else:
-        raise RuntimeError(f'Unsupported formula: {phi}')
 
 
 def create_equality_constraints(equalities, selects):
@@ -213,31 +194,8 @@ def create_domain_constraints(action, selects):
 
 def extract_equalities(phi):
     """ Extract a table with action parameter equalities of the form X=Y, X!=Y"""
-    table = {}
-    _extract_equalities_rec(phi, table)
-    return table
-
-
-def _extract_equalities_rec(phi, table):
-    """ Extract a table with action parameter equalities of the form X=Y, X!=Y"""
-    if isinstance(phi, Atom):
-        if phi.predicate.symbol == BuiltinPredicateSymbol.EQ:
-            table[symref(phi)] = True
-            return True
-        elif phi.predicate.symbol == BuiltinPredicateSymbol.NE:
-            table[symref(phi)] = False
-            return True
-
-    elif isinstance(phi, CompoundFormula):
-        if phi.connective == Connective.Not:
-            inserted = _extract_equalities_rec(phi.subformulas[0], table)
-            if inserted:
-                table[symref(phi.subformulas[0])] = not table[symref(phi.subformulas[0])]
-        elif phi.connective == Connective.And:
-            for gamma in phi.subformulas:
-                _extract_equalities_rec(gamma, table)
-        else:
-            raise RuntimeError('Unsupported formula: {}'.format(str(phi)))
+    return collect_unique_nodes(phi, lambda x: isinstance(x, Atom) and x.predicate.symbol in
+                                               (BuiltinPredicateSymbol.EQ, BuiltinPredicateSymbol.NE))
 
 
 def prune_parameter_domains(precondition, statics, domains, init):
@@ -290,7 +248,7 @@ def process_schema(problem, statics, action, data, max_size):
     data['selects'] += [nvars_]
     # dom_constraints = create_domain_constraints(action, selects) # TODO Remove
     equalities = extract_equalities(precondition)
-    prec_atoms = collect_non_builtin_atoms(precondition)
+    prec_atoms = collect_unique_nodes(precondition, lambda x: isinstance(x, Atom) and not x.predicate.builtin)
 
     eq_constraints = create_equality_constraints(equalities, selects_)
     state_atoms = set()
