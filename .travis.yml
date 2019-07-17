@@ -19,7 +19,7 @@ matrix:
 
     # Run the standard pytest tests with different python versions
     - python: 3.6
-      env: TOXENV=coverage # We check code coverage only with python 3.6
+      env: TOXENV=pycoverage # We check code coverage only with python 3.6
 
     - python: 3.7
       env: TOXENV=py37
