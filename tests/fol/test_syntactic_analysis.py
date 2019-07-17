@@ -1,6 +1,6 @@
 
 from tarski.syntax import neg, land, lor, exists, symref
-from tarski.syntax.ops import free_variables, flatten
+from tarski.syntax.ops import free_variables, flatten, collect_unique_nodes
 from tests.common import tarskiworld
 from tests.common.blocksworld import generate_bw_loc_and_clear
 
@@ -28,9 +28,9 @@ def test_detect_free_variables():
 
 
 def test_formula_flattening():
-    lang = generate_bw_loc_and_clear(4)
-
+    lang = generate_bw_loc_and_clear(3)
     b1, b2, b3, clear = lang.get('b1', 'b2', 'b3', 'clear')
+
     f1 = land(clear(b1), clear(b2), clear(b3), clear(b1), flat=True)
     f2 = lor(clear(b1), clear(b2), clear(b3), clear(b1), flat=True)
     assert f1 == flatten(f1)  # both are already flat - this tests for syntactic identity
@@ -48,3 +48,9 @@ def test_formula_flattening():
     assert clear(b1) == flatten(clear(b1))  # Flattening non-compound formulas leaves them untouched
 
 
+def test_node_collection():
+    lang = generate_bw_loc_and_clear(3)
+    b1, b2, b3, clear = lang.get('b1', 'b2', 'b3', 'clear')
+
+    e = clear(b1) & clear(b2)
+    nodes = collect_unique_nodes(e)

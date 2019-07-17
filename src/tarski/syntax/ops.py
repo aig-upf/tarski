@@ -69,28 +69,30 @@ def _flatten(formula, parent_connective):
     return tuple(itertools.chain.from_iterable(_flatten(sub, parent_connective) for sub in formula.subformulas))
 
 
-def all_unique_nodes(expression, include_only=None):
+def collect_unique_nodes(expression, include_only=None):
     """ Return all nodes in the AST of the given expression, formula or term.
     If a Boolean function `include_only` is provided, only those nodes that satisfy the function are returned.
     The method returns only one copy of each node, under syntactic equivalence. """
     include_only = include_only if include_only is not None else lambda x: True
+
+
+
     nodes = set()
-
-    def visit(expr):
-        if isinstance(expr, Variable):
-            t_ref = symref(expr)
-            if t_ref not in self.quantified_vars:
-                self._free_variables.add(t_ref)
-        elif isinstance(expr, CompoundFormula):
-            _ = [self.visit(f) for f in expr.subformulas]
-
-        elif isinstance(expr, QuantifiedFormula):
-            _ = [self.quantified_vars.add(symref(x)) for x in expr.variables]
-            self.visit(expr.formula)
-            _ = [self.quantified_vars.remove(symref(x)) for x in expr.variables]
-
-        elif isinstance(expr, (Atom, CompoundTerm)):
-            _ = [self.visit(f) for f in expr.subterms]
+    _visit(expression, nodes)
 
 
+def _collect_unique_nodes_rec(expr, _nodes_):
+    if isinstance(expr, Variable):
+        t_ref = symref(expr)
+        if t_ref not in self.quantified_vars:
+            self._free_variables.add(t_ref)
+    elif isinstance(expr, CompoundFormula):
+        _ = [self.visit(f) for f in expr.subformulas]
 
+    elif isinstance(expr, QuantifiedFormula):
+        _ = [self.quantified_vars.add(symref(x)) for x in expr.variables]
+        self.visit(expr.formula)
+        _ = [self.quantified_vars.remove(symref(x)) for x in expr.variables]
+
+    elif isinstance(expr, (Atom, CompoundTerm)):
+        _ = [self.visit(f) for f in expr.subterms]
