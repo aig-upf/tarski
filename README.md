@@ -1,5 +1,10 @@
 
-# Tarski - An AI Planning Modeling Framework [![Build Status](https://travis-ci.com/aig-upf/tarski.svg?branch=master)](https://travis-ci.com/aig-upf/tarski)
+# Tarski - An AI Planning Modeling Framework 
+[![Build Status](https://travis-ci.com/aig-upf/tarski.svg?branch=master)](https://travis-ci.com/aig-upf/tarski)
+[![codecov](https://codecov.io/gh/aig-upf/tarski/branch/master/graph/badge.svg)](https://codecov.io/gh/aig-upf/tarski)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/tarski.svg?style=popout)
+![PyPI](https://img.shields.io/pypi/v/tarski.svg?style=popout)
+
 
 ## What is Tarski
 Tarski is a framework for the specification, modeling and manipulation of 
