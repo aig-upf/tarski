@@ -45,4 +45,4 @@ install:
   - if [[ $TOXENV == py* ]]; then ./scripts/get-benchmarks; fi  # Download benchmarks only if necessary
 
 script:
-  - tox
+  - tox -vv
