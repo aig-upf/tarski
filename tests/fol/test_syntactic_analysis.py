@@ -32,18 +32,16 @@ def test_formula_flattening():
 
     b1, b2, b3, clear = lang.get('b1', 'b2', 'b3', 'clear')
     f1 = land(clear(b1), clear(b2), clear(b3), clear(b1), flat=True)
-    f2 = land(clear(b1), clear(b2), clear(b3), clear(b1), flat=False)
-
-    f3 = lor(clear(b1), clear(b2), clear(b3), clear(b1), flat=True)
-    f4 = lor(clear(b1), clear(b2), clear(b3), clear(b1), flat=False)
-
+    f2 = lor(clear(b1), clear(b2), clear(b3), clear(b1), flat=True)
     assert f1 == flatten(f1)  # both are already flat - this tests for syntactic identity
-    assert f3 == flatten(f3)
+    assert f2 == flatten(f2)
 
-    # In contrast, f3 and f4 are not flat, so flattening them will change their syntactic form
+    # Now test formulas which are not flat, so flattening them will change their syntactic form
+    f1 = land(clear(b1), clear(b2), clear(b3), clear(b1), flat=False)
+    f2 = lor(clear(b1), f1, clear(b3), (clear(b3) | clear(b1)), flat=False)
+    z = flatten(f1)
+    assert f1 != z and len(z.subformulas) == 4
+
     z = flatten(f2)
-    assert f2 != z and len(z.subformulas) == 4
-
-    z = flatten(f4)
-    assert f4 != z and len(z.subformulas) == 4
+    assert f2 != z and len(z.subformulas) == 5
 
