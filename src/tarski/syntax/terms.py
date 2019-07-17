@@ -1,5 +1,7 @@
 
 from typing import Tuple
+
+from .util import termlists_are_equal, termlist_hash
 from .sorts import Sort, parent
 from .. import errors as err
 from .builtins import BuiltinPredicateSymbol, BuiltinFunctionSymbol
@@ -334,13 +336,3 @@ class Constant(Term):
 
     def is_syntactically_equal(self, other):
         return self.__class__ is other.__class__ and self.symbol == other.symbol and self.sort == other.sort
-
-
-def termlists_are_equal(terms1, terms2):
-    """ Check whether two given lists of terms are (syntactic-wise) equal. """
-    return len(terms1) == len(terms2) and all(x.is_syntactically_equal(y) for x, y in zip(terms1, terms2))
-
-
-def termlist_hash(terms):
-    """ Return a ready-to-hash tuple with the hashes of a list of terms. """
-    return tuple(x.hash() for x in terms)

@@ -4,7 +4,8 @@ from enum import Enum
 from typing import List
 
 from .. import errors as err
-from .terms import Variable, Term, termlists_are_equal, termlist_hash
+from .terms import Variable, Term
+from .util import termlists_are_equal, termlist_hash
 from .predicate import Predicate
 
 
@@ -142,7 +143,6 @@ class QuantifiedFormula(Formula):
         return hash((self.__class__, self.quantifier, termlist_hash(self.variables), self.formula))
 
 
-
 top = Tautology()
 bot = Contradiction()
 
@@ -155,24 +155,24 @@ def _to_binary_tree(args, connective):
     return phi
 
 
-def _create_compound(args, connective, binary):
-    if binary:
-        return _to_binary_tree(args, connective)
-    return CompoundFormula(connective, args)
+def _create_compound(args, connective, flat):
+    if flat:
+        return CompoundFormula(connective, args)
+    return _to_binary_tree(args, connective)
 
 
-def land(*args, binary=True):
+def land(*args, flat=False):
     """ Create an and-formula with the given subformulas. If binary is true, the and-formula will be shaped as a binary
      tree (e.g. (...((p1 and p2) and p3) and ...))), otherwise it will have a flat structure. This is an implementation
      detail, but might be relevant performance-wise when dealing with large structures """
-    return _create_compound(args, Connective.And, binary)
+    return _create_compound(args, Connective.And, flat)
 
 
-def lor(*args, binary=True):
+def lor(*args, flat=False):
     """ Create an or-formula with the given subformulas. If binary is true, the or-formula will be shaped as a binary
     tree (e.g. (...((p1 or p2) or p3) or ...))), otherwise it will have a flat structure. This is an implementation
     detail, but might be relevant performance-wise when dealing with large structures """
-    return _create_compound(args, Connective.Or, binary)
+    return _create_compound(args, Connective.Or, flat)
 
 
 def neg(phi):
