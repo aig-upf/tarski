@@ -52,6 +52,15 @@ class DelEffect(SingleEffect):
         return "DEL({})".format(self.atom)
 
 
+class LiteralEffect(SingleEffect):
+    def __init__(self, lit, condition=Tautology()):
+        super().__init__(condition)
+        self.lit = lit
+
+    def tostring(self):
+        return "LIT({})".format(self.lit)
+
+
 class FunctionalEffect(SingleEffect):
     def __init__(self, lhs, rhs, condition=Tautology()):
         super().__init__(condition)
