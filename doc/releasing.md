@@ -29,7 +29,8 @@ First, make sure you are on the master branch and on the right commit.
 
 1. Push all code changes plus the tag to the repo:
 
-        git push && git push ${TARSKI_RELEASE}
+        git push && git push origin ${TARSKI_RELEASE}
 
-1. Upload a tarball to the [Github releases page](https://github.com/aig-upf/tarski/releases).
+1. Check the [Github releases page](https://github.com/aig-upf/tarski/releases) to make sure the new release appears
+   there and can be downwloaded.
 
