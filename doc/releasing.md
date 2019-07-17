@@ -8,19 +8,28 @@ First, make sure you are on the master branch and on the right commit.
 1. Update the `CHANGELOG.md` file.
 1. Update the version number in `src/tarski/version.py`
 1. Commit and tag the release.
+
+        export TARSKI_RELEASE="v0.2.0"
+        git commit -am "Preparing for release ${TARSKI_RELEASE}"
+        git tag -a v0.2.0 -m "Tarski release ${TARSKI_RELEASE}"
+
+        
 1. Run the following instructions from the root directory of the project:
 
+        python3 -m pip install --upgrade twine setuptools wheel  # (optional)
 
-    python3 -m pip install --upgrade twine setuptools wheel  # (optional)
-
-    rm -rf dist/
-    python3 setup.py sdist bdist_wheel
+        rm -rf dist/
+        python3 setup.py sdist bdist_wheel
     
-    # Test first (result will go to https://test.pypi.org/project/tarski/):
-    python3 -m twine upload --skip-existing --repository-url https://test.pypi.org/legacy/ dist/*
+        # Test first (result will go to https://test.pypi.org/project/tarski/):
+        python3 -m twine upload --skip-existing --repository-url https://test.pypi.org/legacy/ dist/*
     
-    # Then go!
-    python3 -m twine upload --skip-existing dist/*
+        # Then go!
+        python3 -m twine upload --skip-existing dist/*
 
+1. Push all code changes plus the tag to the repo:
 
+        git push && git push ${TARSKI_RELEASE}
+
+1. Upload a tarball to the [Github releases page](https://github.com/aig-upf/tarski/releases).
 
