@@ -19,8 +19,7 @@ def cast_to_closest_common_ancestor(lhs, rhs):
         # lhs is matrix
         if isinstance(rhs, Term):
             return lhs, rhs.language.matrix([[rhs]])
-    if not isinstance(rhs, Term):
-        assert False  # this should not happen
+    assert isinstance(rhs, Term)  # this should not happen
     lhs = Constant(rhs.sort.cast(lhs), rhs.sort)
 
     return lhs, rhs

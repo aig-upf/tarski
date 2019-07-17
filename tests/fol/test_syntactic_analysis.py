@@ -45,3 +45,6 @@ def test_formula_flattening():
     z = flatten(f2)
     assert f2 != z and len(z.subformulas) == 5
 
+    assert clear(b1) == flatten(clear(b1))  # Flattening non-compound formulas leaves them untouched
+
+
