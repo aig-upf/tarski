@@ -55,7 +55,8 @@ def main():
             'numpy',
             'scipy',
             'pyrddl',
-            'pysdd@git+https://git@github.com/wannesm/PySDD.git@259e8b5'
+            # 'pysdd@git+https://git@github.com/wannesm/PySDD.git@259e8b5',  # This doesn't seem to work on Travis
+            'pysdd@https://github.com/wannesm/PySDD/archive/259e8b5.zip',
         ],
 
         extras_require={
