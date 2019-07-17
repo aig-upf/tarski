@@ -1,6 +1,6 @@
 #!/bin/sh -ex
 
-python -m coverage combine
-python -m coverage xml
-python -m coverage report -m
+# python -m coverage combine
+#python -m coverage xml
+#python -m coverage report -m
 bash <(curl -s https://codecov.io/bash) -Z -X gcov -X coveragepy -X search -X xcode -X gcovout -X fix -f coverage.xml
