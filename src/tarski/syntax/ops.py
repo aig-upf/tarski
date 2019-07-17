@@ -3,8 +3,9 @@ import itertools
 import numpy as np
 
 from .visitors import CollectFreeVariables, CollectVariables
-from .terms import Term, Constant
-from .formulas import CompoundFormula, Connective
+from .terms import Term, Constant, Variable, CompoundTerm, IfThenElse
+from .formulas import CompoundFormula, Connective, QuantifiedFormula, Atom, Tautology, Contradiction
+from .symrefs import symref
 
 
 def cast_to_closest_common_ancestor(lhs, rhs):
@@ -69,30 +70,40 @@ def _flatten(formula, parent_connective):
     return tuple(itertools.chain.from_iterable(_flatten(sub, parent_connective) for sub in formula.subformulas))
 
 
-def collect_unique_nodes(expression, include_only=None):
+def collect_unique_nodes(expression, filter_=None):
     """ Return all nodes in the AST of the given expression, formula or term.
-    If a Boolean function `include_only` is provided, only those nodes that satisfy the function are returned.
+    If a Boolean function `filter_` is provided, only those nodes that satisfy the function are returned.
     The method returns only one copy of each node, under syntactic equivalence. """
-    include_only = include_only if include_only is not None else lambda x: True
-
-
-
+    filter_ = filter_ if filter_ is not None else lambda x: True
     nodes = set()
-    _visit(expression, nodes)
+    _collect_unique_nodes_rec(expression, nodes, filter_)
+    return list(x.expr for x in nodes)  # Unpack the symrefs!
 
 
-def _collect_unique_nodes_rec(expr, _nodes_):
-    if isinstance(expr, Variable):
-        t_ref = symref(expr)
-        if t_ref not in self.quantified_vars:
-            self._free_variables.add(t_ref)
-    elif isinstance(expr, CompoundFormula):
-        _ = [self.visit(f) for f in expr.subformulas]
+def _collect_unique_nodes_rec(node, nodes, filter_):
+    if filter_(node):
+        nodes.add(symref(node))
 
-    elif isinstance(expr, QuantifiedFormula):
-        _ = [self.quantified_vars.add(symref(x)) for x in expr.variables]
-        self.visit(expr.formula)
-        _ = [self.quantified_vars.remove(symref(x)) for x in expr.variables]
+    # Term subclasses
+    if isinstance(node, (Variable, Constant)):
+        pass
+    elif isinstance(node, CompoundTerm):
+        _ = [_collect_unique_nodes_rec(sub, nodes, filter_) for sub in node.subterms]
+    elif isinstance(node, IfThenElse):
+        _collect_unique_nodes_rec(node.condition, nodes, filter_)
+        _ = [_collect_unique_nodes_rec(sub, nodes, filter_) for sub in node.subterms]
 
-    elif isinstance(expr, (Atom, CompoundTerm)):
-        _ = [self.visit(f) for f in expr.subterms]
+    # Formula subclasses
+    elif isinstance(node, (Contradiction, Tautology)):
+        pass
+    elif isinstance(node, Atom):
+        _ = [_collect_unique_nodes_rec(sub, nodes, filter_) for sub in node.subterms]
+    elif isinstance(node, CompoundFormula):
+        _ = [_collect_unique_nodes_rec(sub, nodes, filter_) for sub in node.subformulas]
+    elif isinstance(node, QuantifiedFormula):
+        _collect_unique_nodes_rec(node.formula, nodes, filter_)
+        _ = [_collect_unique_nodes_rec(sub, nodes, filter_) for sub in node.variables]
+
+    # Fallback
+    else:
+        raise RuntimeError(f'Unexpected type "{type(node)}" for expression "{node}"')

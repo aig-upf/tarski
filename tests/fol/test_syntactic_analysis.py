@@ -1,5 +1,5 @@
 
-from tarski.syntax import neg, land, lor, exists, symref
+from tarski.syntax import neg, land, lor, exists, symref, forall, Variable, Constant, Atom
 from tarski.syntax.ops import free_variables, flatten, collect_unique_nodes
 from tests.common import tarskiworld
 from tests.common.blocksworld import generate_bw_loc_and_clear
@@ -30,7 +30,6 @@ def test_detect_free_variables():
 def test_formula_flattening():
     lang = generate_bw_loc_and_clear(3)
     b1, b2, b3, clear = lang.get('b1', 'b2', 'b3', 'clear')
-
     f1 = land(clear(b1), clear(b2), clear(b3), clear(b1), flat=True)
     f2 = lor(clear(b1), clear(b2), clear(b3), clear(b1), flat=True)
     assert f1 == flatten(f1)  # both are already flat - this tests for syntactic identity
@@ -50,7 +49,20 @@ def test_formula_flattening():
 
 def test_node_collection():
     lang = generate_bw_loc_and_clear(3)
-    b1, b2, b3, clear = lang.get('b1', 'b2', 'b3', 'clear')
+    b1, b2, b3, clear, loc = lang.get('b1', 'b2', 'b3', 'clear', 'loc')
 
     e = clear(b1) & clear(b2)
-    nodes = collect_unique_nodes(e)
+    assert len(collect_unique_nodes(e)) == 5  # (clear(b1) and clear(b2)), clear(b2), b1, clear(b1), b2
+
+    assert len(collect_unique_nodes(e, lambda x: isinstance(x, Constant))) == 2
+    assert len(collect_unique_nodes(e, lambda x: isinstance(x, Atom))) == 2
+    assert len(collect_unique_nodes(e, lambda x: isinstance(x, Variable))) == 0
+
+    e = clear(b1) | (loc(b2) == b3)
+    assert len(collect_unique_nodes(e)) == 7
+
+    v = Variable('x', lang.Object)
+    e = forall(v, e | (loc(v) == v))
+    assert len(collect_unique_nodes(e)) == 12
+    assert len(collect_unique_nodes(e, lambda x: isinstance(x, Variable))) == 1
+

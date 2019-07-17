@@ -63,6 +63,7 @@ class Formula:
 class Tautology(Formula):
     def __str__(self):
         return "T"
+    __repr__ = __str__
 
     def __eq__(self, other):
         return self.__class__ is other.__class__
@@ -74,6 +75,7 @@ class Tautology(Formula):
 class Contradiction(Formula):
     def __str__(self):
         return "F"
+    __repr__ = __str__
 
     def __eq__(self, other):
         return self.__class__ is other.__class__
@@ -108,6 +110,7 @@ class CompoundFormula(Formula):
 
         inner = " {} ".format(self.connective).join(str(f) for f in self.subformulas)
         return "({})".format(inner)
+    __repr__ = __str__
 
     def __eq__(self, other):
         return self.__class__ is other.__class__ and \
@@ -132,6 +135,7 @@ class QuantifiedFormula(Formula):
     def __str__(self):
         vars_ = ', '.join(str(x) for x in self.variables)
         return '{} {} : ({})'.format(self.quantifier, vars_, self.formula)
+    __repr__ = __str__
 
     def __eq__(self, other):
         return self.__class__ is other.__class__ \
