@@ -75,6 +75,9 @@ class Problem:
                 elif isinstance(eff, fs.ChoiceEffect):
                     ev.visit(eff.obj)
                     _ = [ev.visit(x) for x in eff.variables]
+                elif isinstance(eff, fs.UniversalEffect):
+                    _ = [ev.visit(x) for x in eff.variables]
+                    _ = [ev.visit(x) for x in eff.effects]
                 else:
                     raise RuntimeError(f'Effect "{eff}" of type "{type(eff)}" cannot be analysed')
 
