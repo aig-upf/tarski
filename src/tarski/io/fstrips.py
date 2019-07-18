@@ -20,8 +20,9 @@ from ._fstrips.reader import ParsingError
 
 class FstripsReader:
 
-    def __init__(self, raise_on_error=False, theories=None):
-        self.problem = create_fstrips_problem(language=language(theories=theories))
+    def __init__(self, raise_on_error=False, theories=None, lang=None):
+        lang = language(theories=theories) if lang is None else lang
+        self.problem = create_fstrips_problem(language=lang)
         self.parser = FStripsParser(self.problem, raise_on_error)
 
     def read_problem(self, domain, instance):
