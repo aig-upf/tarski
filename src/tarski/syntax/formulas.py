@@ -234,6 +234,10 @@ class Atom(Formula):
         self.subterms = arguments
         self._check_well_formed()
 
+    @property
+    def symbol(self):
+        return self.predicate  # For uniformity with CompoundTerms
+
     def _check_well_formed(self):
         head = self.predicate
 
