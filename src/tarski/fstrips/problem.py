@@ -76,7 +76,7 @@ class Problem:
                     ev.visit(eff.obj)
                     _ = [ev.visit(x) for x in eff.variables]
                 else:
-                    raise RuntimeError("Effect type '{}' cannot be analysed".format(type(eff)))
+                    raise RuntimeError(f'Effect "{eff}" of type "{type(eff)}" cannot be analysed')
 
         for const in self.constraints:
             cv.reset()

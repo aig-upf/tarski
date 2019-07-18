@@ -302,7 +302,12 @@ class FStripsParser(fstripsVisitor):
         return effect if isinstance(effect, list) else [effect]
 
     def visitConjunctiveEffectFormula(self, ctx):
-        return [self.visit(sub_ctx) for sub_ctx in ctx.single_effect()]
+        effects = []
+        for sub_ctx in ctx.single_effect():
+            effect = self.visit(sub_ctx)
+            # MultipleCOnditionalEffects might return a list instead of a single effect
+            effects.extend(effect if isinstance(effect, list) else [effect])
+        return effects
 
     def visitAtomicEffect(self, ctx):
         return self.visit(ctx.atomic_effect())
