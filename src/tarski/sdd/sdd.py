@@ -11,9 +11,8 @@ except ImportError as err:
     raise RuntimeError("Could not import pysdd - sdd module not available") from None
 
 
-from ..errors import DuplicatePredicateDefinition, DuplicateConstantDefinition
 from ..evaluators.simple import evaluate
-from ..syntax import symref, lor, neg, Atom, BuiltinPredicateSymbol, CompoundFormula, Connective, Variable
+from ..syntax import lor, neg, Atom, BuiltinPredicateSymbol, CompoundFormula, Connective, Variable, Tautology
 from ..syntax.ops import flatten, collect_unique_nodes
 from ..grounding import ProblemGrounding
 from ..fstrips import fstrips
@@ -44,10 +43,6 @@ def scout_actions(task, data):
     return actions
 
 
-def is_static(a: Atom, statics):
-    return a.predicate in statics
-
-
 def compute_statics(problem):
     index = ProblemGrounding(problem)
     index.process_symbols(problem)
@@ -56,42 +51,43 @@ def compute_statics(problem):
 
 
 def create_equality_constraints(equalities, selects):
-    """ Return a list of equality constraints of the form """
+    """ Create for each atom X != Y a set of equality constraints
+            AND_{v in D} not select(X, v) or not select(Y, v)
+    """
     eq_constraints = []
-    for s, p in equalities.items():
-        lhs, rhs = s.expr.subterms
-        # TODO The code below needs to be adapted to cases as atoms "X != c", where X is a parameter and c a constant
+    for eq in equalities:
+        if eq.predicate.symbol != BuiltinPredicateSymbol.NE:
+            # eq_constraints += [lor(neg(l), r), lor(neg(r), l)]
+            # Let us have a strong abort here to inspect preconditions of this type (i.e.: a precondition X=Y
+            # on two different action parameters X and Y), if they every arise, as that would be quite
+            # surprising to me. If they indeed occur in practice, it might be better to deal with them by pre-
+            # compiling them away?
+            raise RuntimeError(f'Unexpected precondition atom of the form "X=Y": {eq}. Might be worth inspecting it.')
+
+        lhs, rhs = eq.subterms
         if any(not isinstance(v, Variable) for v in (lhs, rhs)):
+            # TODO Extend this to cases as atoms "X != c", where X is a parameter and c a constant
             raise NotImplementedError()
-        sel_lhs = selects[lhs.symbol]
-        sel_rhs = selects[rhs.symbol]
-        for l, r in itertools.product(sel_lhs, sel_rhs):
+        for l, r in itertools.product(selects[lhs.symbol], selects[rhs.symbol]):
+            # TODO This quadratic search could be improved if necessary by indexing the select atoms
             if l.subterms[-1].symbol == r.subterms[-1].symbol:
-                if p:
-                    eq_constraints += [lor(neg(l), r), lor(neg(r), l)]
-                    # Let us have a strong abort here to inspect preconditions of this type (i.e.: a precondition X=Y
-                    # on two different action parameters X and Y), if they every arise, as that would be quite
-                    # surprising to me. If they indeed occur in practice, it might be better to deal with them by pre-
-                    # compiling them away?
-                    raise RuntimeError('Weird precondition atom "X=Y". Might be worth inspecting it.')
                 eq_constraints.append(lor(neg(l), neg(r)))
     return eq_constraints
 
 
-def create_grounding_constraints(selects, statics, init, atoms, state_atoms):
+def create_grounding_constraints(selects, statics, init, atoms):
     """ Create the core grounding constraints, taking into account static predicate information.
      For each predicate p(X_1, ..., X_n) in the precondition of the action, a constraint is created with form:
 
         select(X_1, z_1) and ... and select(X_n, z_n)  --> p(X_1, ..., X_n)
 
 
-         - count: table keeping track of how often a variable appears on a clause
-         - selects: select atoms
-         - statics: set of static predicate symbols
-         - init: initial state model
-         - precs: set of action precondition atoms
-         - state_atoms: set of (state) atoms relevant to the action
+     - selects: select atoms
+     - statics: set of static predicate symbols
+     - init: initial state model
+     - precs: set of action precondition atoms
     """
+    fluents = set()
     count = defaultdict(int)
     constraints = []
     for atom in atoms:
@@ -100,29 +96,30 @@ def create_grounding_constraints(selects, statics, init, atoms, state_atoms):
             count[x.symbol] += 1
         SX = [selects[sub.symbol] for sub in atom.subterms]
         for selectlist in itertools.product(*SX):
-            # We want to post: -sel(x1, z1) or ... or -sel(xn, zn) or p(x1, ..., xn)
             values = [lang.get_constant(s.subterms[-1].symbol) for s in selectlist]
             head = atom.predicate(*values)
             body = [neg(h) for h in selectlist]
-            arity = len(body)
-            # if len(body) == 1:
-            #     body = body[0]
 
-            if not is_static(atom, statics):
-                if symref(head) not in state_atoms:
-                    state_atoms.add(symref(head))
-                constraints.append(lor(*body, head) if arity > 0 else head)
-                continue
+            # We disinguish the following cases:
+            # (1) The atom p is a fluent: post a constraint -sel(x1, z1) or ... or -sel(xn, zn) or p(x1, ..., xn)
+            # (2) The atom p is static, and holds in the initial state: no need to post anything
+            # (3) The atom p is static, but doesn't hold in init: then post -sel(x1, z1) or ... or -sel(xn, zn)
+            # Note that (2) and (3) are just specializations of (1)
 
-            if init[head]:  # If the atom is static and holds in the initial state, no grounding constraint is necessary
-                continue
+            if atom.predicate in statics:  # p is static
+                if init[head]:
+                    continue  # No need to post anything
+                else:
+                    assert body
+                    if len(body) == 1:
+                        constraints += body
+                    else:
+                        constraints.append(lor(*body))
+            else:  # p is a fluent
+                fluents.add(head)
+                constraints.append(lor(*body, head) if body else head)
 
-            assert body
-            if len(body) == 1:
-                constraints += body
-            else:
-                constraints += [lor(*body)]
-    return constraints, count
+    return constraints, count, fluents
 
 
 def setup_metalanguage(action):
@@ -176,39 +173,30 @@ def generate_select_atoms(action, metalang, parameters, domains):
     return selects, sum(len(s) for s in selects.values()), domain_constraints
 
 
-def create_domain_constraints(action, selects):
-    """ Create for each action parameter X constraints of the form
-        [OR_{x in dom(X)} sel(X, x)] AND [AND_{x, y in dom(X)} (-sel(X, x) OR -sel(X, y))]
-    """
-    dom_constraints = []
-    for parameter in action.parameters:
-        Sx = selects[symref(parameter)]
-        if len(Sx) == 1:  # note the possibility of singletons
-            dom_constraints += [Sx[0]]
-            continue
-        dom_constraints += [lor(*Sx)]
-        for v1, v2 in itertools.combinations(Sx, 2):
-            dom_constraints += [lor(neg(v1), neg(v2))]
-    return dom_constraints
-
-
 def extract_equalities(phi):
     """ Extract a table with action parameter equalities of the form X=Y, X!=Y"""
-    return collect_unique_nodes(phi, lambda x: isinstance(x, Atom) and x.predicate.symbol in
-                                               (BuiltinPredicateSymbol.EQ, BuiltinPredicateSymbol.NE))
+    def filter_(x):
+        return isinstance(x, Atom) and x.predicate.symbol in (BuiltinPredicateSymbol.EQ, BuiltinPredicateSymbol.NE)
+    return collect_unique_nodes(phi, filter_)
 
 
 def prune_parameter_domains(precondition, statics, domains, init):
     """ """
+    # Check that we have have a plain conjunction of atoms (constraints); if not, return and don't do any pruning
     flattened = flatten(precondition)
-    if flattened.connective != Connective.And or not all(isinstance(sub, Atom) for sub in flattened.subformulas):
-        return precondition  # If we don't have a plain conjunction of atoms, we don't do any pruning
+    if isinstance(flattened, Atom):
+        constraints = [flattened]
+    elif isinstance(flattened, CompoundFormula) and flattened.connective == Connective.And and \
+            all(isinstance(sub, Atom) for sub in flattened.subformulas):
+        constraints = flattened.subformulas
+    else:
+        return precondition
 
     # At the moment we only enforce node consistency for (static, of course) unary constraints
     # TODO Might be worth achieving arc-consistency taking all constraints into account
 
     removable_subformulas = set()
-    for atom in flattened.subformulas:
+    for atom in constraints:
         predicate = atom.predicate
         if predicate.arity != 1:
             continue
@@ -230,9 +218,15 @@ def prune_parameter_domains(precondition, statics, domains, init):
         domains[parameter].difference_update(unsatisfied)  # Remove the values from the domains
         removable_subformulas.add(atom)  # Mark the static atom to be removed from the precondition
 
-    flattened.subformulas = tuple(sub for sub in flattened.subformulas if sub not in removable_subformulas)
-
-    return domains, flattened
+    active = tuple(sub for sub in constraints if sub not in removable_subformulas)
+    if len(active) == 0:
+        optimized = Tautology
+    elif len(active) == 1:
+        optimized = active[0]
+    else:
+        optimized = flattened  # Flattened must be a conjunction!
+        optimized.subformulas = active
+    return domains, optimized
 
 
 def process_schema(problem, statics, action, data, max_size):
@@ -246,28 +240,21 @@ def process_schema(problem, statics, action, data, max_size):
 
     selects_, nvars_, dom_constraints_ = generate_select_atoms(action, metalang, parameters, domains)
     data['selects'] += [nvars_]
-    # dom_constraints = create_domain_constraints(action, selects) # TODO Remove
     equalities = extract_equalities(precondition)
     prec_atoms = collect_unique_nodes(precondition, lambda x: isinstance(x, Atom) and not x.predicate.builtin)
-
     eq_constraints = create_equality_constraints(equalities, selects_)
-    state_atoms = set()
-    # Create the constraints of the form
-    #     select(X1, x1) and ... and select (Xn, xn) --> p(x1, ..., xn)
-    # for each atom p in the precondition conjunction.
 
-    grounding_constraints, count = create_grounding_constraints(
-        selects_, statics, problem.init, prec_atoms, state_atoms)
-    nvars_ += len(state_atoms)
+    grounding_constraints, count, fluents = create_grounding_constraints(selects_, statics, problem.init, prec_atoms)
+    nvars_ += len(fluents)
 
-    data['atoms'] += [len(state_atoms)]
+    data['atoms'] += [len(fluents)]
     data['DOM'] += [len(dom_constraints_)]
     data['EQ'] += [len(eq_constraints)]
     data['GROUND'] += [len(grounding_constraints)]
     data['nclauses'] += [len(dom_constraints_) + len(eq_constraints) + len(grounding_constraints)]
     data['nvars'] += [nvars_]
 
-    symbols = compute_symbol_ids(count, selects_, state_atoms)
+    symbols = compute_symbol_ids(count, selects_, fluents)
 
     manager = setup_sdd_manager(nvars_)
 
@@ -312,11 +299,11 @@ def process_schema(problem, statics, action, data, max_size):
 
     if not failed:
         s = []
-        for p in state_atoms:
-            if problem.init[p.expr]:
-                s += [p.expr]
+        for p in fluents:
+            if problem.init[p]:
+                s += [p]
             else:
-                s += [neg(p.expr)]
+                s += [neg(p)]
         # MRJ: code below is good but if state has more than 255 literals we
         # exceed the maximal recursion depth allowed by the interpreter
         # s = land(*s)
@@ -333,21 +320,22 @@ def process_schema(problem, statics, action, data, max_size):
         data['A(s0)'] += [None]
 
 
-def compute_symbol_ids(count, selects_, state_atoms):
+def compute_symbol_ids(count, selects_, fluents):
+    """ Assign IDs to all the symbols that will be involved in the SDD """
     symbols = {}
-    sdd_var_id = 1
-    inv_symbols = {}
-    scored_x = [(v, x) for x, v in count.items()]
-    scored_x.sort(key=lambda x: x[0], reverse=True)
-    for _, x in scored_x:
+    # Iterate from most- to least-used variables
+    scores = {x: 0 for x in selects_.keys()}
+    scores.update(count)
+    scored = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+    for x, _ in scored:
         for s in selects_[x]:
-            symbols[symref(s)] = sdd_var_id
-            inv_symbols[sdd_var_id] = s
-            sdd_var_id += 1
-    for p in state_atoms:
+            sdd_var_id = len(symbols) + 1  # Start IDs with 1
+            symbols[s] = sdd_var_id
+
+    for p in fluents:
+        sdd_var_id = len(symbols) + 1
         symbols[p] = sdd_var_id
-        inv_symbols[sdd_var_id] = p
-        sdd_var_id += 1
+
     return symbols
 
 
@@ -361,8 +349,7 @@ def translate_to_pysdd(phi, syms, manager):
         elif phi.connective == Connective.Or:
             return sub[0] | sub[1]
     elif isinstance(phi, Atom):
-        sdd_lit = manager.literal(syms[symref(phi)])
-        return sdd_lit
+        return manager.literal(syms[phi])
     raise RuntimeError(f"Could not translate {phi}")
 
 
