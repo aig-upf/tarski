@@ -1,10 +1,12 @@
 
 import pytest
 from tarski.errors import UndefinedSort
-from tarski.io.fstrips import ParsingError
-from tarski.syntax import Atom
+from tarski.fstrips import AddEffect
+from tarski.io.fstrips import ParsingError, FstripsReader
+from tarski.syntax import Atom, CompoundFormula
 from tarski.theories import Theory
 
+from tests.common.spider import generate_spider_language
 from tests.io.common import reader
 
 
@@ -12,6 +14,7 @@ def get_rule(name):
     return {  # TODO Move this somewhere compiling common rule names
         "domain": "domainName",
         "effect": "effect",
+        "action": "actionDef",
         "action_body": "actionDefBody",
         "predicate_definition": "single_predicate_definition",
         "function_definition": "single_function_definition",
@@ -223,3 +226,56 @@ def test_types():
     with pytest.raises(UndefinedSort):
         # Cannot start  the list of types with "untyped" types and continue with typed ones
         _test_inputs([("(:types t1\n t2 - t1\n t3 - t2)", "declaration_of_types")])
+
+
+SPIDER_DEAL_CARD_ACTION = """
+(:action deal-card
+    :parameters (?c - card ?from - cardposition ?fromdeal - deal ?to - card ?totableau - tableau)
+    :precondition
+    (and
+        (currently-dealing)
+        (not (currently-updating-movable))
+        (not (currently-updating-unmovable))
+        (not (currently-updating-part-of-tableau))
+        (not (currently-collecting-deck))
+        (current-deal ?fromdeal)
+        (TO-DEAL ?c ?totableau ?fromdeal ?from)
+        (clear ?c)
+        (on ?c ?from)
+        (part-of-tableau ?to ?totableau)
+        (clear ?to)
+    )
+    :effect
+    (and
+        (not (on ?c ?from))
+        (on ?c ?to)
+        (not (clear ?to))
+        (clear ?from)
+        (in-play ?c)
+        (part-of-tableau ?c ?totableau)
+        (movable ?c)
+        (when
+            (not (CAN-CONTINUE-GROUP ?c ?to))
+            (and
+                (currently-updating-unmovable)
+                (make-unmovable ?to)
+            )
+        )
+    )
+)
+"""
+
+
+def test_complex_effects():
+    r = FstripsReader(raise_on_error=True, lang=generate_spider_language())
+
+    _test_inputs([
+        (SPIDER_DEAL_CARD_ACTION, "action"),
+    ], r=r)
+
+    action = r.problem.get_action('deal-card')
+    effs = action.effects
+
+    assert len(effs) == 9  # Conditional effects get flattened
+    assert isinstance(effs[7], AddEffect) and isinstance(effs[8].condition, CompoundFormula)
+    assert isinstance(effs[8], AddEffect) and isinstance(effs[8].condition, CompoundFormula)
