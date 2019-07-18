@@ -16,7 +16,7 @@ class UniversalEffect:
         self.condition = condition
 
     def __str__(self):
-        return "forall ({}) : ({})".format(self.variables, ', '.join(self.effects))
+        return "forall ({}) : ({})".format(self.variables, ', '.join(map(str, self.effects)))
 
     __repr__ = __str__
 
