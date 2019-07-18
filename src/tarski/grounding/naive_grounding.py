@@ -50,13 +50,6 @@ class ProblemGrounding:
             o_f = len(self.fluent_terms)
             o_s = len(self.static_terms)
 
-    def compute_fluent_and_statics(self):
-        """ Return sets with fluent and static predicate / function symbols """
-        fluents = set(ref.expr.predicate for ref in self.fluent_terms)
-        statics = set(ref.expr.predicate for ref in self.static_terms)
-        statics = set(x for x in statics if x not in fluents and not x.builtin)
-        return fluents, statics
-
 
 def create_all_possible_state_variables(fluent_terms):
     """ Creates an index with all possible state variables by brute-force

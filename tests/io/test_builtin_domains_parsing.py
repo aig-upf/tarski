@@ -38,8 +38,7 @@ def pytest_generate_tests(metafunc):
 
 
 def collect_benchmarks():
-    argvalues = add_instances_from_dir(_data_dir, BUILTIN_INSTANCES)
-    return argvalues
+    return add_instances_from_dir(_data_dir, BUILTIN_INSTANCES)
 
 
 def test_pddl_instances(instance_file, domain_file):

@@ -8,14 +8,6 @@ from tests.common import parcprinter
 from tests.fstrips.hybrid.tasks import create_billiards_world
 
 
-def test_task_static_symbol_detection():
-    prob = parcprinter.create_small_task()
-    index = ProblemGrounding(prob)
-    index.process_symbols(prob)
-    assert len(index.static_terms) == 3
-    assert len(index.fluent_terms) == 5
-
-
 def test_problem_grounding_on_two_domains():
 
     # Test some grounding routines on parcprinter
