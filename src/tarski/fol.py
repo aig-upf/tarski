@@ -2,27 +2,26 @@
 import copy
 import itertools
 from collections import defaultdict, OrderedDict
+from typing import Union
 
 from . import errors as err
 from .syntax import Function, Constant, Variable, Sort, inclusion_closure, Predicate, Interval, sorts
 from .syntax.algebra import Matrix
 
 
-def language(name='L'):
+def language(name='Tarski FOL'):
     """ A helper to construct languages"""
-    lang = FirstOrderLanguage(name)
-    return lang
+    return FirstOrderLanguage(name)
 
 
 class FirstOrderLanguage:
     """ A full-fledged many-sorted first-order language """
 
-    def __init__(self, name='L'):
+    def __init__(self, name='Tarski FOL'):
         self.name = name
         self._sorts = {}
 
-        # MRJ: let's represent this temporally as pairs of names of sorts,
-        # lhs \sqsubseteq rhs, lhs is a subset of rhs
+        # A mapping between each sort and its single immediate parent
         self.immediate_parent = dict()
 
         # ancestor_sorts[t] is a set containing all supertypes of sort 't', but NOT 't'
@@ -30,8 +29,6 @@ class FirstOrderLanguage:
 
         self._functions = {}
         self._predicates = {}
-        # self._predicates_by_sort = {}
-        # self._functions_by_sort = {}
         self._constants = OrderedDict()
 
         self._operators = dict()
@@ -121,10 +118,11 @@ class FirstOrderLanguage:
         self.immediate_parent[sort] = None
         self.ancestor_sorts[sort] = set()
 
-    def sort(self, name: str, parent: Sort = None):
+    def sort(self, name: str, parent: Union[Sort, str, None] = None):
         """
-            Create new sort with given name and parent sort.
-            If no parent is specified, the topmost "object" sort is assumed as parent.
+            Create new sort with given name and parent sort. The parent sort can be given as a Sort object or as its
+            name, if a Sort with that name has already been registered.
+            If no parent is specified, the "object" sort is assumed as parent.
 
             Raises err.DuplicateSortDefinition if a sort with the same name already existed,
              or err.DuplicateDefinition if some non-sort element with the same name already existed.
@@ -135,16 +133,16 @@ class FirstOrderLanguage:
         self._sorts[name] = sort
         self._global_index[name] = sort
 
-        parent = parent or self.get_sort("object")
+        parent = self.get_sort("object") if parent is None else self._retrieve_object(parent, Sort)
         self.set_parent(sort, parent)
 
         # self.create_builtin_predicates(sort)
         return sort
 
-    def has_sort(self, name):
+    def has_sort(self, name: str):
         return name in self._sorts
 
-    def get_sort(self, name):
+    def get_sort(self, name: str):
         if not self.has_sort(name):
             raise err.UndefinedSort(name)
         return self._sorts[name]
@@ -173,7 +171,9 @@ class FirstOrderLanguage:
 
         return sort
 
-    def variable(self, name: str, sort: Sort):
+    def variable(self, name: str, sort: Union[Sort, str]):
+        """ Create a variable symbol with the specified sort, which can be given as a Sort object or as its name,
+        if a Sort with that name has already been registered. """
         sort = self._retrieve_object(sort, Sort)
         return Variable(name, sort)
 
@@ -210,8 +210,9 @@ class FirstOrderLanguage:
 
         return self._element_containers[type_][obj]
 
-    def constant(self, name, sort: Sort):
-        """ Create constant symbol of a given sort """
+    def constant(self, name: str, sort: Union[Sort, str]):
+        """ Create a constant symbol with the specified sort, which can be given as a Sort object or as its name,
+        if a Sort with that name has already been registered. """
         sort = self._retrieve_object(sort, Sort)
 
         if sort.builtin:
@@ -268,7 +269,6 @@ class FirstOrderLanguage:
         predicate = Predicate(name, self, *types)
         self._predicates[name] = predicate
         self._global_index[name] = predicate
-        # self._predicates_by_sort[(name,) + tuple(*args)] = predicate
         return predicate
 
     def has_predicate(self, name):
@@ -286,7 +286,6 @@ class FirstOrderLanguage:
         func = Function(name, self, *types)
         self._functions[name] = func
         self._global_index[name] = func
-        # self._functions_by_sort[(name,) + tuple(*args)] = func
         return func
 
     def has_function(self, name):
