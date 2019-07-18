@@ -14,11 +14,16 @@ except ImportError as err:
 from ..evaluators.simple import evaluate
 from ..syntax import lor, neg, Atom, BuiltinPredicateSymbol, CompoundFormula, Connective, Variable, Tautology
 from ..syntax.ops import flatten, collect_unique_nodes
-from ..grounding import ProblemGrounding
+from ..grounding.ops import classify_symbols
 from ..fstrips import fstrips
 
 
-class MaxSizeError(Exception):
+class MaxSizeError(RuntimeError):
+    """ The maximum size of the SDD data structure has been surpassed """
+    pass
+
+
+class UnsupportedFormalism(RuntimeError):
     """ The maximum size of the SDD data structure has been surpassed """
     pass
 
@@ -43,13 +48,6 @@ def scout_actions(task, data):
     return actions
 
 
-def compute_statics(problem):
-    index = ProblemGrounding(problem)
-    index.process_symbols(problem)
-    fluents, statics = index.compute_fluent_and_statics()
-    return statics
-
-
 def create_equality_constraints(equalities, selects):
     """ Create for each atom X != Y a set of equality constraints
             AND_{v in D} not select(X, v) or not select(Y, v)
@@ -62,7 +60,8 @@ def create_equality_constraints(equalities, selects):
             # on two different action parameters X and Y), if they every arise, as that would be quite
             # surprising to me. If they indeed occur in practice, it might be better to deal with them by pre-
             # compiling them away?
-            raise RuntimeError(f'Unexpected precondition atom of the form "X=Y": {eq}. Might be worth inspecting it.')
+            raise UnsupportedFormalism(f'Unexpected precondition atom of the form "X=Y": {eq}. '
+                                       f'Might be worth inspecting it.')
 
         lhs, rhs = eq.subterms
         if any(not isinstance(v, Variable) for v in (lhs, rhs)):
@@ -190,7 +189,7 @@ def prune_parameter_domains(precondition, statics, domains, init):
             all(isinstance(sub, Atom) for sub in flattened.subformulas):
         constraints = flattened.subformulas
     else:
-        return precondition
+        return None, None
 
     # At the moment we only enforce node consistency for (static, of course) unary constraints
     # TODO Might be worth achieving arc-consistency taking all constraints into account
@@ -237,6 +236,9 @@ def process_schema(problem, statics, action, data, max_size):
     metalang, parameters, domains = setup_metalanguage(action)
 
     domains, precondition = prune_parameter_domains(action.precondition, statics, domains, problem.init)
+    if domains is None:
+        raise UnsupportedFormalism(f'Cannot process complex precondition "{action.precondition}" from action'
+                                   f' "{action.ident()}" in problem "{problem}"')
 
     selects_, nvars_, dom_constraints_ = generate_select_atoms(action, metalang, parameters, domains)
     data['selects'] += [nvars_]
@@ -370,7 +372,7 @@ def process_problem(problem, max_size=20000000):
 
     data = defaultdict(list)
     actions = scout_actions(problem, data)
-    statics = compute_statics(problem)
+    _, statics = classify_symbols(problem)
 
     for action in actions:
         process_schema(problem, statics, action, data, max_size)
