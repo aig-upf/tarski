@@ -4,10 +4,11 @@ from tarski.errors import UndefinedSort
 from tarski.fstrips import AddEffect
 from tarski.io.fstrips import ParsingError, FstripsReader
 from tarski.syntax import Atom, CompoundFormula
+from tarski.syntax.util import get_symbols
 from tarski.theories import Theory
 
 from tests.common.spider import generate_spider_language
-from tests.io.common import reader
+from tests.io.common import reader, collect_strips_benchmarks
 
 
 def get_rule(name):
@@ -226,6 +227,22 @@ def test_types():
     with pytest.raises(UndefinedSort):
         # Cannot start  the list of types with "untyped" types and continue with typed ones
         _test_inputs([("(:types t1\n t2 - t1\n t3 - t2)", "declaration_of_types")])
+
+
+def test_symbol_casing():
+    """ Make sure that e.g. symbols that were declared as uppercase can be retrieved in uppercase """
+    # See issue #67
+    instance_file, domain_file = collect_strips_benchmarks(["spider-sat18-strips:p01.pddl"])[0]
+    problem = reader().read_problem(domain_file, instance_file)
+
+    todeal = problem.language.get_predicate("TO-DEAL")
+    assert todeal.name == "TO-DEAL"
+
+    todeal = problem.language.get_predicate("current-deal")
+    assert todeal.name == "current-deal"
+
+    prednames = set(x.symbol for x in get_symbols(problem.language, type_="predicate", include_builtin=False))
+    assert "TO-DEAL" in prednames
 
 
 SPIDER_DEAL_CARD_ACTION = """
