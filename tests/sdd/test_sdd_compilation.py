@@ -36,18 +36,22 @@ def pytest_generate_tests(metafunc):
         return []
 
     argvalues = add_domains_from("DOWNWARD_BENCHMARKS", [
-        "visitall-sat11-strips:problem12.pddl",
-        # "trucks:p01.pddl",  # quantified formulas not accepted
-        "blocks:probBLOCKS-4-1.pddl",
-        "gripper:prob01.pddl",
-        "elevators-opt08-strips:p01.pddl",  # action costs
-        "sokoban-opt08-strips:p01.pddl",  # action costs
-        "parking-sat11-strips:pfile08-031.pddl",  # action costs
-        "transport-opt08-strips:p01.pddl",  # action costs
-        # "settlers-sat18-adl:p01.pddl",  # Universal effect not supported ATM, but could be implemented
-        # "spider-sat18-strips:p01.pddl",  # ATM deactivated, as we don't process correctly negative preconditions
+        "spider-sat18-strips:p01.pddl",
+
+        # TODO: Reactivate the following ones
         # "organic-synthesis-sat18-strips:p01.pddl",  # No domain.pddl file for this one
+        # "visitall-sat11-strips:problem12.pddl",
+        # "blocks:probBLOCKS-4-1.pddl",
+        # "gripper:prob01.pddl",
+        # "elevators-opt08-strips:p01.pddl",
+        # "sokoban-opt08-strips:p01.pddl",
+        # "parking-sat11-strips:pfile08-031.pddl",
+        # "transport-opt08-strips:p01.pddl",
+
+
+        # "settlers-sat18-adl:p01.pddl",  # Universal effect not supported ATM, but could be implemented
         # "nurikabe-sat18-adl:p01.pddl"  # Universal effect not supported ATM, but could be implemented
+        # "trucks:p01.pddl",  # quantified formulas not accepted
     ])
     metafunc.parametrize(argnames, argvalues)
 

@@ -12,10 +12,11 @@ except ImportError as err:
 
 
 from ..evaluators.simple import evaluate
-from ..syntax import lor, neg, Atom, BuiltinPredicateSymbol, CompoundFormula, Connective, Variable, Tautology
+from ..syntax import lor, neg, Atom, BuiltinPredicateSymbol, CompoundFormula, Connective, Variable, Tautology, builtins
 from ..syntax.ops import flatten, collect_unique_nodes
 from ..grounding.ops import classify_symbols
 from ..fstrips import fstrips
+from ..fstrips.representation import is_literal, collect_literals_from_conjunction
 
 
 class MaxSizeError(RuntimeError):
@@ -172,30 +173,29 @@ def generate_select_atoms(action, metalang, parameters, domains):
     return selects, sum(len(s) for s in selects.values()), domain_constraints
 
 
-def extract_equalities(phi):
+def extract_equalities(prec_constraints):
     """ Extract a table with action parameter equalities of the form X=Y, X!=Y"""
-    def filter_(x):
-        return isinstance(x, Atom) and x.predicate.symbol in (BuiltinPredicateSymbol.EQ, BuiltinPredicateSymbol.NE)
-    return collect_unique_nodes(phi, filter_)
+    eqs = set()
+    for atom, polarity in prec_constraints:
+        if atom.predicate.symbol in builtins.get_equality_predicates():
+            eqs.add(atom if polarity else builtins.negate_builtin_atom(atom))
+    return eqs
 
 
-def prune_parameter_domains(precondition, statics, domains, init):
-    """ """
-    # Check that we have have a plain conjunction of atoms (constraints); if not, return and don't do any pruning
-    flattened = flatten(precondition)
-    if isinstance(flattened, Atom):
-        constraints = [flattened]
-    elif isinstance(flattened, CompoundFormula) and flattened.connective == Connective.And and \
-            all(isinstance(sub, Atom) for sub in flattened.subformulas):
-        constraints = flattened.subformulas
-    else:
-        return None, None
+def preprocess_parameter_domains(action, statics, domains, init):
+    """ Simplify the precondition formula and prune the potential domains of action parameters based on statics
+    and basic CSP techniques"""
+    flattened = flatten(action.precondition)
+    constraints = collect_literals_from_conjunction(flattened)
+    if constraints is None:
+        # Check that we have have a plain conjunction of atoms (constraints); if not, abort
+        raise UnsupportedFormalism(f'Cannot process complex precondition of action "{action.ident()}":'
+                                   f'\n\t{action.precondition}"')
 
     # At the moment we only enforce node consistency for (static, of course) unary constraints
     # TODO Might be worth achieving arc-consistency taking all constraints into account
-
     removable_subformulas = set()
-    for atom in constraints:
+    for atom, polarity in constraints:
         predicate = atom.predicate
         if predicate.arity != 1:
             continue
@@ -211,21 +211,21 @@ def prune_parameter_domains(precondition, statics, domains, init):
         parameter = term.symbol
         unsatisfied = set()
         for obj in domains[parameter]:
-            if init[predicate(lang.get_constant(obj))] is False:
+            if init[predicate(lang.get_constant(obj))] is not polarity:
                 unsatisfied.add(obj)
         # print(f"Objects {unsatisfied} can be pruned for node-inconsistency reasons from the extension of {predicate}")
         domains[parameter].difference_update(unsatisfied)  # Remove the values from the domains
         removable_subformulas.add(atom)  # Mark the static atom to be removed from the precondition
 
-    active = tuple(sub for sub in constraints if sub not in removable_subformulas)
+    active = tuple(sub if polarity else neg(sub) for sub, polarity in constraints if sub not in removable_subformulas)
     if len(active) == 0:
         optimized = Tautology
     elif len(active) == 1:
         optimized = active[0]
     else:
-        optimized = flattened  # Flattened must be a conjunction!
+        optimized = flattened  # If we get here, flattened must be a conjunction
         optimized.subformulas = active
-    return domains, optimized
+    return domains, optimized, constraints
 
 
 def process_schema(problem, statics, action, data, max_size):
@@ -235,14 +235,11 @@ def process_schema(problem, statics, action, data, max_size):
     # Set up a metalanguage for the encoding of the SDD applicability theory
     metalang, parameters, domains = setup_metalanguage(action)
 
-    domains, precondition = prune_parameter_domains(action.precondition, statics, domains, problem.init)
-    if domains is None:
-        raise UnsupportedFormalism(f'Cannot process complex precondition "{action.precondition}" from action'
-                                   f' "{action.ident()}" in problem "{problem}"')
-
+    domains, precondition, prec_constraints = preprocess_parameter_domains(action, statics, domains, problem.init)
+    
     selects_, nvars_, dom_constraints_ = generate_select_atoms(action, metalang, parameters, domains)
     data['selects'] += [nvars_]
-    equalities = extract_equalities(precondition)
+    equalities = extract_equalities(prec_constraints)
     prec_atoms = collect_unique_nodes(precondition, lambda x: isinstance(x, Atom) and not x.predicate.builtin)
     eq_constraints = create_equality_constraints(equalities, selects_)
 
