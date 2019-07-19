@@ -16,4 +16,6 @@ def test_namespace_accessor():
     block = lang.sort('block')
     assert block == lang.ns.block == lang.get_sort("block") == lang.get("block")
 
+    assert tuple(lang.get('loc', 'on', 'object')) == (lang.ns.loc, lang.ns.on, lang.ns.object)
+
 

@@ -358,15 +358,25 @@ class FirstOrderLanguage:
 
     def get(self, first, *args):
         """ Return the language element with given name(s).
-        This can be a predicate or function symbol, including constants, or a sort name."""
-        res = []
-        for what in itertools.chain([first], args):
+        This can be a predicate or function symbol, including constants, or a sort name.
+        Multiple names can be used to get different elements in one single call:
+            >>> lang = FirstOrderLanguage()
+            >>> lang.predicate('on', lang.get_sort('object'))
+            >>> lang.function('loc', lang.get_sort('object'), lang.get_sort('object'))
+            >>> on, loc = lang.get("on", "loc")
+        """
+        def access_next(elem):
             try:
-                res.append(self._global_index[what])
+                return self._global_index[elem]
             except KeyError:
-                raise err.UndefinedElement(what)
+                raise err.UndefinedElement(elem) from None
 
-        return res[0] if not args else res  # Unpack the result if only one element
+        if not args:  # The user asked for one single element, return it directly
+            return access_next(first)
+
+        # Otherwise, the user asked for multiple elements, return them as a tuple for easier unpacking
+        # (we don't really expect this method to be called with huge amounts of parameters)
+        return tuple(access_next(what) for what in itertools.chain([first], args))
 
     @property
     def ns(self):
