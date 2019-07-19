@@ -115,6 +115,7 @@ class FirstOrderLanguage:
     def _build_the_objects(self):
         sort = Sort('object', self)
         self._sorts['object'] = sort
+        self._global_index['object'] = sort
         self.immediate_parent[sort] = None
         self.ancestor_sorts[sort] = set()
 
