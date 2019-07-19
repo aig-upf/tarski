@@ -61,13 +61,13 @@ class FStripsParser(fstripsVisitor):
         self.requirements = set()
 
     def visitDomainName(self, ctx):
-        self.problem.domain_name = ctx.NAME().getText().lower()
+        self.problem.domain_name = ctx.NAME().getText()
 
     def visitProblemDecl(self, ctx):
-        self.problem.name = ctx.NAME().getText().lower()
+        self.problem.name = ctx.NAME().getText()
 
     def visitProblemDomain(self, ctx):
-        domain_name_as_declared_in_instance = ctx.NAME().getText().lower()
+        domain_name_as_declared_in_instance = ctx.NAME().getText()
         if domain_name_as_declared_in_instance != self.problem.domain_name:
             logging.warning('Domain names as declared in domain and instance files do not coincide: "{}" vs " {}"'.
                             format(self.problem.domain_name, domain_name_as_declared_in_instance))
@@ -173,7 +173,7 @@ class FStripsParser(fstripsVisitor):
         return ParserVariableContext(self, variables, root)
 
     def visitActionDef(self, ctx):
-        name = ctx.actionName().getText().lower()
+        name = ctx.actionName().getText()
         params = self.visit(ctx.possibly_typed_variable_list())
         binding = VariableBinding(params)
 

@@ -45,8 +45,8 @@ def test_symbol_classification(instance_file, domain_file):
 
     expected = {  # A compilation of the expected values for each tested domain (including total-cost terms!)
         "grid-visit-all": (2, 1),
-        "trucks": (6, 4),
-        "blocks": (5, 0),
+        "Trucks": (6, 4),
+        "BLOCKS": (5, 0),
         "gripper-strips": (4, 3),
         "elevators-sequencedstrips": (5, 6),
         "sokoban-sequential": (4, 3),
