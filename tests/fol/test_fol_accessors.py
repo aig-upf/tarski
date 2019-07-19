@@ -1,4 +1,6 @@
-from tarski import FirstOrderLanguage
+import pytest
+
+from tarski import FirstOrderLanguage, errors
 
 
 def test_namespace_accessor():
@@ -17,5 +19,12 @@ def test_namespace_accessor():
     assert block == lang.ns.block == lang.get_sort("block") == lang.get("block")
 
     assert tuple(lang.get('loc', 'on', 'object')) == (lang.ns.loc, lang.ns.on, lang.ns.object)
+
+    # Make sure all accessors raise the same exception
+    with pytest.raises(errors.UndefinedElement):
+        _ = lang.ns.foo
+
+    with pytest.raises(errors.UndefinedElement):
+        _ = lang.get('foo')
 
 
