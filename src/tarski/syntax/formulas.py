@@ -183,6 +183,18 @@ def neg(phi):
     return CompoundFormula(Connective.Not, [phi])
 
 
+def is_and(phi: Formula):
+    return isinstance(phi, CompoundFormula) and phi.connective == Connective.And
+
+
+def is_or(phi: Formula):
+    return isinstance(phi, CompoundFormula) and phi.connective == Connective.Or
+
+
+def is_neg(phi: Formula):
+    return isinstance(phi, CompoundFormula) and phi.connective == Connective.Not
+
+
 def implies(phi, psi):
     return lor(neg(phi), psi)
 
