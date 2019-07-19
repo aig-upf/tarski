@@ -19,12 +19,15 @@ def generate_spider_language():
     lang.predicate("clear", "cardposition")
     lang.predicate("in-play", "card")
     lang.predicate("current-deal", "deal")
-    lang.predicate("CAN-CONTINUE-GROUP", "card", "cardposition")
-    lang.predicate("CAN-BE-PLACED-ON", "card", "card")
-    lang.predicate("IS-ACE", "card")
-    lang.predicate("IS-KING", "card")
-    lang.predicate("NEXT-DEAL", "deal", "deal")
-    lang.predicate("TO-DEAL", "card", "tableau", "deal", "cardposition")
+
+    # Note that the following predicates are defined in uppercase in the IPC PDDL, but we lowercase
+    # for consistency with what the parser does
+    lang.predicate("can-continue-group", "card", "cardposition")
+    lang.predicate("can-be-placed-on", "card", "card")
+    lang.predicate("is-ace", "card")
+    lang.predicate("is-king", "card")
+    lang.predicate("next-deal", "deal", "deal")
+    lang.predicate("to-deal", "card", "tableau", "deal", "cardposition")
 
     lang.predicate("currently-dealing")
     lang.predicate("currently-collecting-deck")

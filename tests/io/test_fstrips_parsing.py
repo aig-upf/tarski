@@ -1,6 +1,6 @@
 
 import pytest
-from tarski.errors import UndefinedSort
+from tarski.errors import UndefinedSort, UndefinedPredicate
 from tarski.fstrips import AddEffect
 from tarski.io.fstrips import ParsingError, FstripsReader
 from tarski.syntax import Atom, CompoundFormula
@@ -230,19 +230,19 @@ def test_types():
 
 
 def test_symbol_casing():
-    """ Make sure that e.g. symbols that were declared as uppercase can be retrieved in uppercase """
-    # See issue #67
+    """ Test the special casing for PDDL parsing. See issue #67 """
     instance_file, domain_file = collect_strips_benchmarks(["spider-sat18-strips:p01.pddl"])[0]
     problem = reader().read_problem(domain_file, instance_file)
 
-    todeal = problem.language.get_predicate("TO-DEAL")
-    assert todeal.name == "TO-DEAL"
+    # PDDL parsing represents all symbols in lowercase. The PDDL contains a predicate TO-DEAL, but will get lowercased
+    _ = problem.language.get_predicate("to-deal")
+    with pytest.raises(UndefinedPredicate):
+        _ = problem.language.get_predicate("TO-DEAL")
 
-    todeal = problem.language.get_predicate("current-deal")
-    assert todeal.name == "current-deal"
+    # PDDL predicate current-deal remains unaffected
+    _ = problem.language.get_predicate("current-deal")
 
-    prednames = set(x.symbol for x in get_symbols(problem.language, type_="predicate", include_builtin=False))
-    assert "TO-DEAL" in prednames
+    assert "to-deal" in set(x.symbol for x in get_symbols(problem.language, type_="predicate", include_builtin=False))
 
 
 SPIDER_DEAL_CARD_ACTION = """
