@@ -69,15 +69,9 @@ def create_atom(lang, symbol: BuiltinPredicateSymbol, lhs, rhs):
 def is_builtin_function(fun):
     return isinstance(fun.symbol, BuiltinFunctionSymbol)
 
-    # language = lhs.language
-    # if language != rhs.language:
-    #     raise err.LanguageMismatch(rhs, rhs.language, language)
-
 
 def get_equality_predicates():
     return [BuiltinPredicateSymbol.EQ, BuiltinPredicateSymbol.NE]
-
-    # TODO AT THE MOMENT WE DO NOT CHECK FOR TYPE SAFETY WITH BUILT-IN TYPES
 
 
 def get_arithmetic_predicates():
@@ -119,26 +113,3 @@ def get_predicate_from_symbol(symbol: str):
 
 def get_function_from_symbol(symbol: str):
     return BuiltinFunctionSymbol(symbol)
-
-# def eq(lhs, rhs):
-#     return create_atom(BuiltinPredicate.EQ, lhs, rhs)
-#
-#
-# def ne(lhs, rhs):
-#     return create_atom(BuiltinPredicate.NE, lhs, rhs)
-#
-#
-# def lt(lhs, rhs):
-#     return create_atom(BuiltinPredicate.LT, lhs, rhs)
-#
-#
-# def gt(lhs, rhs):
-#     return create_atom(BuiltinPredicate.GT, lhs, rhs)
-#
-#
-# def le(lhs, rhs):
-#     return create_atom(BuiltinPredicate.LE, lhs, rhs)
-#
-#
-# def ge(lhs, rhs):
-#     return create_atom(BuiltinPredicate.GE, lhs, rhs)
