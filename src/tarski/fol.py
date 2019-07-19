@@ -367,3 +367,25 @@ class FirstOrderLanguage:
                 raise err.UndefinedElement(what)
 
         return res[0] if not args else res  # Unpack the result if only one element
+
+    @property
+    def ns(self):
+        """ A helper to be able to access the FOL symbols in an elegant and easy manner, to be used e.g. as in:
+            >>> lang = FirstOrderLanguage()
+            >>> lang.predicate('on', lang.get_sort('object'))
+            >>> print(f'The predicate object "on" is: {lang.ns.on}')
+
+            The overall idea is that the `ns` attribute (for "namespace") encapsulates access to only the symbols
+            in the first-order language (sorts, predicate and function symbols, including constants),
+            and nothing else (that is, it knows nothing about other class methods and attributes).
+        """
+        return _NamespaceAccessor(self)
+
+
+class _NamespaceAccessor:
+    """ A nifty helper to ease access to a language attributes """
+    def __init__(self, lang: FirstOrderLanguage):
+        self.lang = lang
+
+    def __getattr__(self, name):
+        return self.lang.get(name)
