@@ -1,6 +1,7 @@
 import os
 
 from tarski.io import FstripsReader
+from tarski.io.utils import find_domain_filename
 
 
 def reader(theories=None):
@@ -31,11 +32,9 @@ def add_domains_from(envvar, domains, benchmark_prefix=None):
     # This works only if the domain is called domain.pddl TODO Extend to infer other domain names automatically
     for dom, ins in (x.split(":") for x in domains):
         base_dir = os.path.join(db, dom)
-        instances.append([
-            os.path.join(base_dir, ins),
-            os.path.join(base_dir, "domain.pddl")
-        ])
-
+        instance_file = os.path.join(base_dir, ins)
+        domain_file = find_domain_filename(instance_file)
+        instances.append([instance_file, domain_file])
     return instances
 
 

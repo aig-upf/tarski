@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 ### Deprecated
 ### Fixed
+ - Fixed bug with fluent / static symbol classification <https://github.com/aig-upf/tarski/issues/66>
 
 ## [0.2.0] - 2019-07-16
 ### Added

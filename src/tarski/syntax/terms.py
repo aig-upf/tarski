@@ -34,10 +34,12 @@ class Term:
     def sort(self):
         raise NotImplementedError()  # Let the subclasses implement this
 
-    # required to support scoped declaration of variables
-    # with bw.var('x',block) as x, bw.var('y',block) as y do :
-    #   ... declarations using x and y
     def __enter__(self):
+        """ This is useful to support scoped declaration of variables, e.g.:
+                >>> bw = lang('blocksworld')
+                >>> with bw.variable('x', block) as x, bw.variable('y', block) as y:
+                >>>     _ = exists(x, clear(x))
+        """
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
