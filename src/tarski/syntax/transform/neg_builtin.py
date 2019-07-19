@@ -4,7 +4,7 @@
 import copy
 
 from ..formulas import Connective, Atom, QuantifiedFormula, CompoundFormula
-from ..builtins import create_atom
+from ..builtins import create_atom, negate_builtin_atom
 
 
 class NegatedBuiltinAbsorption:
@@ -26,13 +26,11 @@ class NegatedBuiltinAbsorption:
         if isinstance(phi, CompoundFormula):
             if phi.connective == Connective.Not:
                 p = phi.subformulas[0]
-                if isinstance(p, Atom):
-                    if p.predicate.builtin:
-                        try:
-                            c = p.predicate.symbol.complement()
-                            return create_atom(self.lang, c, p.subterms[0], p.subterms[1])
-                        except (AttributeError, KeyError):
-                            pass
+                if isinstance(p, Atom) and p.predicate.builtin:
+                    try:
+                        return negate_builtin_atom(p)
+                    except (AttributeError, KeyError):
+                        pass
                 return phi
 
             else:
