@@ -149,7 +149,7 @@ def one(sort):
     return sort.language.constant(1, sort)
 
 
-def simplify(expr: Term):
+def simplify(expr: Term) -> Term:
     if isinstance(expr, Constant):
         return expr
     elif isinstance(expr, Variable):
@@ -197,10 +197,10 @@ def simplify(expr: Term):
             expr.subterms = simp_st
             return expr
         if expr.symbol.symbol == BuiltinFunctionSymbol.EXP:
-            simp_st = simplify(expr.subterms[0])
-            if simp_st.is_syntactically_equal(zero(expr.sort)):
+            simplified = simplify(expr.subterms[0])
+            if simplified.is_syntactically_equal(zero(expr.sort)):
                 return one(expr.sort)
-            expr.subterms = (simp_st,)
+            expr.subterms = (simplified,)
             return expr
     elif isinstance(expr, (Matrix, np.ndarray)):
         N, M = expr.shape

@@ -134,7 +134,7 @@ class FirstOrderLanguage:
         self._sorts[name] = sort
         self._global_index[name] = sort
 
-        parent = self.get_sort("object") if parent is None else self._retrieve_object(parent, Sort)
+        parent = self.get_sort("object") if parent is None else self._retrieve_sort(parent)
         self.set_parent(sort, parent)
 
         # self.create_builtin_predicates(sort)
@@ -143,7 +143,7 @@ class FirstOrderLanguage:
     def has_sort(self, name: str):
         return name in self._sorts
 
-    def get_sort(self, name: str):
+    def get_sort(self, name: str) -> Sort:
         if not self.has_sort(name):
             raise err.UndefinedSort(name)
         return self._sorts[name]
@@ -175,7 +175,7 @@ class FirstOrderLanguage:
     def variable(self, name: str, sort: Union[Sort, str]):
         """ Create a variable symbol with the specified sort, which can be given as a Sort object or as its name,
         if a Sort with that name has already been registered. """
-        sort = self._retrieve_object(sort, Sort)
+        sort = self._retrieve_sort(sort)
         return Variable(name, sort)
 
     def set_parent(self, sort: Sort, parent: Sort):
@@ -188,6 +188,9 @@ class FirstOrderLanguage:
 
         self.immediate_parent[sort] = parent
         self.ancestor_sorts[sort].update(inclusion_closure(parent))
+
+    def _retrieve_sort(self, obj) -> Sort:
+        return self._retrieve_object(obj, Sort)
 
     def _retrieve_object(self, obj, type_):
         """
@@ -214,7 +217,7 @@ class FirstOrderLanguage:
     def constant(self, name: str, sort: Union[Sort, str]):
         """ Create a constant symbol with the specified sort, which can be given as a Sort object or as its name,
         if a Sort with that name has already been registered. """
-        sort = self._retrieve_object(sort, Sort)
+        sort = self._retrieve_sort(sort)
 
         if sort.builtin:
             if sort.cast(name) is None:
@@ -266,7 +269,7 @@ class FirstOrderLanguage:
     def predicate(self, name: str, *args):
         self._check_name_not_defined(name, self._predicates, err.DuplicatePredicateDefinition)
 
-        types = [self._retrieve_object(a, Sort) for a in args]  # Convert possible strings into Sort objects
+        types = [self._retrieve_sort(a) for a in args]  # Convert possible strings into Sort objects
         predicate = Predicate(name, self, *types)
         self._predicates[name] = predicate
         self._global_index[name] = predicate
@@ -283,7 +286,7 @@ class FirstOrderLanguage:
     def function(self, name: str, *args):
         self._check_name_not_defined(name, self._functions, err.DuplicateFunctionDefinition)
 
-        types = [self._retrieve_object(a, Sort) for a in args]  # Convert possible strings into Sort objects
+        types = [self._retrieve_sort(a) for a in args]  # Convert possible strings into Sort objects
         func = Function(name, self, *types)
         self._functions[name] = func
         self._global_index[name] = func
@@ -317,18 +320,18 @@ class FirstOrderLanguage:
         return None
 
     def is_subtype(self, t, st):
-        t = self._retrieve_object(t, Sort)
-        st = self._retrieve_object(st, Sort)
+        t = self._retrieve_sort(t)
+        st = self._retrieve_sort(st)
         return t == st or self.is_strict_subtype(t, st)
 
     def is_strict_subtype(self, t, st):
-        t = self._retrieve_object(t, Sort)
-        st = self._retrieve_object(st, Sort)
+        t = self._retrieve_sort(t)
+        st = self._retrieve_sort(st)
         return st in self.ancestor_sorts[t]
 
     def are_vertically_related(self, t1, t2):
-        t1 = self._retrieve_object(t1, Sort)
-        t2 = self._retrieve_object(t2, Sort)
+        t1 = self._retrieve_sort(t1)
+        t2 = self._retrieve_sort(t2)
         return self.is_subtype(t1, t2) or self.is_subtype(t2, t1)
 
     def __str__(self):

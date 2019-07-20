@@ -1,5 +1,5 @@
 
-from typing import Union
+from typing import Set, Union, Tuple, Optional
 
 from .problem import Problem
 from ..syntax import Formula, CompoundTerm, Atom, CompoundFormula, is_and, is_neg
@@ -97,18 +97,18 @@ def is_conjunction_of_literals(phi: Formula):
         (isinstance(f, CompoundFormula) and all(is_literal(sub) for sub in f.subformulas))
 
 
-def collect_literals_from_conjunction(phi: Formula):
+def collect_literals_from_conjunction(phi: Formula) -> Optional[Set[Tuple[Atom, bool]]]:
     """ Return a list of all literals in phi, if is_conjunction_of_literals(phi), or None otherwise.
     The returned list consists of one tuple (a, p) for each literal in the conjunction phi, where a is the literal atom
     and p its polarity (i.e. True if positive, False if negative)
     """
-    literals = set()
+    literals = set()  # type: Set[Tuple[Atom, bool]]
     if _collect_literals_from_conjunction(phi, literals):
         return literals
     return None
 
 
-def _collect_literals_from_conjunction(f, literals: set):
+def _collect_literals_from_conjunction(f, literals: Set[Tuple[Atom, bool]]):
     if isinstance(f, Atom):
         literals.add((f, True))
     elif is_neg(f) and isinstance(f.subformulas[0], Atom):

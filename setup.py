@@ -46,7 +46,7 @@ def main():
             'Programming Language :: Python :: 3.7',
         ],
 
-        packages=find_packages('src'),  # include all packages under src
+        packages=['tarski'],  # include all packages under src
         package_dir={'': 'src'},  # tell distutils packages are under src
 
 
@@ -58,13 +58,13 @@ def main():
         ],
 
         extras_require={
-            'dev': ['pytest', 'tox'],
-            'test': ['pytest', 'tox'],
+            'dev': ['pytest', 'tox', 'pytest-cov', 'mypy'],
+            'test': ['pytest', 'tox', 'pytest-cov', 'mypy'],
         },
 
         # This will include non-code files specified in the manifest, see e.g.
         # http://python-packaging.readthedocs.io/en/latest/non-code-files.html
-        include_package_data=True
+        include_package_data=True,
     )
 
 

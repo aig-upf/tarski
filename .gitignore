@@ -74,3 +74,6 @@ notebooks/exploratory/.ipynb_checkpoints/From_RDDL_to_Functional_STRIPS-checkpoi
 # Code coverage reports
 .coverage
 coverage.xml
+
+# mypy
+.mypy_cache
