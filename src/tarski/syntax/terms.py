@@ -127,7 +127,7 @@ class Term:
     #     Raise an informative exception to prevent wrong usage of terms in associative containers
         # raise err.WrongTermUsageError()
     # @see https://docs.python.org/3/reference/datamodel.html#object.__hash__
-    __hash__ = None
+    __hash__ = None  # type: ignore
 
     def hash(self):
         """ Return a hash of the current object. Meant to be used by TermReference objects to wrap Terms appropriately
@@ -257,12 +257,12 @@ class IfThenElse(Term):
         are restricted to have the same codomain.
     """
 
-    def __init__(self, condition, subterms: Tuple[Term]):
+    def __init__(self, condition, subterms: Tuple[Term, Term]):
+        if len(subterms) != 2:
+            raise err.ArityMismatch('IfThenElse', subterms, msg='IfThenElse term needs exactly two sub terms')
+
         self.symbol = subterms[0].language.get('ite')
         self.condition = condition
-        if len(subterms) != 2:
-            raise err.ArityMismatch(self.symbol, subterms, msg='IfThenElse: needs two sub terms!')
-
         # Our implementation of ite requires both branches to have equal sort
         if subterms[0].sort != subterms[1].sort:
             if parent(subterms[0].sort) == subterms[1].sort:

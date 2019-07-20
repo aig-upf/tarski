@@ -2,6 +2,9 @@
     Visitors implementing diverse aspects of FSTRIPS problems translation,
     analysis and compilation.
 """
+from typing import Set
+
+from ..syntax.symrefs import TermReference
 from ..syntax.temporal import ltl
 from ..syntax.formulas import CompoundFormula, Atom, QuantifiedFormula
 from ..syntax.terms import CompoundTerm
@@ -26,7 +29,7 @@ class FluentSymbolCollector:
         self.fluents = fluents
         self.statics = statics
         self.under_next = False
-        self.visited = set()
+        self.visited = set()  # type: Set[TermReference]
 
     def reset(self):
         self.visited = set()

@@ -1,8 +1,10 @@
 import operator
+from typing import List
+
 from .. import funcsym
 from .. import errors as err
 from ..syntax import ops, Connective, Atom, Formula, CompoundFormula, QuantifiedFormula, builtins, Variable, \
-    Constant, CompoundTerm, Tautology, Contradiction, IfThenElse, AggregateCompoundTerm
+    Constant, CompoundTerm, Tautology, Contradiction, IfThenElse, AggregateCompoundTerm, Term
 from ..syntax.algebra import Matrix
 from ..model import Model
 
@@ -83,7 +85,7 @@ def evaluate_term(term, m: Model, sigma):
     if isinstance(term, int):
         term = Constant(term, m.language.Integer)
     assert isinstance(term, (Constant, CompoundTerm))  # TODO Add support for variables
-    arguments = []
+    arguments = []  # type: List[Term]
 
     # TODO This is technically not correct - a constant still depends on the actual model on which is evaluated.
     # TODO A constant is simply a nullary compound term. E.g. an integer variable is still a logical constant.
@@ -96,7 +98,7 @@ def evaluate_term(term, m: Model, sigma):
 
     if isinstance(term, CompoundTerm):
         # evaluate each of the arguments
-        arguments = tuple(evaluate(a, m, sigma) for a in term.subterms)
+        arguments = [evaluate(a, m, sigma) for a in term.subterms]
 
     try:
         return m.value(term.symbol, arguments)
@@ -125,8 +127,7 @@ def symbolic_matrix_multiplication(lhs: Matrix, rhs: Matrix):
     if B != C:
         raise TypeError('matrices {}x{} and {}x{} cannot be multiplied together'.format(A, B, C, D))
 
-    zip_b = zip(*rhs.matrix)
-    zip_b = list(zip_b)
+    zip_b = list(zip(*rhs.matrix))
     return [[sum(ele_a * ele_b for ele_a, ele_b in zip(row_a, col_b))
              for col_b in zip_b] for row_a in lhs.matrix]
 
