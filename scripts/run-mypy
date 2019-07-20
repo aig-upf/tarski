@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+set -e
+set -x
+
+# At the moment we exit with a non-error 0 code. Might want to change this as we solve the errors currently detected.
+mypy --config-file=tox.ini -p tarski || echo "Mypy detected some errors, see output log."
