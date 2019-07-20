@@ -25,7 +25,7 @@ class ReachabilityLPCompiler:
     def __init__(self, problem: Problem, lp):
         self.problem = problem
         self.lp = lp
-        self.node_cache = dict()  # A cache of auxiliary subformulas
+        # self.node_cache = dict()  # A cache of auxiliary subformulas
         self.aux_atom_count = 0
         self.tr = Translator()
 
@@ -82,11 +82,11 @@ class ReachabilityLPCompiler:
         """ Process a given formula and return the corresponding LP rule body, along with declaring in the given LP
         any number of extra rules necessary to ensure equivalence of the body with the truth value of the formula.
         """
-        ref = symref(f)
-        res = self.node_cache.get(ref, None)
+        # ref = symref(f)  # At the moment not caching
+        # res = self.node_cache.get(ref, None)
         # If the formula has been processed before and an auxiliary LP atom for it created, return that
-        if res is not None:
-            return res
+        # if res is not None:
+        #     return res
 
         if isinstance(f, Tautology):
             return []

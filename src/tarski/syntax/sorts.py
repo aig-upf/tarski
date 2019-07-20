@@ -1,4 +1,4 @@
-from typing import Set
+from typing import Generator, Set
 from .. import errors as err
 
 
@@ -139,8 +139,8 @@ class Interval(Sort):
         return dict(name=self.name, domain=[self.lower_bound, self.upper_bound])
 
 
-def inclusion_closure(s: Sort) -> Set[Sort]:
-    """ Calculates the inclusion closure over given sort s """
+def inclusion_closure(s: Sort) -> Generator[Sort, None, None]:
+    """ Return the set of all parents of the given sort s, including itself, as a generator """
     while s is not None:
         yield s
         s = parent(s)
