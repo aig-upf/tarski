@@ -37,17 +37,14 @@ def pytest_generate_tests(metafunc):
 
     argvalues = add_domains_from("DOWNWARD_BENCHMARKS", [
         "spider-sat18-strips:p01.pddl",
-
-        # TODO: Reactivate the following ones
-        # "organic-synthesis-sat18-strips:p01.pddl",  # No domain.pddl file for this one
-        # "visitall-sat11-strips:problem12.pddl",
-        # "blocks:probBLOCKS-4-1.pddl",
-        # "gripper:prob01.pddl",
-        # "elevators-opt08-strips:p01.pddl",
-        # "sokoban-opt08-strips:p01.pddl",
-        # "parking-sat11-strips:pfile08-031.pddl",
-        # "transport-opt08-strips:p01.pddl",
-
+        "organic-synthesis-sat18-strips:p01.pddl",  # No domain.pddl file for this one
+        "visitall-sat11-strips:problem12.pddl",
+        "blocks:probBLOCKS-4-1.pddl",
+        "gripper:prob01.pddl",
+        "elevators-opt08-strips:p01.pddl",
+        "sokoban-opt08-strips:p01.pddl",
+        "parking-sat11-strips:pfile08-031.pddl",
+        "transport-opt08-strips:p01.pddl",
 
         # "settlers-sat18-adl:p01.pddl",  # Universal effect not supported ATM, but could be implemented
         # "nurikabe-sat18-adl:p01.pddl"  # Universal effect not supported ATM, but could be implemented

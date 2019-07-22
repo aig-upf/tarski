@@ -2,6 +2,7 @@
 import logging
 import operator
 import itertools
+import time
 from collections import defaultdict
 from functools import reduce
 
@@ -17,11 +18,6 @@ from ..syntax.ops import flatten, collect_unique_nodes
 from ..grounding.ops import classify_symbols
 from ..fstrips import fstrips
 from ..fstrips.representation import is_literal, collect_literals_from_conjunction
-
-
-class MaxSizeError(RuntimeError):
-    """ The maximum size of the SDD data structure has been surpassed """
-    pass
 
 
 class UnsupportedFormalism(RuntimeError):
@@ -236,7 +232,7 @@ def process_schema(problem, statics, action, data, max_size):
     metalang, parameters, domains = setup_metalanguage(action)
 
     domains, precondition, prec_constraints = preprocess_parameter_domains(action, statics, domains, problem.init)
-    
+
     selects_, nvars_, dom_constraints_ = generate_select_atoms(action, metalang, parameters, domains)
     data['selects'] += [nvars_]
     equalities = extract_equalities(prec_constraints)
@@ -257,66 +253,48 @@ def process_schema(problem, statics, action, data, max_size):
 
     manager = setup_sdd_manager(nvars_)
 
-    sdd_ground = [translate_to_pysdd(c, symbols, manager) for c in grounding_constraints]
-    sdd_eq = [translate_to_pysdd(c, symbols, manager) for c in eq_constraints]
-    sdd_dom = [translate_to_pysdd(c, symbols, manager) for c in dom_constraints_]
-    sdd_pre = sdd_dom[0]
+    alltranslated = [translate_to_pysdd(c, symbols, manager)
+                     for c in itertools.chain(dom_constraints_, eq_constraints, grounding_constraints)]
+
+    if not alltranslated:
+        # No constraints at all must mean an action schema with no parameters and and empty precondition
+        data['sdd_sizes'] += [0]
+        data['sdd_size'] += [0]
+        data['A(s0)'] += [1]
+        return
+
     sdd_sizes = []
-
     failed = False
-    # t0 = time.time()
-    try:
 
-        for i in range(1, len(sdd_dom)):
-            sdd_pre = sdd_pre & sdd_dom[i]
-            sdd_sizes += [sdd_pre.size()]
-            if sdd_sizes[-1] > max_size:
-                raise MaxSizeError()
+    t0 = time.time()
 
-        for i in range(len(sdd_eq)):
-            sdd_pre = sdd_pre & sdd_eq[i]
-            sdd_sizes += [sdd_pre.size()]
-            if sdd_sizes[-1] > max_size:
-                raise MaxSizeError()
-
-        for i in range(len(sdd_ground)):
-            sdd_pre = sdd_pre & sdd_ground[i]
-            sdd_sizes += [sdd_pre.size()]
-            if sdd_sizes[-1] > max_size:
-                raise MaxSizeError()
-
-    except MaxSizeError:
-        failed = True
-    # tf = time.time()
-    # data_df['runtime'] += [tf - t0]
-
+    sdd_pre = alltranslated[0]
+    for c in alltranslated[1:]:
+        sdd_pre = sdd_pre & c
+        sdd_sizes += [sdd_pre.size()]
+        if sdd_sizes[-1] > max_size:
+            failed = True
+            break
+    tf = time.time()
+    data['runtime'] += [tf - t0]
+    data['sdd_sizes'] += [sdd_sizes]
+    data['sdd_size'] += [sdd_sizes[-1]]
     # sdd_clauses = sdd_ground + sdd_eq + sdd_dom
     # plot_sdd_size(the_task.domain_name, the_task.name, act, sdd_sizes, sdd_clauses, sdd_eq, sdd_ground, sdd_dom)
 
-    data['sdd_sizes'] += [sdd_sizes]
-    data['sdd_size'] += [sdd_sizes[-1]]
-
-    if not failed:
-        s = []
-        for p in fluents:
-            if problem.init[p]:
-                s += [p]
-            else:
-                s += [neg(p)]
-        # MRJ: code below is good but if state has more than 255 literals we
-        # exceed the maximal recursion depth allowed by the interpreter
-        # s = land(*s)
-        # sdd_s = translate(s, symbols, manager)
-        s = [translate_to_pysdd(l, symbols, manager) for l in s]
-        sdd_s = s[0]
-        for l in s[1:]:
-            sdd_s = sdd_s & l
-        app = sdd_pre & sdd_s
-        wmc = app.wmc(log_mode=False)
-        wmc.propagate()
-        data['A(s0)'] += [app.model_count()]
-    else:
+    if failed:
         data['A(s0)'] += [None]
+        return
+
+    s0_literals = [p if problem.init[p] else neg(p) for p in fluents]
+    pysdd_s0 = [translate_to_pysdd(l, symbols, manager) for l in s0_literals]
+    assert pysdd_s0
+    app = sdd_pre
+    for lit in pysdd_s0:
+        app = manager.conjoin(app, lit)
+    wmc = app.wmc(log_mode=False)
+    wmc.propagate()
+    data['A(s0)'] += [app.model_count()]
 
 
 def compute_symbol_ids(count, selects_, fluents):
