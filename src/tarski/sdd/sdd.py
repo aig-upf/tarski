@@ -163,6 +163,7 @@ def generate_select_atoms(action, metalang, parameters, domains):
             domain_constraints.append(sel[0])
             continue
 
+        assert len(sel) >= 2
         domain_constraints.append(lor(*sel, flat=True))
         domain_constraints.extend(lor(neg(v1), neg(v2)) for v1, v2 in itertools.combinations(sel, 2))
 
