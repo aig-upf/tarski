@@ -254,8 +254,14 @@ def process_schema(problem, statics, action, data, max_size):
 
     manager = setup_sdd_manager(nvars_)
 
-    alltranslated = [translate_to_pysdd(c, symbols, manager)
-                     for c in itertools.chain(dom_constraints_, eq_constraints, grounding_constraints)]
+    allconstraints = itertools.chain(dom_constraints_, eq_constraints, grounding_constraints)
+    alltranslated = [translate_to_pysdd(c, symbols, manager) for c in allconstraints]
+
+    # with open('debug.txt', 'w') as f:
+    #     print(f'{action.ident()}\n', file=f)
+    #     print(f'{action.precondition}\n', file=f)
+    #     debugthis = itertools.chain(dom_constraints_, eq_constraints, grounding_constraints)
+    #     f.write("\n".join(map(str, debugthis)))
 
     if not alltranslated:
         # No constraints at all must mean an action schema with no parameters and and empty precondition
@@ -290,9 +296,10 @@ def process_schema(problem, statics, action, data, max_size):
     s0_literals = [p if problem.init[p] else neg(p) for p in fluents]
     pysdd_s0 = [translate_to_pysdd(l, symbols, manager) for l in s0_literals]
     assert pysdd_s0
-    app = sdd_pre
-    for lit in pysdd_s0:
-        app = manager.conjoin(app, lit)
+
+    # Condition the precondition formula to the initial state
+    # see https://pysdd.readthedocs.io/en/latest/examples/conditioning.htm
+    app = reduce(manager.conjoin, pysdd_s0, sdd_pre)
     wmc = app.wmc(log_mode=False)
     wmc.propagate()
     data['A(s0)'] += [app.model_count()]
@@ -323,9 +330,9 @@ def translate_to_pysdd(phi, syms, manager):
         if phi.connective == Connective.Not:
             return -sub[0]
         elif phi.connective == Connective.And:
-            return sub[0] & sub[1]
+            return reduce(manager.conjoin, sub, manager.true())
         elif phi.connective == Connective.Or:
-            return sub[0] | sub[1]
+            return reduce(manager.disjoin, sub, manager.false())
     elif isinstance(phi, Atom):
         return manager.literal(syms[phi])
     raise RuntimeError(f"Could not translate {phi}")

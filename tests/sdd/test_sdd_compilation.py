@@ -36,10 +36,10 @@ def pytest_generate_tests(metafunc):
         return []
 
     argvalues = add_domains_from("DOWNWARD_BENCHMARKS", [
+        "blocks:probBLOCKS-4-0.pddl",
         "spider-sat18-strips:p01.pddl",
-        "organic-synthesis-sat18-strips:p01.pddl",  # No domain.pddl file for this one
+        "organic-synthesis-sat18-strips:p01.pddl",
         "visitall-sat11-strips:problem12.pddl",
-        "blocks:probBLOCKS-4-1.pddl",
         "gripper:prob01.pddl",
         "elevators-opt08-strips:p01.pddl",
         "sokoban-opt08-strips:p01.pddl",
