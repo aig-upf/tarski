@@ -14,13 +14,17 @@ grounding of first-order representations.
 
 .. toctree::
     :maxdepth: 2
-    :caption: Contents:
+    :caption: Installation & Quickstart:
 
     installation.md
-    notebooks/001_sorts_and_constant_symbols.ipynb
-    notebooks/002_functions_and_predicates.ipynb
-    notebooks/003_terms_and_formulas.ipynb
-.. *   :ref:`genindex`
+
+
+.. toctree::
+    :maxdepth: 2
+    :caption: A Tarski Primer:
+
+    notebooks/001_first_order_logics.ipynb
+    notebooks/work_in_progress.ipynb
 
 
 .. toctree::
@@ -29,4 +33,5 @@ grounding of first-order representations.
 
     development/design
     development/development
+    development/documentation
     development/releasing
