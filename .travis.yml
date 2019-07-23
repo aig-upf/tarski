@@ -13,6 +13,10 @@ matrix:
     - python: 3.6
       env: TOXENV=stylechecks
 
+    # Test documentation building only with Python 3.6
+    - python: 3.6
+      env: TOXENV=docs
+
     # Test the building of the ANTLR grammars only with Python 3.6
     - python: 3.6
       env: TOXENV=antlrgrammars
