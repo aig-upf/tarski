@@ -60,13 +60,7 @@ alltests.bat
 
 # setup internals
 build/
-notebooks/exploratory/.ipynb_checkpoints/From_RDDL_to_Functional_STRIPS-checkpoint.ipynb
-.idea/misc.xml
-.idea/modules.xml
-.idea/tarski.iml
-.idea/vcs.xml
-.idea/workspace.xml
-.idea/misc.xml
+.idea/
 
 # Code coverage reports
 .coverage
@@ -77,3 +71,5 @@ coverage.xml
 
 # Documentation
 docs/_build
+
+.ipynb_checkpoints
