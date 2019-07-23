@@ -14,9 +14,7 @@ import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join('..')))
 import tarski
-from recommonmark.parser import CommonMarkParser
 from recommonmark.transform import AutoStructify
-
 
 
 # -- Project information -----------------------------------------------------
@@ -42,6 +40,9 @@ extensions = [
     'sphinx.ext.mathjax',  # To render latex in the generated HTML
     'recommonmark',  # To use markdown documents as well
 ]
+
+# This forces the jupyter notebooks to be executed every time the docs are built by sphinx
+nbsphinx_execute = 'always'
 
 
 # Add any paths that contain templates here, relative to this directory.
