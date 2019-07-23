@@ -2,9 +2,11 @@
 import logging
 import operator
 import itertools
+import os
 import time
 from collections import defaultdict
 from functools import reduce
+from pathlib import Path
 
 try:
     from pysdd.sdd import Vtree, SddManager
@@ -157,13 +159,12 @@ def generate_select_atoms(action, metalang, parameters, domains):
     selects = dict()
     for p in action.parameters:
         sel = selects[p.symbol] = [selatom(p, value) for value in domains[p.symbol]]
-
+        assert len(sel) > 0
         if len(sel) == 1:
             # If parameter X has one single possible value V, then selected(X, V) must be true
             domain_constraints.append(sel[0])
             continue
 
-        assert len(sel) >= 2
         domain_constraints.append(lor(*sel, flat=True))
         domain_constraints.extend(lor(neg(v1), neg(v2)) for v1, v2 in itertools.combinations(sel, 2))
 
@@ -225,7 +226,7 @@ def preprocess_parameter_domains(action, statics, domains, init):
     return domains, optimized, constraints
 
 
-def process_schema(problem, statics, action, data, max_size):
+def compile_action_schema(problem, statics, action, data, max_size, conjoin_with_init=False):
     # print(f"Processing action schema:\n{action}")
     data['instance'] += [problem.name]
 
@@ -234,33 +235,33 @@ def process_schema(problem, statics, action, data, max_size):
 
     domains, precondition, prec_constraints = preprocess_parameter_domains(action, statics, domains, problem.init)
 
-    selects_, nvars_, dom_constraints_ = generate_select_atoms(action, metalang, parameters, domains)
-    data['selects'] += [nvars_]
+    if any(len(dom) == 0 for dom in domains.values()):
+        # Some action parameter has empty associated domain, hence no ground action will result from this
+        report_theory(data, [], [], [], [], 0)
+        return setup_false_sdd_manager()  # This will return a "False" precondition
+
+    selects, nvars, dom_constraints = generate_select_atoms(action, metalang, parameters, domains)
+
     equalities = extract_equalities(prec_constraints)
     prec_atoms = collect_unique_nodes(precondition, lambda x: isinstance(x, Atom) and not x.predicate.builtin)
-    eq_constraints = create_equality_constraints(equalities, selects_)
+    eq_constraints = create_equality_constraints(equalities, selects)
 
-    grounding_constraints, count, fluents = create_grounding_constraints(selects_, statics, problem.init, prec_atoms)
-    nvars_ += len(fluents)
+    grounding_constraints, count, fluents = create_grounding_constraints(selects, statics, problem.init, prec_atoms)
+    nvars += len(fluents)
 
-    data['atoms'] += [len(fluents)]
-    data['DOM'] += [len(dom_constraints_)]
-    data['EQ'] += [len(eq_constraints)]
-    data['GROUND'] += [len(grounding_constraints)]
-    data['nclauses'] += [len(dom_constraints_) + len(eq_constraints) + len(grounding_constraints)]
-    data['nvars'] += [nvars_]
+    report_theory(data, dom_constraints, eq_constraints, fluents, grounding_constraints, nvars)
 
-    symbols = compute_symbol_ids(count, selects_, fluents)
+    symbols = compute_symbol_ids(count, selects, fluents)
 
-    manager = setup_sdd_manager(nvars_)
+    manager = setup_sdd_manager(nvars)
 
-    allconstraints = itertools.chain(dom_constraints_, eq_constraints, grounding_constraints)
+    allconstraints = itertools.chain(dom_constraints, eq_constraints, grounding_constraints)
     alltranslated = [translate_to_pysdd(c, symbols, manager) for c in allconstraints]
 
     # with open('debug.txt', 'w') as f:
     #     print(f'{action.ident()}\n', file=f)
     #     print(f'{action.precondition}\n', file=f)
-    #     debugthis = itertools.chain(dom_constraints_, eq_constraints, grounding_constraints)
+    #     debugthis = itertools.chain(dom_constraints, eq_constraints, grounding_constraints)
     #     f.write("\n".join(map(str, debugthis)))
 
     if not alltranslated:
@@ -286,23 +287,32 @@ def process_schema(problem, statics, action, data, max_size):
     data['runtime'] += [tf - t0]
     data['sdd_sizes'] += [sdd_sizes]
     data['sdd_size'] += [sdd_sizes[-1]]
+    data['A(s0)'] += [None]
     # sdd_clauses = sdd_ground + sdd_eq + sdd_dom
     # plot_sdd_size(the_task.domain_name, the_task.name, act, sdd_sizes, sdd_clauses, sdd_eq, sdd_ground, sdd_dom)
 
-    if failed:
-        data['A(s0)'] += [None]
-        return
+    if conjoin_with_init and not failed:
+        s0_literals = [p if problem.init[p] else neg(p) for p in fluents]
+        pysdd_s0 = [translate_to_pysdd(l, symbols, manager) for l in s0_literals]
+        assert pysdd_s0
 
-    s0_literals = [p if problem.init[p] else neg(p) for p in fluents]
-    pysdd_s0 = [translate_to_pysdd(l, symbols, manager) for l in s0_literals]
-    assert pysdd_s0
+        # Condition the precondition formula to the initial state
+        # see https://pysdd.readthedocs.io/en/latest/examples/conditioning.htm
+        app = reduce(manager.conjoin, pysdd_s0, sdd_pre)
+        wmc = app.wmc(log_mode=False)
+        wmc.propagate()
+        data['A(s0)'] += [app.model_count()]
+    return manager, sdd_pre
 
-    # Condition the precondition formula to the initial state
-    # see https://pysdd.readthedocs.io/en/latest/examples/conditioning.htm
-    app = reduce(manager.conjoin, pysdd_s0, sdd_pre)
-    wmc = app.wmc(log_mode=False)
-    wmc.propagate()
-    data['A(s0)'] += [app.model_count()]
+
+def report_theory(data, dom_constraints, eq_constraints, fluents, grounding_constraints, nvars):
+    data['selects'] += [nvars]
+    data['atoms'] += [len(fluents)]
+    data['DOM'] += [len(dom_constraints)]
+    data['EQ'] += [len(eq_constraints)]
+    data['GROUND'] += [len(grounding_constraints)]
+    data['nclauses'] += [len(dom_constraints) + len(eq_constraints) + len(grounding_constraints)]
+    data['nvars'] += [nvars]
 
 
 def compute_symbol_ids(count, selects_, fluents):
@@ -349,7 +359,13 @@ def setup_sdd_manager(nvars):
     return SddManager(var_count=nvars, auto_gc_and_minimize=1, vtree=vtree)
 
 
-def process_problem(problem, max_size=20000000):
+def setup_false_sdd_manager():
+    manager = setup_sdd_manager(0)
+    precondition = manager.false()
+    return manager, precondition
+
+
+def process_problem(problem, max_size=20000000, serialization_directory=None):
     # Make sure the initial state has some associated evaluator:
     problem.init.evaluator = problem.init.evaluator or evaluate
 
@@ -358,5 +374,16 @@ def process_problem(problem, max_size=20000000):
     _, statics = classify_symbols(problem)
 
     for action in actions:
-        process_schema(problem, statics, action, data, max_size)
+        manager, node = compile_action_schema(problem, statics, action, data, max_size)
+
+        if serialization_directory is not None:
+            if not Path(serialization_directory).is_dir():
+                raise Exception(f"Directory '{serialization_directory}' does not exist")
+
+            sanitized_action_name = action.name.replace('-', '_')
+            manager.save(os.path.join(serialization_directory, f'{sanitized_action_name}.manager.sdd').encode(), node)
+            manager.vtree().save(os.path.join(serialization_directory, f'{sanitized_action_name}.vtree.sdd').encode())
+
     return data
+
+
