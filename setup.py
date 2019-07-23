@@ -1,5 +1,5 @@
 
-from setuptools import setup, find_packages
+from setuptools import setup
 from codecs import open
 from os import path
 import importlib
@@ -60,7 +60,7 @@ def main():
         extras_require={
             'dev': ['pytest', 'tox', 'pytest-cov', 'mypy'],
             'test': ['pytest', 'tox', 'pytest-cov', 'mypy'],
-            'doc': ['sphinx', 'sphinx_rtd_theme']
+            'doc': ['sphinx', 'recommonmark', 'nbsphinx', 'sphinx_rtd_theme', 'ipykernel', 'ipython']
         },
 
         # This will include non-code files specified in the manifest, see e.g.
