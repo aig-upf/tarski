@@ -38,9 +38,6 @@ __pycache__/
 # Codeblocks
 *.cbp
 
-# CMake & make files
-Makefile
-
 # Singularity images
 *.img
 
@@ -77,3 +74,6 @@ coverage.xml
 
 # mypy
 .mypy_cache
+
+# Documentation
+docs/_build
