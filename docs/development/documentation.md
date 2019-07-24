@@ -19,6 +19,11 @@ An alternative to the last two steps is to run `tox -e docs` in the project root
 that is used to build the documentation by the continuous integration tests. Note that this still requires the manual
 installation of `Pandoc`.
 
+## Avoiding to version Jupyter output cells
+There are several workarounds to avoid versioning in Git the cell outputs and other notebook metadata, see e.g.
+<https://github.com/kynan/nbstripout>.
+
+
 ## Some examples of good Sphinx/Markdown/Jupyter documentation and other thinks to have a look at
 
 * https://calculus-notes.readthedocs.io/en/latest/ 
