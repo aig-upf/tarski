@@ -1,5 +1,7 @@
 
-# Uploading a Tarski release to the Python Package Index
+# Release Process
+
+## Uploading a Tarski release to the Python Package Index
 
 Docs: <https://packaging.python.org/tutorials/packaging-projects/>
 

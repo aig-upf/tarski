@@ -31,7 +31,7 @@ grounding of first-order representations.
     :maxdepth: 2
     :caption: Tarski Development:
 
-    development/design
     development/development
     development/documentation
     development/releasing
+    development/design

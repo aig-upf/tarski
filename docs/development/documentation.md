@@ -16,4 +16,5 @@ make html
 ```
 
 An alternative to the last two steps is to run `tox -e docs` in the project root in order to use the `tox` environment
-that is used to build the documentation by the continuous integration tests.
+that is used to build the documentation by the continuous integration tests. Note that this still requires the manual
+installation of `Pandoc`.
