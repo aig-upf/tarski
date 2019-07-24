@@ -18,3 +18,8 @@ make html
 An alternative to the last two steps is to run `tox -e docs` in the project root in order to use the `tox` environment
 that is used to build the documentation by the continuous integration tests. Note that this still requires the manual
 installation of `Pandoc`.
+
+## Some examples of good Sphinx/Markdown/Jupyter documentation and other thinks to have a look at
+
+* https://calculus-notes.readthedocs.io/en/latest/ 
+* https://ovh.mybinder.org/
