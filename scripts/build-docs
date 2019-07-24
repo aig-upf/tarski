@@ -3,7 +3,6 @@
 set -e
 set -x
 
-HOME=`pwd` echo $HOME
-HOME=`pwd` pandoc -v
-echo $?
+# Apparently the (dated) version of pandoc in the xenial repos needs the HOME variable to be set explicitly here
+# This could be lifted once we bump up the Ubuntu image used in the travis configuration
 HOME=`pwd` sphinx-build -d "{toxworkdir}/docs_doctree" docs "{toxworkdir}/docs_out" --color -W -bhtml
