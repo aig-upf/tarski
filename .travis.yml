@@ -52,4 +52,6 @@ install:
   - if [[ $TOXENV == py* ]]; then ./scripts/get-benchmarks; fi  # Download benchmarks only if necessary
 
 script:
+  - echo $HOME
+  - pandoc -v
   - tox
