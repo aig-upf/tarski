@@ -68,7 +68,7 @@ class Model:
         definition.set(point, value)
 
     def set(self, fun, *args):
-        """ Set the value of fucntion 'fun' at point 'point' to be equal to 'value'
+        """ Set the value of function 'fun' at point 'point' to be equal to 'value'
             'point' needs to be a tuple of constants, and value a single constant.
         """
         if not isinstance(fun, Function):
