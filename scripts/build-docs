@@ -3,10 +3,6 @@
 set -e
 set -x
 
-echo $HOME
-pandoc -v
-echo $?
-
 HOME=`pwd` echo $HOME
 HOME=`pwd` pandoc -v
 echo $?
