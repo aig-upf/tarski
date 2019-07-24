@@ -43,6 +43,9 @@ before_install:
   # Install curl for running the codecov script
   - if [[ $TOXENV == pycoverage ]]; then sudo apt-get install -y --no-install-recommends curl; fi
 
+  # Install pandoc for the generation of the documentation
+  - if [[ $TOXENV == docs* ]]; then sudo apt-get install -y --no-install-recommends pandoc; fi
+
 install:
   - python -m pip install --upgrade tox pip setuptools wheel
   - tox --version
