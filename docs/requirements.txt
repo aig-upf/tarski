@@ -1,8 +1,7 @@
 
-sphinx
+sphinx >= 2.1.2
 recommonmark
 nbsphinx
 sphinx_rtd_theme
 ipykernel
 ipython
-tarski
