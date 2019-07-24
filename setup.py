@@ -46,7 +46,7 @@ def main():
             'Programming Language :: Python :: 3.7',
         ],
 
-        packages=['tarski'],  # include all packages under src
+        packages=find_packages('src'),  # include all packages under src
         package_dir={'': 'src'},  # tell distutils packages are under src
 
 
