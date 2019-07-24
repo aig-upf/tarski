@@ -6,6 +6,7 @@ env:
     # Benchmark locations
     - DOWNWARD_BENCHMARKS="/tmp/downward-benchmarks"
     - FSBENCHMARKS="/tmp/fs-benchmarks"
+    - REQ_FILE=`pwd`
 
 matrix:
   include:
