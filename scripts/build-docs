@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -e
+set -x
+
+echo $HOME
+pandoc -v
+echo $?
+
+HOME=`pwd` echo $HOME
+HOME=`pwd` pandoc -v
+echo $?
+HOME=`pwd` sphinx-build -d "{toxworkdir}/docs_doctree" docs "{toxworkdir}/docs_out" --color -W -bhtml

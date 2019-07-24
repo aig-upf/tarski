@@ -45,7 +45,7 @@ before_install:
   - if [[ $TOXENV == pycoverage ]]; then sudo apt-get install -y --no-install-recommends curl; fi
 
   # Install pandoc for the generation of the documentation
-  - if [[ $TOXENV == docs* ]]; then sudo apt-get install -y --no-install-recommends pandoc; fi
+  - if [[ $TOXENV == docs]]; then sudo apt-get install -y --no-install-recommends pandoc; fi
 
 install:
   - python -m pip install --upgrade tox pip setuptools wheel
@@ -53,6 +53,4 @@ install:
   - if [[ $TOXENV == py* ]]; then ./scripts/get-benchmarks; fi  # Download benchmarks only if necessary
 
 script:
-  - echo $HOME
-  - pandoc -v
   - tox
