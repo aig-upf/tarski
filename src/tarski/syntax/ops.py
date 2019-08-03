@@ -41,15 +41,15 @@ def cast_to_number(rhs):
 
 
 def free_variables(formula):
+    """ Return a list with all variables in the given formula that appear free."""
     visitor = CollectFreeVariables()
     visitor.visit(formula)
-    return list(visitor.free_variables)
+    return [x.expr for x in visitor.free_variables]  # Unpack the symrefs
 
 
 def all_variables(formula):
-    visitor = CollectVariables()
-    visitor.visit(formula)
-    return list(visitor.variables)
+    """ Return a list with all variables that appear in the given formula."""
+    return collect_unique_nodes(formula, lambda x: isinstance(x, Variable))
 
 
 def flatten(formula):
@@ -77,7 +77,7 @@ def collect_unique_nodes(expression, filter_=None):
     filter_ = filter_ if filter_ is not None else lambda x: True
     nodes = set()
     _collect_unique_nodes_rec(expression, nodes, filter_)
-    return list(x.expr for x in nodes)  # Unpack the symrefs!
+    return list(x.expr for x in nodes)  # Unpack the symrefs
 
 
 def _collect_unique_nodes_rec(node, nodes, filter_):

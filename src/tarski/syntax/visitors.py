@@ -60,18 +60,14 @@ class CollectFreeVariables:
     """ Collect all free variables in a given formula or term """
     def __init__(self):
         self.quantified_vars = set()
-        self._free_variables = set()
-
-    @property
-    def free_variables(self):
-        for ref in self._free_variables:
-            yield ref.expr
+        self.free_variables = set()
 
     def visit(self, phi):
         if isinstance(phi, Variable):
-            t_ref = symref(phi)
-            if t_ref not in self.quantified_vars:
-                self._free_variables.add(t_ref)
+            ref = symref(phi)
+            if ref not in self.quantified_vars:
+                self.free_variables.add(ref)
+
         elif isinstance(phi, CompoundFormula):
             _ = [self.visit(f) for f in phi.subformulas]
 
