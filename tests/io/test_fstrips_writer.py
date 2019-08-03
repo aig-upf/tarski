@@ -20,13 +20,7 @@ def write_problem(problem):
 
 def get_bw_elements():
     problem = generate_small_fstrips_bw_problem()
-    lang = problem.language
-    # writer = FstripsWriter(problem)
-
-    loc = lang.get_function("loc")
-    clear = lang.get_predicate("clear")
-    b1 = lang.get_constant("b1")
-    table = lang.get_constant("table")
+    loc, clear, b1, table = problem.language.get("loc", "clear", "b1", "table")
     return problem, loc, clear, b1, table
 
 
@@ -60,10 +54,6 @@ def test_effect_writing():
     assert s6 == "(forall (?b - block) (when (clear ?b) (assign (loc ?b) table)))"
 
 
-# def test_atom_writing():
-#     pass
-
-
 def test_objects_writing():
     problem, _, _, _, _ = get_bw_elements()
     assert print_objects(problem.language.constants()) == "b1 b2 b3 b4 - block\n        table - place"
@@ -80,6 +70,30 @@ def test_metric_writing():
 def test_gridworld_writing():
     problem = generate_small_gridworld()
     write_problem(problem)
+
+
+def test_blocksworld_writing():
+    problem, _, _, _, _ = get_bw_elements()
+    write_problem(problem)
+
+
+def test_blocksworld_writing_with_different_constants():
+    problem, loc, clear, b1, table = get_bw_elements()
+    writer = FstripsWriter(problem)
+    instance_model_string = writer.print_instance()
+    domain_model_string = writer.print_domain()
+    assert "b1" not in domain_model_string
+    assert "b1 b2 b3 b4 - block\n        table - place" in instance_model_string
+
+    constant_objects = [b1, table]
+    instance_model_string = writer.print_instance(constant_objects=constant_objects)
+    domain_model_string = writer.print_domain(constant_objects=constant_objects)
+
+    assert "b1 - block" in domain_model_string
+    assert "table - place" in domain_model_string
+    assert """(:objects
+        b2 b3 b4 - block
+    )""" in instance_model_string
 
 
 def test_action_costs_numeric_fluents_requirements():
