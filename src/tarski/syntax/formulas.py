@@ -210,10 +210,20 @@ def equiv(phi, psi):
 
 
 def forall(*args):
+    """ Create a universally-quantified formula. The argument list needs to be of the form (v1, v2, ..., vn, f),
+    where v_i are the variables and f is the quantified formula. To represent the formula "forall x, y x < y",
+    we would use:
+    >>> forall(x, y, x<y)
+    """
     return _quantified(Quantifier.Forall, *args)
 
 
 def exists(*args):
+    """ Create an existentially-quantified formula. The argument list needs to be of the form (v1, v2, ..., vn, f),
+    where v_i are the variables and f is the quantified formula. To represent the formula "exists x, y such that x < y",
+    we would use:
+    >>> exists(x, y, x<y)
+    """
     return _quantified(Quantifier.Exists, *args)
 
 
@@ -293,7 +303,7 @@ class VariableBinding:
         # An (ordered) map between variable name and the variable itself:
         self.variables = OrderedDict((v.symbol, v) for v in variables)
         self._idx = 0
-        self._v_values = list(self.variables.values())
+        self._v_values = variables[:]
         self.index_ = {v.symbol: i for i, v in enumerate(variables)}
 
     def __len__(self):

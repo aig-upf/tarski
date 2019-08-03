@@ -270,8 +270,8 @@ class FStripsParser(fstripsVisitor):
         return variables, formula
 
     def _visit_quantified_effect(self, ctx):
-        """ Universally-quantified effects are different to formulas in that they are shorthand
-            for a list of effects """
+        """ Universally-quantified effects are different to e.g. single-effect formulas, in that they are shorthand
+            for the set of effects that results from all possible instantiations to their variable list. """
         variables = self.visit(ctx.possibly_typed_variable_list())
 
         with self.push_variables(variables, root=False) as _:

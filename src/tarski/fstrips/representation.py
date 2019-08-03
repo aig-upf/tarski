@@ -1,9 +1,10 @@
-
+import copy
 from typing import Set, Union, Tuple, Optional
 
 from .problem import Problem
-from ..syntax import Formula, CompoundTerm, Atom, CompoundFormula, is_and, is_neg
-from ..syntax.ops import collect_unique_nodes, flatten
+from . import fstrips as fs
+from ..syntax import Formula, CompoundTerm, Atom, CompoundFormula, is_and, is_neg, exists, symref, VariableBinding
+from ..syntax.ops import collect_unique_nodes, flatten, free_variables
 from .action import Action
 
 
@@ -127,3 +128,68 @@ def is_function_free(phi: Formula):
     Return whether the given formula is function-free, that is, has no function symbols other than constant symbols.
     """
     return len(collect_unique_nodes(phi, lambda x: isinstance(x, CompoundTerm))) == 0
+
+
+def collect_effect_free_parameters(action: Action):
+    """ Return the "effect-free" parameters of the given action schema.
+    These are the set of action parameters (logical variables) that do not appear on any effect of the action.
+    """
+    free = set()
+    for eff in action.effects:
+        _collect_effect_free_variables(eff, free)
+    parameters = {symref(x) for x in action.parameters}
+    return parameters.difference(free)
+
+
+def project_away_effect_free_variables(action: Action):
+    """ Return an action schema which is equivalent to the given `action` except that all "effect-free" parameters have
+    been compiled away into existential variables in the precondition. Hence, an action
+
+    action a(x, y, z)
+        PRE: p(x, y) and q(y, z)
+        EFF: not p(x, y)
+
+    would become:
+
+    action a(x, y)
+        PRE: Exists z [p(x, y) and q(y, z)]
+        EFF: not p(x, y)
+
+    """
+    free = collect_effect_free_parameters(action)
+    bound = [x for x in action.parameters if symref(x) not in free]
+    projected = copy.deepcopy(action)
+    projected.parameters = VariableBinding(bound)
+    projected.precondition = exists(*(x.expr for x in free), action.precondition)
+    return projected
+
+
+def collect_effect_free_variables(eff: fs.BaseEffect):
+    """ Return the set of all variables that appear free in the given effect. """
+    free = set()
+    _collect_effect_free_variables(eff, free)
+    return free
+
+
+def _collect_effect_free_variables(eff: fs.BaseEffect, free: Set):
+    """
+    """
+    if isinstance(eff, (fs.AddEffect, fs.DelEffect)):
+        free.update(symref(x) for x in free_variables(eff.atom))
+
+    elif isinstance(eff, fs.LiteralEffect):
+        free.update(symref(x) for x in free_variables(eff.lit))
+
+    elif isinstance(eff, fs.FunctionalEffect):
+        free.update(symref(x) for x in free_variables(eff.lhs))
+        free.update(symref(x) for x in free_variables(eff.rhs))
+
+    elif isinstance(eff, fs.UniversalEffect):
+        bound = {symref(x) for x in eff.variables}
+        free_in_sub = set()
+        for sub in eff.effects:
+            _collect_effect_free_variables(sub, free_in_sub)
+        free.update(free_in_sub - bound)
+
+    else:
+        raise RuntimeError(f'Effect "{eff}" of type "{type(eff)}" cannot be processed')
