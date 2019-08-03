@@ -3,8 +3,7 @@
 
 Docs: <https://packaging.python.org/tutorials/packaging-projects/>
 
-First, make sure you are on the master branch and on the right commit.
-
+1. Make sure you are on the master branch and on the right commit.
 1. Update the `CHANGELOG.md` file.
 1. Update the version number in `src/tarski/version.py`
 1. Commit and tag the release.
