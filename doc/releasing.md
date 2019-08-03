@@ -11,7 +11,7 @@ First, make sure you are on the master branch and on the right commit.
 
         export TARSKI_RELEASE="v0.2.0"
         git commit -am "Preparing for release ${TARSKI_RELEASE}"
-        git tag -a v0.2.0 -m "Tarski release ${TARSKI_RELEASE}"
+        git tag -a ${TARSKI_RELEASE} -m "Tarski release ${TARSKI_RELEASE}"
 
         
 1. Run the following instructions from the root directory of the project:
