@@ -14,6 +14,16 @@ from tarski.syntax.algebra import Matrix
 from ..common import numeric
 
 
+def test_language_creation():
+    lang = fstrips.language("test", theories=[])
+    sorts = sorted(x.name for x in lang.sorts)
+    assert sorts == ['object']
+
+    lang = fstrips.language("test")
+    sorts = sorted(x.name for x in lang.sorts)
+    assert sorts == ['object']  # The default equality theory should not import the arithmetic sorts either
+
+
 def test_builtin_constants():
     lang = fstrips.language()
     ints = lang.Integer
