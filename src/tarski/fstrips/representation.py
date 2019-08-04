@@ -141,9 +141,12 @@ def collect_effect_free_parameters(action: Action):
     return parameters.difference(free)
 
 
-def project_away_effect_free_variables(action: Action):
+def project_away_effect_free_variables(action: Action, inplace=False):
     """ Return an action schema which is equivalent to the given `action` except that all "effect-free" parameters have
-    been compiled away into existential variables in the precondition. Hence, an action
+    been compiled away into existential variables in the precondition. The value of `inplace` determines whether
+    the modification will be done in-place to the given action, or a new action will be created.
+
+    As an example, an action
 
     action a(x, y, z)
         PRE: p(x, y) and q(y, z)
@@ -158,9 +161,20 @@ def project_away_effect_free_variables(action: Action):
     """
     free = collect_effect_free_parameters(action)
     bound = [x for x in action.parameters if symref(x) not in free]
-    projected = copy.deepcopy(action)
+    projected = action if inplace else copy.deepcopy(action)
     projected.parameters = VariableBinding(bound)
     projected.precondition = exists(*(x.expr for x in free), action.precondition)
+    return projected
+
+
+def project_away_effect_free_variables_from_problem(problem: Problem, inplace=False):
+    """ Return a new problem equivalent to the given one but where all action schemas have had their "effect-free"
+     parameters compiled away into existential variables in the precondition. The value of `inplace` determines whether
+    the modification will be done in-place to the given problem, or a new problem will be created.
+    """
+    # If not modifying inplace, we copy the full problem (including its actions) and then modify that one inplace
+    projected = problem if inplace else copy.deepcopy(problem)
+    _ = [project_away_effect_free_variables(action, inplace=True) for action in projected.actions.values()]
     return projected
 
 
