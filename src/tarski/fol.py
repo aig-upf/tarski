@@ -189,7 +189,7 @@ class FirstOrderLanguage:
         self.immediate_parent[sort] = parent
         self.ancestor_sorts[sort].update(inclusion_closure(parent))
 
-    def _retrieve_sort(self, obj) -> Sort:
+    def _retrieve_sort(self, obj: Union[Sort, str]) -> Sort:
         return self._retrieve_object(obj, Sort)
 
     def _retrieve_object(self, obj, type_):
