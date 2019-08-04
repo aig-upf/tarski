@@ -1,6 +1,6 @@
 
 from tarski.fstrips.representation import collect_effect_free_parameters, project_away_effect_free_variables, \
-    collect_effect_free_variables, project_away_effect_free_variables_from_problem
+    collect_effect_free_variables, project_away_effect_free_variables_from_problem, is_typed_problem
 from tarski.syntax import exists, land
 from tarski.fstrips import representation as rep
 
@@ -57,6 +57,14 @@ def test_literal_collection():
     # ATM we don't want to deal with the complexity of nested negation, so we expect the method to return None for
     # "not not clear(b2)"
     assert rep.collect_literals_from_conjunction(clear(b1) & ~~clear(b2)) is None
+
+
+def test_is_typed():
+    problem = blocksworld.generate_small_fstrips_bw_problem()
+    assert is_typed_problem(problem)
+
+    problem = blocksworld.generate_small_strips_bw_problem()
+    assert not is_typed_problem(problem)
 
 
 def test_free_variables_in_schema_manipulations():

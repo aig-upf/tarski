@@ -8,6 +8,11 @@ from ..syntax.ops import collect_unique_nodes, flatten, free_variables
 from .action import Action
 
 
+def is_typed_problem(problem: Problem):
+    """ A planning problem is typed if it has some sort other than 'object'. """
+    return sum(1 for s in problem.language.sorts if not s.builtin) > 1
+
+
 def is_positive_normal_form_problem(problem: Problem):
     """
     A propositional planning task is positive if all its operators and its goal are positive.
