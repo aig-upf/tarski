@@ -1,4 +1,5 @@
 
+from ...fstrips.representation import is_typed_problem
 from ...syntax import Interval
 from ... import theories
 from ...theories import Theory
@@ -41,10 +42,17 @@ def get_requirements_string(problem):
     """ Get a list with all PDDL requirement strings based on the given problem """
     # TODO To be completed
     requirements = []
+    if is_typed_problem(problem):
+        requirements.append(":typing")
+
+    # TODO Add ":negative-preconditions" requirement when representation.is_positive_normal_form_problem is implemented
+
     for t in problem.language.theories:
         # The Arithmetic theory incorporates arithmetic functions (which are PDDL numeric operators)
         if t == Theory.ARITHMETIC:
             requirements.append(":numeric-fluents")
+        elif t == Theory.EQUALITY:
+            requirements.append(":equality")
 
     # Functional STRIPS with action costs, keeping in line with IPC convention
     if problem.metric is not None and problem.language.has_function('total-cost'):

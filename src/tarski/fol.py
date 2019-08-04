@@ -58,8 +58,7 @@ class FirstOrderLanguage:
 
     @property
     def sorts(self):
-        for s in self._sorts.values():
-            yield s
+        return self._sorts.values()
 
     @property
     def predicates(self):
