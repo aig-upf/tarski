@@ -1,6 +1,6 @@
 
 from tarski.fstrips.representation import collect_effect_free_parameters, project_away_effect_free_variables, \
-    collect_effect_free_variables
+    collect_effect_free_variables, project_away_effect_free_variables_from_problem
 from tarski.syntax import exists, land
 from tarski.fstrips import representation as rep
 
@@ -100,9 +100,17 @@ def test_effect_free_variables_in_caldera():
     assert names == ['?v01']
 
     projected = project_away_effect_free_variables(act)
-    names = sorted(x.symbol for x in projected.parameters)
-    assert names == ['?v01']
+    names1 = sorted(x.symbol for x in act.parameters)
+    names2 = sorted(x.symbol for x in projected.parameters)
+    assert names1 == ['?v00', '?v01', '?v02'] and names2 == ['?v01']
 
+    # Check inplace argument works as expected
+    problem2 = project_away_effect_free_variables_from_problem(problem, inplace=False)
+    names1 = sorted(x.symbol for x in problem.get_action('get_domain').parameters)
+    names2 = sorted(x.symbol for x in problem2.get_action('get_domain').parameters)
+    assert names1 == ['?v00', '?v01', '?v02'] and names2 == ['?v01']
 
-
-
+    problem2 = project_away_effect_free_variables_from_problem(problem, inplace=True)
+    names1 = sorted(x.symbol for x in problem.get_action('get_domain').parameters)
+    names2 = sorted(x.symbol for x in problem2.get_action('get_domain').parameters)
+    assert names1 == names2 == ['?v01']
