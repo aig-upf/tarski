@@ -1,11 +1,12 @@
 import tempfile
+from typing import Optional, List
 
 import tarski.fstrips as fs
 from tarski.benchmarks.counters import get_counters_elements
 from tarski.fstrips import AddEffect, DelEffect, FunctionalEffect, UniversalEffect
 from tarski.io import FstripsWriter
 from tarski.io.fstrips import print_effects, print_effect, print_objects, print_metric, print_formula, print_term
-from tarski.syntax import forall, exists
+from tarski.syntax import forall, exists, Constant
 
 from tests.common.blocksworld import generate_small_fstrips_bw_problem
 from tests.common import parcprinter
@@ -13,12 +14,13 @@ from tests.io.common import reader
 from ..common.gridworld import generate_small_gridworld
 
 
-def write_problem(problem):
+def write_problem(problem, domain_constants: Optional[List[Constant]] = None):
     domain_filename = tempfile.NamedTemporaryFile(delete=True)
     instance_filename = tempfile.NamedTemporaryFile(delete=True)
     writer = FstripsWriter(problem)
     writer.write(domain_filename=domain_filename.name,
-                 instance_filename=instance_filename.name)
+                 instance_filename=instance_filename.name,
+                 domain_constants=domain_constants)
     return domain_filename, instance_filename
 
 
@@ -102,8 +104,8 @@ def test_gridworld_writing():
 
 
 def test_blocksworld_writing():
-    problem, _, _, _, _ = get_bw_elements()
-    domf, instf = write_problem(problem)
+    problem, _, _, _, table = get_bw_elements()
+    domf, instf = write_problem(problem, domain_constants=[table])
 
     # Make sure that the printed-out problem can be parsed again
     problem2 = reader().read_problem(domf.name, instf.name)
