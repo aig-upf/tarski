@@ -15,6 +15,10 @@ from ..common import numeric
 
 
 def test_language_creation():
+    lang = theories.language()
+    sorts = sorted(x.name for x in lang.sorts)
+    assert sorts == ['object']
+
     lang = fstrips.language("test", theories=[])
     sorts = sorted(x.name for x in lang.sorts)
     assert sorts == ['object']

@@ -1,6 +1,7 @@
 """ Management of the theories (e.g. equality, etc.) associated to the FO languages """
 from enum import Enum
 
+from tarski.syntax.sorts import attach_arithmetic_sorts
 from .fol import FirstOrderLanguage
 from .syntax import builtins, Term
 from .syntax.factory import create_atom, create_arithmetic_term
@@ -23,6 +24,11 @@ def language(name='L', theories=None):
     """ Build a language with the given name and configure it with the given theories """
     theories = theories or []
     lang = FirstOrderLanguage(name)
+    theories_requiring_arithmetic_sorts = {
+        Theory.ARITHMETIC, Theory.SPECIAL, Theory.RANDOM
+    }
+    if any(t in theories_requiring_arithmetic_sorts for t in theories):
+        attach_arithmetic_sorts(lang)
     _ = [load_theory(lang, t) for t in theories]
     return lang
 
