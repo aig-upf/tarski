@@ -160,6 +160,8 @@ def _to_binary_tree(args, connective):
 
 
 def _create_compound(args, connective, flat):
+    if len(args) == 1:  # Handle gracefully the case of a single-atom compound formula
+        return args[0]
     if flat:
         return CompoundFormula(connective, args)
     return _to_binary_tree(args, connective)

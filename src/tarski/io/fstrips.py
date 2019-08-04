@@ -5,7 +5,7 @@ from typing import Optional, List
 from .common import load_tpl
 from ..model import ExtensionalFunctionDefinition
 from ..syntax import Tautology, Contradiction, Atom, CompoundTerm, CompoundFormula, QuantifiedFormula, \
-    Term, Variable, Constant, Formula, symref
+    Term, Variable, Constant, Formula, symref, BuiltinPredicateSymbol
 from ..syntax.sorts import parent, Interval, ancestors
 
 from ._fstrips.common import tarski_to_pddl_type, get_requirements_string
@@ -273,11 +273,15 @@ def build_signature_string(domain):
     if not domain:
         return ""
 
-    return " ".join("?x{} - {}".format(i, tarski_to_pddl_type(t)) for i, t in enumerate(domain, 1))
+    return " ".join(f"{print_variable_name(f'x{i}')} - {tarski_to_pddl_type(t)}" for i, t in enumerate(domain, 1))
+
+
+def print_variable_name(name: str):
+    return name if name.startswith("?") else f'?{name}'
 
 
 def print_variable_list(parameters):
-    return " ".join("?{} - {}".format(p.symbol, p.sort.name) for p in parameters)
+    return " ".join(f"{print_variable_name(p.symbol)} - {p.sort.name}" for p in parameters)
 
 
 def print_formula(formula, indentation=0):
@@ -339,7 +343,7 @@ def print_effect(eff, indentation=0):
 def print_term(term):
     assert isinstance(term, Term)
     if isinstance(term, Variable):
-        return "?{}".format(term.symbol)
+        return print_variable_name(term.symbol)
     elif isinstance(term, CompoundTerm):
         return "({} {})".format(term.symbol.symbol, print_term_list(term.subterms))
     elif isinstance(term, Constant):
@@ -347,9 +351,16 @@ def print_term(term):
     raise RuntimeError("Unexpected element type: {}".format(term))
 
 
-def print_atom(atom):
+def print_atom(atom: Atom):
     assert isinstance(atom, Atom)
-    return "({} {})".format(atom.predicate.symbol, print_term_list(atom.subterms))
+    symbol = atom.predicate.symbol
+    subterms = print_term_list(atom.subterms)
+
+    if symbol == BuiltinPredicateSymbol.NE:
+        # The built-in != needs a special treatment to be printed as (not (= ...))
+        return f"(not (= {subterms}))"
+
+    return f"({symbol} {subterms})"
 
 
 def print_term_list(terms):

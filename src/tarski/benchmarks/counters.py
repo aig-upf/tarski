@@ -10,7 +10,7 @@ BASE_DOMAIN_NAME = "counters-fn"
 
 
 def generate_fstrips_counters_language(ncounters=3, upper_bound=None):
-    """ The (typed) FSTRIPS Counters encoding """
+    """ The (typed) FSTRIPS Counters encoding. """
     upper_bound = ncounters * 2 if upper_bound is None else upper_bound
 
     lang = language(BASE_DOMAIN_NAME, theories=[Theory.EQUALITY, Theory.ARITHMETIC])
@@ -25,13 +25,12 @@ def generate_fstrips_counters_language(ncounters=3, upper_bound=None):
 
 
 def generate_fstrips_counters_problem(ncounters=3, upper_bound=None):
-    """ Generate a (typed) FSTRIPS Counters problem with the given number of counters """
+    """ Generate a (typed) FSTRIPS Counters problem with the given number of counters. """
     upper_bound = ncounters * 2 if upper_bound is None else upper_bound
     lang = generate_fstrips_counters_language(ncounters=ncounters, upper_bound=upper_bound)
 
     problem = create_fstrips_problem(domain_name=BASE_DOMAIN_NAME, problem_name='test-instance', language=lang)
-    counter_t = lang.get_sort('counter')
-    counters = sorted(counter_t.domain(), key=lambda x: x.symbol)
+    counters = sorted(lang.ns.counter.domain(), key=lambda x: x.symbol)
 
     value = lang.get_function('value')
     max_int = lang.get_function('max_int')
@@ -58,3 +57,13 @@ def generate_fstrips_counters_problem(ncounters=3, upper_bound=None):
         problem.init.set(value, c, 0)
 
     return problem
+
+
+def get_counters_elements(ncounters=3):
+    """ This is just a simple helper method to generate and return all relevant elements of the problem, for easier
+     access. """
+    problem = generate_fstrips_counters_problem(ncounters=ncounters)
+    lang = problem.language
+
+    counters = sorted(lang.ns.counter.domain(), key=lambda x: x.symbol)
+    return [problem, lang, lang.ns.value, lang.ns.max_int] + counters

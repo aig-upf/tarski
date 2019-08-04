@@ -131,13 +131,14 @@ class Model:
         return atoms
 
     def __getitem__(self, arg):
+        if self.evaluator is None:
+            raise ModelWithoutEvaluatorError(arg)
+
         try:
             expr, sigma = arg
             return self.evaluator(expr, self, sigma)
-        except ValueError:
+        except (ValueError, TypeError):
             # MRJ: This for expression that have the __getitem__ operator overloaded
-            return self.evaluator(arg, self)
-        except TypeError:
             return self.evaluator(arg, self)
 
 
@@ -169,3 +170,10 @@ def wrap_tuple(tup):
 def unwrap_tuple(tup):
     """ Create a tuple of Tarski terms from a tuple of Term references"""
     return tuple(ref.expr for ref in tup)
+
+
+class ModelWithoutEvaluatorError(err.SemanticError):
+    def __init__(self, exp):
+        super().__init__(f'Attempted to evaluate expression "{exp}" on a model with no attached evaluator. '
+                         f'Please set some evaluator into the model before attempting such evaluations')
+

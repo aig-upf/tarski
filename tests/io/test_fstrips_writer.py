@@ -1,12 +1,15 @@
 import tempfile
 
 import tarski.fstrips as fs
+from tarski.benchmarks.counters import get_counters_elements
 from tarski.fstrips import AddEffect, DelEffect, FunctionalEffect, UniversalEffect
 from tarski.io import FstripsWriter
-from tarski.io.fstrips import print_effects, print_effect, print_objects, print_metric
+from tarski.io.fstrips import print_effects, print_effect, print_objects, print_metric, print_formula, print_term
+from tarski.syntax import forall, exists
 
 from tests.common.blocksworld import generate_small_fstrips_bw_problem
 from tests.common import parcprinter
+from tests.io.common import reader
 from ..common.gridworld import generate_small_gridworld
 
 
@@ -16,12 +19,38 @@ def write_problem(problem):
     writer = FstripsWriter(problem)
     writer.write(domain_filename=domain_filename.name,
                  instance_filename=instance_filename.name)
+    return domain_filename, instance_filename
 
 
 def get_bw_elements():
     problem = generate_small_fstrips_bw_problem()
     loc, clear, b1, table = problem.language.get("loc", "clear", "b1", "table")
     return problem, loc, clear, b1, table
+
+
+def test_formula_writing1():
+    problem, loc, clear, b1, table = get_bw_elements()
+    lang = problem.language
+
+    assert print_formula(clear(b1)) == "(clear b1)"
+    assert print_formula(loc(b1) == table) == "(= (loc b1) table)"
+    assert print_formula(loc(b1) != table) == "(not (= (loc b1) table))"
+
+    assert print_formula(clear(b1) | clear(table)) == "(or (clear b1) (clear table))"
+
+    b = lang.variable('B', lang.ns.block)
+    assert print_formula(forall(b, clear(b))) == "(forall (?B - block) (clear ?B))"
+    assert print_formula(exists(b, clear(b))) == "(exists (?B - block) (clear ?B))"
+
+
+def test_formula_writing2():
+    problem, lang, value, max_int, c1, c2 = get_counters_elements(ncounters=2)
+
+    assert print_term(value(c1)) == "(value c1)"
+
+    assert print_formula(value(c1) <= max_int()) == '(<= (value c1) (max_int ))'
+    assert print_formula(value(c1) > value(c2)) == '(> (value c1) (value c2))'
+    assert print_formula(value(c1) != 0) == '(not (= (value c1) 0))'
 
 
 def test_effect_writing():
@@ -74,7 +103,11 @@ def test_gridworld_writing():
 
 def test_blocksworld_writing():
     problem, _, _, _, _ = get_bw_elements()
-    write_problem(problem)
+    domf, instf = write_problem(problem)
+
+    # Make sure that the printed-out problem can be parsed again
+    problem2 = reader().read_problem(domf.name, instf.name)
+    assert len(problem.actions) == len(problem2.actions)  # Some silly checks
 
 
 def test_blocksworld_writing_with_different_constants():
