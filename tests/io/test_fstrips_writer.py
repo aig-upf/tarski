@@ -2,9 +2,10 @@ import tempfile
 from typing import Optional, List
 
 import tarski.fstrips as fs
-from tarski.benchmarks.counters import get_counters_elements
+from tarski.benchmarks.counters import get_counters_elements, generate_fstrips_counters_problem
 from tarski.fstrips import AddEffect, DelEffect, FunctionalEffect, UniversalEffect
 from tarski.io import FstripsWriter
+from tarski.io._fstrips.common import get_requirements_string
 from tarski.io.fstrips import print_effects, print_effect, print_objects, print_metric, print_formula, print_term
 from tarski.syntax import forall, exists, Constant
 
@@ -131,11 +132,18 @@ def test_blocksworld_writing_with_different_constants():
     )""" in instance_model_string
 
 
-def test_action_costs_numeric_fluents_requirements():
+def test_requirements_string():
     problem = parcprinter.create_small_task()
-    writer = FstripsWriter(problem)
 
     # action costs should be required if there is a metric defined.
-    domain_string = writer.print_domain()
-    assert 'numeric-fluents' not in domain_string
-    assert 'action-costs' in domain_string
+    reqs = get_requirements_string(problem)
+    assert ':numeric-fluents' not in reqs
+    assert ':action-costs' in reqs
+    assert ':equality' in reqs
+
+    problem, loc, clear, b1, table = get_bw_elements()
+    assert sorted(get_requirements_string(problem)) == [':equality', ':typing']
+
+    problem = generate_fstrips_counters_problem()
+    assert sorted(get_requirements_string(problem)) == [':equality', ':numeric-fluents', ':typing']
+
