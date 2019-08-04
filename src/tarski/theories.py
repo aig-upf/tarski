@@ -24,11 +24,6 @@ def language(name='L', theories=None):
     """ Build a language with the given name and configure it with the given theories """
     theories = theories or []
     lang = FirstOrderLanguage(name)
-    theories_requiring_arithmetic_sorts = {
-        Theory.ARITHMETIC, Theory.SPECIAL, Theory.RANDOM
-    }
-    if any(t in theories_requiring_arithmetic_sorts for t in theories):
-        attach_arithmetic_sorts(lang)
     _ = [load_theory(lang, t) for t in theories]
     return lang
 
@@ -46,6 +41,12 @@ def load_theory(lang, theory):
     loader = loaders.get(theory)
     if loader is None:
         raise err.UnknownTheory(theory)
+
+    theories_requiring_arithmetic_sorts = {
+        Theory.ARITHMETIC, Theory.SPECIAL, Theory.RANDOM
+    }
+    if theory in theories_requiring_arithmetic_sorts and not lang.has_sort('Integer'):
+        attach_arithmetic_sorts(lang)
 
     loader(lang)
     lang.theories.append(theory)
