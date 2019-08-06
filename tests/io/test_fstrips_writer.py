@@ -8,6 +8,7 @@ from tarski.io import FstripsWriter
 from tarski.io._fstrips.common import get_requirements_string
 from tarski.io.fstrips import print_effects, print_effect, print_objects, print_metric, print_formula, print_term
 from tarski.syntax import forall, exists, Constant
+from tarski.theories import Theory
 
 from tests.common.blocksworld import generate_small_fstrips_bw_problem
 from tests.common import parcprinter
@@ -92,7 +93,7 @@ def test_objects_writing():
 
 
 def test_metric_writing():
-    lang = fs.language('lang')
+    lang = fs.language('lang', theories=[Theory.ARITHMETIC])
     cost = lang.function('total-cost', lang.Real)
     metric = fs.OptimizationMetric(cost(), fs.OptimizationType.MINIMIZE)
     metric_string = print_metric(metric)
@@ -136,10 +137,7 @@ def test_requirements_string():
     problem = parcprinter.create_small_task()
 
     # action costs should be required if there is a metric defined.
-    reqs = get_requirements_string(problem)
-    assert ':numeric-fluents' not in reqs
-    assert ':action-costs' in reqs
-    assert ':equality' in reqs
+    assert sorted(get_requirements_string(problem)) == [':action-costs', ':equality', ':numeric-fluents', ':typing']
 
     problem, loc, clear, b1, table = get_bw_elements()
     assert sorted(get_requirements_string(problem)) == [':equality', ':typing']

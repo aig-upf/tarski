@@ -14,20 +14,25 @@ from tarski.syntax.algebra import Matrix
 from ..common import numeric
 
 
+def test_language_creation():
+    lang = theories.language()
+    sorts = sorted(x.name for x in lang.sorts)
+    assert sorts == ['object']
+
+    lang = fstrips.language("test", theories=[])
+    sorts = sorted(x.name for x in lang.sorts)
+    assert sorts == ['object']
+
+    lang = fstrips.language("test")
+    sorts = sorted(x.name for x in lang.sorts)
+    assert sorts == ['object']  # The default equality theory should not import the arithmetic sorts either
+
+
 def test_builtin_constants():
-    lang = fstrips.language()
+    lang = fstrips.language(theories=[Theory.ARITHMETIC])
     ints = lang.Integer
     two = lang.constant(2, ints)
     assert isinstance(two, Constant), "two should be the constant 2, not the integer value 2"
-
-
-def test_arithmetic_terms_fails_without_import():
-    lang = fstrips.language()
-    ints = lang.Integer
-    two, three = lang.constant(2, ints), lang.constant(3, ints)
-    with pytest.raises(err.LanguageError):
-        # This should raise TypeError as the arithmetic module has not been loaded
-        _ = two + three
 
 
 def test_arithmetic_term_plus_float_lit_is_term():
@@ -50,7 +55,7 @@ def test_arithmetic_terms_does_not_fail_with_load_theory():
 
 
 def test_load_arithmetic_module_fails_when_language_frozen():
-    lang = fstrips.language()
+    lang = fstrips.language(theories=[Theory.ARITHMETIC])
     ints = lang.Integer
     two, three = lang.constant(2, ints), lang.constant(3, ints)
 
@@ -168,7 +173,7 @@ def test_duplicate_detection_and_global_getter():
 
 
 def test_term_refs():
-    lang = fstrips.language()
+    lang = fstrips.language(theories=[Theory.ARITHMETIC])
     _ = lang.function('f', lang.Object, lang.Integer)
     o1 = lang.constant("o1", lang.Object)
     o2 = lang.constant("o2", lang.Object)
@@ -200,7 +205,7 @@ def test_object_function_arity():
 
 
 def test_term_refs_compound():
-    lang = fstrips.language()
+    lang = fstrips.language(theories=[Theory.ARITHMETIC])
     f = lang.function('f', lang.Object, lang.Integer)
     o1 = lang.constant("o1", lang.Object)
     o2 = lang.constant("o2", lang.Object)

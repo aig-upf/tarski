@@ -338,7 +338,7 @@ def test_predicate_extensions():
 
 
 def test_predicate_without_equality():
-    lang = tarski.language(theories=[])
+    lang = tarski.language(theories=[Theory.ARITHMETIC])
     leq = lang.predicate('leq', lang.Integer, lang.Integer)
     f = lang.function('f', lang.Object, lang.Integer)
     o1 = lang.constant("o1", lang.Object)
@@ -411,7 +411,7 @@ def test_model_as_atoms():
 def test_predicate_without_equality_reals():
     import numpy
 
-    lang = tarski.language(theories=[])
+    lang = tarski.language(theories=[Theory.ARITHMETIC])
     leq = lang.predicate('leq', lang.Real, lang.Real)
     w = lang.function('w', lang.Object, lang.Real)
     o1 = lang.constant("o1", lang.Object)

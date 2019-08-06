@@ -190,3 +190,9 @@ def build_the_reals(lang):
     reals.builtin = True
     # the_reals.pi = scipy.constants.pi
     return reals
+
+
+def attach_arithmetic_sorts(lang):
+    real_t = lang.attach_sort(build_the_reals(lang), lang.ns.object)
+    int_t = lang.attach_sort(build_the_integers(lang), real_t)
+    _ = lang.attach_sort(build_the_naturals(lang), int_t)
