@@ -1,6 +1,6 @@
 
 from enum import Enum
-from typing import List, Callable, Any
+from typing import Union, List, Optional, Callable, Any
 
 from ..syntax import CompoundTerm, Term, Constant, symref, top
 from .. import theories as ths
@@ -287,13 +287,12 @@ class OptimizationMetric:
         self.opt_type = opt_type
 
 
-def language(name="Unnamed FOL Language", theories=None):
+def language(name="Unnamed FOL Language", theories: Optional[List[Union[str, ths.Theory]]] = None):
     """ Create an FSTRIPS-oriented First-Order Language.
         This is a standard FOL with a few convenient add-ons.
     """
     # By default, when defining a FSTRIPS problem we use FOL with equality
-    if theories is None:
-        theories = [ths.Theory.EQUALITY]
+    theories = ['equality'] if theories is None else theories
     lang = ths.language(name, theories)
     lang.register_operator_handler("<<", Term, Term, FunctionalEffect)
     lang.register_operator_handler(">>", Term, Term, lambda lhs, rhs: FunctionalEffect(rhs, lhs))  # Inverted
