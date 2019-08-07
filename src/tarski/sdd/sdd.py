@@ -299,9 +299,28 @@ def compile_action_schema(problem, statics, action, data, max_size, conjoin_with
         # Condition the precondition formula to the initial state
         # see https://pysdd.readthedocs.io/en/latest/examples/conditioning.htm
         app = reduce(manager.conjoin, pysdd_s0, sdd_pre)
-        wmc = app.wmc(log_mode=False)
-        wmc.propagate()
+        # wmc = app.wmc(log_mode=False)
+        # wmc.propagate()
         data['A(s0)'] += [app.model_count()]
+
+        act_str = action.ident()
+        try:
+            for i, model in enumerate(app.models(), start=1):
+
+                binding = dict()
+                for parameter, selectatoms in selects.items():
+                    chosen = [selatom for selatom in selectatoms if model[symbols[selatom]] == 1]
+                    assert len(chosen) == 1
+                    assert parameter not in binding
+                    binding[parameter] = chosen[0].subterms[1].symbol
+
+                groundaction_string = act_str  # An inefficient and dirty hack to get the name of the ground action :-)
+                for x, v in binding.items():
+                    groundaction_string = groundaction_string.replace(x, v)
+                print(f'Model #{i} maps to applicable ground action {groundaction_string}')
+        except ValueError:
+            print(f'No more models found for action {act_str}')
+
     return manager, sdd_pre
 
 
@@ -365,7 +384,7 @@ def setup_false_sdd_manager():
     return manager, precondition
 
 
-def process_problem(problem, max_size=20000000, serialization_directory=None):
+def process_problem(problem, max_size=20000000, serialization_directory=None, conjoin_with_init=False):
     # Make sure the initial state has some associated evaluator:
     problem.init.evaluator = problem.init.evaluator or evaluate
 
@@ -374,7 +393,8 @@ def process_problem(problem, max_size=20000000, serialization_directory=None):
     _, statics = classify_symbols(problem)
 
     for action in actions:
-        manager, node = compile_action_schema(problem, statics, action, data, max_size)
+        manager, node = compile_action_schema(problem, statics, action, data, max_size,
+                                              conjoin_with_init=conjoin_with_init)
 
         if serialization_directory is not None:
             if not Path(serialization_directory).is_dir():
