@@ -8,7 +8,7 @@ class Sort:
         but the same name). Hence, implementation-wise, we can hash and compare them based on name alone.
     """
     def __init__(self, name, language, builtin=False):
-        self._name = name
+        self.name = name
         self.language = language
         self._domain = set()
         self.builtin = builtin
@@ -28,10 +28,6 @@ class Sort:
 
     def __eq__(self, other):
         return self.name == other.name and self.language == other.language
-
-    @property
-    def name(self):
-        return self._name
 
     def contains(self, x):
         """ Return true iff the current sort contains a constant with the given value  """
@@ -56,7 +52,7 @@ class Sort:
         return len(self._domain)
 
     def dump(self):
-        return dict(name=self._name,
+        return dict(name=self.name,
                     domain=list(self._domain))  # Copy the list
 
     def extend(self, constant):
@@ -194,3 +190,9 @@ def build_the_reals(lang):
     reals.builtin = True
     # the_reals.pi = scipy.constants.pi
     return reals
+
+
+def attach_arithmetic_sorts(lang):
+    real_t = lang.attach_sort(build_the_reals(lang), lang.ns.object)
+    int_t = lang.attach_sort(build_the_integers(lang), real_t)
+    _ = lang.attach_sort(build_the_naturals(lang), int_t)

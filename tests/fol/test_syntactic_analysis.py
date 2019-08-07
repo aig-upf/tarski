@@ -1,6 +1,6 @@
 
 from tarski.syntax import neg, land, lor, exists, symref, forall, Variable, Constant, Atom
-from tarski.syntax.ops import free_variables, flatten, collect_unique_nodes
+from tarski.syntax.ops import free_variables, flatten, collect_unique_nodes, all_variables
 from tests.common import tarskiworld
 from tests.common.blocksworld import generate_bw_loc_and_clear
 
@@ -19,12 +19,14 @@ def test_symbol_ref_in_sets_equality_is_exact_syntactic_match():
     assert len(S) == 0
 
 
-def test_detect_free_variables():
+def test_variables_classification():
     tw = tarskiworld.create_small_world()
     x = tw.variable('x', tw.Object)
     y = tw.variable('y', tw.Object)
     s = neg(land(tw.Cube(x), exists(y, land(tw.Tet(x), tw.LeftOf(x, y)))))
-    assert len(free_variables(s)) == 1
+    free = free_variables(s)
+    assert len(free) == 1 and symref(free[0]) == symref(x)
+    assert len(all_variables(s)) == 2
 
 
 def test_formula_flattening():

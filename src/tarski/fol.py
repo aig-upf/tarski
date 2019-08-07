@@ -5,13 +5,8 @@ from collections import defaultdict, OrderedDict
 from typing import Union
 
 from . import errors as err
-from .syntax import Function, Constant, Variable, Sort, inclusion_closure, Predicate, Interval, sorts
+from .syntax import Function, Constant, Variable, Sort, inclusion_closure, Predicate, Interval
 from .syntax.algebra import Matrix
-
-
-def language(name='Tarski FOL'):
-    """ A helper to construct languages"""
-    return FirstOrderLanguage(name)
 
 
 class FirstOrderLanguage:
@@ -40,7 +35,7 @@ class FirstOrderLanguage:
         self.language_components_frozen = False
         self.theories = []
 
-        self._build_builtin_sorts()
+        self._attach_object_sort()
 
     def __deepcopy__(self, memo):
         """ At the moment we forbid deep copies of this class, as they might be too expensive"""
@@ -58,8 +53,7 @@ class FirstOrderLanguage:
 
     @property
     def sorts(self):
-        for s in self._sorts.values():
-            yield s
+        return self._sorts.values()
 
     @property
     def predicates(self):
@@ -69,55 +63,33 @@ class FirstOrderLanguage:
     def functions(self):
         return self._functions.values()
 
-    @property
-    def Object(self):
-        return self._sorts['object']
-
-    @property
-    def Real(self):
-        return self._sorts['Real']
-
-    @property
-    def Integer(self):
-        return self._sorts['Integer']
-
-    @property
-    def Natural(self):
-        return self._sorts['Natural']
-
-    def _build_builtin_sorts(self):
-        self._build_the_objects()
-        self._build_the_reals()
-        self._build_the_integers()
-        self._build_the_naturals()
-
-    def _build_the_reals(self):
-        the_reals = sorts.build_the_reals(self)
-        self._sorts['Real'] = the_reals
-        self.set_parent(the_reals, self.Object)
-        # self.create_builtin_predicates(the_reals)
-        self._global_index['Real'] = the_reals
-
-    def _build_the_integers(self):
-        the_ints = sorts.build_the_integers(self)
-        self._sorts['Integer'] = the_ints
-        self.set_parent(the_ints, self.Real)
-        # self.create_builtin_predicates(the_ints)
-        self._global_index['Integer'] = the_ints
-
-    def _build_the_naturals(self):
-        the_nats = sorts.build_the_naturals(self)
-        self._sorts['Natural'] = the_nats
-        self.set_parent(the_nats, self.Integer)
-        # self.create_builtin_predicates(the_nats)
-        self._global_index['Natural'] = the_nats
-
-    def _build_the_objects(self):
+    def _attach_object_sort(self):
+        """ The `object` sort, being the root of the sort hierarchy, needs a special treatment"""
         sort = Sort('object', self)
         self._sorts['object'] = sort
         self._global_index['object'] = sort
         self.immediate_parent[sort] = None
         self.ancestor_sorts[sort] = set()
+
+    @property
+    def Object(self):
+        """ A shorthand accessor. """
+        return self._sorts['object']
+
+    @property
+    def Real(self):
+        """ A shorthand accessor. """
+        return self.get_sort('Real')
+
+    @property
+    def Integer(self):
+        """ A shorthand accessor. """
+        return self.get_sort('Integer')
+
+    @property
+    def Natural(self):
+        """ A shorthand accessor. """
+        return self.get_sort('Natural')
 
     def sort(self, name: str, parent: Union[Sort, str, None] = None):
         """
@@ -128,16 +100,20 @@ class FirstOrderLanguage:
             Raises err.DuplicateSortDefinition if a sort with the same name already existed,
              or err.DuplicateDefinition if some non-sort element with the same name already existed.
         """
-        self._check_name_not_defined(name, self._sorts, err.DuplicateSortDefinition)
-
-        sort = Sort(name, self)
-        self._sorts[name] = sort
-        self._global_index[name] = sort
-
         parent = self.get_sort("object") if parent is None else self._retrieve_sort(parent)
+        return self.attach_sort(Sort(name, self), parent)
+
+    def attach_sort(self, sort: Sort, parent: Sort):
+        """ Attach a given sort to the language. For standard creation of sorts, better use `lang.sort()`. """
+        self._check_name_not_defined(sort.name, self._sorts, err.DuplicateSortDefinition)
+
+        # Register the sort itself
+        self._sorts[sort.name] = sort
+        self._global_index[sort.name] = sort
+
+        # Register the sort parent
         self.set_parent(sort, parent)
 
-        # self.create_builtin_predicates(sort)
         return sort
 
     def has_sort(self, name: str):
@@ -184,12 +160,12 @@ class FirstOrderLanguage:
 
         p = self.immediate_parent.get(sort, None)
         if p is not None:
-            raise err.LanguageError('Tried to set parent of sort "{}", which has already parent {}'.format(sort, p))
+            raise err.LanguageError(f'Tried to set parent of sort "{sort}", which has already parent {p}')
 
         self.immediate_parent[sort] = parent
         self.ancestor_sorts[sort].update(inclusion_closure(parent))
 
-    def _retrieve_sort(self, obj) -> Sort:
+    def _retrieve_sort(self, obj: Union[Sort, str]) -> Sort:
         return self._retrieve_object(obj, Sort)
 
     def _retrieve_object(self, obj, type_):

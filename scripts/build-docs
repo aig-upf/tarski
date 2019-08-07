@@ -1,0 +1,10 @@
+#!/bin/sh -ex
+
+BUILD_DIR=`pwd`/docs/_build
+
+# Apparently the (dated) version of pandoc in the xenial repos needs the HOME variable to be set explicitly here
+# This could be lifted once we bump up the Ubuntu image used in the travis configuration
+sphinx-build --version
+
+HOME=`pwd` sphinx-build docs ${BUILD_DIR} --color -W -bhtml
+echo "Docs available on file://${BUILD_DIR}/index.html"

@@ -75,5 +75,3 @@ def test_symbol_classification_in_gripper():
 
     fluent, static = classify_symbols(prob, include_builtin=True)
     assert (len(fluent), len(static)) == (4, 5)  # Same as before plus "=" and "!="
-
-

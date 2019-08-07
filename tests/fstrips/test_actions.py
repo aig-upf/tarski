@@ -2,6 +2,7 @@ import pytest
 
 from tarski import fstrips as fs
 from tarski.syntax import *
+from tarski.theories import Theory
 
 from ..common import blocksworld
 
@@ -41,7 +42,7 @@ def test_functional_effect_valid_creation():
 
 
 def test_increase_effect_valid_creation():
-    lang = fs.language('lang')
+    lang = fs.language('lang', theories=[Theory.EQUALITY, Theory.ARITHMETIC])
     lang.total_cost = lang.function('total-cost', lang.Real)
     eff = fs.IncreaseEffect(lang.total_cost(), 5)
 

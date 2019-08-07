@@ -68,7 +68,7 @@ class Model:
         definition.set(point, value)
 
     def set(self, fun, *args):
-        """ Set the value of fucntion 'fun' at point 'point' to be equal to 'value'
+        """ Set the value of function 'fun' at point 'point' to be equal to 'value'
             'point' needs to be a tuple of constants, and value a single constant.
         """
         if not isinstance(fun, Function):
@@ -131,6 +131,9 @@ class Model:
         return atoms
 
     def __getitem__(self, arg):
+        if self.evaluator is None:
+            raise ModelWithoutEvaluatorError(arg)
+
         try:
             expr, sigma = arg
             return self.evaluator(expr, self, sigma)
@@ -167,3 +170,10 @@ def wrap_tuple(tup):
 def unwrap_tuple(tup):
     """ Create a tuple of Tarski terms from a tuple of Term references"""
     return tuple(ref.expr for ref in tup)
+
+
+class ModelWithoutEvaluatorError(err.SemanticError):
+    def __init__(self, exp):
+        super().__init__(f'Attempted to evaluate expression "{exp}" on a model with no attached evaluator. '
+                         f'Please set some evaluator into the model before attempting such evaluations')
+

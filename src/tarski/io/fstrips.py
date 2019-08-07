@@ -1,10 +1,11 @@
 import logging
 from collections import defaultdict
+from typing import Optional, List
 
 from .common import load_tpl
 from ..model import ExtensionalFunctionDefinition
 from ..syntax import Tautology, Contradiction, Atom, CompoundTerm, CompoundFormula, QuantifiedFormula, \
-    Term, Variable, Constant, Formula
+    Term, Variable, Constant, Formula, symref, BuiltinPredicateSymbol
 from ..syntax.sorts import parent, Interval, ancestors
 
 from ._fstrips.common import tarski_to_pddl_type, get_requirements_string
@@ -151,12 +152,18 @@ class FstripsWriter:
         self.problem = problem
         self.lang = problem.language
 
-    def write(self, domain_filename, instance_filename, domain_constants=None):
+    def write(self, domain_filename, instance_filename, domain_constants: Optional[List[Constant]] = None):
         domain_constants = domain_constants or []
         self.write_domain(domain_filename, domain_constants)
         self.write_instance(instance_filename, domain_constants)
 
-    def print_domain(self, constant_objects=None):
+    def print_domain(self, constant_objects: Optional[List[Constant]] = None):
+        """ Generate the PDDL string representation that would correspond to the domain.pddl file of the current
+        planning problem.
+        The parameter `constant_objects` is used to determine which of the PDDL objects are printed as "PDDL domain
+        constants", and which as "PDDL instance objects", which is something that cannot be determined from the problem
+        information alone. If `constant_objects` is None, all objects are considered instance objects.
+        """
         tpl = load_tpl("fstrips_domain.tpl")
         content = tpl.format(
             header_info="",
@@ -167,7 +174,7 @@ class FstripsWriter:
             predicates=self.get_predicates(),
             actions=self.get_actions(),
             derived=self.get_derived_predicates(),
-            constants=print_objects(constant_objects if constant_objects else set()),
+            constants=print_objects(constant_objects if constant_objects else []),
         )
         return content
 
@@ -175,12 +182,18 @@ class FstripsWriter:
         with open(filename, 'w') as file:
             file.write(self.print_domain(constant_objects))
 
-    def print_instance(self, constant_objects=None):
+    def print_instance(self, constant_objects: Optional[List[Constant]] = None):
+        """ Generate the PDDL string representation that would correspond to the instance.pddl file of the current
+        planning problem.
+        The parameter `constant_objects` is used to determine which of the PDDL objects are printed as "PDDL domain
+        constants", and which as "PDDL instance objects", which is something that cannot be determined from the problem
+        information alone. If `constant_objects` is None, all objects are considered instance objects.
+        """
         tpl = load_tpl("fstrips_instance.tpl")
 
         # Only objects which are not declared in the domain file need to be printed in the instance file
-        constant_objs_set = set(constant_objects) if constant_objects else set()
-        instance_objects = [c for c in self.problem.language.constants() if c not in constant_objs_set]
+        constants = {symref(c) for c in constant_objects} if constant_objects else set()
+        instance_objects = [c for c in self.problem.language.constants() if symref(c) not in constants]
 
         content = tpl.format(
             header_info="",
@@ -260,11 +273,15 @@ def build_signature_string(domain):
     if not domain:
         return ""
 
-    return " ".join("?x{} - {}".format(i, tarski_to_pddl_type(t)) for i, t in enumerate(domain, 1))
+    return " ".join(f"{print_variable_name(f'x{i}')} - {tarski_to_pddl_type(t)}" for i, t in enumerate(domain, 1))
+
+
+def print_variable_name(name: str):
+    return name if name.startswith("?") else f'?{name}'
 
 
 def print_variable_list(parameters):
-    return " ".join("?{} - {}".format(p.symbol, p.sort.name) for p in parameters)
+    return " ".join(f"{print_variable_name(p.symbol)} - {p.sort.name}" for p in parameters)
 
 
 def print_formula(formula, indentation=0):
@@ -326,7 +343,7 @@ def print_effect(eff, indentation=0):
 def print_term(term):
     assert isinstance(term, Term)
     if isinstance(term, Variable):
-        return "?{}".format(term.symbol)
+        return print_variable_name(term.symbol)
     elif isinstance(term, CompoundTerm):
         return "({} {})".format(term.symbol.symbol, print_term_list(term.subterms))
     elif isinstance(term, Constant):
@@ -334,9 +351,16 @@ def print_term(term):
     raise RuntimeError("Unexpected element type: {}".format(term))
 
 
-def print_atom(atom):
+def print_atom(atom: Atom):
     assert isinstance(atom, Atom)
-    return "({} {})".format(atom.predicate.symbol, print_term_list(atom.subterms))
+    symbol = atom.predicate.symbol
+    subterms = print_term_list(atom.subterms)
+
+    if symbol == BuiltinPredicateSymbol.NE:
+        # The built-in != needs a special treatment to be printed as (not (= ...))
+        return f"(not (= {subterms}))"
+
+    return f"({symbol} {subterms})"
 
 
 def print_term_list(terms):

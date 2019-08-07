@@ -1,30 +1,22 @@
 
 from enum import Enum
-from typing import List
+from typing import Union, List, Optional, Callable, Any
 
-from ..syntax import Tautology, CompoundTerm, Term, Constant, symref
-from .errors import InvalidEffectError
+from ..syntax import CompoundTerm, Term, Constant, symref, top
 from .. import theories as ths
+from .errors import InvalidEffectError
 
 
-class UniversalEffect:
-    """ A forall-effect """
-
-    def __init__(self, variables, effects, condition=Tautology()):
-        self.variables = variables
-        self.effects = effects
-        self.condition = condition
-
-    def __str__(self):
-        return "forall ({}) : ({})".format(self.variables, ', '.join(map(str, self.effects)))
-
-    __repr__ = __str__
-
-
-class SingleEffect:
+class BaseEffect:
+    """ A base class for all possible effects. """
     def __init__(self, condition):
         self.condition = condition
 
+    def __str__(self):
+        raise NotImplementedError()
+
+
+class SingleEffect(BaseEffect):
     def __str__(self):
         return "({} -> {})".format(self.condition, self.tostring())
 
@@ -35,7 +27,7 @@ class SingleEffect:
 
 
 class AddEffect(SingleEffect):
-    def __init__(self, atom, condition=Tautology()):
+    def __init__(self, atom, condition=top):
         super().__init__(condition)
         self.atom = atom
 
@@ -44,7 +36,7 @@ class AddEffect(SingleEffect):
 
 
 class DelEffect(SingleEffect):
-    def __init__(self, atom, condition=Tautology()):
+    def __init__(self, atom, condition=top):
         super().__init__(condition)
         self.atom = atom
 
@@ -53,7 +45,7 @@ class DelEffect(SingleEffect):
 
 
 class LiteralEffect(SingleEffect):
-    def __init__(self, lit, condition=Tautology()):
+    def __init__(self, lit, condition=top):
         super().__init__(condition)
         self.lit = lit
 
@@ -62,7 +54,7 @@ class LiteralEffect(SingleEffect):
 
 
 class FunctionalEffect(SingleEffect):
-    def __init__(self, lhs, rhs, condition=Tautology()):
+    def __init__(self, lhs, rhs, condition=top):
         super().__init__(condition)
         self.lhs = lhs
         self.rhs = rhs
@@ -83,8 +75,24 @@ class FunctionalEffect(SingleEffect):
         return "{} := {}".format(self.lhs, self.rhs)
 
 
+class UniversalEffect(BaseEffect):
+    """ A forall-effect. """
+
+    def __init__(self, variables, effects, condition=top):
+        super().__init__(condition)
+        self.variables = variables
+        self.effects = effects
+        self.condition = condition
+
+    def __str__(self):
+        effects_str = ', '.join(map(str, self.effects))
+        return f"({self.condition} -> forall ({self.variables}) : ({effects_str}))"
+
+    __repr__ = __str__
+
+
 class IncreaseEffect(FunctionalEffect):
-    def __init__(self, lhs, rhs, condition=Tautology()):
+    def __init__(self, lhs, rhs, condition=top):
         super().__init__(lhs, rhs, condition)
 
         # MRJ: normalise rhs so it is easier to handle later on
@@ -117,7 +125,7 @@ class OptimizationType(Enum):
 class ProceduralEffect(SingleEffect):
 
     def __init__(self, input_: List[CompoundTerm], output: List[CompoundTerm]):
-        super().__init__(Tautology())
+        super().__init__(top)
         self.input = input_
         self.output = output
 
@@ -128,7 +136,7 @@ class ProceduralEffect(SingleEffect):
 
 class ChoiceEffect(SingleEffect):
 
-    def __init__(self, obj_type: OptimizationType, obj, variables: List[CompoundTerm], constraints=Tautology()):
+    def __init__(self, obj_type: OptimizationType, obj, variables: List[CompoundTerm], constraints=top):
         super().__init__(constraints)
         # MRJ: verify the effect is well formed
         self.obj = obj
@@ -151,7 +159,7 @@ class ChoiceEffect(SingleEffect):
 class VectorisedEffect(SingleEffect):
     """ Action effects that modify the denotation of a vector (tuple) of terms """
 
-    def __init__(self, lhs, rhs, condition=Tautology()):
+    def __init__(self, lhs, rhs, condition=top):
         super().__init__(condition)
         self.lhs = lhs
         self.rhs = rhs
@@ -188,7 +196,7 @@ class LinearEffect(SingleEffect):
             Ax + b
     """
 
-    def __init__(self, y, a, x, b, condition=Tautology()):
+    def __init__(self, y, a, x, b, condition=top):
         super().__init__(condition)
         self.y = y
         self.A = a
@@ -241,7 +249,7 @@ class BlackBoxEffect(SingleEffect):
         Black box functional effect
     """
 
-    def __init__(self, lhs, f, condition=Tautology()):
+    def __init__(self, lhs, f, condition=top):
         super().__init__(condition)
         self.lhs = lhs
         self.function = f
@@ -279,14 +287,35 @@ class OptimizationMetric:
         self.opt_type = opt_type
 
 
-def language(name="Unnamed FOL Language", theories=None):
+def language(name="Unnamed FOL Language", theories: Optional[List[Union[str, ths.Theory]]] = None):
     """ Create an FSTRIPS-oriented First-Order Language.
         This is a standard FOL with a few convenient add-ons.
     """
     # By default, when defining a FSTRIPS problem we use FOL with equality
-    if theories is None:
-        theories = [ths.Theory.EQUALITY]
+    theories = ['equality'] if theories is None else theories
     lang = ths.language(name, theories)
     lang.register_operator_handler("<<", Term, Term, FunctionalEffect)
     lang.register_operator_handler(">>", Term, Term, lambda lhs, rhs: FunctionalEffect(rhs, lhs))  # Inverted
     return lang
+
+
+def visit_effect(effect, callback: Callable[[Any], None]):
+    """ Visit all nodes in the AST of the given effect, down to formulas and terms. """
+    callback(effect)
+    callback(effect.condition)  # All our effects have a condition
+
+    if isinstance(effect, (AddEffect, DelEffect)):
+        callback(effect.atom)
+    elif isinstance(effect, LiteralEffect):
+        callback(effect.lit)
+    elif isinstance(effect, FunctionalEffect):
+        callback(effect.lhs)
+        callback(effect.rhs)
+    elif isinstance(effect, UniversalEffect):
+        _ = [callback(x) for x in effect.variables]
+        _ = [visit_effect(x, callback) for x in effect.effects]
+    elif isinstance(effect, ProceduralEffect):
+        _ = [callback(x) for x in effect.input]
+        _ = [callback(x) for x in effect.output]
+    else:
+        raise RuntimeError(f'Unexpected type "{type(effect)}" for expression "{effect}"')

@@ -15,6 +15,7 @@ from tarski.syntax.sorts import parent, ancestors
 #
 #     lang.constant('Miquel', s)
 #     lang.check_well_formed()
+from tarski.theories import Theory
 
 
 def test_object_type():
@@ -79,7 +80,7 @@ def get_children_parent_types():
 
 
 def test_ints():
-    lang = tsk.fstrips.language()
+    lang = tsk.fstrips.language(theories=[Theory.ARITHMETIC])
     ints = lang.Integer
     assert ints.contains(1)
     assert ints.contains(0)
@@ -89,7 +90,7 @@ def test_ints():
 
 
 def test_naturals():
-    lang = tsk.fstrips.language()
+    lang = tsk.fstrips.language(theories=[Theory.ARITHMETIC])
     nats = lang.Natural
     assert nats.contains(999)
     assert not nats.contains(-12)
@@ -97,20 +98,20 @@ def test_naturals():
 
 
 def test_reals():
-    lang = tsk.fstrips.language()
+    lang = tsk.fstrips.language(theories=[Theory.ARITHMETIC])
     reals = lang.Real
     assert reals.contains(1000.36)
     assert reals.contains(-17)
 
 
 def test_integer_subtypes():
-    lang = tsk.fstrips.language()
+    lang = tsk.fstrips.language(theories=[Theory.ARITHMETIC])
     nats = lang.Natural
     _ = lang.sort("counter", nats)
 
 
 def test_interval_types_valid():
-    lang = tsk.fstrips.language()
+    lang = tsk.fstrips.language(theories=[Theory.ARITHMETIC])
     int_t = lang.Integer
     interval_sort = lang.interval('I', int_t, 0, 10)
     assert interval_sort.lower_bound == 0
@@ -119,14 +120,14 @@ def test_interval_types_valid():
 
 
 def test_interval_types_invalid():
-    lang = tsk.fstrips.language()
+    lang = tsk.fstrips.language(theories=[Theory.ARITHMETIC])
     int_t = lang.Integer
     with pytest.raises(err.SemanticError):
         _ = lang.interval('I', int_t, 10, 0)
 
 
 def test_interval_types_create_valid_constant():
-    lang = tsk.fstrips.language()
+    lang = tsk.fstrips.language(theories=[Theory.ARITHMETIC])
     int_t = lang.Integer
     interval_sort = lang.interval('I', int_t, 0, 10)
     ii = tsk.syntax.Constant(3, interval_sort)
@@ -134,7 +135,7 @@ def test_interval_types_create_valid_constant():
 
 
 def test_interval_types_create_invalid_constant():
-    lang = tsk.fstrips.language()
+    lang = tsk.fstrips.language(theories=[Theory.ARITHMETIC])
     int_t = lang.Integer
     interval_sort = lang.interval('I', int_t, 0, 10)
     with pytest.raises(ValueError):
@@ -142,7 +143,7 @@ def test_interval_types_create_invalid_constant():
 
 
 def test_interval_types_create_invalid_constant2():
-    lang = tsk.fstrips.language()
+    lang = tsk.fstrips.language(theories=[Theory.ARITHMETIC])
     int_t = lang.Integer
     interval_sort = lang.interval('I', int_t, 0, 10)
     with pytest.raises(ValueError):

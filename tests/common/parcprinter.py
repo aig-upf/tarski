@@ -10,7 +10,7 @@ from tarski.evaluators.simple import evaluate
 
 
 def create_small_language():
-    upp = tsk.fstrips.language("upp", theories=[Theory.EQUALITY])
+    upp = tsk.fstrips.language("upp", theories=[Theory.EQUALITY, Theory.ARITHMETIC])
 
     upp.sheet_t = upp.sort('sheet_t')
     upp.resource_t = upp.sort('resource_t')
