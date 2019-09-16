@@ -49,15 +49,15 @@ def create_sample_problem():
     from_, to, o, r, g = [lang.variable(x, lang.Object) for x in ["from", "to", "o", "r", "g"]]
 
     problem.action("move", [from_, to],
-                   precondition=land(from_ != to, room(from_), room(to), at_robby(from_)),
+                   precondition=land(from_ != to, room(from_), room(to), at_robby(from_), flat=True),
                    effects=[fs.AddEffect(at_robby(to)), fs.DelEffect(at_robby(from_))])
 
     problem.action("pick", [o, r, g],
-                   precondition=land(ball(o), room(r), gripper(g), at(o, r), at_robby(r), free(g)),
+                   precondition=land(ball(o), room(r), gripper(g), at(o, r), at_robby(r), free(g), flat=True),
                    effects=[fs.AddEffect(carry(o, g)), fs.DelEffect(at(o, r)), fs.DelEffect(free(g))])
 
     problem.action("drop", [o, r, g],
-                   precondition=land(ball(o), room(r), gripper(g), carry(o, g), at_robby(r)),
+                   precondition=land(ball(o), room(r), gripper(g), carry(o, g), at_robby(r), flat=True),
                    effects=[fs.DelEffect(carry(o, g)), fs.AddEffect(at(o, r)), fs.AddEffect(free(g))])
 
     return problem

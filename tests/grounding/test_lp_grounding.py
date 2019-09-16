@@ -1,6 +1,7 @@
 import shutil
 
 from tarski.grounding import LPGroundingStrategy, NaiveGroundingStrategy
+from tarski.syntax import neg
 
 from tests.common.gripper import create_sample_problem
 from ..io.common import reader, collect_strips_benchmarks, collect_fstrips_benchmarks
@@ -59,3 +60,14 @@ def test_ground_actions_for_small_gripper():
     naive_variables = grounding.ground_state_variables()
     # The naive grounding strategy will result in many unreachable state variables such as 'carry(left,left)'
     assert len(set(as_list2(naive_variables)) - set(as_list2(lpvariables))) == 124
+
+
+def test_ground_actions_on_negated_preconditions():
+    problem = create_sample_problem()
+
+    # We negate the atoms in the precondition of some action to obtain a negative literal in the precondition
+    pick_prec = problem.actions['pick'].precondition
+    pick_prec.subformulas = tuple(neg(f) for f in pick_prec.subformulas)
+    grounding = LPGroundingStrategy(problem)
+    actions = grounding.ground_actions()
+    assert len(actions['pick']) == 0
