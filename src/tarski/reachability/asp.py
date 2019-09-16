@@ -110,8 +110,8 @@ class ReachabilityLPCompiler:
                 assert len(f.subformulas) == 1
                 subf = f.subformulas[0]
                 if not isinstance(subf, Atom):
-                    raise RuntimeError("Negation of compound formulas not yet implemented")
-                processed, = self.process_formula(subf)  # Unpack the length-1 list
+                    raise RuntimeError("Negation of arbitrary formulas not yet implemented")
+                processed, = self.process_formula(subf)  # Watch out the comma that unpacks the length-1 list
                 return [negate_lp_atom(processed)]
 
             else:
@@ -194,13 +194,19 @@ class LPAtom:
 
 def negate_lp_atom(atom: LPAtom):
     negated = symbol_complements.get(atom.symbol, None)
-    if negated is None:
-        # We must have a non-builtin predicate symbol, hence we use the classical ASP negation symbol "-"
-        assert not atom.infix
-        negated = "-{}".format(negated)
-    else:
+    if negated is not None:  # We have the negation of a builtin comparison symbol, e.g. p != q
         assert atom.infix
-    return LPAtom(negated, atom.args, atom.infix)
+        return LPAtom(negated, atom.args, atom.infix)
+
+    # Else, we must have the negation of a non-builtin predicate symbol, in which case we assume it is true, following
+    # Helmert, Concise finite-domain representations for PDDL planning tasks, Section 6.1.3
+    assert not atom.infix
+    return lp_tautology()
+    # return LPAtom("-{}".format(atom.symbol), atom.args, atom.infix)
+
+
+def lp_tautology():
+    return LPAtom("=", [1, 1], infix=True)
 
 
 def make_variable_name(name: str):

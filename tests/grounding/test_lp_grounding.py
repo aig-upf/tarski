@@ -1,13 +1,16 @@
 import shutil
+import pytest
 
 from tarski.grounding import LPGroundingStrategy, NaiveGroundingStrategy
+from tarski.grounding.errors import ReachabilityLPUnsolvable
+from tarski.grounding.lp_grounding import compute_action_groundings
 from tarski.syntax import neg
 
 from tests.common.gripper import create_sample_problem
+from tests.common.simple import create_simple_problem
 from ..io.common import reader, collect_strips_benchmarks, collect_fstrips_benchmarks
 
 if shutil.which("gringo") is None:
-    import pytest
     pytest.skip('Install the Clingo ASP solver and put the "gringo" binary on your PATH in order to test ASP-based '
                 "reachability analysis", allow_module_level=True)
 
@@ -49,6 +52,7 @@ def test_ground_actions_for_small_gripper():
     problem = create_sample_problem()
     grounding = LPGroundingStrategy(problem)
     actions = grounding.ground_actions()
+
     assert len(actions['pick']) == len(actions['drop']) == 16  # 4 balls, two rooms, two grippers
     assert len(actions['move']) == 2  # 2 rooms
 
@@ -65,9 +69,32 @@ def test_ground_actions_for_small_gripper():
 def test_ground_actions_on_negated_preconditions():
     problem = create_sample_problem()
 
-    # We negate the atoms in the precondition of some action to obtain a negative literal in the precondition
+    # We negate all atoms in the precondition, which makes all 8^3 combinations of objects be a valid grounding,
+    # since all precondition atoms are ignored
     pick_prec = problem.actions['pick'].precondition
     pick_prec.subformulas = tuple(neg(f) for f in pick_prec.subformulas)
-    grounding = LPGroundingStrategy(problem)
-    actions = grounding.ground_actions()
-    assert len(actions['pick']) == 0
+    actions = compute_action_groundings(problem)
+    assert len(actions['pick']) == 512
+
+
+def test_ground_actions_on_negated_preconditions2():
+    problem = create_simple_problem()
+    lang = problem.language
+    p, q, a = lang.get("p", "q", "a")
+
+    # p(a) is true in initial state, so negate(a) should be reachable
+    actions = compute_action_groundings(problem)
+    assert actions["negate"] == {('a', )}
+
+    # If on the contrary p(a) is not true in initial state, action negate(a) should not be reachable,
+    # but note that the problem will still be relaxed-reachable because goal is -p(a), which is assumed to be true
+    problem.init.remove(p, a)
+
+    actions = compute_action_groundings(problem)
+    assert actions["negate"] == set()
+
+    # If the goal is now "p(a)", the whole problem becomes relaxed unreachable
+    problem.goal = p(a)
+    with pytest.raises(ReachabilityLPUnsolvable):
+        actions = compute_action_groundings(problem)
+

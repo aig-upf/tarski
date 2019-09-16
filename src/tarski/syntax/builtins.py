@@ -1,7 +1,6 @@
 from enum import Enum
 
-# MRJ: Table with negated counterparts of builtin predicates. Used
-# by the method ```complement``` of enum class BuiltinPredicateSymbol.
+# A table with the negated counterparts of builtin predicates.
 symbol_complements = {"=": "!=", "!=": "=", "<": ">=", "<=": ">", ">": "<=", ">=": "<"}
 
 
@@ -49,8 +48,6 @@ class BuiltinFunctionSymbol(Enum):
     BERNOULLI = "bernoulli"
     DISCRETE = "discrete"
     POISSON = "poisson"
-
-    # ...
 
     def __str__(self):
         return self.value.lower()
