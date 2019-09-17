@@ -3,10 +3,11 @@
 """
 import itertools
 
+from ..syntax.transform import remove_quantifiers, QuantifierEliminationMode
 from ..syntax.builtins import symbol_complements
 from ..syntax.ops import free_variables
 from ..syntax import Formula, Atom, CompoundFormula, Connective, Term, Variable, Constant, Tautology, \
-    BuiltinPredicateSymbol, QuantifiedFormula, symref, Quantifier
+    BuiltinPredicateSymbol, QuantifiedFormula, Quantifier
 from ..syntax.sorts import parent
 from ..fstrips import Problem, SingleEffect, UniversalEffect, AddEffect, DelEffect
 
@@ -60,13 +61,14 @@ class ReachabilityLPCompiler:
             action_atom = self.lp_atom(action.name, [make_variable_name(v.symbol) for v in action.parameters])
             body = [self.lp_type_atom_from_term(v) for v in action.parameters]
 
-            # Add precondition atoms to the body
-            body += self.process_formula(action.precondition)
+            # Remove universal quantifiers and add precondition atoms to the body
+            phi = remove_quantifiers(lang, action.precondition, QuantifierEliminationMode.Forall)
+            body += self.process_formula(phi)
             lp.rule(action_atom, body)
 
             # Now process the effects
             for eff in action.effects:
-                head, body = self.process_effect(eff)
+                head, body = self.process_effect(lang, eff)
                 if head is not None:
                     lp.rule(head, [action_atom] + body)
 
@@ -75,7 +77,8 @@ class ReachabilityLPCompiler:
         assert not problem.derived_predicates
 
         # Process goal, e.g. "solvable :- on(a,b), on(b,c)." (note that the goal is always ground)
-        body = self.process_formula(problem.goal)
+        phi = remove_quantifiers(lang, problem.goal, QuantifierEliminationMode.Forall)
+        body = self.process_formula(phi)
         lp.rule(self.lp_atom(SOLVABLE), body)
 
     def process_formula(self, f: Formula):
@@ -99,6 +102,10 @@ class ReachabilityLPCompiler:
                 return list(itertools.chain.from_iterable(self.process_formula(sub) for sub in f.subformulas))
 
             elif f.connective == Connective.Or:
+                # Generate an auxiliary term __fi(X) that is reachable whenever any of the disjuncts is reachable, e.g.
+                # for a disjunction "p or q(y)", we'll generate an auxiliary term f(y) with ASP rules:
+                # f(Y) :- p
+                # f(Y) :- q(Y)
                 variables = free_variables(f)
                 aux = self.gen_aux_atom([self.process_term(v) for v in variables])
                 sub = [self.process_formula(s) for s in f.subformulas]
@@ -125,7 +132,7 @@ class ReachabilityLPCompiler:
 
             else:
                 assert f.quantifier == Quantifier.Forall
-                raise RuntimeError('TODO')
+                raise RuntimeError('Formula should be forall-free, revise source code')
 
         raise RuntimeError('Unexpected formula "{}" with type "{}"'.format(f, type(f)))
 
@@ -140,7 +147,7 @@ class ReachabilityLPCompiler:
 
         raise RuntimeError('Unexpected term "{}" with type "{}"'.format(t, type(t)))
 
-    def process_effect(self, eff):
+    def process_effect(self, lang, eff):
         """ Process a given effect and return the corresponding LP rule (a pair with head and body). For instance a
         conditional effect "p -> q(X)" will be transformed into a head q(X) and a body p.
         Additionally, declare in the given LP any number of extra rules necessary to ensure equivalence of the body
@@ -149,7 +156,8 @@ class ReachabilityLPCompiler:
         assert isinstance(eff, (SingleEffect, UniversalEffect))
         if isinstance(eff, AddEffect):
             head = self.tarski_atom_to_lp_atom(eff.atom)
-            return head, self.process_formula(eff.condition)
+            condition = remove_quantifiers(lang, eff.condition, QuantifierEliminationMode.Forall)
+            return head, self.process_formula(condition)
         elif isinstance(eff, DelEffect):
             return None, []  # Simply ignore the delete effects
 
