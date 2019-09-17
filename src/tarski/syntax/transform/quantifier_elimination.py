@@ -1,13 +1,14 @@
 """
     Elimination of first-order universal and existential quantifiers.
 """
+import copy
 import itertools
 from enum import Enum
 
 from ... import errors as err
 from .subst import create_substitution
-from ..formulas import land, lor, Quantifier, QuantifiedFormula
-from ..transform import term_substitution, to_prenex_normal_form
+from ..formulas import land, lor, Quantifier, QuantifiedFormula, Atom, Tautology, Contradiction, CompoundFormula
+from ..transform import term_substitution, to_prenex_negation_normal_form
 from .errors import TransformationError
 
 
@@ -26,8 +27,9 @@ class QuantifierElimination:
     def __init__(self, lang, phi, mode, do_copy=True):
         self.lang = lang
         self.mode = mode
-        self.blueprint = to_prenex_normal_form(lang, phi, do_copy)  # Compile to prenex normal form at preprocessing
-        self.universal_free = None
+        # self.blueprint = to_prenex_normal_form(lang, phi, do_copy)  # Compile to prenex normal form at preprocessing
+        self.blueprint = copy.deepcopy(phi) if do_copy else phi
+        self.result = None
 
     def _eliminate_forall(self):
         return self.mode in (QuantifierEliminationMode.All, QuantifierEliminationMode.Forall)
@@ -36,15 +38,19 @@ class QuantifierElimination:
         return self.mode in (QuantifierEliminationMode.All, QuantifierEliminationMode.Exists)
 
     def _convert(self, phi):
-        if not isinstance(phi, QuantifiedFormula):
-            # The formula is guaranteed to be in prenex normal form, so there will be no inner quantification
+        if isinstance(phi, (Atom, Tautology, Contradiction)):
+            return phi  # Already quantifier-free
+
+        if isinstance(phi, CompoundFormula):
+            phi.subformulas = tuple(self._convert(sub) for sub in phi.subformulas)
             return phi
 
-        if phi.quantifier == Quantifier.Forall:
-            return self._substitute(phi, land) if self._eliminate_forall() else self._recurse(phi)
+        if isinstance(phi, QuantifiedFormula):
+            if phi.quantifier == Quantifier.Forall:
+                return self._convert(self._expand(phi, land)) if self._eliminate_forall() else self._recurse(phi)
 
-        if phi.quantifier == Quantifier.Exists:
-            return self._substitute(phi, lor) if self._eliminate_exists() else self._recurse(phi)
+            if phi.quantifier == Quantifier.Exists:
+                return self._convert(self._expand(phi, lor)) if self._eliminate_exists() else self._recurse(phi)
 
         raise err.UnexpectedElementType(phi)
 
@@ -52,7 +58,7 @@ class QuantifierElimination:
         phi.formula = self._convert(phi.formula)
         return phi
 
-    def _substitute(self, phi: QuantifiedFormula, creator):
+    def _expand(self, phi: QuantifiedFormula, creator):
         from tarski.grounding.naive import instantiation
         card, syms, substs = instantiation.enumerate_groundings(phi.variables)
         if card == 0:
@@ -64,8 +70,8 @@ class QuantifierElimination:
         return creator(*conjuncts)
 
     def convert(self):
-        self.universal_free = self._convert(self.blueprint)
-        return self.universal_free
+        self.result = self._convert(self.blueprint)
+        return self.result
 
     @staticmethod
     def rewrite(lang, phi, mode, do_copy=True):

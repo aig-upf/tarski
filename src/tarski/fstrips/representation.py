@@ -3,7 +3,8 @@ from typing import Set, Union, Tuple, Optional
 
 from .problem import Problem
 from . import fstrips as fs
-from ..syntax import Formula, CompoundTerm, Atom, CompoundFormula, is_and, is_neg, exists, symref, VariableBinding
+from ..syntax import Formula, CompoundTerm, Atom, CompoundFormula, QuantifiedFormula, is_and, is_neg, exists, symref,\
+    VariableBinding
 from ..syntax.ops import collect_unique_nodes, flatten, free_variables
 from .action import Action
 
@@ -133,6 +134,11 @@ def is_function_free(phi: Formula):
     Return whether the given formula is function-free, that is, has no function symbols other than constant symbols.
     """
     return len(collect_unique_nodes(phi, lambda x: isinstance(x, CompoundTerm))) == 0
+
+
+def is_quantifier_free(phi: Formula):
+    """ Return whether the given formula is quantifier-free. """
+    return len(collect_unique_nodes(phi, lambda x: isinstance(x, QuantifiedFormula))) == 0
 
 
 def collect_effect_free_parameters(action: Action):

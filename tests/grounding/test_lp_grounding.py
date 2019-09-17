@@ -16,9 +16,9 @@ if shutil.which("gringo") is None:
 
 
 SAMPLE_STRIPS_INSTANCES = [
-    "blocks:probBLOCKS-4-1.pddl",
+    # "blocks:probBLOCKS-4-1.pddl",
     "openstacks:p15.pddl",
-    "visitall-sat11-strips:problem12.pddl",
+    # "visitall-sat11-strips:problem12.pddl",
 ]
 
 
@@ -26,7 +26,7 @@ def pytest_generate_tests(metafunc):
     # This is called once for each test method, and allows us to pass different parameters to the test method,
     # in this case as many instances as desired, so that each instance is mapped into a different test.
     # @see http://pytest.org/latest/example/parametrize.html#parametrizing-test-methods-through-per-class-configuration
-    if metafunc.function != test_action_grounding:
+    if metafunc.function != test_action_grounding_on_standard_benchmarks:
         return
 
     argnames = ['instance_file', 'domain_file']
@@ -34,7 +34,7 @@ def pytest_generate_tests(metafunc):
     metafunc.parametrize(argnames, argvalues)
 
 
-def test_action_grounding(instance_file, domain_file):
+def test_action_grounding_on_standard_benchmarks(instance_file, domain_file):
     problem = reader().read_problem(domain_file, instance_file)
     grounder = LPGroundingStrategy(problem)
     actions = grounder.ground_actions()
