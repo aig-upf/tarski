@@ -47,11 +47,8 @@ def test_nnf_double_negation():
 def test_nnf_quantifier_flips():
     bw = blocksworld.generate_small_fstrips_bw_language()
     block = bw.get_sort('block')
-    _ = bw.get_sort('place')
     loc = bw.get_function('loc')
-    _ = bw.get_predicate('clear')
     b1, b2, b3, b4 = [bw.get_constant('b{}'.format(k)) for k in range(1, 5)]
-    _ = bw.get_constant('table')
 
     x = bw.variable('x', block)
 
