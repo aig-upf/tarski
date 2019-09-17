@@ -104,13 +104,14 @@ class ReachabilityLPCompiler:
             elif f.connective == Connective.Or:
                 # Generate an auxiliary term __fi(X) that is reachable whenever any of the disjuncts is reachable, e.g.
                 # for a disjunction "p or q(y)", we'll generate an auxiliary term f(y) with ASP rules:
-                # f(Y) :- p
-                # f(Y) :- q(Y)
+                # f(Y) :- p, object(Y).
+                # f(Y) :- q(Y), object(Y).
                 variables = free_variables(f)
                 aux = self.gen_aux_atom([self.process_term(v) for v in variables])
+                varbinding = [self.lp_type_atom_from_term(v) for v in variables]
                 sub = [self.process_formula(s) for s in f.subformulas]
                 for body in sub:
-                    self.lp.rule(aux, body)
+                    self.lp.rule(aux, body + varbinding)
                 return [aux]
 
             elif f.connective == Connective.Not:
@@ -126,8 +127,13 @@ class ReachabilityLPCompiler:
 
         elif isinstance(f, QuantifiedFormula):
             if f.quantifier == Quantifier.Exists:
-                aux = self.gen_aux_atom()  # Simply don't use any variable in the new atom
-                self.lp.rule(aux, self.process_formula(f.formula))
+                # We project away the existential variable by not using it in the LP rule head. e.g. for a formula
+                # "Exists x p(x)", we generate the LP rule
+                # __f1 :- p(x), object(x).
+                # Note that the type atom "object(x)" is needed for degenerate cases such as "Exist x True"
+                aux = self.gen_aux_atom()
+                varbinding = [self.lp_type_atom_from_term(v) for v in f.variables]
+                self.lp.rule(aux, self.process_formula(f.formula) + varbinding)
                 return [aux]
 
             else:

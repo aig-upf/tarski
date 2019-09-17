@@ -16,9 +16,9 @@ if shutil.which("gringo") is None:
 
 
 SAMPLE_STRIPS_INSTANCES = [
-    # "blocks:probBLOCKS-4-1.pddl",
-    "openstacks:p15.pddl",
-    # "visitall-sat11-strips:problem12.pddl",
+    "blocks:probBLOCKS-4-1.pddl",
+    "openstacks:p01.pddl",
+    "visitall-sat11-strips:problem12.pddl",
 ]
 
 
@@ -42,6 +42,8 @@ def test_action_grounding_on_standard_benchmarks(instance_file, domain_file):
     expected = {  # A compilation of the expected values for each tested domain (including total-cost terms!)
         "BLOCKS": {'pick-up': 4, 'put-down': 4, 'stack': 16, 'unstack': 16},
         "grid-visit-all": {'move': 528},
+        'openstacks-sequencedstrips': {'setup-machine': 30, 'make-product': 30, 'start-order': 25,
+                                       'ship-order': 25, 'open-new-stack': 5},  # TODO Revise this figures
     }[problem.domain_name]
 
     # Make sure that the number of possible groundings of each action schema in the domain is as expected
