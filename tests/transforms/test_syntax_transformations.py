@@ -138,7 +138,10 @@ def test_existential_elimination1():
 
     phi = exists(y, land(lang.Dodec(y), lang.BackOf(x, y)))
     result = remove_quantifiers(lang, phi, QuantifierEliminationMode.Exists)
-    assert result == (lang.Dodec(obj1) & lang.BackOf(x, obj1)) | (lang.Dodec(obj2) & lang.BackOf(x, obj2))
+
+    # We cannot guarantee in which order the expansion of the exists will be done, so we check for both possibilities:
+    assert result == (lang.Dodec(obj1) & lang.BackOf(x, obj1)) | (lang.Dodec(obj2) & lang.BackOf(x, obj2)) or \
+        result == (lang.Dodec(obj2) & lang.BackOf(x, obj2)) | (lang.Dodec(obj1) & lang.BackOf(x, obj1))
 
 
 def test_existential_elimination2():
