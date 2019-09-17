@@ -30,7 +30,7 @@ def test_enumeration_of_action_parameters_for_small_bw():
     prob, index = create_small_bw_with_index()
     index.ground_actions = IndexDictionary()
     actions = list(prob.actions.values())
-    card, syms, substs = instantiation.enumerate_groundings(prob.language, actions[0].parameters)
+    card, syms, substs = instantiation.enumerate_groundings(actions[0].parameters)
     assert card == 6
     assert len(syms) == 1
     assert len(substs) == 1
@@ -42,7 +42,7 @@ def test_generate_substitutions_for_small_bw():
     prob, index = create_small_bw_with_index()
     index.ground_actions = IndexDictionary()
     actions = list(prob.actions.values())
-    card, syms, substs = instantiation.enumerate_groundings(prob.language, actions[0].parameters)
+    card, syms, substs = instantiation.enumerate_groundings(actions[0].parameters)
     for values in itertools.product(*substs):
         assert (len(syms) == len(values))
         subst = create_substitution(syms, values)

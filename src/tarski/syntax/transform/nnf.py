@@ -44,6 +44,7 @@ class NNFTransformation:
 
     def convert(self):
         self.nnf = self._convert(self.blueprint)
+        return self.nnf
 
     @staticmethod
     def rewrite(phi, do_copy=True):
@@ -54,3 +55,8 @@ class NNFTransformation:
 
 def negate_connective(connective):
     return {Connective.Or: Connective.And, Connective.And: Connective.Or}[connective]
+
+
+def to_negation_normal_form(phi, do_copy=True):
+    trans = NNFTransformation(phi, do_copy)
+    return trans.convert()

@@ -6,8 +6,8 @@ from tests.common import tarskiworld
 
 from tarski.syntax.transform.nnf import NNFTransformation
 from tarski.syntax.transform.prenex import PrenexTransformation
-from tarski.syntax.transform.univ_elim import UniversalQuantifierElimination
-from tarski.syntax.transform import CNFTransformation
+from tarski.syntax.transform import CNFTransformation, QuantifierElimination, remove_quantifiers,\
+    QuantifierEliminationMode
 from tarski.syntax.transform import NegatedBuiltinAbsorption
 from tarski.syntax.transform.errors import TransformationError
 
@@ -103,17 +103,15 @@ def test_prenex_lpl_page_321():
     assert str(result.prenex) == str(gamma)
 
 
-def test_universal_elimination_fails_due_to_no_constants():
+def test_quantifier_elimination_fails_due_to_no_constants():
     tw = tarskiworld.create_small_world()
     x = tw.variable('x', tw.Object)
-
     y = tw.variable('y', tw.Object)
     s1 = exists(y, land(tw.Dodec(y), tw.BackOf(x, y)))
     s2 = land(tw.Cube(x), exists(y, land(tw.Tet(y), tw.LeftOf(x, y))))
     phi = forall(x, implies(s2, s1))
-    # print(str(phi))
     with pytest.raises(TransformationError):
-        _ = UniversalQuantifierElimination.rewrite(tw, phi)
+        QuantifierElimination.rewrite(tw, phi, QuantifierEliminationMode.All)
         # print(str(result.universal_free))
 
 
@@ -131,11 +129,21 @@ def test_universal_elimination_works():
     s2 = land(tw.Cube(x), exists(y, land(tw.Tet(y), tw.LeftOf(x, y))))
     phi = forall(x, implies(s2, s1))
     # print(str(phi))
-    result = UniversalQuantifierElimination.rewrite(tw, phi)
-    # print(str(result.universal_free))
-    result2 = UniversalQuantifierElimination.rewrite(tw, result.universal_free)
-    # print(str(result2.universal_free))
-    assert str(result.universal_free) == str(result2.universal_free)
+    result = remove_quantifiers(tw, phi, QuantifierEliminationMode.Forall)
+    result2 = remove_quantifiers(tw, result, QuantifierEliminationMode.Forall)
+    assert str(result) == str(result2)
+
+
+def test_existential_elimination_works():
+    lang = tarskiworld.create_small_world()
+    x, y = lang.variable('x', lang.Object), lang.variable('y', lang.Object)
+    _ = [lang.constant(f'obj{i}', lang.Object) for i in range(1, 3)]
+
+    phi = exists(y, land(lang.Dodec(y), lang.BackOf(x, y)))
+    result = remove_quantifiers(lang, phi, QuantifierEliminationMode.Exists)
+    z = str(result)
+    result2 = remove_quantifiers(lang, result, QuantifierEliminationMode.Forall)
+    assert str(result2) == '((Dodec(obj2) and BackOf(x/object,obj2)) or (Dodec(obj1) and BackOf(x/object,obj1)))'
 
 
 def test_builtin_negation_absorption():
@@ -191,8 +199,8 @@ def test_cnf_conversion_complex():
     s1 = exists(y, land(tw.Dodec(y), tw.BackOf(x, y)))
     s2 = land(tw.Cube(x), exists(y, land(tw.Tet(y), tw.LeftOf(x, y))))
     phi = forall(x, implies(s2, s1))
-    result = UniversalQuantifierElimination.rewrite(tw, phi)
-    result2 = CNFTransformation.rewrite(tw, result.universal_free.formula)
+    result = remove_quantifiers(tw, phi, QuantifierEliminationMode.Forall)
+    result2 = CNFTransformation.rewrite(tw, result.formula)
     # print(result2.cnf)
     # print('\n'.join( [ ','.join([str(l) for l in c]) for c in result2.clauses ] ) )
     # print(len(result2.clauses))

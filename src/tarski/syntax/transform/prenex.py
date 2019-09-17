@@ -145,6 +145,7 @@ class PrenexTransformation:
 
     def convert(self):
         self.prenex = self._convert(self.blueprint)
+        return self.prenex
 
     @staticmethod
     def rewrite(lang, phi, do_copy=True):
@@ -156,3 +157,8 @@ class PrenexTransformation:
 def _merge_mixed_subformulas(quant, variables, lhs, conn, rhs):
     new_phi = QuantifiedFormula(quant, variables, CompoundFormula(conn, tuple([lhs, rhs])))
     return new_phi
+
+
+def to_prenex_normal_form(lang, phi, do_copy=True):
+    trans = PrenexTransformation(lang, phi, do_copy)
+    return trans.convert()

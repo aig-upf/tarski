@@ -24,7 +24,7 @@ class ActionGrounder:
 
     def calculate_actions(self):
         for act_schema in self.schemas:
-            k, syms, substs = instantiation.enumerate_groundings(self.L, act_schema.parameters)
+            k, syms, substs = instantiation.enumerate_groundings(act_schema.parameters)
             for values in itertools.product(*substs):
                 subst = create_substitution(syms, values)
                 op = TermSubstitution(self.L, subst)

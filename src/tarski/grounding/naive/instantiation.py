@@ -1,10 +1,10 @@
+import itertools
 
-from ...fol import FirstOrderLanguage
 from ...syntax.terms import Constant, Variable
 from ..errors import UnableToGroundError
 
 
-def enumerate_groundings(_: FirstOrderLanguage, symbols):
+def enumerate_groundings(symbols):
     """ """
     syms = []
     instantiations = []
@@ -14,8 +14,8 @@ def enumerate_groundings(_: FirstOrderLanguage, symbols):
             continue
         elif isinstance(st, Variable):
             if st.sort.builtin:
-                raise UnableToGroundError(st,
-                                          "Term is of built-in sort '{}', domain is too large!".format(st.sort.name))
+                # TODO This restriction could be lifted?
+                raise UnableToGroundError(st, "Cannot ground variables of built-in sorts")
             syms.append(st)
             instantiations.append(list(st.sort.domain()))
             cardinality *= len(instantiations[-1])

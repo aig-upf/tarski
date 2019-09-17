@@ -2,8 +2,8 @@
 import itertools
 
 from ...syntax import QuantifiedFormula, Quantifier, create_substitution
-from ...syntax.transform import TermSubstitution, UniversalQuantifierElimination, NegatedBuiltinAbsorption, \
-    CNFTransformation
+from ...syntax.transform import TermSubstitution, NegatedBuiltinAbsorption, CNFTransformation,\
+    QuantifierEliminationMode, remove_quantifiers
 from ...syntax.ops import all_variables
 from ...util import IndexDictionary
 from . import instantiation
@@ -27,8 +27,8 @@ class ConstraintGrounder:
 
         for const_schema in self.schemas:
             # 1. Collect set of free variables in the constraint
-            const_schema = UniversalQuantifierElimination.rewrite(self.L, const_schema).universal_free
-            K, syms, substs = instantiation.enumerate_groundings(self.L, all_variables(const_schema))
+            const_schema = remove_quantifiers(self.L, const_schema, QuantifierEliminationMode.Forall)
+            K, syms, substs = instantiation.enumerate_groundings(all_variables(const_schema))
             for values in itertools.product(*substs):
                 subst = create_substitution(syms, values)
                 op = TermSubstitution(self.L, subst)

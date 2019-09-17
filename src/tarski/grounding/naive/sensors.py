@@ -26,7 +26,7 @@ class SensorGrounder:
         # this NEEDS to be refactored, so we ground action elements in a more
         # moudular and component oriented fashion
         for act_schema in self.schemas:
-            K, syms, substs = instantiation.enumerate_groundings(self.L, act_schema.parameters)
+            K, syms, substs = instantiation.enumerate_groundings(act_schema.parameters)
             for values in itertools.product(*substs):
                 subst = create_substitution(syms, values)
 
