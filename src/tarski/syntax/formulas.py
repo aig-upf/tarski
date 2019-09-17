@@ -26,6 +26,10 @@ class Quantifier(Enum):
         return self.name.lower()
 
 
+def negate_quantifier(q: Quantifier):
+    return Quantifier.Exists if q == Quantifier.Forall else Quantifier.Forall
+
+
 class Formula:
     """ A first-order logical formula. """
     def __str__(self):

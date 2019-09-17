@@ -174,7 +174,7 @@ class FirstOrderLanguage:
         which has been correctly registered with the language, or the name of such an object, and return the object
         """
         if not isinstance(obj, (str, type_)):
-            raise err.LanguageError('Unknown type of language element "{}"'.format(obj))
+            raise err.UnexpectedElementType(obj)
 
         if isinstance(obj, type_):
             if obj.language != self:

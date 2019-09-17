@@ -1,6 +1,7 @@
 
 from ..syntax import Predicate, Function, Constant, termlists_are_equal, termlist_hash
 from ..fstrips import AddEffect, DelEffect, FunctionalEffect
+from .. import errors as err
 
 
 class StateVariableLite:
@@ -62,4 +63,4 @@ def _compute_effect_head_symbol(effect):
     elif isinstance(effect, FunctionalEffect):
         return effect.lhs.symbol
     else:
-        raise RuntimeError('Unknown effect type "{}"'.format(type(effect)))
+        raise err.UnexpectedElementType(effect)
