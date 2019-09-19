@@ -83,6 +83,6 @@ class CNFTransformation:
         return trans
 
 
-def to_conjunctive_normal_form(phi, do_copy=True):
-    trans = CNFTransformation(phi, do_copy)
+def to_conjunctive_normal_form(lang, phi, do_copy=True):
+    trans = CNFTransformation(lang, phi, do_copy)
     return trans.convert()
