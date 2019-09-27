@@ -4,7 +4,7 @@
 import copy
 
 from ..formulas import Connective, Atom, QuantifiedFormula, CompoundFormula
-from ..builtins import create_atom, negate_builtin_atom
+from ..builtins import negate_builtin_atom
 
 
 class NegatedBuiltinAbsorption:

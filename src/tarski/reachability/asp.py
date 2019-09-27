@@ -142,7 +142,8 @@ class ReachabilityLPCompiler:
 
         raise RuntimeError('Unexpected formula "{}" with type "{}"'.format(f, type(f)))
 
-    def process_term(self, t: Term):
+    @staticmethod
+    def process_term(t: Term):
         """ Return the name of the LP constant corresponding to the given term. For instance, the variable "from" of
         type "place" will get transformed into a name "From" (capitalized), whereas the constant "b1" of type block will
         get transformed into a name "b1". We assume that the type information is used elsewhere. """

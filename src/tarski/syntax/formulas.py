@@ -202,16 +202,12 @@ def is_neg(phi: Formula):
 
 
 def implies(phi, psi):
+    """ Create the implication phi -> psi """
     return lor(neg(phi), psi)
 
 
 def equiv(phi, psi):
-    # MRJ: I choose the form below in the code over
-    #
-    # lor(land(phi,psi), land(neg(psi),neg(phi)))
-    #
-    # as I find it easier to transform into a
-    # given normal form.
+    """ Create the bi-implication phi <-> psi """
     return land(implies(phi, psi), implies(psi, phi))
 
 

@@ -225,11 +225,13 @@ class FirstOrderLanguage:
     def constants(self):
         return list(self._constants.values())
 
-    def vector(self, arraylike, sort: Sort):
+    @staticmethod
+    def vector(arraylike, sort: Sort):
         import numpy as np
         return Matrix(np.reshape(arraylike, (len(arraylike), 1)), sort)
 
-    def matrix(self, arraylike, sort: Sort):
+    @staticmethod
+    def matrix(arraylike, sort: Sort):
         return Matrix(arraylike, sort)
 
     def _check_name_not_defined(self, name, where, exception):

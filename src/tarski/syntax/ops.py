@@ -66,7 +66,7 @@ def _flatten(formula, parent_connective):
     with the given connective have been flattened themselves.
     """
     if not isinstance(formula, CompoundFormula) or formula.connective != parent_connective:
-        return formula,  # (returns a tuple)
+        return (formula, )  # (returns a tuple)
     return tuple(itertools.chain.from_iterable(_flatten(sub, parent_connective) for sub in formula.subformulas))
 
 

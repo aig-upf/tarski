@@ -176,4 +176,3 @@ class ModelWithoutEvaluatorError(err.SemanticError):
     def __init__(self, exp):
         super().__init__(f'Attempted to evaluate expression "{exp}" on a model with no attached evaluator. '
                          f'Please set some evaluator into the model before attempting such evaluations')
-
