@@ -1,5 +1,5 @@
 
-from .subst import TermSubstitution, term_substitution
+from .substitutions import TermSubstitution, term_substitution
 from .nnf import NNFTransformation, to_negation_normal_form
 from .cnf import CNFTransformation, to_conjunctive_normal_form
 from .prenex import PrenexTransformation, to_prenex_negation_normal_form

@@ -6,7 +6,7 @@ import itertools
 from enum import Enum
 
 from ... import errors as err
-from .subst import create_substitution
+from .substitutions import create_substitution
 from ..formulas import land, lor, Quantifier, QuantifiedFormula, Atom, Tautology, Contradiction, CompoundFormula
 from ..transform import term_substitution, to_prenex_negation_normal_form
 from .errors import TransformationError

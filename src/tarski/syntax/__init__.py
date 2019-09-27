@@ -9,4 +9,4 @@ from .formulas import land, lor, neg, implies, forall, exists, equiv, Connective
     is_neg, is_and, is_or
 from .builtins import BuiltinFunctionSymbol, BuiltinPredicateSymbol
 from .symrefs import symref
-from .transform.subst import create_substitution, term_substitution, TermSubstitution
+from .transform.substitutions import create_substitution, term_substitution, TermSubstitution
