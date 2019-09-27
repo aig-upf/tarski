@@ -1,6 +1,6 @@
 
 from ..syntax import Predicate, Function, Constant, termlists_are_equal, termlist_hash
-from ..fstrips import AddEffect, DelEffect, FunctionalEffect
+from ..fstrips import AddEffect, DelEffect, FunctionalEffect, LinearEffect
 from .. import errors as err
 
 
@@ -49,7 +49,15 @@ def approximate_symbol_fluency(problem):
     all_symbols = set(lang.functions) | set(lang.predicates)
 
     # All symbols appearing on some action, process or event effect are fluent
-    fluents = set(_compute_effect_head_symbol(eff) for action in problem.actions.values() for eff in action.effects)
+    fluents = set()
+    for action in problem.actions.values():
+        for eff in action.effects:
+            symbols = _compute_effect_head_symbol(eff)
+            if isinstance(symbols, list):
+                fluents |= set(symbols)
+            else:
+                fluents |= set([symbols])
+    #fluents = set(_compute_effect_head_symbol(eff) for action in problem.actions.values() for eff in action.effects)
 
     # The rest of symbols are considered static
     statics = set(s for s in all_symbols if not s.builtin and s not in fluents)
@@ -62,5 +70,7 @@ def _compute_effect_head_symbol(effect):
         return effect.atom.predicate
     elif isinstance(effect, FunctionalEffect):
         return effect.lhs.symbol
+    elif isinstance(effect, LinearEffect):
+        return [lhs.symbol for lhs in effect.y[:,0]]
     else:
         raise err.UnexpectedElementType(effect)

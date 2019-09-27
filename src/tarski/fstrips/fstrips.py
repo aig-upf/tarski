@@ -220,16 +220,16 @@ class LinearEffect(SingleEffect):
             msg = "Error declaring VectorisedEffect, x needs needs to be\
                 vector or matrix like"
             raise InvalidEffectError(self, msg)
-        if self.y.shape == self.x.shape:
+        if self.y.shape != self.x.shape:
             msg = "Error declaring VectorisedEffect, y and x need to have\
-                same dimensions"
+                same dimensions: shape(y)={}, shape(x)={}".format(self.y.shape, self.x.shape)
             raise InvalidEffectError(self, msg)
 
         if not hasattr(self.A, 'shape'):
             msg = "Error declaring VectorisedEffect, coefficients matrix A needs to be\
                 vector or matrix like"
             raise InvalidEffectError(self, msg)
-        if self.y.shape[1] == self.A.shape[0]:
+        if self.y.shape[0] != self.A.shape[1]:
             msg = "Error declaring VectorisedEffect, y and x need to have\
                 same dimensions"
             raise InvalidEffectError(self, msg)
@@ -238,7 +238,7 @@ class LinearEffect(SingleEffect):
             msg = "Error declaring VectorisedEffect, coefficient vector b needs needs to be\
                 vector or matrix like"
             raise InvalidEffectError(self, msg)
-        if self.x.shape == self.b.shape:
+        if self.x.shape != self.b.shape:
             msg = "Error declaring VectorisedEffect, x and b need to have\
                 same dimensions"
             raise InvalidEffectError(self, msg)

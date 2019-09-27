@@ -9,7 +9,7 @@ def pddl_to_tarski_type(typename):
     """ Translate a few PDDL types into their corresponding Tarski names
         (e.g. the FSTRIPS type "int" corresponds to the Tarski type "Integer").
     """
-    translations = {"int": "Integer"}
+    translations = {"int": "Integer", "real": "Real", "number": "Real"}
     return translations.get(typename, typename)
 
 
