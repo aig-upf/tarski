@@ -4,13 +4,22 @@
     For reference see
 
     Temporal Planning with Clock-Based SMT Encodings
-    Jussi Rintanen, Proceedings of the 26th Int'l Joint Conference on Artificial Intelligence (IJCAI)
+    Jussi Rintanen
+    Proceedings of the 26th Int'l Joint Conference on Artificial Intelligence (IJCAI)
     2017
 """
 from tarski.syntax import Tautology, Contradiction, Atom, CompoundTerm, CompoundFormula, QuantifiedFormula, \
     Term, Variable, Constant, Formula, symref, BuiltinPredicateSymbol, Connective
+from tarski.model import Model
+from tarski.evaluators.simple import evaluate
 
 class SyntaxError(Exception):
+    pass
+
+class UnsupportedFeature(Exception):
+    pass
+
+class SemanticError(Exception):
     pass
 
 class ResourceLock:
@@ -39,7 +48,7 @@ class ResourceLevel:
 def is_literal(l):
     if not isinstance(l, Atom):
         if isinstance(l, CompoundFormula):
-            return l.connective == Connective.Not and isinstance(l.subterm[0], Atom)
+            return l.connective == Connective.Not and isinstance(l.subformulas[0], Atom)
         return False
     return True
 
@@ -82,3 +91,32 @@ class Action:
             if not is_literal(l):
                 raise SyntaxError("NDL Syntax error: effect '{}' must be a literal".format(l))
             self.effects += [(t, l)]
+
+class Instance:
+
+    def __init__(self, **kwargs):
+        self.X = []
+        for x in kwargs['X']:
+            if not isinstance(x, Atom):
+                raise SyntaxError("NDL Syntax Error: State variables must be boolean terms, found: {}".format(x))
+            self.X += [x]
+        init = kwargs['I']
+        if not isinstance(init, Model):
+            raise UnsupportedFeature("NDL Unsupported feature: initial state must be instance of tarski.Model")
+        if init.evaluator is None:
+            raise SemanticError("NDL Semantic Error: initial state evaluator was not specified")
+        self.I = init
+        goal = kwargs['G']
+        if not isinstance(goal, CompoundFormula) and not isinstance(goal, Atom):
+            raise SyntaxError("NDL Syntax Error: Goal needs to be a compound formula or an atom")
+        self.G = goal
+        self.A = []
+        self.R = set()
+        for act in kwargs['A']:
+            if isinstance(act, Action):
+                self.A += [act]
+                # collect resources
+                for lock in act.locks:
+                    self.R.add(symref(lock.r))
+                for level in act.levels:
+                    self.R.add(symref(level.r))
