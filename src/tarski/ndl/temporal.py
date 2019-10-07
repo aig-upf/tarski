@@ -8,7 +8,7 @@
     2017
 """
 from tarski.syntax import Tautology, Contradiction, Atom, CompoundTerm, CompoundFormula, QuantifiedFormula, \
-    Term, Variable, Constant, Formula, symref, BuiltinPredicateSymbol
+    Term, Variable, Constant, Formula, symref, BuiltinPredicateSymbol, Connective
 
 class SyntaxError(Exception):
     pass
