@@ -152,6 +152,7 @@ def test_instance_creation():
     initial.evaluator = evaluate
 
     inst = temporal.Instance(
+        L=L,
         X=[position(rov1, p0),
            estimated_range(t0), estimated_bearing(t0), observed(t0),
            estimated_range(t1), estimated_bearing(t1), observed(t1),

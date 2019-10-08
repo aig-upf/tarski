@@ -95,6 +95,7 @@ class Action:
 class Instance:
 
     def __init__(self, **kwargs):
+        self.language = kwargs['L']
         self.X = []
         for x in kwargs['X']:
             if not isinstance(x, Atom):
