@@ -16,9 +16,6 @@ __pycache__/
 *.la
 *.a
 
-# Executables
-*.bin
-
 # Temporary files
 *.swp
 *.dblite
@@ -74,3 +71,5 @@ docs/_build
 
 .ipynb_checkpoints
 .ipython
+
+pip-wheel-metadata

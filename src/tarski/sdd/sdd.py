@@ -7,6 +7,7 @@ import time
 from collections import defaultdict
 from functools import reduce
 from pathlib import Path
+from ..utils.serialization import serialize_atom
 
 try:
     from pysdd.sdd import Vtree, SddManager
@@ -256,6 +257,8 @@ def compile_action_schema(problem, statics, action, data, max_size, conjoin_with
     manager = setup_sdd_manager(nvars)
 
     allconstraints = itertools.chain(dom_constraints, eq_constraints, grounding_constraints)
+    # print(f'\nConstraints for action schema {action.ident()}:')
+    # _ = [print(f'\t{c}') for c in itertools.chain(dom_constraints, eq_constraints, grounding_constraints)]
     alltranslated = [translate_to_pysdd(c, symbols, manager) for c in allconstraints]
 
     # with open('debug.txt', 'w') as f:
@@ -287,7 +290,6 @@ def compile_action_schema(problem, statics, action, data, max_size, conjoin_with
     data['runtime'] += [tf - t0]
     data['sdd_sizes'] += [sdd_sizes]
     data['sdd_size'] += [sdd_sizes[-1]]
-    data['A(s0)'] += [None]
     # sdd_clauses = sdd_ground + sdd_eq + sdd_dom
     # plot_sdd_size(the_task.domain_name, the_task.name, act, sdd_sizes, sdd_clauses, sdd_eq, sdd_ground, sdd_dom)
 
@@ -320,8 +322,10 @@ def compile_action_schema(problem, statics, action, data, max_size, conjoin_with
                 print(f'Model #{i} maps to applicable ground action {groundaction_string}')
         except ValueError:
             print(f'No more models found for action {act_str}')
+    else:
+        data['A(s0)'] += [None]
 
-    return manager, sdd_pre
+    return manager, sdd_pre, symbols
 
 
 def report_theory(data, dom_constraints, eq_constraints, fluents, grounding_constraints, nvars):
@@ -393,17 +397,42 @@ def process_problem(problem, max_size=20000000, serialization_directory=None, co
     _, statics = classify_symbols(problem)
 
     for action in actions:
-        manager, node = compile_action_schema(problem, statics, action, data, max_size,
-                                              conjoin_with_init=conjoin_with_init)
+        manager, node, symbols = compile_action_schema(problem, statics, action, data, max_size,
+                                                       conjoin_with_init=conjoin_with_init)
 
         if serialization_directory is not None:
-            if not Path(serialization_directory).is_dir():
-                raise Exception(f"Directory '{serialization_directory}' does not exist")
-
-            sanitized_action_name = action.name.replace('-', '_')
-            manager.save(os.path.join(serialization_directory, f'{sanitized_action_name}.manager.sdd').encode(), node)
-            manager.vtree().save(os.path.join(serialization_directory, f'{sanitized_action_name}.vtree.sdd').encode())
+            store_schema_data(action, manager, node, symbols, serialization_directory)
 
     return data
 
 
+def store_schema_data(action, manager, node, symbols, path):
+    """ Serialize under the given path (expected to be a directory) relevant data on the SDD corresponding to the given
+     action schema, including the full SDD plus some bookkeeping data such as the correspondence between the atoms
+     *relevant* to the schema and the SDD variable IDs. """
+    if not Path(path).is_dir():
+        raise Exception(f"Directory '{path}' does not exist")
+
+    # sanitized = action.name.replace('-', '_')
+    sanitized = action.name
+    manager.save(os.path.join(path, f'{sanitized}.manager.sdd').encode(), node)
+    manager.vtree().save(os.path.join(path, f'{sanitized}.vtree.sdd').encode())
+
+    paramidxs = defaultdict(dict)
+    with open(os.path.join(path, f'{sanitized}.atoms.data'), 'w') as f:
+        for atom, atomid in symbols.items():
+            if atom.predicate.symbol == '_select_':  # e.g. _select_(?x, b1)
+                # Here we just collect the info related to the select atoms, we'll serialize it later
+                variable, value = atom.subterms
+                param = action.parameters.index(variable.symbol)
+                assert value.symbol not in paramidxs[param]
+                paramidxs[param][value.symbol] = atomid
+            else:
+                # Note that this will only store info about atoms that are relevant to the action schema.
+                print(f'{serialize_atom(atom)}:{atomid}', file=f)
+
+    with open(os.path.join(path, f'{sanitized}.bindings.data'), 'w') as f:
+        for i, _ in enumerate(action.parameters):
+            param_bindings = paramidxs[i]
+            line = ','.join(f'{o}:{atomid}' for o, atomid in param_bindings.items())
+            print(line, file=f)
