@@ -423,7 +423,7 @@ def store_schema_data(action, manager, node, symbols, path):
         raise Exception(f"Directory '{path}' does not exist")
 
     # sanitized = action.name.replace('-', '_')
-    sanitized = action.name
+    sanitized = action.name.lower()
     manager.save(os.path.join(path, f'{sanitized}.manager.sdd').encode(), node)
     manager.vtree().save(os.path.join(path, f'{sanitized}.vtree.sdd').encode())
 
