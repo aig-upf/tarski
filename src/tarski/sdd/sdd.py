@@ -238,8 +238,11 @@ def compile_action_schema(problem, statics, action, data, max_size, conjoin_with
 
     if any(len(dom) == 0 for dom in domains.values()):
         # Some action parameter has empty associated domain, hence no ground action will result from this
-        report_theory(data, [], [], [], [], 0)
-        return setup_false_sdd_manager()  # This will return a "False" precondition
+        report_theory(data, [], [], [], [], 0,
+                      sdd_sizes=0, sdd_size=0, as0=0, t0=None)
+        symbols = {}
+        manager, false = setup_false_sdd_manager()  # This will return a "False" precondition
+        return manager, false, symbols
 
     selects, nvars, dom_constraints = generate_select_atoms(action, metalang, parameters, domains)
 
@@ -250,7 +253,6 @@ def compile_action_schema(problem, statics, action, data, max_size, conjoin_with
     grounding_constraints, count, fluents = create_grounding_constraints(selects, statics, problem.init, prec_atoms)
     nvars += len(fluents)
 
-    report_theory(data, dom_constraints, eq_constraints, fluents, grounding_constraints, nvars)
 
     symbols = compute_symbol_ids(count, selects, fluents)
 
@@ -269,9 +271,8 @@ def compile_action_schema(problem, statics, action, data, max_size, conjoin_with
 
     if not alltranslated:
         # No constraints at all must mean an action schema with no parameters and and empty precondition
-        data['sdd_sizes'] += [0]
-        data['sdd_size'] += [0]
-        data['A(s0)'] += [1]
+        report_theory(data, dom_constraints, eq_constraints, fluents, grounding_constraints, nvars,
+                      sdd_sizes=0, sdd_size=0, as0=1, t0=None)
         return
 
     sdd_sizes = []
@@ -286,10 +287,7 @@ def compile_action_schema(problem, statics, action, data, max_size, conjoin_with
         if sdd_sizes[-1] > max_size:
             failed = True
             break
-    tf = time.time()
-    data['runtime'] += [tf - t0]
-    data['sdd_sizes'] += [sdd_sizes]
-    data['sdd_size'] += [sdd_sizes[-1]]
+
     # sdd_clauses = sdd_ground + sdd_eq + sdd_dom
     # plot_sdd_size(the_task.domain_name, the_task.name, act, sdd_sizes, sdd_clauses, sdd_eq, sdd_ground, sdd_dom)
 
@@ -303,32 +301,39 @@ def compile_action_schema(problem, statics, action, data, max_size, conjoin_with
         app = reduce(manager.conjoin, pysdd_s0, sdd_pre)
         # wmc = app.wmc(log_mode=False)
         # wmc.propagate()
-        data['A(s0)'] += [app.model_count()]
+        as0 = app.model_count()
 
         act_str = action.ident()
-        try:
-            for i, model in enumerate(app.models(), start=1):
+        if as0 > 20:
+            print(f'Action {act_str} has too many models ({as0}) on the initial state to list them all here')
+        else:
+            try:
+                for i, model in enumerate(app.models(), start=1):
 
-                binding = dict()
-                for parameter, selectatoms in selects.items():
-                    chosen = [selatom for selatom in selectatoms if model[symbols[selatom]] == 1]
-                    assert len(chosen) == 1
-                    assert parameter not in binding
-                    binding[parameter] = chosen[0].subterms[1].symbol
+                    binding = dict()
+                    for parameter, selectatoms in selects.items():
+                        chosen = [selatom for selatom in selectatoms if model[symbols[selatom]] == 1]
+                        assert len(chosen) == 1
+                        assert parameter not in binding
+                        binding[parameter] = chosen[0].subterms[1].symbol
 
-                groundaction_string = act_str  # An inefficient and dirty hack to get the name of the ground action :-)
-                for x, v in binding.items():
-                    groundaction_string = groundaction_string.replace(x, v)
-                print(f'Model #{i} maps to applicable ground action {groundaction_string}')
-        except ValueError:
-            print(f'No more models found for action {act_str}')
+                    groundaction_string = act_str  # An inefficient and dirty hack to get the name of the ground action :-)
+                    for x, v in binding.items():
+                        groundaction_string = groundaction_string.replace(x, v)
+                    print(f'Model #{i} maps to applicable ground action {groundaction_string}')
+            except ValueError:
+                print(f'No more models found for action {act_str}')
     else:
-        data['A(s0)'] += [None]
+        as0 = None
+
+    report_theory(data, dom_constraints, eq_constraints, fluents, grounding_constraints, nvars,
+                  sdd_sizes=sdd_sizes, sdd_size=sdd_sizes[-1], as0=as0, t0=t0)
 
     return manager, sdd_pre, symbols
 
 
-def report_theory(data, dom_constraints, eq_constraints, fluents, grounding_constraints, nvars):
+def report_theory(data, dom_constraints, eq_constraints, fluents, grounding_constraints, nvars,
+                  sdd_sizes, sdd_size, as0, t0):
     data['selects'] += [nvars]
     data['atoms'] += [len(fluents)]
     data['DOM'] += [len(dom_constraints)]
@@ -336,6 +341,10 @@ def report_theory(data, dom_constraints, eq_constraints, fluents, grounding_cons
     data['GROUND'] += [len(grounding_constraints)]
     data['nclauses'] += [len(dom_constraints) + len(eq_constraints) + len(grounding_constraints)]
     data['nvars'] += [nvars]
+    data['sdd_sizes'] += [sdd_sizes]
+    data['sdd_size'] += [sdd_size]
+    data['A(s0)'] += [as0]
+    data['runtime'] += [None] if t0 is None else  [time.time() - t0]
 
 
 def compute_symbol_ids(count, selects_, fluents):
@@ -383,7 +392,7 @@ def setup_sdd_manager(nvars):
 
 
 def setup_false_sdd_manager():
-    manager = setup_sdd_manager(0)
+    manager = setup_sdd_manager(1)  # The library doesn't allow for the creation of a manager with 0 vars
     precondition = manager.false()
     return manager, precondition
 
