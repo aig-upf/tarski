@@ -11,7 +11,7 @@ from ..syntax import Formula, Atom, CompoundFormula, Connective, Term, Variable,
 from ..syntax.sorts import parent
 from ..fstrips import Problem, SingleEffect, UniversalEffect, AddEffect, DelEffect, FunctionalEffect
 
-SOLVABLE = "solvable"
+SOLVABLE = "_solvable_"
 
 
 def create_reachability_lp(problem: Problem):
@@ -23,6 +23,14 @@ def create_reachability_lp(problem: Problem):
 
 
 class ReachabilityLPCompiler:
+    """ A class that handles the compilation of planning problem into suitable logic programs to perform reachability
+    analysis. The compilation follows roughly the relaxed reachability analysis outlined in Section 6 of
+
+        Helmert, M. (2009). Concise finite-domain representations for PDDL planning tasks.
+        Artificial Intelligence, 173(5-6), 503-535.
+
+    albeit there are some differences which so far we haven't properly described and analyzed.
+    """
     def __init__(self, problem: Problem, lp):
         self.problem = problem
         self.lp = lp
@@ -47,7 +55,7 @@ class ReachabilityLPCompiler:
             if not s.builtin:  # TODO Decide what to do with builtins
                 p = parent(s)
                 if p is not None:
-                    lp.rule(self.lp_atom(p.name, [_var()]), [self.lp_atom(s.name, [_var()])])
+                    lp.rule(self.lp_atom(p.name, [_var()], prefix='type'), [self.lp_atom(s.name, [_var()])])
 
         # Process all atoms in the initial state, e.g. "on(b1, b2)."
         for atom in problem.init.as_atoms():
@@ -60,7 +68,8 @@ class ReachabilityLPCompiler:
         for _, action in problem.actions.items():
             # Construct the head and part of the body of the action atom, e.g. "move(X, Y) :- object(X), object(Y)"
             # Note that we need to capitalize the parameters of the action schema, as they are LP variables.
-            action_atom = self.lp_atom(action.name, [make_variable_name(v.symbol) for v in action.parameters])
+            action_atom = self.lp_atom(action.name, [make_variable_name(v.symbol) for v in action.parameters],
+                                       prefix='action')
             body = [self.lp_type_atom_from_term(v) for v in action.parameters]
 
             # Remove universal quantifiers and add precondition atoms to the body
@@ -178,8 +187,8 @@ class ReachabilityLPCompiler:
 
         raise RuntimeError(f'Unexpected effect "{eff}" with type "{type(eff)}"')
 
-    def tarski_atom_to_lp_atom(self, atom: Atom):
-        return self.lp_atom(atom.predicate.symbol, [self.process_term(sub) for sub in atom.subterms])
+    def tarski_atom_to_lp_atom(self, atom: Atom, prefix=''):
+        return self.lp_atom(atom.predicate.symbol, [self.process_term(sub) for sub in atom.subterms], prefix='atom')
 
     def lp_type_atom_from_term(self, t: Term):
         """ Return a LP atom with type information from a given term, e.g. of the form block(b) for a constant,
@@ -187,15 +196,16 @@ class ReachabilityLPCompiler:
         if not isinstance(t, (Constant, Variable)):
             raise RuntimeError("Rechability logic program not ready for functional terms")
         name = make_variable_name(t.symbol) if isinstance(t, Variable) else _uncapitalize(t.symbol)
-        return self.lp_atom(t.sort.name, [name])
+        return self.lp_atom(t.sort.name, [name], prefix='type')
 
-    def lp_atom(self, symbol, args=None):
+    def lp_atom(self, symbol, args=None, prefix=''):
         args = args or []
         infix = False
         if isinstance(symbol, BuiltinPredicateSymbol):  # Special treatment for built-ins as =, !=, <, etc.
             symbol = symbol.value
             infix = True
-        return LPAtom(self.tr.normalize(symbol), [self.tr.normalize(a) for a in args], infix=infix)
+            prefix = ''
+        return LPAtom(self.tr.normalize(symbol, prefix=prefix), [self.tr.normalize(a) for a in args], infix=infix)
 
 
 class LPAtom:
@@ -257,11 +267,13 @@ class Translator:
         self.d = dict()
         self.inv = dict()
 
-    def normalize(self, name: str):
+    def normalize(self, name: str, prefix=''):
         """ Translate a given name and keep the translation """
         translated = self.d.get(name, None)
         if translated is None:
             translated = sanitize(name)
+            if prefix:
+                translated = prefix + '_' + translated
             if name in self.inv or translated in self.inv:
                 raise RuntimeError('Sanitization of STRIPS name for ASP purposes would create a name clash for key '
                                    '"{}"'.format(name))

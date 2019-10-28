@@ -19,6 +19,7 @@ SAMPLE_STRIPS_INSTANCES = [
     "blocks:probBLOCKS-4-1.pddl",
     "openstacks:p01.pddl",
     "visitall-sat11-strips:problem12.pddl",
+    "parcprinter-08-strips:p01.pddl",
 ]
 
 
@@ -39,11 +40,20 @@ def test_action_grounding_on_standard_benchmarks(instance_file, domain_file):
     grounder = LPGroundingStrategy(problem)
     actions = grounder.ground_actions()
 
-    expected = {  # A compilation of the expected values for each tested domain (including total-cost terms!)
+    expected = {  # A compilation of the expected values for each tested domain
         "BLOCKS": {'pick-up': 4, 'put-down': 4, 'stack': 16, 'unstack': 16},
         "grid-visit-all": {'move': 528},
         'openstacks-sequencedstrips': {'setup-machine': 30, 'make-product': 30, 'start-order': 25,
                                        'ship-order': 25, 'open-new-stack': 5},  # TODO Revise this figures
+        # Parcprinter:
+        'upp': {'initialize': 1, 'EndCap-Move-Letter': 1, 'HtmOverBlack-Move-Letter': 1,
+                'ColorContainer-ToIME-Letter': 1, 'ColorContainer-FromIME-Letter': 1, 'ColorPrinter-Simplex-Letter': 0,
+                'ColorPrinter-SimplexMono-Letter': 2, 'ColorFeeder-Feed-Letter': 1, 'BlackFeeder-Feed-Letter': 1,
+                'Down-MoveTop-Letter': 1, 'Down-MoveBottom-Letter': 1, 'Down-MoveDown-Letter': 1,
+                'HtmOverColor-Move-Letter': 1, 'BlackContainer-ToIME-Letter': 1, 'BlackContainer-FromIME-Letter': 1,
+                'BlackPrinter-Simplex-Letter': 2, 'BlackPrinter-SimplexAndInvert-Letter': 2, 'Up-MoveTop-Letter': 1,
+                'Up-MoveUp-Letter': 1, 'Finisher1-PassThrough-Letter': 1, 'Finisher1-Stack-Letter': 1,
+                'Finisher2-PassThrough-Letter': 1, 'Finisher2-Stack-Letter': 1},
     }[problem.domain_name]
 
     # Make sure that the number of possible groundings of each action schema in the domain is as expected
