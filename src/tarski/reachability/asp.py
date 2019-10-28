@@ -7,9 +7,9 @@ from ..syntax.transform import remove_quantifiers, QuantifierEliminationMode
 from ..syntax.builtins import symbol_complements
 from ..syntax.ops import free_variables
 from ..syntax import Formula, Atom, CompoundFormula, Connective, Term, Variable, Constant, Tautology, \
-    BuiltinPredicateSymbol, QuantifiedFormula, Quantifier
+    BuiltinPredicateSymbol, QuantifiedFormula, Quantifier, CompoundTerm
 from ..syntax.sorts import parent
-from ..fstrips import Problem, SingleEffect, UniversalEffect, AddEffect, DelEffect
+from ..fstrips import Problem, SingleEffect, UniversalEffect, AddEffect, DelEffect, FunctionalEffect
 
 SOLVABLE = "solvable"
 
@@ -51,6 +51,8 @@ class ReachabilityLPCompiler:
 
         # Process all atoms in the initial state, e.g. "on(b1, b2)."
         for atom in problem.init.as_atoms():
+            if isinstance(atom, tuple) and isinstance(atom[0], CompoundTerm) and atom[0].symbol.symbol == 'total-cost':
+                continue  # Ignore total-cost effects
             assert isinstance(atom, Atom)
             lp.rule(self.tarski_atom_to_lp_atom(atom))
 
@@ -165,10 +167,16 @@ class ReachabilityLPCompiler:
             head = self.tarski_atom_to_lp_atom(eff.atom)
             condition = remove_quantifiers(lang, eff.condition, QuantifierEliminationMode.Forall)
             return head, self.process_formula(condition)
-        elif isinstance(eff, DelEffect):
+
+        if isinstance(eff, DelEffect):
             return None, []  # Simply ignore the delete effects
 
-        raise RuntimeError('Unexpected effect "{}" with type "{}"'.format(eff, type(eff)))
+        if isinstance(eff, FunctionalEffect):
+            if eff.lhs.symbol.symbol == 'total-cost':
+                return None, []  # We ignore total-cost effects
+            raise RuntimeError(f'ReachabilityLPCompiler cannot handle functional effects such as "{eff}"')
+
+        raise RuntimeError(f'Unexpected effect "{eff}" with type "{type(eff)}"')
 
     def tarski_atom_to_lp_atom(self, atom: Atom):
         return self.lp_atom(atom.predicate.symbol, [self.process_term(sub) for sub in atom.subterms])
