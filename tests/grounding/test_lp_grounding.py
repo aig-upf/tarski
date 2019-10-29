@@ -16,11 +16,19 @@ if shutil.which("gringo") is None:
 
 
 SAMPLE_STRIPS_INSTANCES = [
-    # "blocks:probBLOCKS-4-1.pddl",
-    # "openstacks:p01.pddl",
-    # "visitall-sat11-strips:problem12.pddl",
-    # "parcprinter-08-strips:p01.pddl",
+    "blocks:probBLOCKS-4-1.pddl",
+    "openstacks:p01.pddl",
+    "visitall-sat11-strips:problem12.pddl",
+    "parcprinter-08-strips:p01.pddl",
     "floortile-opt11-strips:opt-p01-001.pddl",
+    "pipesworld-notankage:p01-net1-b6-g2.pddl",
+    "pipesworld-tankage:p01-net1-b6-g2-t50.pddl",
+    "pathways:p01.pddl",
+
+    # Buggy domains that will raise some parsing exception:
+    # "storage:p01.pddl", # type "area" is declared twice
+    # "tidybot-opt11-strips:p01.pddl",  # "cart" used both as type name and object name, which we don't support
+    # "ged-opt14-strips:d-1-2.pddl",  # "DEFINE" used in caps. The PDDL grammar doesn't mention it is case-insensitive
 ]
 
 # Domains that require non-strict PDDL parsing because of missing requirement flags or similar that would
@@ -62,7 +70,12 @@ def test_action_grounding_on_standard_benchmarks(instance_file, domain_file):
                 'Up-MoveUp-Letter': 1, 'Finisher1-PassThrough-Letter': 1, 'Finisher1-Stack-Letter': 1,
                 'Finisher2-PassThrough-Letter': 1, 'Finisher2-Stack-Letter': 1},
         'floor-tile': {'change-color': 8, 'paint-up': 36, 'paint-down': 36, 'up': 27, 'down': 27, 'right': 24,
-                       'left': 24}
+                       'left': 24},
+        # This works for both versions of pipesworld:
+        "pipesworld_strips": {'PUSH-START': 0, 'PUSH-END': 0, 'POP-START': 0, 'POP-END': 0,
+                              'PUSH-UNITARYPIPE': 64, 'POP-UNITARYPIPE': 64},
+        'Pathways-Propositional': {'choose': 48, 'initialize': 16, 'associate': 7, 'associate-with-catalyze': 5,
+                                   'synthesize': 0, 'DUMMY-ACTION-1': 1},
     }[problem.domain_name]
 
     # Make sure that the number of possible groundings of each action schema in the domain is as expected
