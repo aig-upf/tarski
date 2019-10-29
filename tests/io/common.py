@@ -4,9 +4,9 @@ from tarski.io import FstripsReader
 from tarski.io.utils import find_domain_filename
 
 
-def reader(theories=None):
+def reader(theories=None, strict_with_requirements=True):
     """ Return a reader configured to raise exceptions on syntax errors """
-    return FstripsReader(raise_on_error=True, theories=theories)
+    return FstripsReader(raise_on_error=True, theories=theories, strict_with_requirements=strict_with_requirements)
 
 
 def get_benchmark_dir_if_exists(envvar):

@@ -16,11 +16,16 @@ if shutil.which("gringo") is None:
 
 
 SAMPLE_STRIPS_INSTANCES = [
-    "blocks:probBLOCKS-4-1.pddl",
-    "openstacks:p01.pddl",
-    "visitall-sat11-strips:problem12.pddl",
-    "parcprinter-08-strips:p01.pddl",
+    # "blocks:probBLOCKS-4-1.pddl",
+    # "openstacks:p01.pddl",
+    # "visitall-sat11-strips:problem12.pddl",
+    # "parcprinter-08-strips:p01.pddl",
+    "floortile-opt11-strips:opt-p01-001.pddl",
 ]
+
+# Domains that require non-strict PDDL parsing because of missing requirement flags or similar that would
+# otherwise result in a parsing error
+LENIENT_DOMAINS = ['floortile-opt11-strips']
 
 
 def pytest_generate_tests(metafunc):
@@ -36,7 +41,9 @@ def pytest_generate_tests(metafunc):
 
 
 def test_action_grounding_on_standard_benchmarks(instance_file, domain_file):
-    problem = reader().read_problem(domain_file, instance_file)
+    lenient = any(d in domain_file for d in LENIENT_DOMAINS)
+
+    problem = reader(strict_with_requirements=not lenient).read_problem(domain_file, instance_file)
     grounder = LPGroundingStrategy(problem)
     actions = grounder.ground_actions()
 
@@ -54,9 +61,12 @@ def test_action_grounding_on_standard_benchmarks(instance_file, domain_file):
                 'BlackPrinter-Simplex-Letter': 2, 'BlackPrinter-SimplexAndInvert-Letter': 2, 'Up-MoveTop-Letter': 1,
                 'Up-MoveUp-Letter': 1, 'Finisher1-PassThrough-Letter': 1, 'Finisher1-Stack-Letter': 1,
                 'Finisher2-PassThrough-Letter': 1, 'Finisher2-Stack-Letter': 1},
+        'floor-tile': {'change-color': 8, 'paint-up': 36, 'paint-down': 36, 'up': 27, 'down': 27, 'right': 24,
+                       'left': 24}
     }[problem.domain_name]
 
     # Make sure that the number of possible groundings of each action schema in the domain is as expected
+    # (check at runtime with: {schema: len(groundings) for schema, groundings in actions.items()} )
     assert all(len(groundings) == expected[schema] for schema, groundings in actions.items())
 
 
