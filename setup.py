@@ -51,6 +51,7 @@ def main():
 
 
         install_requires=[
+            'psutil',
             'antlr4-python3-runtime>=4.7.2',
             'numpy',
             'scipy',

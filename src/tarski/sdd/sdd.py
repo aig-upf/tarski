@@ -7,6 +7,8 @@ import time
 from collections import defaultdict
 from functools import reduce
 from pathlib import Path
+
+from ..utils import resources
 from ..utils.serialization import serialize_atom
 
 try:
@@ -228,33 +230,33 @@ def preprocess_parameter_domains(action, statics, domains, init):
 
 
 def compile_action_schema(problem, statics, action, data, max_size, conjoin_with_init=False):
-    # print(f"Processing action schema:\n{action}")
-    data['instance'] += [problem.name]
+    print(f'Processing action "{action.ident()}"')
+    with resources.timing(f"\tGenerating theory"):
+        data['instance'] += [problem.name]
 
-    # Set up a metalanguage for the encoding of the SDD applicability theory
-    metalang, parameters, domains = setup_metalanguage(action)
+        # Set up a metalanguage for the encoding of the SDD applicability theory
+        metalang, parameters, domains = setup_metalanguage(action)
 
-    domains, precondition, prec_constraints = preprocess_parameter_domains(action, statics, domains, problem.init)
+        domains, precondition, prec_constraints = preprocess_parameter_domains(action, statics, domains, problem.init)
 
-    if any(len(dom) == 0 for dom in domains.values()):
-        # Some action parameter has empty associated domain, hence no ground action will result from this
-        report_theory(data, [], [], [], [], 0,
-                      sdd_sizes=0, sdd_size=0, as0=0, t0=None)
-        symbols = {}
-        manager, false = setup_false_sdd_manager()  # This will return a "False" precondition
-        return manager, false, symbols
+        if any(len(dom) == 0 for dom in domains.values()):
+            # Some action parameter has empty associated domain, hence no ground action will result from this
+            report_theory(data, [], [], [], [], 0,
+                          sdd_sizes=0, sdd_size=0, as0=0, t0=None)
+            symbols = {}
+            manager, false = setup_false_sdd_manager()  # This will return a "False" precondition
+            return manager, false, symbols
 
-    selects, nvars, dom_constraints = generate_select_atoms(action, metalang, parameters, domains)
+        selects, nvars, dom_constraints = generate_select_atoms(action, metalang, parameters, domains)
 
-    equalities = extract_equalities(prec_constraints)
-    prec_atoms = collect_unique_nodes(precondition, lambda x: isinstance(x, Atom) and not x.predicate.builtin)
-    eq_constraints = create_equality_constraints(equalities, selects)
+        equalities = extract_equalities(prec_constraints)
+        prec_atoms = collect_unique_nodes(precondition, lambda x: isinstance(x, Atom) and not x.predicate.builtin)
+        eq_constraints = create_equality_constraints(equalities, selects)
 
-    grounding_constraints, count, fluents = create_grounding_constraints(selects, statics, problem.init, prec_atoms)
-    nvars += len(fluents)
+        grounding_constraints, count, fluents = create_grounding_constraints(selects, statics, problem.init, prec_atoms)
+        nvars += len(fluents)
 
-
-    symbols = compute_symbol_ids(count, selects, fluents)
+        symbols = compute_symbol_ids(count, selects, fluents)
 
     manager = setup_sdd_manager(nvars)
 
@@ -280,13 +282,14 @@ def compile_action_schema(problem, statics, action, data, max_size, conjoin_with
 
     t0 = time.time()
 
-    sdd_pre = alltranslated[0]
-    for c in alltranslated[1:]:
-        sdd_pre = sdd_pre & c
-        sdd_sizes += [sdd_pre.size()]
-        if sdd_sizes[-1] > max_size:
-            failed = True
-            break
+    with resources.timing(f"\tConstructing SDD"):
+        sdd_pre = alltranslated[0]
+        for c in alltranslated[1:]:
+            sdd_pre = sdd_pre & c
+            sdd_sizes += [sdd_pre.size()]
+            if sdd_sizes[-1] > max_size:
+                failed = True
+                break
 
     # sdd_clauses = sdd_ground + sdd_eq + sdd_dom
     # plot_sdd_size(the_task.domain_name, the_task.name, act, sdd_sizes, sdd_clauses, sdd_eq, sdd_ground, sdd_dom)
@@ -388,7 +391,7 @@ def setup_sdd_manager(nvars):
     vtree_type = "right"  # OBDD-style
 
     vtree = Vtree(nvars, var_order, vtree_type)
-    return SddManager(var_count=nvars, auto_gc_and_minimize=1, vtree=vtree)
+    return SddManager(var_count=nvars, auto_gc_and_minimize=0, vtree=vtree)
 
 
 def setup_false_sdd_manager():
@@ -397,7 +400,8 @@ def setup_false_sdd_manager():
     return manager, precondition
 
 
-def process_problem(problem, max_size=20000000, serialization_directory=None, conjoin_with_init=False):
+def process_problem(problem, max_size=20000000,
+                    serialization_directory=None, conjoin_with_init=False, minimize_sdd=True):
     # Make sure the initial state has some associated evaluator:
     problem.init.evaluator = problem.init.evaluator or evaluate
 
@@ -408,6 +412,16 @@ def process_problem(problem, max_size=20000000, serialization_directory=None, co
     for action in actions:
         manager, node, symbols = compile_action_schema(problem, statics, action, data, max_size,
                                                        conjoin_with_init=conjoin_with_init)
+
+        if minimize_sdd:
+            node.ref()
+            manager.set_vtree_search_time_limit(10)
+
+            with resources.timing(f"\tMinimizing SDD ({node.size()} nodes)"):
+                manager.minimize_limited()
+            print(f"\tAfter first minimization pass, SDD has {node.size()} nodes")
+
+            node.deref()
 
         if serialization_directory is not None:
             store_schema_data(action, manager, node, symbols, serialization_directory)
