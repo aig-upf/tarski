@@ -241,6 +241,8 @@ def compile_action_schema(problem, statics, action, data, max_size, conjoin_with
 
         if any(len(dom) == 0 for dom in domains.values()):
             # Some action parameter has empty associated domain, hence no ground action will result from this
+            logging.info(f'Action "{action.ident()}" has parameter with empty domain, hence can be pruned')
+            logging.info(f'Parameter list:\n{domains}')
             report_theory(data, [], [], [], [], 0,
                           sdd_sizes=0, sdd_size=0, as0=0, t0=None)
             symbols = {}
@@ -273,6 +275,7 @@ def compile_action_schema(problem, statics, action, data, max_size, conjoin_with
 
     if not alltranslated:
         # No constraints at all must mean an action schema with no parameters and and empty precondition
+        logging.info(f'Action "{action.ident()}" has an empty SDD theory')
         report_theory(data, dom_constraints, eq_constraints, fluents, grounding_constraints, nvars,
                       sdd_sizes=0, sdd_size=0, as0=1, t0=None)
         return
