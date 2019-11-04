@@ -37,7 +37,7 @@ def scout_actions(task, data):
     for action in task.actions.values():
         cardinalities = [len(list(x.sort.domain())) for x in action.parameters]
         ngroundings = reduce(operator.mul, cardinalities, 1)
-        logging.debug(f'{action.ident()}:\t{" * ".join(map(str, cardinalities))} = {ngroundings} potential groundings')
+        logging.info(f'{action.ident()}:\t{" * ".join(map(str, cardinalities))} = {ngroundings} potential groundings')
         if ngroundings == 0:
             empty.append(action.name)
         else:
@@ -46,7 +46,7 @@ def scout_actions(task, data):
             data['arity'] += [len(action.parameters)]
             data['groundings'] += [ngroundings]
 
-    logging.debug(f"{len(actions)} actions to ground; actions discarded: {empty}")
+    logging.info(f"{len(actions)} actions to ground; actions discarded: {empty}")
     return actions
 
 
