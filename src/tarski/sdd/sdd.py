@@ -299,7 +299,7 @@ def compile_action_schema(problem, statics, action, data, max_size, conjoin_with
 
     if conjoin_with_init and not failed:
         s0_literals = [p if problem.init[p] else neg(p) for p in fluents]
-        print(f'Relevant fluents on the initial state: {fluents}')
+        print(f'\tRelevant literals on the initial state: {s0_literals}')
         pysdd_s0 = [translate_to_pysdd(l, symbols, manager) for l in s0_literals]
         assert pysdd_s0
 
@@ -311,22 +311,22 @@ def compile_action_schema(problem, statics, action, data, max_size, conjoin_with
         as0 = app.model_count()
 
         act_str = action.ident()
-        print(f'Model count for action {act_str} on initial state: {as0}')
+        print(f'\tModel count for action {act_str} on initial state: {as0}')
         if as0 > 20:
-            print(f'Action {act_str} has too many models ({as0}) on the initial state to list them all here')
+            print(f'\tAction {act_str} has too many models ({as0}) on the initial state to list them all here')
         else:
             try:
                 for i, model in enumerate(app.models(), start=1):
                     binding = compute_binding(model, selects, symbols)
-                    print(f'Model #{i} maps to applicable ground action {compute_ground_action_name(act_str, binding)}')
+                    print(f'\tModel #{i} maps to applicable ground action {compute_ground_action_name(act_str, binding)}')
             except ValueError:
-                print(f'No more models found for action {act_str}')
+                print(f'\tNo more models found for action {act_str}')
 
             # Now let's do the same but with out models implementation instead of the conjoin+enumerate approach
             s0_literal_ids = {varid(node.literal): truth_value(node.literal) for node in pysdd_s0}
             for i, model in enumerate(models(sdd_pre, s0_literal_ids), start=1):
                 binding = compute_binding(model, selects, symbols)
-                print(f'[Fixed ]Model #{i} maps to applicable ground action {compute_ground_action_name(act_str, binding)}')
+                print(f'\t[Fixed] Model #{i} maps to applicable ground action {compute_ground_action_name(act_str, binding)}')
 
     else:
         as0 = None
