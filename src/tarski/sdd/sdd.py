@@ -299,6 +299,7 @@ def compile_action_schema(problem, statics, action, data, max_size, conjoin_with
 
     if conjoin_with_init and not failed:
         s0_literals = [p if problem.init[p] else neg(p) for p in fluents]
+        print(f'Relevant fluents on the initial state: {fluents}')
         pysdd_s0 = [translate_to_pysdd(l, symbols, manager) for l in s0_literals]
         assert pysdd_s0
 
@@ -310,25 +311,23 @@ def compile_action_schema(problem, statics, action, data, max_size, conjoin_with
         as0 = app.model_count()
 
         act_str = action.ident()
+        print(f'Model count for action {act_str} on initial state: {as0}')
         if as0 > 20:
             print(f'Action {act_str} has too many models ({as0}) on the initial state to list them all here')
         else:
             try:
                 for i, model in enumerate(app.models(), start=1):
-
-                    binding = dict()
-                    for parameter, selectatoms in selects.items():
-                        chosen = [selatom for selatom in selectatoms if model[symbols[selatom]] == 1]
-                        assert len(chosen) == 1
-                        assert parameter not in binding
-                        binding[parameter] = chosen[0].subterms[1].symbol
-
-                    groundaction_string = act_str  # An inefficient and dirty hack to get the name of the ground action :-)
-                    for x, v in binding.items():
-                        groundaction_string = groundaction_string.replace(x, v)
-                    print(f'Model #{i} maps to applicable ground action {groundaction_string}')
+                    binding = compute_binding(model, selects, symbols)
+                    print(f'Model #{i} maps to applicable ground action {compute_ground_action_name(act_str, binding)}')
             except ValueError:
                 print(f'No more models found for action {act_str}')
+
+            # Now let's do the same but with out models implementation instead of the conjoin+enumerate approach
+            s0_literal_ids = {varid(node.literal): truth_value(node.literal) for node in pysdd_s0}
+            for i, model in enumerate(models(sdd_pre, s0_literal_ids), start=1):
+                binding = compute_binding(model, selects, symbols)
+                print(f'[Fixed ]Model #{i} maps to applicable ground action {compute_ground_action_name(act_str, binding)}')
+
     else:
         as0 = None
 
@@ -336,6 +335,24 @@ def compile_action_schema(problem, statics, action, data, max_size, conjoin_with
                   sdd_sizes=sdd_sizes, sdd_size=sdd_sizes[-1], as0=as0, t0=t0)
 
     return manager, sdd_pre, symbols
+
+
+def compute_binding(model, selects, symbols):
+    binding = dict()
+    for parameter, selectatoms in selects.items():
+        chosen = [selatom for selatom in selectatoms if model[symbols[selatom]] == 1]
+        assert len(chosen) == 1
+        assert parameter not in binding
+        binding[parameter] = chosen[0].subterms[1].symbol
+    return binding
+
+
+def compute_ground_action_name(action, binding):
+    # An inefficient and dirty hack to get the name of the ground action :-)
+    groundaction_string = action
+    for x, v in binding.items():
+        groundaction_string = groundaction_string.replace(x, v)
+    return groundaction_string
 
 
 def report_theory(data, dom_constraints, eq_constraints, fluents, grounding_constraints, nvars,
@@ -462,3 +479,86 @@ def store_schema_data(action, manager, node, symbols, path):
             param_bindings = paramidxs[i]
             line = ','.join(f'{o}:{atomid}' for o, atomid in param_bindings.items())
             print(line, file=f)
+
+
+def join_models(model1, model2):
+    """ Concatenate two SDD models. Assumes that both dictionaries do not share keys.
+    """
+    model = model1.copy()
+    model.update(model2)
+    return model
+
+
+def truth_value(literal):
+    assert literal != 0
+    return False if literal < 0 else True
+
+
+def varid(literal):
+    assert literal != 0
+    return abs(literal)
+
+
+def node_is_false(node, fixed):
+    if not node.is_literal():  # A decision node, we cannot determine its truth value
+        return False
+    vid = varid(node.literal)
+
+    return vid in fixed and fixed[vid] != truth_value(node.literal)
+
+
+def models(node, fixed, vtree=None):
+    """
+    Enumerate of models of the given SDD, restricted to the values given in `fixed`, which  maps variable ids
+    to truth values (True, False) for those variables whose truth value we want to be fixed in the returned models.
+
+    Mostly copy-pasted from the model enumeration routine from the original pysdd library in
+        https://github.com/wannesm/PySDD/blob/5a301a961a87cef07e13b2bfc1bef01abd46e879/pysdd/sdd.pyx#L247,
+    but modified to accept a mapping of fixed values.
+    """
+
+    if node.is_false():
+        raise ValueError("False has no models")
+    if vtree is None:
+        if node.is_true():
+            vtree = node.manager.vtree()
+        else:
+            vtree = node.vtree()
+    if vtree.is_leaf():
+        var = vtree.var()
+        if node.is_true():
+            if var in fixed:
+                yield {var: int(fixed[var])}
+            else:
+                yield {var: 0}
+                yield {var: 1}
+        elif node.is_literal():
+            assert var not in fixed or fixed[var] == truth_value(node.literal)  # Just in case
+            sign = 0 if node.literal < 0 else 1
+            yield {var: sign}
+    else:
+        if node.is_true():  # sdd is true
+            for left in models(node, fixed, vtree.left()):
+                for right in models(node, fixed, vtree.right()):
+                    yield join_models(left, right)
+        elif node.vtree() == vtree:
+            for prime, sub in node.elements():
+                if sub.is_false():
+                    continue
+
+                if node_is_false(sub, fixed) or node_is_false(prime, fixed):
+                    continue
+
+                for left in models(prime, fixed, vtree.left()):
+                    for right in models(sub, fixed, vtree.right()):
+                        yield join_models(left, right)
+        else:  # fill in gap in vtree
+            true_sdd = node.manager.true()
+            if Vtree.is_sub(node.vtree(), vtree.left()):
+                for left in models(node, fixed, vtree.left()):
+                    for right in models(true_sdd, fixed, vtree.right()):
+                        yield join_models(left, right)
+            else:
+                for left in models(true_sdd, fixed, vtree.left()):
+                    for right in models(node, fixed, vtree.right()):
+                        yield join_models(left, right)
