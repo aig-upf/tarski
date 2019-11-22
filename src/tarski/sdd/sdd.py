@@ -248,7 +248,7 @@ def compile_action_schema(problem, statics, action, data, max_size, conjoin_with
                           sdd_sizes=0, sdd_size=0, as0=0, t0=None)
             symbols = {}
             manager, false = setup_false_sdd_manager()  # This will return a "False" precondition
-            return manager, false, symbols
+            return manager, false, symbols, []
 
         selects, nvars, dom_constraints = generate_select_atoms(action, metalang, parameters, domains)
 
@@ -263,16 +263,8 @@ def compile_action_schema(problem, statics, action, data, max_size, conjoin_with
 
     manager = setup_sdd_manager(nvars)
 
-    allconstraints = itertools.chain(dom_constraints, eq_constraints, grounding_constraints)
-    # print(f'\nConstraints for action schema {action.ident()}:')
-    # _ = [print(f'\t{c}') for c in itertools.chain(dom_constraints, eq_constraints, grounding_constraints)]
+    allconstraints = list(itertools.chain(dom_constraints, eq_constraints, grounding_constraints))
     alltranslated = [translate_to_pysdd(c, symbols, manager) for c in allconstraints]
-
-    # with open('debug.txt', 'w') as f:
-    #     print(f'{action.ident()}\n', file=f)
-    #     print(f'{action.precondition}\n', file=f)
-    #     debugthis = itertools.chain(dom_constraints, eq_constraints, grounding_constraints)
-    #     f.write("\n".join(map(str, debugthis)))
 
     if not alltranslated:
         # No constraints at all must mean an action schema with no parameters and and empty precondition
@@ -300,7 +292,7 @@ def compile_action_schema(problem, statics, action, data, max_size, conjoin_with
 
     if conjoin_with_init and not failed:
         s0_literals = [p if problem.init[p] else neg(p) for p in fluents]
-        print(f'\tRelevant literals on the initial state: {s0_literals}')
+        # print(f'\tRelevant literals on the initial state: {s0_literals}')
         pysdd_s0 = [translate_to_pysdd(l, symbols, manager) for l in s0_literals]
         assert pysdd_s0
 
@@ -335,7 +327,7 @@ def compile_action_schema(problem, statics, action, data, max_size, conjoin_with
     report_theory(data, dom_constraints, eq_constraints, fluents, grounding_constraints, nvars,
                   sdd_sizes=sdd_sizes, sdd_size=sdd_sizes[-1], as0=as0, t0=t0)
 
-    return manager, sdd_pre, symbols
+    return manager, sdd_pre, symbols, allconstraints
 
 
 def compute_binding(model, selects, symbols):
@@ -410,6 +402,8 @@ def setup_sdd_manager(nvars):
     var_order = list(range(1, nvars + 1))  # lexicographic
     # var_order = list(range(nvars,0,-1)) # state atoms first
     vtree_type = "right"  # OBDD-style
+    # vtree_type = "balanced"
+    # vtree_type = "left"
 
     vtree = Vtree(nvars, var_order, vtree_type)
     return SddManager(var_count=nvars, auto_gc_and_minimize=0, vtree=vtree)
@@ -422,7 +416,8 @@ def setup_false_sdd_manager():
 
 
 def process_problem(problem, max_size=20000000,
-                    serialization_directory=None, conjoin_with_init=False, minimize_sdd=True):
+                    serialization_directory=None, conjoin_with_init=False,
+                    graphs_directory=None, sdd_minimization_time=None):
     # Make sure the initial state has some associated evaluator:
     problem.init.evaluator = problem.init.evaluator or evaluate
 
@@ -431,25 +426,64 @@ def process_problem(problem, max_size=20000000,
     _, statics = classify_symbols(problem)
 
     for action in actions:
-        manager, node, symbols = compile_action_schema(problem, statics, action, data, max_size,
-                                                       conjoin_with_init=conjoin_with_init)
+        manager, node, symbols, theory = compile_action_schema(
+            problem, statics, action, data, max_size, conjoin_with_init=conjoin_with_init)
 
-        if minimize_sdd:
-            node.ref()
-            manager.set_vtree_search_time_limit(10)
+        print(f"\tSDD has {node.size()} nodes")
+        if sdd_minimization_time is not None and sdd_minimization_time > 0:
+            minimize_sdd(manager, node, sdd_minimization_time)
 
-            with resources.timing(f"\tMinimizing SDD ({node.size()} nodes)"):
-                manager.minimize_limited()
-            print(f"\tAfter first minimization pass, SDD has {node.size()} nodes")
+        if graphs_directory is not None:
+            print_sdd(action, graphs_directory, manager, node, symbols, theory)
 
-            node.deref()
-
-        # print(node.dot(), file=open(f"/home/gfrances/tmp/vtrees/sdd-{action.name}.dot", "w"))
-        # print(manager.vtree().dot(), file=open(f"/home/gfrances/tmp/vtrees/vtree-{action.name}.dot", "w"))
         if serialization_directory is not None:
             store_schema_data(action, manager, node, symbols, serialization_directory)
 
     return data
+
+
+def print_sdd(action, directory, manager, node, symbols, theory):
+    import subprocess
+    import string
+    if not Path(directory).is_dir():
+        raise Exception(f"Directory '{directory}' does not exist")
+
+    var_mapping_filename = f"{directory}/{action.name}-theory.txt"
+    sdd_dot_filename = f"{directory}/sdd-{action.name}.dot"
+    sdd_png_filename = f"{directory}/sdd-{action.name}.png"
+    vtree_dot_filename = f"{directory}/vtree-{action.name}.dot"
+    vtree_png_filename = f"{directory}/vtree-{action.name}.png"
+
+    def varname(i):
+        # Variables are 1-indexed
+        return f'x{i}' if i-1 >= len(string.ascii_uppercase) else string.ascii_uppercase[i-1]
+
+    print(f'\tPrinting SDD graphic information to "{sdd_png_filename}", "{vtree_png_filename}" and {var_mapping_filename}')
+    with open(var_mapping_filename, "w") as f:
+        varidxs = sorted(symbols.values())
+        inv = {v: k for k, v in symbols.items()}
+        print('\n'.join(f"{varname(i)}: {inv[i]}" for i in varidxs), file=f)
+        print(f'\nLogical theory for action theory {action.ident()}:', file=f)
+        print(f'Action precontiion: {action.precondition}', file=f)
+        print('\n'.join(f"{c}" for c in theory), file=f)
+
+    with open(sdd_dot_filename, "w") as f:
+        print(node.dot(), file=f)
+    with open(vtree_dot_filename, "w") as f:
+        print(manager.vtree().dot(), file=f)
+    with open(sdd_png_filename, "w") as f:
+        subprocess.call(f"dot -Tpng {sdd_dot_filename}".split(), stdout=f)
+    with open(vtree_png_filename, "w") as f:
+        subprocess.call(f"dot -Tpng {vtree_dot_filename}".split(), stdout=f)
+
+
+def minimize_sdd(manager, node, sdd_minimization_time):
+    node.ref()
+    manager.set_vtree_search_time_limit(sdd_minimization_time)
+    with resources.timing(f"\tMinimizing SDD ({node.size()} nodes) for up to {sdd_minimization_time} sec."):
+        manager.minimize_limited()
+    print(f"\tAfter first minimization pass, SDD has {node.size()} nodes")
+    node.deref()
 
 
 def store_schema_data(action, manager, node, symbols, path):
