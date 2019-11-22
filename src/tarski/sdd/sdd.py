@@ -3,7 +3,6 @@ import logging
 import operator
 import itertools
 import os
-import string
 import time
 from collections import defaultdict
 from functools import reduce
@@ -516,12 +515,6 @@ def store_schema_data(action, manager, node, symbols, path):
             param_bindings = paramidxs[i]
             line = ','.join(f'{o}:{atomid}' for o, atomid in param_bindings.items())
             print(line, file=f)
-
-    # Some information helpful for debugging
-    with open(os.path.join(path, f'{sanitized}.sdd.debug'), 'w') as f:
-        for atom, atomid in symbols.items():
-            letter = string.ascii_uppercase[atomid-1] if atomid <= len(string.ascii_uppercase) else f'X{atomid}'
-            print(f'{atomid}.\t{letter}\t{atom}', file=f)
 
 
 def join_models(model1, model2):
