@@ -174,7 +174,7 @@ class FirstOrderLanguage:
         which has been correctly registered with the language, or the name of such an object, and return the object
         """
         if not isinstance(obj, (str, type_)):
-            raise err.LanguageError('Unknown type of language element "{}"'.format(obj))
+            raise err.UnexpectedElementType(obj)
 
         if isinstance(obj, type_):
             if obj.language != self:
@@ -225,11 +225,13 @@ class FirstOrderLanguage:
     def constants(self):
         return list(self._constants.values())
 
-    def vector(self, arraylike, sort: Sort):
+    @staticmethod
+    def vector(arraylike, sort: Sort):
         import numpy as np
         return Matrix(np.reshape(arraylike, (len(arraylike), 1)), sort)
 
-    def matrix(self, arraylike, sort: Sort):
+    @staticmethod
+    def matrix(arraylike, sort: Sort):
         return Matrix(arraylike, sort)
 
     def _check_name_not_defined(self, name, where, exception):

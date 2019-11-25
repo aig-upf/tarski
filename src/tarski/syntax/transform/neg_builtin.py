@@ -4,7 +4,7 @@
 import copy
 
 from ..formulas import Connective, Atom, QuantifiedFormula, CompoundFormula
-from ..builtins import create_atom, negate_builtin_atom
+from ..builtins import negate_builtin_atom
 
 
 class NegatedBuiltinAbsorption:
@@ -15,11 +15,7 @@ class NegatedBuiltinAbsorption:
 
     def __init__(self, lang, phi, do_copy=True):
         self.lang = lang
-        self.blueprint = None
-        if do_copy:
-            self.blueprint = copy.deepcopy(phi)
-        else:
-            self.blueprint = phi
+        self.blueprint = copy.deepcopy(phi) if do_copy else phi
         self.formula = None
 
     def _convert(self, phi):

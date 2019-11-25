@@ -2,27 +2,23 @@
     CNF Transformation
 """
 from ..formulas import CompoundFormula, Connective, QuantifiedFormula
-from ..transform import NNFTransformation
+from ..transform import to_negation_normal_form
 
 from .errors import TransformationError
 
 
 class CNFTransformation:
-    """
-        This class rewrites an input quantifier free formula phi into an equivalent formula
-        in CNF
-
-    """
+    """ Rewrite an input quantifier-free formula into an equivalent CNF formula. """
 
     def __init__(self, lang, phi, do_copy=True):
-        """ Distribute w.r.t. disjunction, see Huth & Ryan, pp. 60-62 """
         self.L = lang
-        self.blueprint = NNFTransformation.rewrite(phi, do_copy).nnf
+        self.blueprint = to_negation_normal_form(phi, do_copy)
         self.cnf = None
         self.clauses = []
         self.current_clause = []
 
     def distribute(self, n1, n2):
+        """ Distribute w.r.t. disjunction, see Huth & Ryan, pp. 60-62 """
         if isinstance(n1, CompoundFormula) and n1.connective == Connective.And:
             lhs = self.distribute(n1.subformulas[0], n2)
             rhs = self.distribute(n1.subformulas[1], n2)
@@ -78,9 +74,15 @@ class CNFTransformation:
     def convert(self):
         self.cnf = self._convert(self.blueprint)
         self.collect_clauses(self.cnf)
+        return self.cnf
 
     @staticmethod
     def rewrite(lang, phi, do_copy=True):
         trans = CNFTransformation(lang, phi, do_copy)
         trans.convert()
         return trans
+
+
+def to_conjunctive_normal_form(lang, phi, do_copy=True):
+    trans = CNFTransformation(lang, phi, do_copy)
+    return trans.convert()

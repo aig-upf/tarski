@@ -61,6 +61,11 @@ class UndefinedElement(SyntacticError):
         super().__init__(msg)
 
 
+class UnexpectedElementType(SyntacticError):
+    def __init__(self, element):
+        super().__init__(f'Unexpected type "{type(element)}" for object "{element}"')
+
+
 class DuplicateSortDefinition(DuplicateDefinition):
     pass
 

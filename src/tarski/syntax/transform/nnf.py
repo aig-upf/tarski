@@ -1,69 +1,62 @@
 """
-    NNF Rewriter
+    Tranformation of formulas into Negation Normal Form (NNF)
 """
 import copy
 
-from ..formulas import neg, QuantifiedFormula, Quantifier, CompoundFormula, Connective
+from ... import errors as err
+from ..formulas import neg, Formula, QuantifiedFormula, CompoundFormula, Connective, negate_quantifier, Tautology, \
+    Contradiction, Atom
 
 
 class NNFTransformation:
-    """
-        This class rewrites the input formula phi into an equivalent formula
-        in NNF
-    """
+    """ Rewrite the input formula into an equivalent formula in NNF """
 
     def __init__(self, phi, do_copy=True):
-        self.blueprint = None
-        if do_copy:
-            self.blueprint = copy.deepcopy(phi)
-        else:
-            self.blueprint = phi
+        self.blueprint = copy.deepcopy(phi) if do_copy else phi
         self.nnf = None
 
-    def _convert(self, phi):
-        if isinstance(phi, CompoundFormula):
-            if phi.connective == Connective.Not:
-                p = phi.subformulas[0]
-                if isinstance(p, QuantifiedFormula):
-                    if p.quantifier == Quantifier.Exists:
-                        p.quantifier = Quantifier.Forall
-                    else:
-                        assert p.quantifier == Quantifier.Forall
-                        p.quantifier = Quantifier.Exists
-                    p.formula = self._convert(neg(p.formula))
-                    return p
-                elif isinstance(p, CompoundFormula):  # De Morgan
-                    if p.connective == Connective.Not:
-                        return p.subformulas[0]  # eliminate \neg \neg
-                    elif p.connective == Connective.And:
-                        p.connective = Connective.Or
-                    else:
-                        assert p.connective == Connective.Or
-                        p.connective = Connective.And
+    def _convert(self, phi: Formula, negated=False):
+        if isinstance(phi, Tautology):
+            return Contradiction if negated else phi
 
-                    new_sub = [self._convert(neg(p.subformulas[0])),
-                               self._convert(neg(p.subformulas[1]))]
-                    p.subformulas = tuple(new_sub)
-                    return p
-                else:
-                    return phi  # nothing to do
-            else:
-                assert phi.connective == Connective.And or phi.connective == Connective.Or
-                new_sub = [self._convert(phi.subformulas[0]),
-                           self._convert(phi.subformulas[1])]
-                phi.subformulas = tuple(new_sub)
-                return phi
-        elif isinstance(phi, QuantifiedFormula):
-            phi.formula = self._convert(phi.formula)
+        if isinstance(phi, Contradiction):
+            return Tautology if negated else phi
+
+        if isinstance(phi, Atom):
+            return neg(phi) if negated else phi
+
+        if isinstance(phi, QuantifiedFormula):  # Convert quantified formulas recursively
+            phi.formula = self._convert(phi.formula, negated)
+            phi.quantifier = negate_quantifier(phi.quantifier) if negated else phi.quantifier
             return phi
-        else:
+
+        if isinstance(phi, CompoundFormula) and phi.connective in (Connective.And, Connective.Or):
+            # Convert conjunct / disjunct formulas recursively, applying De Morgan if negated=True
+            phi.subformulas = tuple(self._convert(sub, negated) for sub in phi.subformulas)
+            phi.connective = negate_connective(phi.connective) if negated else phi.connective
             return phi
+
+        if isinstance(phi, CompoundFormula) and phi.connective == Connective.Not:
+            assert len(phi.subformulas) == 1
+            return self._convert(phi.subformulas[0], not negated)
+
+        raise err.UnexpectedElementType(phi)
 
     def convert(self):
         self.nnf = self._convert(self.blueprint)
+        return self.nnf
 
     @staticmethod
     def rewrite(phi, do_copy=True):
         trans = NNFTransformation(phi, do_copy)
         trans.convert()
         return trans
+
+
+def negate_connective(connective):
+    return {Connective.Or: Connective.And, Connective.And: Connective.Or}[connective]
+
+
+def to_negation_normal_form(phi, do_copy=True):
+    trans = NNFTransformation(phi, do_copy)
+    return trans.convert()

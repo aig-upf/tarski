@@ -32,7 +32,7 @@ class ReactionGrounder:
                 self.reactions_generated += 1
                 continue
 
-            k, syms, substs = instantiation.enumerate_groundings(self.L, react_schema.parameters)
+            k, syms, substs = instantiation.enumerate_groundings(react_schema.parameters)
             for values in itertools.product(*substs):
                 subst = create_substitution(syms, values)
 

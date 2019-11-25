@@ -1,5 +1,5 @@
 """
-    Rewrite formulas into prenex normal form
+    Rewrite formulas into prenex negation normal form
 """
 from ..symrefs import symref
 from ..formulas import CompoundFormula, QuantifiedFormula, Connective, Quantifier, lor
@@ -10,11 +10,7 @@ from .errors import TransformationError
 
 
 class PrenexTransformation:
-    """
-        This class rewrites the input formula phi into an equivalent formula
-        in Prenex NNF
-
-    """
+    """ Rewrite the input formula into an equivalent formula in Prenex Negation Normal Form. """
 
     def __init__(self, lang, phi, do_copy=True):
         self.L = lang
@@ -145,6 +141,7 @@ class PrenexTransformation:
 
     def convert(self):
         self.prenex = self._convert(self.blueprint)
+        return self.prenex
 
     @staticmethod
     def rewrite(lang, phi, do_copy=True):
@@ -156,3 +153,8 @@ class PrenexTransformation:
 def _merge_mixed_subformulas(quant, variables, lhs, conn, rhs):
     new_phi = QuantifiedFormula(quant, variables, CompoundFormula(conn, tuple([lhs, rhs])))
     return new_phi
+
+
+def to_prenex_negation_normal_form(lang, phi, do_copy=True):
+    trans = PrenexTransformation(lang, phi, do_copy)
+    return trans.convert()

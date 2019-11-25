@@ -24,7 +24,7 @@ class DifferentialConstraintGrounder:
     def calculate_constraints(self):
 
         for ode_schema in self.schemas:
-            k, syms, substs = instantiation.enumerate_groundings(self.L, ode_schema.parameters)
+            k, syms, substs = instantiation.enumerate_groundings(ode_schema.parameters)
             for values in itertools.product(*substs):
                 subst = create_substitution(syms, values)
                 op = TermSubstitution(self.L, subst)

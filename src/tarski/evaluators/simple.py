@@ -38,7 +38,7 @@ def evaluate(element, m: Model, sigma=None):
     if isinstance(element, (Constant, CompoundTerm, IfThenElse, Matrix, AggregateCompoundTerm)):
         return evaluate_term(element, m, sigma)
 
-    raise RuntimeError("Unknown logical element type: {}, {}".format(element, type(element)))
+    raise err.UnexpectedElementType(element)
 
 
 _compound_evaluators = {

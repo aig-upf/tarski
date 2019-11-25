@@ -20,7 +20,7 @@ def generate_fstrips_counters_language(ncounters=3, upper_bound=None):
     lang.function('value', 'counter', 'val')
     lang.function('max_int', 'val')
 
-    [lang.constant(f'c{k}', 'counter') for k in range(1, ncounters+1)]
+    _ = [lang.constant(f'c{k}', 'counter') for k in range(1, ncounters+1)]
     return lang
 
 

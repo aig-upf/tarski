@@ -1,13 +1,14 @@
 import pytest
 
+from tarski.fstrips.representation import is_quantifier_free
 from tarski.syntax import *
 from tests.common import blocksworld
 from tests.common import tarskiworld
 
 from tarski.syntax.transform.nnf import NNFTransformation
-from tarski.syntax.transform.prenex import PrenexTransformation
-from tarski.syntax.transform.univ_elim import UniversalQuantifierElimination
-from tarski.syntax.transform import CNFTransformation
+from tarski.syntax.transform.prenex import PrenexTransformation, to_prenex_negation_normal_form
+from tarski.syntax.transform import CNFTransformation, QuantifierElimination, remove_quantifiers, \
+    QuantifierEliminationMode
 from tarski.syntax.transform import NegatedBuiltinAbsorption
 from tarski.syntax.transform.errors import TransformationError
 
@@ -47,11 +48,8 @@ def test_nnf_double_negation():
 def test_nnf_quantifier_flips():
     bw = blocksworld.generate_small_fstrips_bw_language()
     block = bw.get_sort('block')
-    _ = bw.get_sort('place')
     loc = bw.get_function('loc')
-    _ = bw.get_predicate('clear')
     b1, b2, b3, b4 = [bw.get_constant('b{}'.format(k)) for k in range(1, 5)]
-    _ = bw.get_constant('table')
 
     x = bw.variable('x', block)
 
@@ -74,20 +72,11 @@ def test_nnf_lpl_page_321_antecedent():
 
 def test_prenex_idempotency():
     bw = blocksworld.generate_small_fstrips_bw_language()
-    block = bw.get_sort('block')
-    _ = bw.get_sort('place')
     loc = bw.get_function('loc')
-    _ = bw.get_predicate('clear')
     b1, b2, b3, b4 = [bw.get_constant('b{}'.format(k)) for k in range(1, 5)]
-    _ = bw.get_constant('table')
-
-    _ = bw.variable('x', block)
 
     phi = loc(b1) == b2
-    result = PrenexTransformation.rewrite(bw, phi)
-    gamma = loc(b1) == b2
-
-    assert str(result.prenex) == str(gamma)
+    assert str(to_prenex_negation_normal_form(bw, phi, do_copy=True)) == str(phi)
 
 
 def test_prenex_lpl_page_321():
@@ -98,26 +87,23 @@ def test_prenex_lpl_page_321():
     s1 = exists(y, land(tw.Dodec(y), tw.BackOf(x, y)))
     s2 = land(tw.Cube(x), exists(y, land(tw.Tet(y), tw.LeftOf(x, y))))
     phi = forall(x, implies(s2, s1))
-    result = PrenexTransformation.rewrite(tw, phi)
+
     yp = tw.variable("y'", tw.Object)
     gamma = NNFTransformation.rewrite(exists(yp, forall(
         x, y, implies(land(tw.Cube(x), land(tw.Tet(y), tw.LeftOf(x, y))), land(tw.Dodec(yp), tw.BackOf(x, yp)))))).nnf
 
-    assert str(result.prenex) == str(gamma)
+    assert str(to_prenex_negation_normal_form(tw, phi, do_copy=True)) == str(gamma)
 
 
-def test_universal_elimination_fails_due_to_no_constants():
+def test_quantifier_elimination_fails_due_to_no_constants():
     tw = tarskiworld.create_small_world()
     x = tw.variable('x', tw.Object)
-
     y = tw.variable('y', tw.Object)
     s1 = exists(y, land(tw.Dodec(y), tw.BackOf(x, y)))
     s2 = land(tw.Cube(x), exists(y, land(tw.Tet(y), tw.LeftOf(x, y))))
     phi = forall(x, implies(s2, s1))
-    # print(str(phi))
     with pytest.raises(TransformationError):
-        _ = UniversalQuantifierElimination.rewrite(tw, phi)
-        # print(str(result.universal_free))
+        QuantifierElimination.rewrite(tw, phi, QuantifierEliminationMode.All)
 
 
 def test_universal_elimination_works():
@@ -134,11 +120,38 @@ def test_universal_elimination_works():
     s2 = land(tw.Cube(x), exists(y, land(tw.Tet(y), tw.LeftOf(x, y))))
     phi = forall(x, implies(s2, s1))
     # print(str(phi))
-    result = UniversalQuantifierElimination.rewrite(tw, phi)
-    # print(str(result.universal_free))
-    result2 = UniversalQuantifierElimination.rewrite(tw, result.universal_free)
-    # print(str(result2.universal_free))
-    assert str(result.universal_free) == str(result2.universal_free)
+    result = remove_quantifiers(tw, phi, QuantifierEliminationMode.Forall)
+    result2 = remove_quantifiers(tw, result, QuantifierEliminationMode.Forall)
+    assert str(result) == str(result2)
+
+
+def create_small_world_elements(numobjects=3):
+    lang = tarskiworld.create_small_world()
+    x, y = lang.variable('x', lang.Object), lang.variable('y', lang.Object)
+    _ = [lang.constant(f'obj{i}', lang.Object) for i in range(1, numobjects + 1)]
+    return lang, x, y
+
+
+def test_existential_elimination1():
+    lang, x, y = create_small_world_elements(2)
+    obj1, obj2 = lang.get("obj1"), lang.get("obj2")
+
+    phi = exists(y, land(lang.Dodec(y), lang.BackOf(x, y)))
+    result = remove_quantifiers(lang, phi, QuantifierEliminationMode.Exists)
+
+    # We cannot guarantee in which order the expansion of the exists will be done, so we check for both possibilities:
+    assert result == (lang.Dodec(obj1) & lang.BackOf(x, obj1)) | (lang.Dodec(obj2) & lang.BackOf(x, obj2)) or \
+        result == (lang.Dodec(obj2) & lang.BackOf(x, obj2)) | (lang.Dodec(obj1) & lang.BackOf(x, obj1))
+
+
+def test_existential_elimination2():
+    lang, x, y = create_small_world_elements(2)
+
+    s1 = exists(y, land(lang.Dodec(y), lang.BackOf(x, y)))
+    s2 = land(lang.Cube(x), exists(y, land(lang.Tet(y), lang.LeftOf(x, y))))
+    phi = forall(x, implies(s2, s1))
+    result = remove_quantifiers(lang, phi, QuantifierEliminationMode.All)
+    assert is_quantifier_free(result)
 
 
 def test_builtin_negation_absorption():
@@ -161,9 +174,6 @@ def test_builtin_negation_absorption():
 
 def test_cnf_conversion_easy():
     tw = tarskiworld.create_small_world()
-    _ = tw.variable('x', tw.Object)
-
-    _ = tw.variable('y', tw.Object)
 
     obj1 = tw.constant('obj1', tw.Object)
     obj2 = tw.constant('obj2', tw.Object)
@@ -182,21 +192,18 @@ def test_cnf_conversion_easy():
 
 
 def test_cnf_conversion_complex():
-    tw = tarskiworld.create_small_world()
-    x = tw.variable('x', tw.Object)
+    lang, x, y = create_small_world_elements(2)
 
-    y = tw.variable('y', tw.Object)
-
-    _ = tw.constant('obj1', tw.Object)
-    _ = tw.constant('obj2', tw.Object)
-    _ = tw.constant('obj3', tw.Object)
-
-    s1 = exists(y, land(tw.Dodec(y), tw.BackOf(x, y)))
-    s2 = land(tw.Cube(x), exists(y, land(tw.Tet(y), tw.LeftOf(x, y))))
+    s1 = exists(y, land(lang.Dodec(y), lang.BackOf(x, y)))
+    s2 = land(lang.Cube(x), exists(y, land(lang.Tet(y), lang.LeftOf(x, y))))
     phi = forall(x, implies(s2, s1))
-    result = UniversalQuantifierElimination.rewrite(tw, phi)
-    result2 = CNFTransformation.rewrite(tw, result.universal_free.formula)
-    # print(result2.cnf)
-    # print('\n'.join( [ ','.join([str(l) for l in c]) for c in result2.clauses ] ) )
-    # print(len(result2.clauses))
-    assert len(result2.clauses) == 34
+    result = remove_quantifiers(lang, phi, QuantifierEliminationMode.All)
+    transf = CNFTransformation.rewrite(lang, result)
+    # print(transf.cnf)
+    # print('\n'.join([','.join([str(l) for l in c]) for c in transf.clauses]))
+    assert len(transf.clauses) == 30
+
+    # Now remove the quantifiers after tranforming to PNNF
+    result = remove_quantifiers(lang, to_prenex_negation_normal_form(lang, phi), QuantifierEliminationMode.All)
+    transf = CNFTransformation.rewrite(lang, result)
+    assert len(transf.clauses) == 126

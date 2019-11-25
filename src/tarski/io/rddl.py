@@ -218,7 +218,8 @@ class Reader:
         self.parameters = Parameters()
         self.x0 = None
 
-    def _load_rddl_model(self, filename):
+    @staticmethod
+    def _load_rddl_model(filename):
         with open(filename, 'r') as input_file:
             rddl = input_file.read()
         parser = RDDLParser()
@@ -455,7 +456,8 @@ class Writer:
             self.need_obj_decl += [S]
         return '\n'.join(type_decl_list)
 
-    def get_type(self, fl):
+    @staticmethod
+    def get_type(fl):
         if isinstance(fl, Atom):
             return 'bool'
         try:
@@ -463,7 +465,8 @@ class Writer:
         except KeyError:
             return fl.symbol.codomain.name
 
-    def get_signature(self, fl):
+    @staticmethod
+    def get_signature(fl):
         if isinstance(fl, CompoundTerm):
             sig = fl.symbol.signature
             head = sig[0]

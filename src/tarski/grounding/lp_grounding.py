@@ -58,3 +58,8 @@ class LPGroundingStrategy:
         return 'LPGroundingStrategy["{}"]'.format(self.problem.name)
 
     __repr__ = __str__
+
+
+def compute_action_groundings(problem):
+    grounding = LPGroundingStrategy(problem)
+    return grounding.ground_actions()

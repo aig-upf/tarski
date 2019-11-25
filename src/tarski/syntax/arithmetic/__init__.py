@@ -59,7 +59,7 @@ def summation(*args):
         variables.append(x)
 
     L = expr.language
-    _, syms, substs = instantiation.enumerate_groundings(L, list(variables))
+    _, syms, substs = instantiation.enumerate_groundings(list(variables))
     processed_expr = []
     for values in itertools.product(*substs):
         subst = create_substitution(syms, values)
@@ -89,7 +89,7 @@ def product(*args):
         variables.append(x)
 
     L = expr.language
-    _, syms, substs = instantiation.enumerate_groundings(L, list(variables))
+    _, syms, substs = instantiation.enumerate_groundings(list(variables))
     processed_expr = []
     for values in itertools.product(*substs):
         subst = create_substitution(syms, values)

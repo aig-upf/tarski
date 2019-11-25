@@ -2,13 +2,14 @@ import logging
 from collections import defaultdict
 from typing import Optional, List
 
+from ..theories import load_theory, Theory
 from .common import load_tpl
 from ..model import ExtensionalFunctionDefinition
 from ..syntax import Tautology, Contradiction, Atom, CompoundTerm, CompoundFormula, QuantifiedFormula, \
     Term, Variable, Constant, Formula, symref, BuiltinPredicateSymbol
 from ..syntax.sorts import parent, Interval, ancestors
 
-from ._fstrips.common import tarski_to_pddl_type, get_requirements_string
+from ._fstrips.common import tarski_to_pddl_type, get_requirements_string, create_number_type
 from ..fstrips import create_fstrips_problem, language, FunctionalEffect, AddEffect, DelEffect, IncreaseEffect,\
     UniversalEffect
 
@@ -20,9 +21,21 @@ from ._fstrips.reader import ParsingError
 
 
 class FstripsReader:
+    """ A class designed to parse problems specified in PDDL / FSTRIPS. """
 
-    def __init__(self, raise_on_error=False, theories=None, lang=None):
+    def __init__(self, raise_on_error=False, theories=None, lang=None, strict_with_requirements=True):
+        """ Create a FSTRIPS reader.
+
+        :param raise_on_error: Whether to raise a Tarski ParsingError on every syntax error detected by the parser.
+        :param theories: A list with the logic theories the language is expected to have.
+        :param lang: A FOL language where the problem is to be parsed. If none is provided, a new one will be created.
+        :param strict_with_requirements: if False, the parser will be less strict with the PDDL requirement flags,
+                                         and will load by default the necessary theories to process action costs.
+        """
         lang = language(theories=theories) if lang is None else lang
+        if not strict_with_requirements:
+            load_theory(lang, Theory.ARITHMETIC)
+            create_number_type(lang)
         self.problem = create_fstrips_problem(language=lang)
         self.parser = FStripsParser(self.problem, raise_on_error)
 
