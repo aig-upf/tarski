@@ -50,6 +50,7 @@ install:
   - python -m pip install --upgrade tox pip setuptools wheel
   - tox --version
   - if [[ $TOXENV == py* ]]; then ./scripts/get-benchmarks; fi  # Download benchmarks only if necessary
+  - if [[ $TOXENV == py* ]]; then pip install Cython --install-option="--no-cython-compile"; fi  # Preinstall Cython if necessary
 
 script:
-  - tox
+  - tox -vv

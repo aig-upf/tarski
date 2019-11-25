@@ -72,7 +72,7 @@ def generate_small_fstrips_bw_problem():
     return problem
 
 
-def generate_small_strips_bw_problem():
+def generate_small_strips_bw_problem(use_inequalities=True):
     """ Generate the standard BW encoding, untyped and with 4 action schemas """
     lang = generate_small_strips_bw_language()
     problem = create_fstrips_problem(domain_name='blocksworld', problem_name='test', language=lang)
@@ -105,8 +105,11 @@ def generate_small_strips_bw_problem():
                             fs.DelEffect(handempty()),
                             fs.AddEffect(holding(x))])
 
+    prec = holding(x) & clear(y)
+    if use_inequalities:
+        prec = prec & (x != y)
     problem.action('stack', [x, y],
-                   precondition= (x != y) & holding(x) & clear(y),
+                   precondition=prec,
                    effects=[fs.AddEffect(on(x, y)),
                             fs.DelEffect(clear(y)),
                             fs.AddEffect(clear(x)),
