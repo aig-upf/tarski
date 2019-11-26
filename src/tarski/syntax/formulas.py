@@ -110,7 +110,7 @@ class CompoundFormula(Formula):
     def __str__(self):
         if self.connective == Connective.Not:
             assert len(self.subformulas) == 1
-            return "{} ({})".format(self.connective, str(self.subformulas[0]))
+            return "({} {})".format(self.connective, str(self.subformulas[0]))
 
         inner = " {} ".format(self.connective).join(str(f) for f in self.subformulas)
         return "({})".format(inner)
