@@ -1,6 +1,4 @@
 
-from collections import defaultdict
-
 from . import errors as err
 from .syntax import Function, Constant, CompoundTerm, symref
 from .syntax.predicate import Predicate
@@ -47,7 +45,7 @@ class Model:
         self.evaluator = None
         self.language = language
         self.function_extensions = dict()
-        self.predicate_extensions = defaultdict(set)
+        self.predicate_extensions = dict()
 
     def setx(self, term: CompoundTerm, value: Constant):
         """ Set the value of the interpretation on the given term to be equal to `value`. """
@@ -59,12 +57,9 @@ class Model:
             if not isinstance(st, Constant):
                 raise err.SemanticError(f"Model.set(): subterms of '{term}' need to be constants")
         point, value = _check_assignment(term.symbol, tuple(term.subterms), value)
-        if term.symbol.signature not in self.function_extensions:
-            definition = self.function_extensions[term.symbol.signature] = ExtensionalFunctionDefinition()
-        else:
-            definition = self.function_extensions[term.symbol.signature]
-            if not isinstance(definition, ExtensionalFunctionDefinition):
-                raise err.SemanticError("Cannot define extension of intensional definition")
+        definition = self.function_extensions.setdefault(term.symbol.signature, ExtensionalFunctionDefinition())
+        if not isinstance(definition, ExtensionalFunctionDefinition):
+            raise err.SemanticError("Cannot define extension of intensional definition")
 
         definition.set(point, value)
 
@@ -75,9 +70,12 @@ class Model:
 
     def add(self, predicate: Predicate, *args):
         if not isinstance(predicate, Predicate):
-            raise err.SemanticError("Model.add() can only set the value of predicates")
+            raise err.SemanticError("Model.add() can only set the value of predicate symbols")
+        if predicate.builtin:
+            raise err.SemanticError(f"Model.add() attempted to redefine builtin symbol '{predicate}'")
         point = _check_assignment(predicate, args)
-        self.predicate_extensions[predicate.signature].add(wrap_tuple(point))
+        definition = self.predicate_extensions.setdefault(predicate.signature, set())
+        definition.add(wrap_tuple(point))
 
     def remove(self, predicate: Predicate, *args):
         self.predicate_extensions[predicate.signature].remove(wrap_tuple(args))
@@ -89,8 +87,8 @@ class Model:
 
     def holds(self, predicate: Predicate, point):
         """ Return true iff the given predicate is true on the given point in the current model """
-        # return tuple(c.symbol for c in point) in self.predicate_extensions[predicate.signature]
-        return wrap_tuple(point) in self.predicate_extensions[predicate.signature]
+        return predicate.signature in self.predicate_extensions and \
+               wrap_tuple(point) in self.predicate_extensions[predicate.signature]
 
     def list_all_extensions(self):
         """ Return a mapping between predicate and function signatures and a list of all their respective extensions.

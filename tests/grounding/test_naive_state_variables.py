@@ -60,10 +60,8 @@ def test_all_state_variables_can_be_evaluated_in_init_parcprinter():
     for var in create_all_possible_state_variables(index.fluent_terms):
         index.state_variables.add(var)
     for var in index.state_variables:
-        # print("type: {} expr: {} value: {}".format(type(var.ground), str(var.ground), prob.init[var.ground]))
-        assert (prob.init[var.ground] is True or
-                prob.init[var.ground] is False or
-                prob.init[var.ground] == 0.0)
+        val = prob.init[var.ground]
+        assert val in (True, False, 0.0)
 
 
 def test_task_index_create_state_variables_blocksworld():
