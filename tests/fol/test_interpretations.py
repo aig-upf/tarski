@@ -367,6 +367,11 @@ def test_model_list_extensions():
     model = Model(lang)
     model.evaluator = evaluate
 
+    # Test that empty extensions are also returned by `list_all_extensions`
+    extensions = model.list_all_extensions()
+    assert extensions[p.signature] == set()
+    assert len(extensions[f.signature]) == 0
+
     model.set(f, o1, o2)
     model.add(p, o1, o2)
 

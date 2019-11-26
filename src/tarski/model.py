@@ -95,9 +95,19 @@ class Model:
         This list *unwraps* the TermReference's used internally in this class back into plain Tarski terms, so that
         you can rely on the returned extensions being made up of Constants, Variables, etc., not TermReferences
         """
+        from .syntax.util import get_symbols
         exts = {k: [unwrap_tuple(tup) for tup in ext] for k, ext in self.predicate_extensions.items()}
         exts.update((k, [unwrap_tuple(point) + (value, ) for point, value in ext.data.items()])
                     for k, ext in self.function_extensions.items())
+
+        # Add the empty extensions for those symbols in the language that have no true atom
+        for symbol in get_symbols(self.language, type_="predicate", include_builtin=False):
+            if symbol.signature not in exts:
+                exts[symbol.signature] = set()
+        for symbol in get_symbols(self.language, type_="function", include_builtin=False):
+            if symbol.signature not in exts:
+                exts[symbol.signature] = ExtensionalFunctionDefinition()
+
         return exts
 
     def as_atoms(self):
@@ -144,6 +154,9 @@ class ExtensionalFunctionDefinition:
 
     def get(self, point):
         return self.data[wrap_tuple(point)]
+
+    def __len__(self):
+        return len(self.data)
 
 
 # class IntensionalFunctionDefinition:
