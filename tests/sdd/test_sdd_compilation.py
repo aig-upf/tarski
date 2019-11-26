@@ -1,8 +1,13 @@
 """
  Tests for the SDD module
 """
+try:
+    from tarski.sdd.sdd import process_problem
+except ImportError:
+    import pytest
+    pytest.skip("Please install the PySDD Python module to run the full suite of tests", allow_module_level=True)
 
-from tarski.sdd.sdd import process_problem
+
 from ..common.blocksworld import generate_small_strips_bw_problem
 from ..common.gripper import create_sample_problem
 from ..io.common import get_benchmark_dir_if_exists, add_domains_from, reader

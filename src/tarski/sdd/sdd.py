@@ -14,7 +14,7 @@ from ..utils.serialization import serialize_atom
 try:
     from pysdd.sdd import Vtree, SddManager
 except ImportError as err:
-    raise RuntimeError("Could not import pysdd - sdd module not available") from None
+    raise ImportError("Could not import pysdd - sdd module not available") from None
 
 
 from ..evaluators.simple import evaluate
