@@ -50,15 +50,18 @@ class FStripsParser(fstripsVisitor):
         return element
 
     def __init__(self, problem, raise_on_error=False):
+        self.problem = problem
         self.error_handler = ExceptionRaiserListener() if raise_on_error else None
         self.current_binding = None
-
-        # Shortcuts
-        self.problem = problem
-        self.language = problem.language
-        self.init = problem.init
-
         self.requirements = set()
+
+    @property
+    def init(self):
+        return self.problem.init
+
+    @property
+    def language(self):
+        return self.problem.language
 
     def visitDomainName(self, ctx):
         self.problem.domain_name = ctx.NAME().getText()
