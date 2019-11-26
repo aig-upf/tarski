@@ -49,40 +49,29 @@ class Model:
         self.function_extensions = dict()
         self.predicate_extensions = defaultdict(set)
 
-    def setx(self, t: CompoundTerm, value: Constant):
-        if not isinstance(t.symbol, Function):
-            raise err.SemanticError("Model.set() can only set the value of functions")
-        if t.symbol.builtin:
-            raise err.SemanticError("Model.set() cannot redefine builtin symbols like '{}'".format(str(t.symbol)))
-        for st in t.subterms:
+    def setx(self, term: CompoundTerm, value: Constant):
+        """ Set the value of the interpretation on the given term to be equal to `value`. """
+        if not isinstance(term.symbol, Function):
+            raise err.SemanticError("Model.set() can only set the value of function symbols")
+        if term.symbol.builtin:
+            raise err.SemanticError(f"Model.set() attempted to redefine builtin symbol '{term.symbol}'")
+        for st in term.subterms:
             if not isinstance(st, Constant):
-                raise err.SemanticError("Model.set(): subterms of '{}' need to be constants".format(str(t)))
-        point, value = _check_assignment(t.symbol, tuple(t.subterms), value)
-        if t.symbol.signature not in self.function_extensions:
-            definition = self.function_extensions[t.symbol.signature] = ExtensionalFunctionDefinition()
+                raise err.SemanticError(f"Model.set(): subterms of '{term}' need to be constants")
+        point, value = _check_assignment(term.symbol, tuple(term.subterms), value)
+        if term.symbol.signature not in self.function_extensions:
+            definition = self.function_extensions[term.symbol.signature] = ExtensionalFunctionDefinition()
         else:
-            definition = self.function_extensions[t.symbol.signature]
+            definition = self.function_extensions[term.symbol.signature]
             if not isinstance(definition, ExtensionalFunctionDefinition):
                 raise err.SemanticError("Cannot define extension of intensional definition")
 
         definition.set(point, value)
 
     def set(self, fun, *args):
-        """ Set the value of function 'fun' at point 'point' to be equal to 'value'
-            'point' needs to be a tuple of constants, and value a single constant.
-        """
-        if not isinstance(fun, Function):
-            raise err.SemanticError("Model.set() can only set the value of functions")
-        point, value = args[:-1], args[-1]
-        point, value = _check_assignment(fun, point, value)
-        if fun.signature not in self.function_extensions:
-            definition = self.function_extensions[fun.signature] = ExtensionalFunctionDefinition()
-        else:
-            definition = self.function_extensions[fun.signature]
-            if not isinstance(definition, ExtensionalFunctionDefinition):
-                raise err.SemanticError("Cannot define extension of intensional definition")
-
-        definition.set(point, value)
+        """ Set the value of fun(args[:-1]) to be args[-1] for the current interpretation """
+        # TODO: Deprecate in favor of Model.set()
+        self.setx(fun(*args[:-1]), args[-1])
 
     def add(self, predicate: Predicate, *args):
         if not isinstance(predicate, Predicate):
@@ -106,7 +95,7 @@ class Model:
     def list_all_extensions(self):
         """ Return a mapping between predicate and function signatures and a list of all their respective extensions.
         This list *unwraps* the TermReference's used internally in this class back into plain Tarski terms, so that
-        you can rely on the returned extensions being made up of Constant's, Variables, etc., not TermReference's
+        you can rely on the returned extensions being made up of Constants, Variables, etc., not TermReferences
         """
         exts = {k: [unwrap_tuple(tup) for tup in ext] for k, ext in self.predicate_extensions.items()}
         exts.update((k, [unwrap_tuple(point) + (value, ) for point, value in ext.data.items()])
