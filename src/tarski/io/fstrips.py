@@ -45,7 +45,7 @@ class FstripsReader:
         return self.problem
 
     def parse_file(self, filename, start_rule):
-        logging.info('Parsing filename "{}" from grammar rule "{}"'.format(filename, start_rule))
+        logging.debug('Parsing filename "{}" from grammar rule "{}"'.format(filename, start_rule))
         domain_parse_tree, _ = self.parser.parse_file(filename, start_rule)
         self.parser.visit(domain_parse_tree)
 
@@ -56,9 +56,9 @@ class FstripsReader:
         self.parse_file(filename, 'problem')
 
     def parse_string(self, string, start_rule):
-        logging.info('Parsing custom string from grammar rule "{}"'.format(start_rule))
+        logging.debug('Parsing custom string from grammar rule "{}"'.format(start_rule))
         parse_tree, _ = self.parser.parse_string(string, start_rule)
-        logging.info("Processing AST")
+        logging.debug("Processing AST")
         return self.parser.visit(parse_tree)
 
 
