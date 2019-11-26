@@ -8,19 +8,21 @@
     Proceedings of the 26th Int'l Joint Conference on Artificial Intelligence (IJCAI)
     2017
 """
-from tarski.syntax import Tautology, Contradiction, Atom, CompoundTerm, CompoundFormula, QuantifiedFormula, \
-    Term, Variable, Constant, Formula, symref, BuiltinPredicateSymbol, Connective
+from tarski.syntax import Atom, CompoundTerm, CompoundFormula, Constant, symref, Connective
 from tarski.model import Model
-from tarski.evaluators.simple import evaluate
+
 
 class SyntaxError(Exception):
     pass
 
+
 class UnsupportedFeature(Exception):
     pass
 
+
 class SemanticError(Exception):
     pass
+
 
 class ResourceLock:
 
@@ -30,6 +32,7 @@ class ResourceLock:
         self.r = kwargs['r']
         if not isinstance(self.r, CompoundTerm):
             raise SyntaxError("NDL Syntactic Error: resource lock needs to be a term (given: {})".format(self.r))
+
 
 class ResourceLevel:
 
@@ -43,7 +46,10 @@ class ResourceLevel:
         if not isinstance(self.n, Constant):
             raise SyntaxError("NDL Syntactic Error: resource level must be a constant (given: {}".format(self.n))
         if self.n.sort != self.r.sort:
-            raise SyntaxError("NDL Type Mismatch: resource and level have different sorts (resource is: {}, level is: {}".format(self.r.sort, self.n.sort))
+            raise SyntaxError(
+                "NDL Type Mismatch: resource and level have different sorts (resource is: {}, level is: {}".format(
+                    self.r.sort, self.n.sort))
+
 
 def is_literal(l):
     if not isinstance(l, Atom):
@@ -52,26 +58,29 @@ def is_literal(l):
         return False
     return True
 
+
 class Action:
     """
         An action with resources is made of:
 
         - precondition: a propositional formula over some first-order language
         - a set of resource requirements:
-          - [locks] (ts, td, r) \subseteq Q x Q x R where Q is the rationals and R is a set of terms mapping
+          - [locks] (ts, td, r) subseteq Q x Q x R where Q is the rationals and R is a set of terms mapping
           to the naturals
-          - [levels] (ts, td, r, n) \subset Q x Q R x N where Q is the rationals and R is a term mapping to
+          - [levels] (ts, td, r, n) subset Q x Q R x N where Q is the rationals and R is a term mapping to
           the naturals, required
           to have a specific value
         such that td >= 0
-        - an effect: a set of pairs (t,l) where t \in Q, t >=0, l is a literal
+        - an effect: a set of pairs (t,l) where t in Q, t >=0, l is a literal
     """
+
     def __init__(self, **kwargs):
         self.name = kwargs['name']
         # precondition
         prec = kwargs['precondition']
         if not isinstance(prec, CompoundFormula) and not isinstance(prec, Atom):
-            raise SyntaxError("NDL Syntactic Error: precondition of action must be a compound formula (given: {})".format(prec))
+            raise SyntaxError(
+                "NDL Syntactic Error: precondition of action must be a compound formula (given: {})".format(prec))
         self.precondition = prec
         # resource requirements
         self.locks = []
@@ -91,6 +100,7 @@ class Action:
             if not is_literal(l):
                 raise SyntaxError("NDL Syntax error: effect '{}' must be a literal".format(l))
             self.effects += [(t, l)]
+
 
 class Instance:
 
