@@ -308,16 +308,20 @@ def ite(c, t1: Term, t2: Term):
 
 
 class Constant(Term):
-    def __init__(self, symbol, sort: Sort):
-        self.symbol = symbol
+    def __init__(self, name, sort: Sort):
+        self.name = name
         self._sort = sort
         # symbol validation
         if not self._sort.builtin:
             # construction of constants extends the domain of sorts
             self._sort.extend(self)
         else:
-            self.symbol = self._sort.cast(self.symbol)
+            self.name = self._sort.cast(self.name)
         self.sort.language.language_components_frozen = True
+
+    @property
+    def symbol(self):
+        return self.name
 
     @property
     def language(self):
@@ -328,13 +332,13 @@ class Constant(Term):
         return self._sort
 
     def __str__(self):
-        return '{}'.format(self.symbol)
+        return str(self.name)
 
     def __repr__(self):
-        return '{} ({})'.format(self.symbol, self.sort.name)
+        return '{} ({})'.format(self.name, self.sort.name)
 
     def hash(self):
-        return hash((self.symbol, self.sort))
+        return hash((self.name, self.sort))
 
     def is_syntactically_equal(self, other):
-        return self.__class__ is other.__class__ and self.symbol == other.symbol and self.sort == other.sort
+        return self.__class__ is other.__class__ and self.name == other.name and self.sort == other.sort
