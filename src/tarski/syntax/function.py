@@ -7,28 +7,29 @@ from .sorts import Sort
 
 
 class Function:
-    def __init__(self, symbol, language, *args):
-        self.symbol = symbol
+    def __init__(self, name, language, *args):
+        self.name = name
         self.language = language
         self.domain = tuple(args[:-1])
         self.codomain = args[-1]
         self.builtin = False
-
         self._check_well_formed()
 
     def _check_well_formed(self):
-
         for k, a in enumerate(itertools.chain(self.domain, [self.codomain])):
             if not isinstance(a, Sort):
-                raise err.LanguageError("Function: argument #{} ('{}') is of type '{}' instead of Sort"
-                                        .format(k + 1, a, type(a)))
+                raise err.LanguageError(f"Function arg #{k} ('{a}') is a '{type(a)}' instead of a Sort")
 
             if self.language != a.language:
                 raise err.LanguageMismatch(a, a.language, self.language)
 
     @property
+    def symbol(self):
+        return self.name
+
+    @property
     def signature(self):
-        return tuple([self.symbol] + [a.name for a in self.domain] + [self.codomain.name])
+        return tuple([self.name] + [a.name for a in self.domain] + [self.codomain.name])
 
     @property
     def arity(self):
@@ -42,7 +43,7 @@ class Function:
         return hash(self.signature)
 
     def dump(self):
-        return dict(symbol=self.symbol,
+        return dict(symbol=self.name,
                     domain=[a.name for a in self.domain],
                     codomain=self.codomain.name)
 
@@ -56,9 +57,7 @@ class Function:
         return CompoundTerm(self, args)
 
     def __str__(self):
-        return "{}/{}".format(self.symbol, self.arity)
+        return "{}".format(self.name, self.arity)
+        # return "{}/{}".format(self.name, self.arity)
 
     __repr__ = __str__
-
-    # def __str__(self):
-    #     return '{}({})'.format(self.symbol, ','.join([a.name for a in self.domain]))
