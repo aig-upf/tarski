@@ -136,20 +136,20 @@ class Interval(Sort):
 
 
 def inclusion_closure(s: Sort) -> Generator[Sort, None, None]:
-    """ Return the set of all parents of the given sort s, including itself, as a generator """
+    """ Return the set of all parents of the given sort `s`, including itself, as a generator """
     while s is not None:
         yield s
         s = parent(s)
 
 
 def parent(s: Sort) -> Sort:
-    """ Returns the direct parent of the given sort, or None if it is the root sort "object" """
+    """ Return the direct parent of the given sort `s`, or None if `s` is the root sort "object" """
     assert s in s.language.immediate_parent
     return s.language.immediate_parent[s]
 
 
 def ancestors(s: Sort) -> Set[Sort]:
-    """ Return all ancestor along the sort hierarchy of the given sort """
+    """ Return the set of all ancestors of `s` along the sort hierarchy, but not `s` itself """
     assert s in s.language.ancestor_sorts
     return s.language.ancestor_sorts[s]
 
