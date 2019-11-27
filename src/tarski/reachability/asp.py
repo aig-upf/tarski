@@ -61,7 +61,11 @@ class ReachabilityLPCompiler:
         for atom in problem.init.as_atoms():
             if isinstance(atom, tuple) and isinstance(atom[0], CompoundTerm) and atom[0].symbol.symbol == 'total-cost':
                 continue  # Ignore total-cost effects
-            assert isinstance(atom, Atom)
+            if not isinstance(atom, Atom):
+                assert isinstance(atom, tuple) and len(atom) == 2
+                t, v = atom
+                raise RuntimeError(f'ReachabilityLPCompiler cannot handle functional atoms in the initial state '
+                                   f'such as "{t} := {v}"')
             lp.rule(self.tarski_atom_to_lp_atom(atom))
 
         # Process all actions
@@ -194,7 +198,7 @@ class ReachabilityLPCompiler:
         """ Return a LP atom with type information from a given term, e.g. of the form block(b) for a constant,
         or block(X) for a variable. """
         if not isinstance(t, (Constant, Variable)):
-            raise RuntimeError("Rechability logic program not ready for functional terms")
+            raise RuntimeError(f'ReachabilityLPCompiler cannot handle functional terms such as "{t}"')
         name = make_variable_name(t.symbol) if isinstance(t, Variable) else _uncapitalize(t.symbol)
         return self.lp_atom(t.sort.name, [name], prefix='type')
 
