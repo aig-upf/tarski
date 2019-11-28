@@ -24,7 +24,7 @@ class Timer(object):
         current = psutil.Process().memory_info().rss
         current_in_mb = current / (1024*1024)
         rss_in_mb = (current - self.start_mem) / (1024*1024)
-        return "[%.2fs CPU, %.2fs wall-clock, diff: %.2fs MB, curr:  %.2fs MB]" % (
+        return "[%.2fs CPU, %.2fs wall-clock, diff: %.2fMB, curr:  %.2fMB]" % (
             self._clock() - self.start_clock,
             time.time() - self.start_time, rss_in_mb, current_in_mb)
 
