@@ -90,15 +90,28 @@ def create_grounding_constraints(selects, statics, init, atoms):
     fluents = set()
     count = defaultdict(int)
     constraints = []
+    nullary_atoms, unary_atoms = [], defaultdict(list)
     for atom in atoms:
         lang = atom.predicate.language  # The language of the original problem
+        ar = atom.predicate.arity
+
         for x in atom.subterms:
             count[x.symbol] += 1
-        SX = [selects[sub.symbol] for sub in atom.subterms]
-        for selectlist in itertools.product(*SX):
+
+        if ar == 0:
+            nullary_atoms.append(atom)
+
+        argument_selects = [selects[sub.symbol] for sub in atom.subterms]
+        for selectlist in itertools.product(*argument_selects):
+            # Note that this will have one iteration with selectlist=() for nullary atoms
             values = [lang.get_constant(s.subterms[-1].symbol) for s in selectlist]
             head = atom.predicate(*values)
             body = [neg(h) for h in selectlist]
+
+            if ar == 1:
+                assert len(selectlist) == 1
+                affected_select = selectlist[0]
+                unary_atoms[affected_select].append(head)
 
             # We disinguish the following cases:
             # (1) The atom p is a fluent: post a constraint -sel(x1, z1) or ... or -sel(xn, zn) or p(x1, ..., xn)
@@ -106,20 +119,20 @@ def create_grounding_constraints(selects, statics, init, atoms):
             # (3) The atom p is static, but doesn't hold in init: then post -sel(x1, z1) or ... or -sel(xn, zn)
             # Note that (2) and (3) are just specializations of (1)
 
-            if atom.predicate in statics:  # p is static
-                if init[head]:
-                    continue  # No need to post anything
-                else:
+            if atom.predicate in statics:
+                if init[head]:  # Case (2): p is static and holds in init
+                    continue
+                else:  # Case (3): p is static and doesn't hold in init
                     assert body
                     if len(body) == 1:
                         constraints += body
                     else:
                         constraints.append(lor(*body))
-            else:  # p is a fluent
+            else:  # Case (1): p is a fluent
                 fluents.add(head)
                 constraints.append(lor(*body, head) if body else head)
 
-    return constraints, count, fluents
+    return constraints, count, fluents, nullary_atoms, unary_atoms
 
 
 def setup_metalanguage(action):
@@ -294,15 +307,23 @@ def compile_action_schema(problem, statics, action, data, max_size, conjoin_with
         prec_atoms = collect_unique_nodes(precondition, lambda x: isinstance(x, Atom) and not x.predicate.builtin)
         eq_constraints = create_equality_constraints(equalities, selects)
 
-        grounding_constraints, count, fluents = create_grounding_constraints(selects, statics, problem.init, prec_atoms)
+        grounding_constraints, count, fluents, nullary_atoms, unary_atoms =\
+            create_grounding_constraints(selects, statics, problem.init, prec_atoms)
         nvars += len(fluents)
 
         symbols = compute_symbol_ids(count, selects, fluents)
 
-    manager = setup_sdd_manager(nvars)
+    # Compute a good variable ordering
+    sdd_vars_from_nullaries = set(symbols[a] for a in nullary_atoms)
+    sdd_vars_from_unaries = []
+    for var, select_atoms in unary_atoms.items():
+        sdd_vars_from_unaries += [symbols[var]] + [symbols[a] for a in select_atoms]
 
-    atoms = [x for x in grounding_constraints if isinstance(x, Atom)]
-    nonatoms = [x for x in grounding_constraints if not isinstance(x, Atom)]
+    remaining = [i for i in range(1, nvars + 1) if i not in sdd_vars_from_nullaries and i not in set(sdd_vars_from_unaries)]
+
+    var_order = list(sdd_vars_from_nullaries) + sdd_vars_from_unaries + remaining
+    # manager = setup_sdd_manager(nvars)
+    manager = setup_sdd_manager(nvars, var_order=var_order)
 
     allconstraints = list(itertools.chain(dom_constraints, eq_constraints, grounding_constraints))
     # allconstraints = list(itertools.chain(atoms, dom_constraints, eq_constraints, nonatoms))
@@ -327,9 +348,7 @@ def compile_action_schema(problem, statics, action, data, max_size, conjoin_with
         for c in allconstraints[1:]:
             precondition_sdd = precondition_sdd & translate_to_pysdd(c, symbols, manager)
             size = precondition_sdd.size()
-
-            minimize_sdd(manager, precondition_sdd, 10)
-
+            # minimize_sdd(manager, precondition_sdd, 10)
             size = (size, precondition_sdd.size())
             sdd_sizes.append(size)
 
@@ -448,10 +467,16 @@ def translate_to_pysdd(phi, syms, manager):
     raise RuntimeError(f"Could not translate {phi}")
 
 
-def setup_sdd_manager(nvars):
+def validate_var_order(nvars, var_order):
+    assert len(var_order) == nvars
+    assert all(x in set(var_order) for x in range(1, nvars + 1))
+
+
+def setup_sdd_manager(nvars, var_order=None):
     """ Set up the SDD manager with some sensible defaults"""
     # set up vtree and manager
-    var_order = list(range(1, nvars + 1))  # lexicographic
+    var_order = var_order or list(range(1, nvars + 1))  # lexicographic
+    validate_var_order(nvars, var_order)
     # var_order = list(range(nvars,0,-1)) # state atoms first
     vtree_type = "right"  # OBDD-style
     # vtree_type = "balanced"
