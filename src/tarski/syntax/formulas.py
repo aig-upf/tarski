@@ -292,7 +292,7 @@ class Atom(Formula):
                 raise err.SortMismatch(arg, arg.sort, expected_sort)
 
     def __str__(self):
-        return '{}({})'.format(self.predicate.symbol, ','.join([str(t) for t in self.subterms]))
+        return '{}({})'.format(self.predicate.symbol, ','.join(str(t) for t in self.subterms))
     __repr__ = __str__
 
     def __eq__(self, other):

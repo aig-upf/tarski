@@ -152,9 +152,10 @@ class Variable(Term):
         return self._sort
 
     def __str__(self):
-        return '{}/{}'.format(self.symbol, self.sort.name)
+        return str(self.symbol)
 
-    __repr__ = __str__
+    def __repr__(self):
+        return '{} ({})'.format(self.symbol, self.sort.name)
 
     def hash(self):
         return hash((self.symbol, self.sort.name))
@@ -200,7 +201,7 @@ class CompoundTerm(Term):
         return self.symbol.codomain
 
     def __str__(self):
-        return '{}({})'.format(self.symbol.symbol, ', '.join([str(t) for t in self.subterms]))
+        return '{}({})'.format(self.symbol.symbol, ', '.join(str(t) for t in self.subterms))
 
     __repr__ = __str__
 
