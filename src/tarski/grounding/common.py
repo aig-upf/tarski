@@ -5,8 +5,14 @@ from .. import errors as err
 
 
 class StateVariableLite:
-    """ A state variable is nothing else than a CompoundTerm or Atom which is expected to change its
-    value, along with a particular instantiation of its subterms.
+    """ A state variable is a ground CompoundTerm or Atom which can possibly change its value along the execution of a
+    plan. The set of all state variables of a problem makes up all information necessary to represent a state.
+    State variables are different to static atoms, whose truth value can be proven to remain the same.
+    This proof can be based on simple techniques such as looking at the effects of actions, or on more sophisticated
+    reachability analyses.
+
+    Note that we could use the CompoundTerm or Atom classes to represent the same concept represented by a
+    StateVariableLite, but currently we prefer to use a single class, hence the existence of StateVariableLite.
     Note: This is a lightweight version of the StateVariable class above, hoping that it can eventually replace it.
     """
 
@@ -57,7 +63,7 @@ def approximate_symbol_fluency(problem):
                 fluents |= set(symbols)
             else:
                 fluents |= set([symbols])
-    #fluents = set(_compute_effect_head_symbol(eff) for action in problem.actions.values() for eff in action.effects)
+    # fluents = set(_compute_effect_head_symbol(eff) for action in problem.actions.values() for eff in action.effects)
 
     # The rest of symbols are considered static
     statics = set(s for s in all_symbols if not s.builtin and s not in fluents)
