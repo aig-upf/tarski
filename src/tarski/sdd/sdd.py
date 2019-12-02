@@ -281,7 +281,7 @@ def reshapen_vtree(alpha, manager):
     # manager_vtree = manager.vtree()
 
 
-def compile_action_schema(problem, statics, action, data, max_size, conjoin_with_init=False):
+def compile_action_schema(problem, statics, action, data, max_size, conjoin_with_init=False, var_ordering=None):
     print(f'Processing action "{action.ident()}"')
     with resources.timing(f"\tGenerating theory"):
         data['instance'] += [problem.name]
@@ -321,9 +321,13 @@ def compile_action_schema(problem, statics, action, data, max_size, conjoin_with
 
     remaining = [i for i in range(1, nvars + 1) if i not in sdd_vars_from_nullaries and i not in set(sdd_vars_from_unaries)]
 
-    var_order = list(sdd_vars_from_nullaries) + sdd_vars_from_unaries + remaining
-    # manager = setup_sdd_manager(nvars)
-    manager = setup_sdd_manager(nvars, var_order=var_order)
+    if var_ordering == "arity":
+        var_order = list(sdd_vars_from_nullaries) + sdd_vars_from_unaries + remaining
+        manager = setup_sdd_manager(nvars, var_order=var_order)
+    else:
+        if var_ordering is not None and var_ordering != "default":
+            raise RuntimeError(f'Variable ordering type "{var_ordering} not recognised')
+        manager = setup_sdd_manager(nvars)
 
     allconstraints = list(itertools.chain(dom_constraints, eq_constraints, grounding_constraints))
     # allconstraints = list(itertools.chain(atoms, dom_constraints, eq_constraints, nonatoms))
@@ -495,7 +499,8 @@ def setup_false_sdd_manager():
 
 def process_problem(problem, max_size=20000000,
                     serialization_directory=None, conjoin_with_init=False,
-                    graphs_directory=None, sdd_minimization_time=None):
+                    graphs_directory=None, sdd_minimization_time=None,
+                    var_ordering=None):
     # Make sure the initial state has some associated evaluator:
     problem.init.evaluator = problem.init.evaluator or evaluate
 
@@ -505,7 +510,8 @@ def process_problem(problem, max_size=20000000,
 
     for action in actions:
         manager, node, symbols, theory = compile_action_schema(
-            problem, statics, action, data, max_size, conjoin_with_init=conjoin_with_init)
+            problem, statics, action, data, max_size, conjoin_with_init=conjoin_with_init,
+            var_ordering=var_ordering)
 
         print(f"\tSDD has {node.size()} nodes")
         if sdd_minimization_time is not None and sdd_minimization_time > 0:
