@@ -33,6 +33,10 @@ class StateVariableLite:
 
     __repr__ = __str__
 
+    @staticmethod
+    def from_atom(atom):
+        return StateVariableLite(atom.predicate, atom.subterms)
+
 
 def approximate_symbol_fluency(problem):
     """ Sort out all predicate and function symbols of a given problem into static and fluent symbols.
