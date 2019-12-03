@@ -37,7 +37,7 @@ def scout_actions(task, data):
     for action in task.actions.values():
         cardinalities = [len(list(x.sort.domain())) for x in action.parameters]
         ngroundings = reduce(operator.mul, cardinalities, 1)
-        logging.info(f'{action.ident()}:\t{" * ".join(map(str, cardinalities))} = {ngroundings} potential groundings')
+        # logging.info(f'{action.ident()}:\t{" * ".join(map(str, cardinalities))} = {ngroundings} potential groundings')
         if ngroundings == 0:
             empty.append(action.name)
         else:
@@ -216,12 +216,17 @@ def preprocess_parameter_domains(action, statics, domains, init, reachable_vars)
 
     # Index the values that can go on each position of each precondition atom according to the initial state
     # Note that this is equivalent to creating a DB index for each column in each table (=atom)
-    indexed_values = dict()
-    for signature, ext in init.list_all_extensions().items():
+    lang = action.language
+    extensions = init.list_all_extensions()
+    indexed_values = {}
+    for k in extensions.keys():
+        symbol = lang.get(k[0])
+        indexed_values[k[0]] = [set() for _ in range(symbol.arity)]
+    for signature, ext in extensions.items():
         sname = signature[0]
         for tup in ext:
             for pos, value in enumerate(tup):
-                indexed_values.setdefault(sname, dict()).setdefault(pos, set()).add(value.name)
+                indexed_values[sname][pos].add(value.name)
 
     # If an overapproximation of reachable (fluent) atoms was provided, add those values to the column indexes.
     # In this case, the column indexes represent an overapproximation of all possible values that can ever be reached.
@@ -230,7 +235,7 @@ def preprocess_parameter_domains(action, statics, domains, init, reachable_vars)
         for v in reachable_vars:
             sname = v.symbol.name
             for pos, value in enumerate(v.binding):
-                indexed_values.setdefault(sname, dict()).setdefault(pos, set()).add(value.name)
+                indexed_values[sname][pos].add(value.name)
 
     # Create yet another index with the role that each parameter plays in each (non-builtin) atom of the precondition,
     # so e.g. parameter_roles[x] = (p, i) means that action parameter x appears in the i-th position of precondition
