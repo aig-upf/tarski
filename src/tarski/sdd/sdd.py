@@ -18,11 +18,11 @@ from ..utils import resources
 from ..utils.serialization import serialize_atom
 from ..evaluators.simple import evaluate
 from ..syntax import lor, neg, Atom, BuiltinPredicateSymbol, CompoundFormula, Connective, Variable, Tautology, builtins
-from ..syntax.ops import flatten, collect_unique_nodes
+from ..syntax.ops import flatten
 from ..grounding.ops import classify_symbols
 from ..grounding.common import StateVariableLite
 from ..fstrips import fstrips
-from ..fstrips.representation import is_literal, collect_literals_from_conjunction
+from ..fstrips.representation import collect_literals_from_conjunction
 
 
 class UnsupportedFormalism(RuntimeError):
@@ -342,8 +342,8 @@ def compile_action_schema(problem, statics, action, data, max_size,
 
         eq_constraints = create_equality_constraints(eq_atoms, selects)
 
-        grounding_constraints, count, fluents, nullary_atoms, unary_atoms =\
-            create_grounding_constraints(selects, statics, problem.init, precondition_nonbuiltin_atoms, reachable_vars=reachable_vars)
+        grounding_constraints, count, fluents, nullary_atoms, unary_atoms = create_grounding_constraints(
+            selects, statics, problem.init, precondition_nonbuiltin_atoms, reachable_vars=reachable_vars)
 
         nvars += len(fluents)
 
