@@ -9,7 +9,7 @@ from tarski.syntax import neg
 
 from tests.common.gripper import create_sample_problem
 from tests.common.simple import create_simple_problem
-from ..io.common import reader, collect_strips_benchmarks, collect_fstrips_benchmarks
+from ..io.common import reader, collect_strips_benchmarks
 
 if shutil.which("gringo") is None:
     pytest.skip('Install the Clingo ASP solver and put the "gringo" binary on your PATH in order to test ASP-based '
@@ -150,5 +150,18 @@ def test_action_grounding_on_orgsynth():
 
     lp, tr = create_reachability_lp(problem, ground_actions=False)
     ruleset = set(lp.rules)
-    assert 'type_chemical_atom(X) :- phosphorus(X).' not in ruleset
-    assert 'type_chemical_atom(X) :- type_phosphorus(X).' in ruleset
+    assert 'type_object(X) :- chemical_atom(X).' not in ruleset
+    assert 'type_object(X) :- type_chemical_atom(X).' in ruleset
+
+
+def test_ignore_unused_types():
+    # Regression test for issue #83
+    problem = create_sample_problem()
+    lp, tr = create_reachability_lp(problem, ground_actions=False)
+    ruleset = set(lp.rules)
+
+    # Now add an empty type and check that the set of LP rules is exactly the same, i.e. the type is ignored
+    problem.language.sort('empty_type')
+    lp, tr = create_reachability_lp(problem, ground_actions=False)
+    ruleset2 = set(lp.rules)
+    assert ruleset == ruleset2
