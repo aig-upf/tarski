@@ -1,11 +1,12 @@
 """
  Classes and methods related to the Logic-Program based grounding  strategy of planning problems.
 """
+from ..grounding.ops import approximate_symbol_fluency
 from ..reachability import create_reachability_lp, run_clingo, parse_model
 from ..reachability.asp import SOLVABLE
 from .errors import ReachabilityLPUnsolvable
 from ..util import IndexDictionary
-from .common import StateVariableLite, approximate_symbol_fluency
+from .common import StateVariableLite
 
 
 class LPGroundingStrategy:

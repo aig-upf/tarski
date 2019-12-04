@@ -3,11 +3,12 @@
 """
 import itertools
 
+from ..grounding.ops import approximate_symbol_fluency
 from ..syntax import Constant, Variable, CompoundTerm, Atom, create_substitution, term_substitution,\
     termlists_are_equal, termlist_hash
 from ..errors import DuplicateDefinition
 from .errors import UnableToGroundError
-from .common import approximate_symbol_fluency, StateVariableLite
+from .common import StateVariableLite
 from ..util import IndexDictionary
 from ..fstrips.visitors import FluentSymbolCollector, FluentHeuristic
 
