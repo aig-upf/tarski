@@ -55,7 +55,8 @@ class ReachabilityLPCompiler:
         for s in lang.sorts:
             if not s.builtin:  # TODO Decide what to do with builtins
                 p = parent(s)
-                if p is not None:
+                if p is not None and len(list(s.domain())) > 0:
+                    # Don't output the type hierarchy rule if the type has no element
                     lp.rule(self.lp_atom(p.name, [_var()], prefix='type'),
                             [self.lp_atom(s.name, [_var()], prefix='type')])
 
