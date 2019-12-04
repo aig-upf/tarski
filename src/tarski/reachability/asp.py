@@ -331,6 +331,6 @@ def sanitize(name: str):
 
 def _var(i=0, lowercase=False):
     """ Return a distinct variable name for each given value of i """
-    alphabet = "XYZABCDEFGHIJKLMNOPQRSTUFW"
+    alphabet = "XYZABCDEFGHIJKLMNOPQRSTUVW"
     res = alphabet[i] if i < len(alphabet) else "X{}".format(i)
     return res.lower() if lowercase else res
