@@ -73,7 +73,9 @@ class ReachabilityLPCompiler:
 
         # Process all actions
         for _, action in problem.actions.items():
-            self.process_action(action, lang, lp)
+            if all(len(list(v.sort.domain())) > 0 for v in action.parameters):
+                # We process only those actions such that all their parameter types have at least one object
+                self.process_action(action, lang, lp)
 
         # Process all derived predicates
         # TODO To be implemented yet
