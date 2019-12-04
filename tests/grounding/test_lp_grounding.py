@@ -145,8 +145,7 @@ def test_ground_actions_on_negated_preconditions2():
 
 def test_action_grounding_on_orgsynth():
     # Regression test for issue #82
-    instance_file, domain_file = collect_strips_benchmarks(["organic-synthesis-opt18-strips:p01.pddl"])[0]
-    problem = reader().read_problem(domain_file, instance_file)
+    problem = generate_strips_problem("organic-synthesis-opt18-strips:p01.pddl")
 
     lp, tr = create_reachability_lp(problem, ground_actions=False)
     ruleset = set(lp.rules)
@@ -165,3 +164,16 @@ def test_ignore_unused_types():
     lp, tr = create_reachability_lp(problem, ground_actions=False)
     ruleset2 = set(lp.rules)
     assert ruleset == ruleset2
+
+    problem = generate_strips_problem("organic-synthesis-opt18-strips:p01.pddl")
+    lp, tr = create_reachability_lp(problem, ground_actions=True)
+    ruleset = set(lp.rules)
+    assert not any(s.startswith("action_oxidationofborane") for s in ruleset)
+
+    actions = compute_action_groundings(problem)
+    assert actions['oxidationofborane'] == set()
+
+
+def generate_strips_problem(tag):
+    instance_file, domain_file = collect_strips_benchmarks([tag])[0]
+    return reader().read_problem(domain_file, instance_file)
