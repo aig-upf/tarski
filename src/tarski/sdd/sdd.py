@@ -20,6 +20,7 @@ from ..evaluators.simple import evaluate
 from ..syntax import lor, neg, Atom, BuiltinPredicateSymbol, CompoundFormula, Connective, Variable, Tautology, builtins
 from ..syntax.ops import flatten
 from ..grounding.ops import approximate_symbol_fluency
+from ..grounding.common import StateVariableLite
 from ..fstrips import fstrips
 from ..fstrips.representation import collect_literals_from_conjunction
 
@@ -220,7 +221,7 @@ def preprocess_parameter_domains(action, statics, domains, init, reachable_vars)
     indexed_values = {}
     for k in extensions.keys():
         symbol = lang.get(k[0])
-        indexed_values[k[0]] = [set() for _ in range(symbol.arity)]
+        indexed_values[k[0]] = [set() for _ in range(symbol.uniform_arity())]
     for signature, ext in extensions.items():
         sname = signature[0]
         for tup in ext:
@@ -438,8 +439,9 @@ def compile_action_schema(problem, statics, action, data, max_size,
     else:
         as0 = None
 
+    size = sdd_sizes[-1] if sdd_sizes else 0
     report_theory(data, select_constraints, eq_constraints, fluents, grounding_constraints, nvars,
-                  sdd_sizes=sdd_sizes, sdd_size=sdd_sizes[-1], as0=as0, t0=t0)
+                  sdd_sizes=sdd_sizes, sdd_size=size, as0=as0, t0=t0)
 
     return manager, precondition_sdd, symbols, allconstraints
 
