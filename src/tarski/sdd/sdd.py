@@ -336,7 +336,6 @@ def compile_action_schema(problem, statics, action, data, max_size,
         if any(len(dom) == 0 for dom in domains.values()):
             # Some action parameter has empty associated domain, hence no ground action will result from this
             logging.info(f'Action "{action.ident()}" has parameter with empty domain, hence can be pruned')
-            logging.info(f'Parameter list:\n{domains}')
             report_theory(data, [], [], [], [], 0,
                           sdd_sizes=0, sdd_size=0, as0=0, t0=None)
             symbols = {}
