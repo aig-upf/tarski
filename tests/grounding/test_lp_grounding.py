@@ -4,6 +4,7 @@ import pytest
 from tarski.grounding import LPGroundingStrategy, NaiveGroundingStrategy
 from tarski.grounding.errors import ReachabilityLPUnsolvable
 from tarski.grounding.lp_grounding import compute_action_groundings
+from tarski.reachability import create_reachability_lp
 from tarski.syntax import neg
 
 from tests.common.gripper import create_sample_problem
@@ -139,5 +140,15 @@ def test_ground_actions_on_negated_preconditions2():
     # If the goal is now "p(a)", the whole problem becomes relaxed unreachable
     problem.goal = p(a)
     with pytest.raises(ReachabilityLPUnsolvable):
-        actions = compute_action_groundings(problem)
+        _ = compute_action_groundings(problem)
 
+
+def test_action_grounding_on_orgsynth():
+    # Regression test for issue #82
+    instance_file, domain_file = collect_strips_benchmarks(["organic-synthesis-opt18-strips:p01.pddl"])[0]
+    problem = reader().read_problem(domain_file, instance_file)
+
+    lp, tr = create_reachability_lp(problem, ground_actions=False)
+    ruleset = set(lp.rules)
+    assert 'type_chemical_atom(X) :- phosphorus(X).' not in ruleset
+    assert 'type_chemical_atom(X) :- type_phosphorus(X).' in ruleset
