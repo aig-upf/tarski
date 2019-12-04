@@ -14,10 +14,11 @@ from ..fstrips import Problem, SingleEffect, UniversalEffect, AddEffect, DelEffe
 SOLVABLE = "_solvable_"
 
 
-def create_reachability_lp(problem: Problem):
+def create_reachability_lp(problem: Problem, ground_actions=True):
     """ Return a reachability logic program, along with the symbol translation dictionary used to create it """
     lp = LogicProgram()
-    compiler = ReachabilityLPCompiler(problem, lp)
+    compiler_class = ReachabilityLPCompiler if ground_actions else VariableOnlyReachabilityLPCompiler
+    compiler = compiler_class(problem, lp)
     compiler.create()
     return lp, compiler.tr
 
@@ -70,22 +71,7 @@ class ReachabilityLPCompiler:
 
         # Process all actions
         for _, action in problem.actions.items():
-            # Construct the head and part of the body of the action atom, e.g. "move(X, Y) :- object(X), object(Y)"
-            # Note that we need to capitalize the parameters of the action schema, as they are LP variables.
-            action_atom = self.lp_atom(action.name, [make_variable_name(v.symbol) for v in action.parameters],
-                                       prefix='action')
-            body = [self.lp_type_atom_from_term(v) for v in action.parameters]
-
-            # Remove universal quantifiers and add precondition atoms to the body
-            phi = remove_quantifiers(lang, action.precondition, QuantifierEliminationMode.Forall)
-            body += self.process_formula(phi)
-            lp.rule(action_atom, body)
-
-            # Now process the effects
-            for eff in action.effects:
-                head, body = self.process_effect(lang, eff)
-                if head is not None:
-                    lp.rule(head, [action_atom] + body)
+            self.process_action(action, lang, lp)
 
         # Process all derived predicates
         # TODO To be implemented yet
@@ -95,6 +81,22 @@ class ReachabilityLPCompiler:
         phi = remove_quantifiers(lang, problem.goal, QuantifierEliminationMode.Forall)
         body = self.process_formula(phi)
         lp.rule(self.lp_atom(SOLVABLE), body)
+
+    def process_action(self, action, lang, lp):
+        # Construct the head and part of the body of the action atom, e.g. "move(X, Y) :- object(X), object(Y)"
+        # Note that we need to capitalize the parameters of the action schema, as they are LP variables.
+        action_atom = self.lp_atom(action.name, [make_variable_name(v.symbol) for v in action.parameters],
+                                   prefix='action')
+        body = [self.lp_type_atom_from_term(v) for v in action.parameters]
+        # Remove universal quantifiers and add precondition atoms to the body
+        phi = remove_quantifiers(lang, action.precondition, QuantifierEliminationMode.Forall)
+        body += self.process_formula(phi)
+        lp.rule(action_atom, body)
+        # Now process the effects
+        for eff in action.effects:
+            head, body = self.process_effect(lang, eff)
+            if head is not None:
+                lp.rule(head, [action_atom] + body)
 
     def process_formula(self, f: Formula):
         """ Process a given formula and return the corresponding LP rule body, along with declaring in the given LP
@@ -210,6 +212,22 @@ class ReachabilityLPCompiler:
             infix = True
             prefix = ''
         return LPAtom(self.tr.normalize(symbol, prefix=prefix), [self.tr.normalize(a) for a in args], infix=infix)
+
+
+class VariableOnlyReachabilityLPCompiler(ReachabilityLPCompiler):
+    """ A variation of the standard LP compiler that cares only about state variable, but not action, groundings. """
+    def process_action(self, action, lang, lp):
+        # See & contrast with method in parent class
+        # Construct the part of the body corresponding to the parameter types, e.g. "object(X), block(Y)"
+        prec_body = [self.lp_type_atom_from_term(v) for v in action.parameters]
+        # Remove universal quantifiers and add precondition atoms to the body
+        phi = remove_quantifiers(lang, action.precondition, QuantifierEliminationMode.Forall)
+        prec_body += self.process_formula(phi)
+        # Now process the effects
+        for eff in action.effects:
+            head, condeff_body = self.process_effect(lang, eff)
+            if head is not None:
+                lp.rule(head, prec_body + condeff_body)
 
 
 class LPAtom:
