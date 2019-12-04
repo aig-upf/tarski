@@ -1,6 +1,7 @@
 """
  Classes and methods related to the Logic-Program based grounding  strategy of planning problems.
 """
+from tarski.utils.command import silentremove
 from ..grounding.ops import approximate_symbol_fluency
 from ..reachability import create_reachability_lp, run_clingo, parse_model
 from ..reachability.asp import SOLVABLE
@@ -58,8 +59,12 @@ class LPGroundingStrategy:
     def _solve_lp(self):
         if self.model is None:
             lp, tr = create_reachability_lp(self.problem, self.do_ground_actions)
-            model_filename = run_clingo(lp)
+            model_filename, theory_filename = run_clingo(lp)
             self.model = parse_model(model_filename, tr)
+
+            # Remove the input and output files for Gringo
+            silentremove(model_filename)
+            silentremove(theory_filename)
 
             if len(self.model[SOLVABLE]) != 1:
                 raise ReachabilityLPUnsolvable()

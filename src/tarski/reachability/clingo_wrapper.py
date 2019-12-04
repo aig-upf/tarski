@@ -14,18 +14,18 @@ def run_clingo(lp):
 
     with tempfile.NamedTemporaryFile(mode='w+t', delete=False) as f:
         _ = [print(str(r), file=f) for r in lp.rules]
-        filename = f.name
+        theory_filename = f.name
 
     logging.debug('Using gringo binary found in "{}"'.format(gringo))
     with tempfile.NamedTemporaryFile(mode='w+t', delete=False) as f:
         # Option "-t" enforces an easier-to-parse textual output. Warnings could also be supressed with
         # option "-Wno-atom-undefined"
-        retcode = cmd.execute([gringo, "-t", filename], stdout=f)
+        retcode = cmd.execute([gringo, "-t", theory_filename], stdout=f)
         model_filename = f.name
         if retcode != 0:
             raise ExternalCommandError("Gringo exited with code {}".format(retcode))
 
-    return model_filename
+    return model_filename, theory_filename
 
 
 def parse_model(filename, symbol_mapping):
