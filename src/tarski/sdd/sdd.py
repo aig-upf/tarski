@@ -337,9 +337,8 @@ def compile_action_schema(problem, statics, action, data, max_size,
             logging.info(f'Action "{action.ident()}" has parameter with empty domain, hence can be pruned')
             report_theory(data, [], [], [], [], 0,
                           sdd_sizes=0, sdd_size=0, as0=0, t0=None)
-            symbols = {}
             manager, false = setup_false_sdd_manager()  # This will return a "False" precondition
-            return manager, false, symbols, []
+            return manager, false, {}, []
 
         selects, nvars, select_constraints = generate_select_atoms(action, metalang, parameters, domains)
 
@@ -378,7 +377,8 @@ def compile_action_schema(problem, statics, action, data, max_size,
         logging.info(f'Action "{action.ident()}" has an empty SDD theory')
         report_theory(data, select_constraints, eq_constraints, fluents, grounding_constraints, nvars,
                       sdd_sizes=0, sdd_size=0, as0=1, t0=None)
-        return
+        manager, true = setup_true_sdd_manager()  # This will return a "False" precondition
+        return manager, true, {}, []
 
     sdd_sizes = []
     failed = False
@@ -533,6 +533,12 @@ def setup_sdd_manager(nvars, var_order=None):
 def setup_false_sdd_manager():
     manager = setup_sdd_manager(1)  # The library doesn't allow for the creation of a manager with 0 vars
     precondition = manager.false()
+    return manager, precondition
+
+
+def setup_true_sdd_manager():
+    manager = setup_sdd_manager(1)  # The library doesn't allow for the creation of a manager with 0 vars
+    precondition = manager.true()
     return manager, precondition
 
 

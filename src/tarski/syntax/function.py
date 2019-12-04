@@ -57,7 +57,7 @@ class Function:
         return CompoundTerm(self, args)
 
     def __str__(self):
-        return "{}".format(self.name, self.arity)
+        return "{}".format(self.name)
         # return "{}/{}".format(self.name, self.arity)
 
     __repr__ = __str__
