@@ -5,6 +5,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
+- Almost-identical methods `approximate_symbol_fluency` and `classify_symbols` have been merged into one
+  single method `approximate_symbol_fluency`.
+
 ### Added
  - Preliminary [readthedocs documentation](https://tarski.readthedocs.io) integrated in the repository.
    CI tests the documentation build as well.

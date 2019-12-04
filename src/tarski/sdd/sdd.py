@@ -19,8 +19,7 @@ from ..utils.serialization import serialize_atom
 from ..evaluators.simple import evaluate
 from ..syntax import lor, neg, Atom, BuiltinPredicateSymbol, CompoundFormula, Connective, Variable, Tautology, builtins
 from ..syntax.ops import flatten
-from ..grounding.ops import classify_symbols
-from ..grounding.common import StateVariableLite
+from ..grounding.ops import approximate_symbol_fluency
 from ..fstrips import fstrips
 from ..fstrips.representation import collect_literals_from_conjunction
 
@@ -546,7 +545,7 @@ def process_problem(problem, max_size=20000000,
 
     data = defaultdict(list)
     actions = scout_actions(problem, data)
-    _, statics = classify_symbols(problem)
+    _, statics = approximate_symbol_fluency(problem)
 
     for action in actions:
         manager, node, symbols, theory = compile_action_schema(

@@ -15,6 +15,7 @@ def collect_affected_symbols(problem: Problem) -> Set[Union[Predicate, Function]
 
 
 def collect_affected_symbols_in_effect(effect, fluents: Set[Union[Predicate, Function]]):
+    """ Add the symbol affected by a given effect to the given set `fluents`. """
     if isinstance(effect, (fs.AddEffect, fs.DelEffect)):
         fluents.add(effect.atom.symbol)
     elif isinstance(effect, fs.LiteralEffect):
@@ -26,6 +27,7 @@ def collect_affected_symbols_in_effect(effect, fluents: Set[Union[Predicate, Fun
     elif isinstance(effect, fs.UniversalEffect):
         # Go recursively to the universally quantified effects
         _ = [collect_affected_symbols_in_effect(eff, fluents) for eff in effect.effects]
-
+    elif isinstance(effect, fs.LinearEffect):
+        return [lhs.symbol for lhs in effect.y[:, 0]]
     else:
         raise RuntimeError(f'Effect "{effect}" of type "{type(effect)}" cannot be analysed')
