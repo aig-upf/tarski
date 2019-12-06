@@ -31,10 +31,10 @@ def parse_number(number, lang):
 
 
 def process_requirements(requirements, lang):
-    if ':action-costs' in requirements:
+    if ':action-costs' in requirements and not lang.has_sort('Integer'):
         theories.load_theory(lang, Theory.ARITHMETIC)
         create_number_type(lang)
-    elif ':numeric-fluents' in requirements:
+    elif ':numeric-fluents' in requirements and not lang.has_sort('Integer'):
         theories.load_theory(lang, Theory.ARITHMETIC)
 
 
