@@ -403,7 +403,7 @@ class FStripsParser(fstripsVisitor):
     def visitProblemMetric(self, ctx):
         opt_type = ctx.optimization().getText().lower()
         opt_expression = self.visit(ctx.metricFExp())
-        self.problem.metric = OptimizationMetric(opt_expression, opt_type)
+        self.problem.plan_metric = OptimizationMetric(opt_expression, opt_type)
 
     def visitFunctionalExprMetric(self, ctx):
         return None, self.visit(ctx.functionTerm())

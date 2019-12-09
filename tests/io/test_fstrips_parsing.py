@@ -296,3 +296,11 @@ def test_complex_effects():
     assert len(effs) == 9  # Conditional effects get flattened
     assert isinstance(effs[7], AddEffect) and isinstance(effs[8].condition, CompoundFormula)
     assert isinstance(effs[8], AddEffect) and isinstance(effs[8].condition, CompoundFormula)
+
+def test_plan_metric_parsing():
+    import os
+    reader = FstripsReader(raise_on_error=True)
+    reader.parse_domain(os.path.join('tests', 'data', 'pddl', 'ipc', 'flashfill-sat18', 'domain-p01.pddl'))
+    reader.parse_instance(os.path.join('tests', 'data', 'pddl', 'ipc', 'flashfill-sat18', 'p01.pddl'))
+
+    assert reader.problem.plan_metric is not None
