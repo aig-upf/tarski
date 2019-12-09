@@ -322,7 +322,8 @@ def reshapen_vtree(alpha, manager):
 
 
 def compile_action_schema(problem, statics, action, data, max_size,
-                          conjoin_with_init=False, var_ordering=None, reachable_vars=None):
+                          conjoin_with_init=False, var_ordering=None, reachable_vars=None,
+                          sdd_incr_minimization_time=None):
     print(f'Processing action "{action.ident()}"')
     with resources.timing(f"\tGenerating theory"):
         data['instance'] += [problem.name]
@@ -392,7 +393,8 @@ def compile_action_schema(problem, statics, action, data, max_size,
         for c in allconstraints[1:]:
             precondition_sdd = precondition_sdd & translate_to_pysdd(c, symbols, manager)
             size = precondition_sdd.size()
-            # minimize_sdd(manager, precondition_sdd, 10)
+            if sdd_incr_minimization_time is not None and sdd_incr_minimization_time > 0:
+                minimize_sdd(manager, precondition_sdd, int(sdd_incr_minimization_time))
             size = (size, precondition_sdd.size())
             sdd_sizes.append(size)
 
@@ -547,7 +549,8 @@ def setup_true_sdd_manager():
 def process_problem(problem, max_size=20000000,
                     serialization_directory=None, conjoin_with_init=False,
                     graphs_directory=None, sdd_minimization_time=None,
-                    var_ordering=None, reachable_vars=None):
+                    var_ordering=None, reachable_vars=None,
+                    sdd_incr_minimization_time=None):
     # Make sure the initial state has some associated evaluator:
     problem.init.evaluator = problem.init.evaluator or evaluate
 
@@ -558,7 +561,7 @@ def process_problem(problem, max_size=20000000,
     for action in actions:
         manager, node, symbols, theory = compile_action_schema(
             problem, statics, action, data, max_size, conjoin_with_init=conjoin_with_init,
-            var_ordering=var_ordering, reachable_vars=reachable_vars)
+            var_ordering=var_ordering, reachable_vars=reachable_vars, sdd_incr_minimization_time=sdd_incr_minimization_time)
 
         print(f"\tSDD has {node.size()} nodes")
         if sdd_minimization_time is not None and sdd_minimization_time > 0:
@@ -615,13 +618,17 @@ def print_sdd(action, directory, manager, node, symbols, theory):
         print(buf.getvalue().decode('utf-8'), file=f)
 
 
-def minimize_sdd(manager, node, sdd_minimization_time):
+def minimize_sdd(manager, node, sdd_minimization_time, verbose=False):
     node.ref()
     manager.set_vtree_search_time_limit(sdd_minimization_time)
     manager.set_vtree_search_convergence_threshold(0.1)
-    with resources.timing(f"\tMinimizing SDD ({node.size()} nodes) for up to {sdd_minimization_time} sec."):
+    if verbose:
+        with resources.timing(f"\tMinimizing SDD ({node.size()} nodes) for up to {sdd_minimization_time} sec."):
+            manager.minimize_limited()
+        print(f"\tAfter first minimization pass, SDD has {node.size()} nodes")
+    else:
         manager.minimize_limited()
-    print(f"\tAfter first minimization pass, SDD has {node.size()} nodes")
+
     node.deref()
     return node
 
