@@ -352,15 +352,15 @@ def compile_action_schema(problem, statics, action, data, max_size,
 
         symbols = compute_symbol_ids(count, selects, fluents)
 
-    # Compute a good variable ordering
-    sdd_vars_from_nullaries = set(symbols[a] for a in nullary_atoms)
-    sdd_vars_from_unaries = []
-    for var, select_atoms in unary_atoms.items():
-        sdd_vars_from_unaries += [symbols[var]] + [symbols[a] for a in select_atoms]
+    if var_ordering == "arity":  # Compute a good variable ordering
+        sdd_vars_from_nullaries = set(symbols[a] for a in nullary_atoms)
+        sdd_vars_from_unaries = []
+        for var, select_atoms in unary_atoms.items():
+            sdd_vars_from_unaries += [symbols[var]] + [symbols[a] for a in select_atoms]
 
-    remaining = [i for i in range(1, nvars + 1) if i not in sdd_vars_from_nullaries and i not in set(sdd_vars_from_unaries)]
+        remaining = [i for i in range(1, nvars + 1) if
+                     i not in sdd_vars_from_nullaries and i not in set(sdd_vars_from_unaries)]
 
-    if var_ordering == "arity":
         var_order = list(sdd_vars_from_nullaries) + sdd_vars_from_unaries + remaining
         manager = setup_sdd_manager(nvars, var_order=var_order)
     else:
