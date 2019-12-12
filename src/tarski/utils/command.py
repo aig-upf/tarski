@@ -40,7 +40,7 @@ def execute(command, **kwargs):
         msg += '. Standard output redirected to "{}"'.format(stdout.name)
     if stderr:
         msg += '. Standard error redirected to "{}"'.format(stderr.name)
-    logging.info(msg)
+    logging.debug(msg)
 
     retcode = subprocess.call(command, cwd=cwd, stdout=stdout, stderr=stderr)
 
