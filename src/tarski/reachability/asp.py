@@ -10,6 +10,7 @@ from ..syntax import Formula, Atom, CompoundFormula, Connective, Term, Variable,
     BuiltinPredicateSymbol, QuantifiedFormula, Quantifier, CompoundTerm
 from ..syntax.sorts import parent
 from ..fstrips import Problem, SingleEffect, UniversalEffect, AddEffect, DelEffect, FunctionalEffect
+from ..fstrips.representation import identify_cost_related_functions
 
 SOLVABLE = "_solvable_"
 
@@ -46,6 +47,10 @@ class ReachabilityLPCompiler:
 
     def create(self):
         problem, lang, lp = self.problem, self.problem.language, self.lp
+
+        # Preprocess the domain functions to identify those that appear only in cost-related effects, which we can
+        # then ignore safely
+        cost_related_functions = identify_cost_related_functions(problem)
 
         # Declare the PDDL objects with their types, e.g. with a fact "block(b1)".
         constants = lang.constants()

@@ -6,6 +6,8 @@ from . import fstrips as fs
 from ..syntax import Formula, CompoundTerm, Atom, CompoundFormula, QuantifiedFormula, is_and, is_neg, exists, symref,\
     VariableBinding
 from ..syntax.ops import collect_unique_nodes, flatten, free_variables
+from ..syntax.util import get_symbols
+from ..fstrips.ops import collect_all_effects
 from .action import Action
 
 
@@ -218,3 +220,15 @@ def _collect_effect_free_variables(eff: fs.BaseEffect, free: Set):
 
     else:
         raise RuntimeError(f'Effect "{eff}" of type "{type(eff)}" cannot be processed')
+
+
+def identify_cost_related_functions(problem: Problem):
+    """ Return a list of those function symbols that are used only in total-cost-related effects"""
+    functions = list(get_symbols(problem.language, type_='function', include_builtin=False))
+    for eff in collect_all_effects(problem):
+        assert 0, "Work in Progress"  # TODO
+
+
+
+
+
