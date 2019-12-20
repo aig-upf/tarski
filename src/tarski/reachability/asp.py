@@ -70,10 +70,12 @@ class ReachabilityLPCompiler:
             if isinstance(atom, tuple) and isinstance(atom[0], CompoundTerm) and atom[0].symbol.symbol == 'total-cost':
                 continue  # Ignore total-cost effects
             if not isinstance(atom, Atom):
-                assert isinstance(atom, tuple) and len(atom) == 2
+                assert isinstance(atom, tuple) and len(atom) == 2 and isinstance(atom[0], CompoundTerm)
                 t, v = atom
-                raise RuntimeError(f'ReachabilityLPCompiler cannot handle functional atoms in the initial state '
-                                   f'such as "{t} := {v}"')
+                if t.symbol.name in cost_related_functions:
+                    continue
+                raise RuntimeError(
+                    f'ReachabilityLPCompiler cannot handle functional atom "{t} := {v}" in the initial state')
             lp.rule(self.tarski_atom_to_lp_atom(atom))
 
         # Process all actions
@@ -103,7 +105,7 @@ class ReachabilityLPCompiler:
         lp.rule(action_atom, body)
         # Now process the effects
         for eff in action.effects:
-            head, body = self.process_effect(lang, eff)
+            head, body = self.process_effect(lang, eff, action.name)
             if head is not None:
                 lp.rule(head, [action_atom] + body)
 
@@ -180,7 +182,7 @@ class ReachabilityLPCompiler:
 
         raise RuntimeError('Unexpected term "{}" with type "{}"'.format(t, type(t)))
 
-    def process_effect(self, lang, eff):
+    def process_effect(self, lang, eff, action_name):
         """ Process a given effect and return the corresponding LP rule (a pair with head and body). For instance a
         conditional effect "p -> q(X)" will be transformed into a head q(X) and a body p.
         Additionally, declare in the given LP any number of extra rules necessary to ensure equivalence of the body
@@ -196,9 +198,10 @@ class ReachabilityLPCompiler:
             return None, []  # Simply ignore the delete effects
 
         if isinstance(eff, FunctionalEffect):
-            if eff.lhs.symbol.symbol == 'total-cost':
+            if eff.lhs.symbol.name == 'total-cost':
                 return None, []  # We ignore total-cost effects
-            raise RuntimeError(f'ReachabilityLPCompiler cannot handle functional effects such as "{eff}"')
+            raise RuntimeError(
+                f'ReachabilityLPCompiler cannot handle functional effect "{eff}" in action "{action_name}"')
 
         raise RuntimeError(f'Unexpected effect "{eff}" with type "{type(eff)}"')
 
