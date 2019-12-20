@@ -48,8 +48,8 @@ class ReachabilityLPCompiler:
     def create(self):
         problem, lang, lp = self.problem, self.problem.language, self.lp
 
-        # Preprocess the domain functions to identify those that appear only in cost-related effects, which we can
-        # then ignore safely
+        # Preprocess the domain functions to identify those that appear only in
+        # cost-related effects, which we can then ignore safely
         cost_related_functions = identify_cost_related_functions(problem)
 
         # Declare the PDDL objects with their types, e.g. with a fact "block(b1)".

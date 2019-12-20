@@ -7,7 +7,7 @@ from ..syntax import Formula, CompoundTerm, Atom, CompoundFormula, QuantifiedFor
     VariableBinding
 from ..syntax.ops import collect_unique_nodes, flatten, free_variables
 from ..syntax.util import get_symbols
-from ..fstrips.ops import collect_all_effects
+from ..fstrips import AddEffect, DelEffect, LiteralEffect, FunctionalEffect, UniversalEffect
 from .action import Action
 
 
@@ -222,11 +222,42 @@ def _collect_effect_free_variables(eff: fs.BaseEffect, free: Set):
         raise RuntimeError(f'Effect "{eff}" of type "{type(eff)}" cannot be processed')
 
 
+def collect_all_function_names(expression, output):
+    terms = collect_unique_nodes(expression, lambda x: isinstance(x, CompoundTerm))
+    output.update(f.symbol.name for f in terms)
+
+
 def identify_cost_related_functions(problem: Problem):
-    """ Return a list of those function symbols that are used only in total-cost-related effects"""
+    """ Return a list of those function symbols that are *only* used in effects that relate to the special
+    "total-cost" function. """
     functions = list(get_symbols(problem.language, type_='function', include_builtin=False))
-    for eff in collect_all_effects(problem):
-        assert 0, "Work in Progress"  # TODO
+    cost_unrelated = set()
+
+    collect_all_function_names(problem.goal, cost_unrelated)
+
+    for action in problem.actions.values():
+        collect_all_function_names(action.precondition, cost_unrelated)
+        for effect in action.effects:
+            mark_cost_unrelated_functions_in_effect(effect, cost_unrelated)
+
+    return set(f.name for f in functions if f.name not in cost_unrelated)
+
+
+def mark_cost_unrelated_functions_in_effect(effect, functions):
+    collect_all_function_names(effect.condition, functions)
+
+    if isinstance(effect, (AddEffect, DelEffect)):
+        collect_all_function_names(effect.atom, functions)
+    elif isinstance(effect, LiteralEffect):
+        collect_all_function_names(effect.lit, functions)
+    elif isinstance(effect, FunctionalEffect):
+        if isinstance(effect.lhs, CompoundTerm) and effect.lhs.symbol.name == "total-cost":
+            pass
+        else:
+            collect_all_function_names(effect.lhs, functions)
+            collect_all_function_names(effect.rhs, functions)
+    elif isinstance(effect, UniversalEffect):
+        _ = [mark_cost_unrelated_functions_in_effect(x, functions) for x in effect.effects]
 
 
 

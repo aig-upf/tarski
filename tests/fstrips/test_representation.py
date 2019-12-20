@@ -1,6 +1,7 @@
-
+from tarski.benchmarks.counters import generate_fstrips_counters_problem
 from tarski.fstrips.representation import collect_effect_free_parameters, project_away_effect_free_variables, \
-    collect_effect_free_variables, project_away_effect_free_variables_from_problem, is_typed_problem
+    collect_effect_free_variables, project_away_effect_free_variables_from_problem, is_typed_problem, \
+    identify_cost_related_functions
 from tarski.syntax import exists, land
 from tarski.fstrips import representation as rep
 
@@ -122,3 +123,14 @@ def test_effect_free_variables_in_caldera():
     names1 = sorted(x.symbol for x in problem.get_action('get_domain').parameters)
     names2 = sorted(x.symbol for x in problem2.get_action('get_domain').parameters)
     assert names1 == names2 == ['?v01']
+
+
+def test_cost_function_identification():
+    problem = generate_fstrips_counters_problem(ncounters=3)
+    functions = identify_cost_related_functions(problem)
+    assert functions == set()
+
+    instance_file, domain_file = collect_strips_benchmarks(["agricola-opt18-strips:p01.pddl"])[0]
+    problem = reader().read_problem(domain_file, instance_file)
+    functions = identify_cost_related_functions(problem)
+    assert functions == {"group_worker_cost", "total-cost"}

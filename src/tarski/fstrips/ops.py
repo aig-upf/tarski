@@ -31,10 +31,3 @@ def collect_affected_symbols_in_effect(effect, fluents: Set[Union[Predicate, Fun
         return [lhs.symbol for lhs in effect.y[:, 0]]
     else:
         raise RuntimeError(f'Effect "{effect}" of type "{type(effect)}" cannot be analysed')
-
-
-def collect_all_effects(problem: Problem):
-    """ Return (a generator with) all the effects in all the actions of the given problem. """
-    for a in problem.actions.values():
-        for eff in a.effects:
-            yield eff
