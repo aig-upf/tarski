@@ -158,6 +158,8 @@ class ExtensionalFunctionDefinition:
     def __len__(self):
         return len(self.data)
 
+    def __iter__(self):
+        yield from self.data.items()
 
 # class IntensionalFunctionDefinition:
 #     pass
