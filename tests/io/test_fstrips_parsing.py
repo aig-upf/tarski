@@ -1,9 +1,9 @@
 
 import pytest
 from tarski.errors import UndefinedSort, UndefinedPredicate
-from tarski.fstrips import AddEffect
+from tarski.fstrips import AddEffect, FunctionalEffect
 from tarski.io.fstrips import ParsingError, FstripsReader
-from tarski.syntax import Atom, CompoundFormula
+from tarski.syntax import Atom, CompoundFormula, Tautology
 from tarski.syntax.util import get_symbols
 from tarski.theories import Theory
 
@@ -296,3 +296,24 @@ def test_complex_effects():
     assert len(effs) == 9  # Conditional effects get flattened
     assert isinstance(effs[7], AddEffect) and isinstance(effs[8].condition, CompoundFormula)
     assert isinstance(effs[8], AddEffect) and isinstance(effs[8].condition, CompoundFormula)
+
+
+def test_plan_metric_parsing():
+    import os
+    reader = FstripsReader(raise_on_error=True)
+    reader.parse_domain(os.path.join('tests', 'data', 'pddl', 'ipc', 'flashfill-sat18', 'domain-p01.pddl'))
+    reader.parse_instance(os.path.join('tests', 'data', 'pddl', 'ipc', 'flashfill-sat18', 'p01.pddl'))
+
+    assert reader.problem.plan_metric is not None
+
+
+def test_increase_effects():
+    output = _test_inputs([
+        # First rule defines the function, necessary for the rest of rules not to raise some "Undefined" error
+        ("(total-cost) - number", "function_definition"),
+        ("(increase (total-cost) 1)", "effect"),
+    ], r=reader(strict_with_requirements=False))  # This uses one single reader for all tests
+
+    increase = output[1][0]
+    assert isinstance(increase, FunctionalEffect) and isinstance(increase.condition, Tautology)
+    assert str(increase.rhs) == '+(total-cost(), 1)'

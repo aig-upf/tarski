@@ -30,6 +30,10 @@ class Problem:
     def plan_metric(self):
         return self.metric_
 
+    @plan_metric.setter
+    def plan_metric(self, value):
+        self.metric_ = value
+
     def action(self, name, parameters, precondition, effects):
         if name in self.actions:
             raise err.DuplicateActionDefinition(name, self.actions[name])

@@ -403,7 +403,7 @@ class FStripsParser(fstripsVisitor):
     def visitProblemMetric(self, ctx):
         opt_type = ctx.optimization().getText().lower()
         opt_expression = self.visit(ctx.metricFExp())
-        self.problem.metric = OptimizationMetric(opt_expression, opt_type)
+        self.problem.plan_metric = OptimizationMetric(opt_expression, opt_type)
 
     def visitFunctionalExprMetric(self, ctx):
         return None, self.visit(ctx.functionTerm())
@@ -429,7 +429,7 @@ class FStripsParser(fstripsVisitor):
         rhs = self.visit(ctx.term())
         operator = {'scale-up': '*', 'scale-down': '/', 'increase': '+', 'decrease': '-'}[operation]
         rhs = self.language.dispatch_operator(get_function_from_symbol(operator), Term, Term, lhs, rhs)
-        return FunctionalEffect(lhs, self.visit(ctx.term()), rhs)
+        return FunctionalEffect(lhs, rhs)
 
     def visitDerivedDef(self, ctx):
         raise UnsupportedLanguageFeature("Parsing of derived predicates in Tarski not yet implemented")
