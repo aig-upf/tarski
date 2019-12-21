@@ -237,7 +237,7 @@ class VariableOnlyReachabilityLPCompiler(ReachabilityLPCompiler):
         prec_body += self.process_formula(phi)
         # Now process the effects
         for eff in action.effects:
-            head, condeff_body = self.process_effect(lang, eff)
+            head, condeff_body = self.process_effect(lang, eff, action.name)
             if head is not None:
                 lp.rule(head, prec_body + condeff_body)
 
