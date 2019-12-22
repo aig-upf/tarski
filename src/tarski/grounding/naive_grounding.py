@@ -114,9 +114,12 @@ class NaiveGroundingStrategy:
     exhaustive enumeration of all possible subsitutions of the representation variables.
     Note: This is a lightweight version of the ProblemGrounding class above, hoping that it can eventually replace it.
     """
-    def __init__(self, problem):
+    def __init__(self, problem, ignore_symbols=None):
         self.problem = problem
         self.fluent_symbols, self.static_symbols = approximate_symbol_fluency(problem)
+        if ignore_symbols:  # Remove undesired symbols if necessary
+            self.fluent_symbols = {s for s in self.fluent_symbols if s.name not in ignore_symbols}
+            self.static_symbols = {s for s in self.static_symbols if s.name not in ignore_symbols}
 
     def ground_state_variables(self):
         """ Create an index all state variables of the problem by exhaustively grounding all predicate and function
