@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 ### Fixed
  - Fixed some minor bugs in FSTRIPS writer.
+ - Fixed bug in ReachabilityLPCompiler when problem has an action and a predicate with the same name (7e9a684)
 
 ## [0.3.0] - 2019-08-03
 
