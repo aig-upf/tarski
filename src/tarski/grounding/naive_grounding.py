@@ -106,7 +106,7 @@ class StateVariable:
     @property
     def ground(self):
         subst = create_substitution(self.term.subterms, self.instantiation)
-        return term_substitution(self.head.language, self.term, subst)
+        return term_substitution(self.term, subst)
 
 
 class NaiveGroundingStrategy:

@@ -1,6 +1,7 @@
 
 from tarski.reachability.asp import create_reachability_lp, LogicProgram, ReachabilityLPCompiler, LPAtom
 from tarski.syntax import exists
+from tests.io.common import collect_strips_benchmarks, reader
 
 from ..common.gripper import create_sample_problem
 
@@ -48,5 +49,8 @@ def test_lp_on_gripper():
     lp, _ = create_reachability_lp(problem)
     assert lp.nrules() == 31
 
-    # TODO Test also on an problem with types
 
+def test_lp_on_caldera():
+    instance_file, domain_file = collect_strips_benchmarks(["caldera-sat18-adl:p01.pddl"])[0]
+    problem = reader().read_problem(domain_file, instance_file)
+    lp, tr = create_reachability_lp(problem, ground_actions=True)

@@ -36,7 +36,7 @@ class ReactionGrounder:
             for values in itertools.product(*substs):
                 subst = create_substitution(syms, values)
 
-                op = TermSubstitution(self.L, subst)
+                op = TermSubstitution(subst)
 
                 g_cond = process_expression(self.L, react_schema.condition, op)
 

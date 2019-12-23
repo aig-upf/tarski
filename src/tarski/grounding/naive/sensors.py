@@ -30,7 +30,7 @@ class SensorGrounder:
             for values in itertools.product(*substs):
                 subst = create_substitution(syms, values)
 
-                op = TermSubstitution(self.L, subst)
+                op = TermSubstitution(subst)
                 g_prec = process_expression(self.L, act_schema.condition, op)
                 g_obs = process_expression(self.L, act_schema.obs, op)
                 self.problem.ground_sensors.add(Sensor(self.L, act_schema.name, [], g_prec, g_obs))

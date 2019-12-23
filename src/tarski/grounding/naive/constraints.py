@@ -31,7 +31,7 @@ class ConstraintGrounder:
             K, syms, substs = instantiation.enumerate_groundings(all_variables(const_schema))
             for values in itertools.product(*substs):
                 subst = create_substitution(syms, values)
-                op = TermSubstitution(self.L, subst)
+                op = TermSubstitution(subst)
                 g_const = process_expression(self.L, const_schema, op)
                 # Simplification steps
                 s0 = NegatedBuiltinAbsorption.rewrite(self.L, g_const)

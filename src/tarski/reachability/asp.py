@@ -3,13 +3,13 @@
 """
 import itertools
 
-from ..syntax.transform import remove_quantifiers, QuantifierEliminationMode
+from ..syntax.transform import remove_quantifiers, QuantifierEliminationMode, expand_universal_effect
 from ..syntax.builtins import symbol_complements
 from ..syntax.ops import free_variables
 from ..syntax import Formula, Atom, CompoundFormula, Connective, Term, Variable, Constant, Tautology, \
     BuiltinPredicateSymbol, QuantifiedFormula, Quantifier, CompoundTerm
 from ..syntax.sorts import parent
-from ..fstrips import Problem, SingleEffect, UniversalEffect, AddEffect, DelEffect, FunctionalEffect
+from ..fstrips import Problem, SingleEffect, AddEffect, DelEffect, FunctionalEffect
 from ..fstrips.representation import identify_cost_related_functions
 
 SOLVABLE = "_solvable_"
@@ -105,9 +105,10 @@ class ReachabilityLPCompiler:
         lp.rule(action_atom, body)
         # Now process the effects
         for eff in action.effects:
-            head, body = self.process_effect(lang, eff, action.name)
-            if head is not None:
-                lp.rule(head, [action_atom] + body)
+            for expanded in expand_universal_effect(eff):
+                head, body = self.process_effect(lang, expanded, action.name)
+                if head is not None:
+                    lp.rule(head, [action_atom] + body)
 
     def process_formula(self, f: Formula):
         """ Process a given formula and return the corresponding LP rule body, along with declaring in the given LP
@@ -188,7 +189,7 @@ class ReachabilityLPCompiler:
         Additionally, declare in the given LP any number of extra rules necessary to ensure equivalence of the body
         with the truth value of the effect conditions (i.e. this will be mostly necessary for conditional effects).
         """
-        assert isinstance(eff, (SingleEffect, UniversalEffect))
+        assert isinstance(eff, SingleEffect)
         if isinstance(eff, AddEffect):
             head = self.tarski_atom_to_lp_atom(eff.atom)
             condition = remove_quantifiers(lang, eff.condition, QuantifierEliminationMode.Forall)
@@ -202,7 +203,6 @@ class ReachabilityLPCompiler:
                 return None, []  # We ignore total-cost effects
             raise RuntimeError(
                 f'ReachabilityLPCompiler cannot handle functional effect "{eff}" in action "{action_name}"')
-
         raise RuntimeError(f'Unexpected effect "{eff}" with type "{type(eff)}"')
 
     def tarski_atom_to_lp_atom(self, atom: Atom, prefix=''):

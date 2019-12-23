@@ -66,7 +66,7 @@ class QuantifierElimination:
         conjuncts = []
         for values in itertools.product(*substs):
             subst = create_substitution(syms, values)
-            conjuncts.append(term_substitution(self.lang, phi.formula, subst))
+            conjuncts.append(term_substitution(phi.formula, subst))
         return creator(*conjuncts)
 
     def convert(self):

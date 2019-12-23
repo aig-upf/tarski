@@ -27,7 +27,7 @@ class ActionGrounder:
             k, syms, substs = instantiation.enumerate_groundings(act_schema.parameters)
             for values in itertools.product(*substs):
                 subst = create_substitution(syms, values)
-                op = TermSubstitution(self.L, subst)
+                op = TermSubstitution(subst)
                 g_prec = process_expression(self.L, act_schema.precondition, op)
                 g_effs = []
                 for eff in act_schema.effects:
