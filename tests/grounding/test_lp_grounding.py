@@ -70,8 +70,8 @@ def test_action_grounding_on_standard_benchmarks(instance_file, domain_file):
                 'BlackPrinter-Simplex-Letter': 2, 'BlackPrinter-SimplexAndInvert-Letter': 2, 'Up-MoveTop-Letter': 1,
                 'Up-MoveUp-Letter': 1, 'Finisher1-PassThrough-Letter': 1, 'Finisher1-Stack-Letter': 1,
                 'Finisher2-PassThrough-Letter': 1, 'Finisher2-Stack-Letter': 1},
-        'floor-tile': {'change-color': 8, 'paint-up': 36, 'paint-down': 36, 'up': 27, 'down': 27, 'right': 24,
-                       'left': 24},
+        'floor-tile': {'change-color': 8, 'paint-up': 36, 'paint-down': 36, 'up': 18, 'down': 18, 'right': 16,
+                       'left': 16},
         # This works for both versions of pipesworld:
         "pipesworld_strips": {'PUSH-START': 0, 'PUSH-END': 0, 'POP-START': 0, 'POP-END': 0,
                               'PUSH-UNITARYPIPE': 64, 'POP-UNITARYPIPE': 64},

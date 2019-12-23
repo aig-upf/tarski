@@ -302,18 +302,18 @@ class Translator:
         self.inv = dict()
 
     def normalize(self, name: str, prefix=''):
-        """ Translate a given name and keep the translation """
-        translated = self.d.get(name, None)
-        if translated is None:
-            translated = sanitize(name)
-            if prefix:
-                translated = prefix + '_' + translated
-            if name in self.inv or translated in self.inv:
-                raise RuntimeError('Sanitization of STRIPS name for ASP purposes would create a name clash for key '
-                                   '"{}"'.format(name))
+        """ Translate a given name and store the translation """
+        prefix = prefix + '_' if prefix else ''
+        prefixed = prefix + name
 
-            if translated != name:
-                translated = self._insert(name, translated)
+        translated = self.d.get(prefixed, None)
+        if translated is None:
+            translated = prefix + sanitize(name)
+            if prefixed in self.inv or translated in self.inv:
+                raise RuntimeError(f'Sanitization of STRIPS name "{name}" for ASP purposes would create a name clash')
+
+            if translated != prefixed:
+                translated = self._insert(prefixed, translated)
         return translated
 
     def _insert(self, k, v):

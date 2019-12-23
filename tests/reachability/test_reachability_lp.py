@@ -1,6 +1,7 @@
 
 from tarski.reachability.asp import create_reachability_lp, LogicProgram, ReachabilityLPCompiler, LPAtom
 from tarski.syntax import exists
+from tarski import fstrips as fs
 from tests.io.common import collect_strips_benchmarks, reader
 
 from ..common.gripper import create_sample_problem
@@ -54,3 +55,24 @@ def test_lp_on_caldera():
     instance_file, domain_file = collect_strips_benchmarks(["caldera-sat18-adl:p01.pddl"])[0]
     problem = reader().read_problem(domain_file, instance_file)
     lp, tr = create_reachability_lp(problem, ground_actions=True)
+
+
+def test_lp_translation():
+    problem = create_sample_problem()
+    lang = problem.language
+
+    # Create a fake "gripper" action with same name as the "gripper" predicate
+    g = lang.variable("g", lang.Object)
+    gripper = lang.get("gripper")
+    fake = problem.action("gripper", [g],
+                          precondition=gripper(g),
+                          effects=[fs.AddEffect(gripper(g))])
+
+    lp = LogicProgram()
+    compiler = ReachabilityLPCompiler(problem, lp)
+    compiler.process_action(fake, lang, lp)
+
+    # Make sure that the action and atom "gripper" have been processed independently
+    assert lp.rules == [
+        'action_gripper(G) :- type_object(G), atom_gripper(G).',
+        'atom_gripper(G) :- action_gripper(G).']

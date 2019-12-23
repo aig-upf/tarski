@@ -34,8 +34,9 @@ class LPGroundingStrategy:
         variables = IndexDictionary()
         for symbol in self.fluent_symbols:
             lang = symbol.language
-            if symbol.name in model:  # in case there is no reachable ground state variable from that fluent symbol
-                for binding in model[symbol.name]:
+            key = 'atom_' + symbol.name
+            if key in model:  # in case there is no reachable ground state variable from that fluent symbol
+                for binding in model[key]:
                     binding_with_constants = tuple(lang.get(c) for c in binding)
                     variables.add(StateVariableLite(symbol, binding_with_constants))
 
@@ -49,7 +50,11 @@ class LPGroundingStrategy:
                                'configured with ground_actions=False')
         model = self._solve_lp()
         # This will take care of the case where there is not ground action from some schema
-        return {k: model[k] if k in model else set() for k in self.problem.actions.keys()}
+        groundings = dict()
+        for k in self.problem.actions.keys():
+            key = "action_" + k
+            groundings[k] = model[key] if key in model else set()
+        return groundings
 
     def iterate_over_schema_groundings(self, schema_name: str):
         """  Iterate over all reachable parameter groundings of the given action schema. """
