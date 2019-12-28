@@ -53,7 +53,6 @@ def main():
             'psutil',
             'antlr4-python3-runtime>=4.7.2',
             'numpy',
-            'scipy',
             'pyrddl',
         ],
 
@@ -68,6 +67,7 @@ def main():
                 # 'pysdd@https://github.com/wannesm/PySDD/archive/259e8b5.zip',  # This doesn't seem to work on Travis
                 'cysignals'
             ],
+            'scipy': ['scipy']
         },
 
         # This will include non-code files specified in the manifest, see e.g.

@@ -8,6 +8,13 @@ from ..common import blocksworld, numeric
 from tarski.evaluators.simple import evaluate
 from tarski.syntax import Constant, ite, symref
 from tarski.theories import Theory
+from tarski.modules import import_scipy_special
+
+try:
+    sci = import_scipy_special()
+except ImportError:
+    import pytest
+    pytest.skip('Please install the "scipy" extra to run the full suite of tests', allow_module_level=True)
 
 
 def test_interpretation_instance():
@@ -197,7 +204,6 @@ def test_special_function_log():
 
 
 def test_special_function_erf():
-    import scipy.special as sci
     from tarski.syntax.arithmetic.special import erf
     lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL])
     model = Model(lang)
@@ -208,7 +214,6 @@ def test_special_function_erf():
 
 
 def test_special_function_erfc():
-    import scipy.special as sci
     from tarski.syntax.arithmetic.special import erfc
     lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL])
     model = Model(lang)

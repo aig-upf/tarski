@@ -8,12 +8,6 @@ from collections import defaultdict
 from functools import reduce
 from pathlib import Path
 
-try:
-    from pysdd.sdd import Vtree, SddManager
-except ImportError as err:
-    raise ImportError('The tarski.sdd module is not available, could not import pysdd module. '
-                      'Please try installing Tarski with the "sdd" extra, or installing pysdd by hand.') from None
-
 from .util import stdout_redirector
 from ..utils import resources
 from ..utils.serialization import serialize_atom
@@ -24,6 +18,9 @@ from ..grounding.ops import approximate_symbol_fluency
 from ..grounding.common import StateVariableLite
 from ..fstrips import fstrips
 from ..fstrips.representation import collect_literals_from_conjunction
+
+from tarski.modules import import_sdd
+sdd = import_sdd()
 
 
 class UnsupportedFormalism(RuntimeError):
@@ -531,8 +528,8 @@ def setup_sdd_manager(nvars, var_order=None):
     # vtree_type = "left"
     # vtree_type = "random"
 
-    vtree = Vtree(nvars, var_order, vtree_type)
-    return SddManager(var_count=nvars, auto_gc_and_minimize=0, vtree=vtree)
+    vtree = sdd.Vtree(nvars, var_order, vtree_type)
+    return sdd.SddManager(var_count=nvars, auto_gc_and_minimize=0, vtree=vtree)
 
 
 def setup_false_sdd_manager():
@@ -739,7 +736,7 @@ def models(node, fixed, vtree=None):
                         yield join_models(left, right)
         else:  # fill in gap in vtree
             true_sdd = node.manager.true()
-            if Vtree.is_sub(node.vtree(), vtree.left()):
+            if sdd.Vtree.is_sub(node.vtree(), vtree.left()):
                 for left in models(node, fixed, vtree.left()):
                     for right in models(true_sdd, fixed, vtree.right()):
                         yield join_models(left, right)

@@ -5,7 +5,7 @@ try:
     from tarski.sdd import process_problem
 except ImportError:
     import pytest
-    pytest.skip("Please install the PySDD Python module to run the full suite of tests", allow_module_level=True)
+    pytest.skip('Please install the "sdd" extra to run the full suite of tests', allow_module_level=True)
 
 
 from ..common.blocksworld import generate_small_strips_bw_problem
@@ -15,14 +15,12 @@ from ..io.common import get_benchmark_dir_if_exists, add_domains_from, reader
 
 def test_bw_sdd():
     problem = generate_small_strips_bw_problem()
-    data = process_problem(problem)
-    # print(data)
+    _ = process_problem(problem)
 
 
 def test_gripper_sdd():
     problem = create_sample_problem()
-    data = process_problem(problem)
-    # print(data)
+    _ = process_problem(problem)
 
 
 def pytest_generate_tests(metafunc):
@@ -60,5 +58,4 @@ def pytest_generate_tests(metafunc):
 
 def test_pddl_instances(instance_file, domain_file):
     problem = reader().read_problem(domain_file, instance_file)
-    data = process_problem(problem)
-    # print(data)
+    _ = process_problem(problem)
