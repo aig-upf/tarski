@@ -23,6 +23,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Fixed some minor bugs in FSTRIPS writer.
  - Fixed bug in ReachabilityLPCompiler when problem has an action and a predicate with the same name (7e9a684)
 
+
+## [0.4.0] - 2019-12-28
+### Changed
+- Almost-identical methods `approximate_symbol_fluency` and `classify_symbols` have been merged into one
+  single method `approximate_symbol_fluency`.
+
+### Added
+ - Preliminary [readthedocs documentation](https://tarski.readthedocs.io) integrated in the repository.
+   CI tests the documentation build as well.
+ - Integration with the [PySDD package](https://github.com/wannesm/PySDD) for sentential decision diagrams
+ to process action schema preconditions.
+ - Implementation of a `project_away_effect_free_variables_from_problem` transformation that for each action schema
+   compiles into existential variables all action parameters that are not used in the action effects
+    ([#63](https://github.com/aig-upf/tarski/issues/63)).
+ - Implementation of a `compile_universal_effects_away` transformation that expands universal effects in actions. 
+ - Reachability module now processes problems with cost-related functions (010d79df)
+ - Preliminary implementation of a library of benchmark generators
+    ([#43](https://github.com/aig-upf/tarski/issues/43)).
+ - Added some preliminary support for the NDL representation language.
+
+### Removed
+### Deprecated
+### Fixed
+ - Fixed some minor bugs in FSTRIPS writer.
+ - Fixed bug in ReachabilityLPCompiler when problem has an action and a predicate with the same name (7e9a684).
+ - Remove temporary files created by the LP based grounder.
+ - Model.list_all_extensions now returns empty extensions if necessary (ffbc96d1)
+
+
 ## [0.3.0] - 2019-08-03
 
 ### Added
