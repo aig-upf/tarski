@@ -2,7 +2,7 @@
  Tests for the SDD module
 """
 try:
-    from tarski.sdd.sdd import process_problem
+    from tarski.sdd import process_problem
 except ImportError:
     import pytest
     pytest.skip("Please install the PySDD Python module to run the full suite of tests", allow_module_level=True)

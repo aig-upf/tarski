@@ -39,7 +39,8 @@ To use this `tarski.sdd` optional package, you'll need to pip install with the `
 
     pip install tarski[sdd]
 
-Support for this is still experimental. 
+Support for this is still experimental, as the installation of PySDD does not seem to be
+too pip-friendly.
 
 ### Software Requirements
 Tarski requires Python >= 3.6. The above installation instructions will install transparently 

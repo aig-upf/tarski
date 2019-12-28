@@ -11,7 +11,8 @@ from pathlib import Path
 try:
     from pysdd.sdd import Vtree, SddManager
 except ImportError as err:
-    raise ImportError("Could not import pysdd - sdd module not available") from None
+    raise ImportError('The tarski.sdd module is not available, could not import pysdd module. '
+                      'Please try installing Tarski with the "sdd" extra, or installing pysdd by hand.') from None
 
 from .util import stdout_redirector
 from ..utils import resources
