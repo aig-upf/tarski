@@ -18,7 +18,7 @@ along with modules to perform other common tasks such as reachability analysis a
 grounding of first-order representations.
 
 
-Read the full documentation of the project in <https://tarski.readthedocs.io>.
+Read the (work-in-progress) documentation of the project in <https://tarski.readthedocs.io>.
 
 
 ## Installation
@@ -30,7 +30,17 @@ Install the latest Tarski release with
 If instead you want to use the latest code available on the Github repository, use 
     
     pip install -U git+https://github.com/aig-upf/tarski.git
-    
+
+## Extras
+
+Tarski allows the _optional_ installation of an `sdd` module that allows to interact
+with the [PySDD package](https://github.com/wannesm/PySDD) for sentential decision diagrams.
+To use this `tarski.sdd` optional package, you'll need to pip install with the `sdd` extra, as in: 
+
+    pip install tarski[sdd]
+
+Support for this is still experimental. 
+
 ### Software Requirements
 Tarski requires Python >= 3.6. The above installation instructions will install transparently 
 for you a number of additional dependencies, among which `numpy`, `scipy` and `pyrddl`.

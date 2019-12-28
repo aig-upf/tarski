@@ -55,17 +55,19 @@ def main():
             'numpy',
             'scipy',
             'pyrddl',
-            'Cython',
-            'PySDD>=0.2.9',  # This doesn't seem to fully install pysdd.sdd
-            # 'pysdd@git+https://git@github.com/wannesm/PySDD.git@259e8b5',  # This doesn't seem to work on Travis
-            # 'pysdd@https://github.com/wannesm/PySDD/archive/259e8b5.zip',  # This doesn't seem to work on Travis
-            'cysignals' # This is required via PySDD
         ],
 
         extras_require={
             'dev': ['pytest', 'tox', 'pytest-cov', 'mypy'],
             'test': ['pytest', 'tox', 'pytest-cov', 'mypy'],
-            'doc': ['sphinx', 'recommonmark', 'nbsphinx', 'sphinx_rtd_theme', 'ipykernel', 'ipython']
+            'doc': ['sphinx', 'recommonmark', 'nbsphinx', 'sphinx_rtd_theme', 'ipykernel', 'ipython'],
+            'sdd': [
+                'Cython',
+                'PySDD>=0.2.9',  # This doesn't seem to fully install pysdd.sdd
+                # 'pysdd@git+https://git@github.com/wannesm/PySDD.git@259e8b5',  # This doesn't seem to work on Travis
+                # 'pysdd@https://github.com/wannesm/PySDD/archive/259e8b5.zip',  # This doesn't seem to work on Travis
+                'cysignals'
+            ],
         },
 
         # This will include non-code files specified in the manifest, see e.g.
