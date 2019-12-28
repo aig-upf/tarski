@@ -63,7 +63,7 @@ def main():
             'sdd': [
                 'Cython',
                 'PySDD>=0.2.9',  # This doesn't seem to fully install pysdd.sdd
-                'pysdd@git+https://git@github.com/wannesm/PySDD.git@259e8b5',  # This doesn't seem to work on Travis
+                # 'pysdd@git+https://git@github.com/wannesm/PySDD.git@259e8b5',  # This doesn't seem to work on Travis
                 # 'pysdd@https://github.com/wannesm/PySDD/archive/259e8b5.zip',  # This doesn't seem to work on Travis
                 'cysignals'
             ],
