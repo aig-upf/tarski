@@ -139,7 +139,7 @@ class ReachabilityLPCompiler:
 
             elif f.connective == Connective.Not:
                 if not self.include_variable_inequalities:
-                    return []
+                    return [lp_tautology()]
                 assert len(f.subformulas) == 1
                 subf = f.subformulas[0]
                 if not isinstance(subf, Atom):
