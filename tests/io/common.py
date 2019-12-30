@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from tarski.io import FstripsReader
 from tarski.io.utils import find_domain_filename
@@ -29,10 +30,11 @@ def add_domains_from(envvar, domains, benchmark_prefix=None):
 
     instances = []
 
-    # This works only if the domain is called domain.pddl TODO Extend to infer other domain names automatically
     for dom, ins in (x.split(":") for x in domains):
         base_dir = os.path.join(db, dom)
         instance_file = os.path.join(base_dir, ins)
+        if not Path(instance_file).is_file():
+            raise RuntimeError(f'PDDL instance file "{instance_file}" doesn\'t exist')
         domain_file = find_domain_filename(instance_file)
         instances.append([instance_file, domain_file])
     return instances
