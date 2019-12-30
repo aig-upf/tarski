@@ -17,9 +17,10 @@ class LPGroundingStrategy:
     the parameter groundings of all reachable ground actions; if false, it will not, which should result in a smaller
     and cheaper logic program.
     """
-    def __init__(self, problem, ground_actions=True):
+    def __init__(self, problem, ground_actions=True, include_variable_inequalities=False):
         self.problem = problem
         self.do_ground_actions = ground_actions
+        self.include_variable_inequalities = include_variable_inequalities
         self.model = None  # We'll cache the solution of the LP here
         self.fluent_symbols, self.static_symbols = approximate_symbol_fluency(problem)
 
@@ -63,7 +64,7 @@ class LPGroundingStrategy:
 
     def _solve_lp(self):
         if self.model is None:
-            lp, tr = create_reachability_lp(self.problem, self.do_ground_actions)
+            lp, tr = create_reachability_lp(self.problem, self.do_ground_actions, self.include_variable_inequalities)
             model_filename, theory_filename = run_clingo(lp)
             self.model = parse_model(model_filename, tr)
 
@@ -81,6 +82,6 @@ class LPGroundingStrategy:
     __repr__ = __str__
 
 
-def compute_action_groundings(problem):
-    grounding = LPGroundingStrategy(problem)
+def compute_action_groundings(problem, include_variable_inequalities=False):
+    grounding = LPGroundingStrategy(problem, True, include_variable_inequalities)
     return grounding.ground_actions()

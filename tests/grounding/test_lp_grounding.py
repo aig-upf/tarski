@@ -17,6 +17,7 @@ if shutil.which("gringo") is None:
 
 
 SAMPLE_STRIPS_INSTANCES = [
+    "organic-synthesis-opt18-strips:p01.pddl",
     "blocks:probBLOCKS-4-1.pddl",
     "openstacks:p01.pddl",
     "visitall-sat11-strips:problem12.pddl",
@@ -77,6 +78,18 @@ def test_action_grounding_on_standard_benchmarks(instance_file, domain_file):
                               'PUSH-UNITARYPIPE': 64, 'POP-UNITARYPIPE': 64},
         'Pathways-Propositional': {'choose': 48, 'initialize': 16, 'associate': 7, 'associate-with-catalyze': 5,
                                    'synthesize': 0, 'DUMMY-ACTION-1': 1},
+        'organic-synthesis': {'additionofrohacrossgemdisubstitutedalkene': 448,
+                              'additionofrohacrossmonosubstitutedalkene': 192,
+                              'additionofrohacrosstetrasubstitutedalkene': 72,
+                              'additionofrohacrosstrisubstitutedalkene': 120,
+                              'additionofrohacrossvicdisubstitutedalkene': 72,
+                              'etherformationbysulfonatedisplacement': 0,
+                              'hydroborationofdiortrisubstitutedalkene': 0,
+                              'hydroborationofgemdisubstitutedalkene': 0,
+                              'hydroborationofmonosubstitutedalkene': 0,
+                              'hydroborationoftetrasubstitutedalkene': 0,
+                              'oxidationofborane': 0,
+                              'sulfonylationofalcohol': 0},
     }[problem.domain_name]
 
     # Make sure that the number of possible groundings of each action schema in the domain is as expected

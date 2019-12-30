@@ -15,11 +15,11 @@ from ..fstrips.representation import identify_cost_related_functions
 SOLVABLE = "_solvable_"
 
 
-def create_reachability_lp(problem: Problem, ground_actions=True):
+def create_reachability_lp(problem: Problem, ground_actions=True, include_variable_inequalities=False):
     """ Return a reachability logic program, along with the symbol translation dictionary used to create it """
     lp = LogicProgram()
     compiler_class = ReachabilityLPCompiler if ground_actions else VariableOnlyReachabilityLPCompiler
-    compiler = compiler_class(problem, lp)
+    compiler = compiler_class(problem, lp, include_variable_inequalities=include_variable_inequalities)
     compiler.create()
     return lp, compiler.tr
 
@@ -33,11 +33,11 @@ class ReachabilityLPCompiler:
 
     albeit there are some differences which so far we haven't properly described and analyzed.
     """
-    def __init__(self, problem: Problem, lp):
+    def __init__(self, problem: Problem, lp, include_variable_inequalities=False):
         self.problem = problem
         self.lp = lp
-        # self.node_cache = dict()  # A cache of auxiliary subformulas
         self.aux_atom_count = 0
+        self.include_variable_inequalities = include_variable_inequalities
         self.tr = Translator()
 
     def gen_aux_atom(self, args=None):
@@ -114,12 +114,6 @@ class ReachabilityLPCompiler:
         """ Process a given formula and return the corresponding LP rule body, along with declaring in the given LP
         any number of extra rules necessary to ensure equivalence of the body with the truth value of the formula.
         """
-        # ref = symref(f)  # At the moment not caching
-        # res = self.node_cache.get(ref, None)
-        # If the formula has been processed before and an auxiliary LP atom for it created, return that
-        # if res is not None:
-        #     return res
-
         if isinstance(f, Tautology):
             return []
 
@@ -144,6 +138,8 @@ class ReachabilityLPCompiler:
                 return [aux]
 
             elif f.connective == Connective.Not:
+                if not self.include_variable_inequalities:
+                    return []
                 assert len(f.subformulas) == 1
                 subf = f.subformulas[0]
                 if not isinstance(subf, Atom):
