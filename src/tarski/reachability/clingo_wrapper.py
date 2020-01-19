@@ -14,6 +14,7 @@ def run_clingo(lp):
 
     with tempfile.NamedTemporaryFile(mode='w+t', delete=False) as f:
         _ = [print(str(r), file=f) for r in lp.rules]
+        _ = [print(str(r), file=f) for r in lp.directives]
         theory_filename = f.name
 
     logging.debug('Using gringo binary found in "{}"'.format(gringo))

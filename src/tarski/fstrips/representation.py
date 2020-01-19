@@ -1,6 +1,7 @@
 import copy
 from typing import Set, Union, Tuple, Optional
 
+from tarski.fstrips import BaseEffect
 from .problem import Problem
 from . import fstrips as fs
 from ..syntax import Formula, CompoundTerm, Atom, CompoundFormula, QuantifiedFormula, is_and, is_neg, exists, symref,\
@@ -95,6 +96,23 @@ def transform_operator_to_strips(action: Action):
 def is_literal(phi: Formula):
     """ Return true iff the given formula is a literal """
     return isinstance(phi, Atom) or (is_neg(phi) and is_literal(phi.subformulas[0]))
+
+
+def is_delete_free(problem: Problem):
+    for _, a in problem.actions.items():
+        for eff in a.effects:
+            if contains_delete_subeffects(eff):
+                return False
+    return True
+
+
+def contains_delete_subeffects(effect: BaseEffect):
+    if isinstance(effect, DelEffect):
+        return True
+    elif isinstance(effect, AddEffect):
+        return False
+    elif isinstance(effect, UniversalEffect):
+        return any(contains_delete_subeffects(e) for e in effect.effects)
 
 
 def is_conjunction_of_literals(phi: Formula):

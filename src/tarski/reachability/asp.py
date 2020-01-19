@@ -88,8 +88,13 @@ class ReachabilityLPCompiler:
         # TODO To be implemented yet
         assert not problem.derived_predicates
 
+        self.process_goal(problem.goal, lang, lp)
+
+        self.add_directives(problem, lp)
+
+    def process_goal(self, goal, lang, lp):
         # Process goal, e.g. "solvable :- on(a,b), on(b,c)." (note that the goal is always ground)
-        phi = remove_quantifiers(lang, problem.goal, QuantifierEliminationMode.Forall)
+        phi = remove_quantifiers(lang, goal, QuantifierEliminationMode.Forall)
         body = self.process_formula(phi)
         lp.rule(self.lp_atom(SOLVABLE), body)
 
@@ -102,13 +107,20 @@ class ReachabilityLPCompiler:
         # Remove universal quantifiers and add precondition atoms to the body
         phi = remove_quantifiers(lang, action.precondition, QuantifierEliminationMode.Forall)
         body += self.process_formula(phi)
-        lp.rule(action_atom, body)
+        head = self.create_action_rule_head(action_atom)
+        lp.rule(head, body)
         # Now process the effects
         for eff in action.effects:
             for expanded in expand_universal_effect(eff):
                 head, body = self.process_effect(lang, expanded, action.name)
                 if head is not None:
                     lp.rule(head, [action_atom] + body)
+
+    def create_action_rule_head(self, action_atom):
+        return action_atom
+
+    def add_directives(self, problem, lp):
+        return
 
     def process_formula(self, f: Formula):
         """ Process a given formula and return the corresponding LP rule body, along with declaring in the given LP
@@ -325,12 +337,16 @@ class Translator:
 class LogicProgram:
     def __init__(self):
         self.rules = []
+        self.directives = []
 
     def rule(self, head, body=None):
         self.rules.append(_print_rule(head, body))
 
     def nrules(self):
         return len(self.rules)
+
+    def directive(self, directive):
+        self.directives.append(directive)
 
 
 class InFileLogicProgram:
