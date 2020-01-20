@@ -5,24 +5,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
-- Almost-identical methods `approximate_symbol_fluency` and `classify_symbols` have been merged into one
-  single method `approximate_symbol_fluency`.
 
 ### Added
- - Preliminary [readthedocs documentation](https://tarski.readthedocs.io) integrated in the repository.
-   CI tests the documentation build as well.
- - Implementation of a `project_away_effect_free_variables_from_problem` transformation that for each action schema
-   compiles into existential variables all action parameters that are not used in the action effects
-    ([#63](https://github.com/aig-upf/tarski/issues/63)).
- - Preliminary implementation of a library of benchmark generators
-    ([#43](https://github.com/aig-upf/tarski/issues/43)).
 
 ### Removed
 ### Deprecated
 ### Fixed
- - Fixed some minor bugs in FSTRIPS writer.
- - Fixed bug in ReachabilityLPCompiler when problem has an action and a predicate with the same name (7e9a684)
-
 
 ## [0.4.0] - 2019-12-28
 ### Changed
