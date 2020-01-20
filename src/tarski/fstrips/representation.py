@@ -113,6 +113,29 @@ def contains_delete_subeffects(effect: BaseEffect):
         return False
     elif isinstance(effect, UniversalEffect):
         return any(contains_delete_subeffects(e) for e in effect.effects)
+    raise RuntimeError(f'Unexpected type for effect {effect}')
+
+
+def compute_delete_free_relaxation(problem: Problem):
+    problem = copy.deepcopy(problem)
+    for _, a in problem.actions.items():
+        a.effects = remove_delete_effects(a.effects)
+    return problem
+
+
+def remove_delete_effects(effects):
+    deletefree = []
+    for effect in effects:
+        if isinstance(effect, DelEffect):
+            pass
+        elif isinstance(effect, AddEffect):
+            deletefree.append(effect)
+        elif isinstance(effect, UniversalEffect):
+            effect.effects = remove_delete_effects(effect.effects)  # i.e. remove delete-free effects recursively
+            deletefree.append(effect)
+        else:
+            raise RuntimeError(f'Unexpected type for effect {effect}')
+    return deletefree
 
 
 def is_conjunction_of_literals(phi: Formula):

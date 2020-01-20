@@ -1,12 +1,12 @@
 from tarski.benchmarks.counters import generate_fstrips_counters_problem
 from tarski.fstrips.representation import collect_effect_free_parameters, project_away_effect_free_variables, \
     collect_effect_free_variables, project_away_effect_free_variables_from_problem, is_typed_problem, \
-    identify_cost_related_functions
+    identify_cost_related_functions, compute_delete_free_relaxation, is_delete_free
 from tarski.syntax import exists, land
-from tarski.fstrips import representation as rep
+from tarski.fstrips import representation as rep, AddEffect
 
 from tests.common import blocksworld
-from tests.common.blocksworld import generate_small_fstrips_bw_language
+from tests.common.blocksworld import generate_small_fstrips_bw_language, generate_small_strips_bw_problem
 from tests.io.common import collect_strips_benchmarks, reader
 
 
@@ -134,3 +134,19 @@ def test_cost_function_identification():
     problem = reader().read_problem(domain_file, instance_file)
     functions = identify_cost_related_functions(problem)
     assert functions == {"group_worker_cost", "total-cost"}
+
+
+def test_delete_free_functions():
+    problem = generate_small_strips_bw_problem()
+    relaxed = compute_delete_free_relaxation(problem)
+
+    pickup = problem.get_action('pick-up')
+    assert len(pickup.effects) == 4  # Make sure the old action is unaffected
+
+    assert not is_delete_free(problem)
+    assert is_delete_free(relaxed)
+
+    pickup = relaxed.get_action('pick-up')
+    # The new action has had its 3 delete-effects removed
+    assert len(pickup.effects) == 1 and isinstance(pickup.effects[0], AddEffect)
+

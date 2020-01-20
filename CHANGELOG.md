@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 ### Added
-
+  - Added some methods to the `fstrips.representation` module to check and compute delete-free relaxations of problems.
+  
 ### Removed
 ### Deprecated
 ### Fixed
