@@ -59,7 +59,7 @@ class QuantifierElimination:
         return phi
 
     def _expand(self, phi: QuantifiedFormula, creator):
-        from tarski.grounding.naive import instantiation
+        from ...grounding.naive import instantiation
         card, syms, substs = instantiation.enumerate_groundings(phi.variables)
         if card == 0:
             raise TransformationError("quantifier elimination", phi, "No constants were defined!")

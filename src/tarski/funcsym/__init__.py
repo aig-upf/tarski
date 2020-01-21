@@ -4,7 +4,7 @@ def impl(symbol):
     """ """
 
     if symbol in {"erf", "erfc"}:
-        from tarski.modules import import_scipy_special
+        from ..modules import import_scipy_special
         sci = import_scipy_special()
         return {
             "erf": sci.erf,

@@ -444,7 +444,7 @@ class Writer:
         return ', '.join([str(r) for r in self.task.requirements])
 
     def get_types(self):
-        from tarski.syntax.sorts import parent
+        from ..syntax.sorts import parent
         type_decl_list = []
         for S in self.task.L.sorts:
             if S.builtin or S.name == 'object':

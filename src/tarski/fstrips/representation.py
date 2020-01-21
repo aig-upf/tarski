@@ -1,14 +1,13 @@
 import copy
 from typing import Set, Union, Tuple, Optional
 
-from tarski.fstrips import BaseEffect
 from .problem import Problem
 from . import fstrips as fs
 from ..syntax import Formula, CompoundTerm, Atom, CompoundFormula, QuantifiedFormula, is_and, is_neg, exists, symref,\
     VariableBinding
-from ..syntax.ops import collect_unique_nodes, flatten, free_variables
+from ..syntax.ops import collect_unique_nodes, flatten, free_variables, all_variables
 from ..syntax.util import get_symbols
-from ..fstrips import AddEffect, DelEffect, LiteralEffect, FunctionalEffect, UniversalEffect
+from ..fstrips import AddEffect, DelEffect, LiteralEffect, FunctionalEffect, UniversalEffect, BaseEffect
 from .action import Action
 
 
@@ -95,7 +94,11 @@ def transform_operator_to_strips(action: Action):
 
 def is_literal(phi: Formula):
     """ Return true iff the given formula is a literal """
-    return isinstance(phi, Atom) or (is_neg(phi) and is_literal(phi.subformulas[0]))
+    return isinstance(phi, Atom) or (is_neg(phi) and isinstance(phi.subformulas[0], Atom))
+
+
+def is_ground(element):
+    return len(all_variables(element)) == 0
 
 
 def is_delete_free(problem: Problem):

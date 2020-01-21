@@ -19,7 +19,7 @@ from ..grounding.common import StateVariableLite
 from ..fstrips import fstrips
 from ..fstrips.representation import collect_literals_from_conjunction
 
-from tarski.modules import import_sdd
+from ..modules import import_sdd
 sdd = import_sdd()
 
 

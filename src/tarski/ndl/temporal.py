@@ -8,8 +8,8 @@
     Proceedings of the 26th Int'l Joint Conference on Artificial Intelligence (IJCAI)
     2017
 """
-from tarski.syntax import Atom, CompoundTerm, CompoundFormula, Constant, symref, Connective
-from tarski.model import Model
+from ..syntax import Atom, CompoundTerm, CompoundFormula, Constant, symref, Connective
+from ..model import Model
 
 
 class SyntaxError(Exception):

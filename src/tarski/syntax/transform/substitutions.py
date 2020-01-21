@@ -4,8 +4,8 @@ import itertools
 from typing import List
 
 from ..symrefs import symref
-from ..formulas import CompoundFormula, QuantifiedFormula, Atom, Formula
-from ..terms import Term, CompoundTerm, Variable, Constant
+from ..formulas import CompoundFormula, QuantifiedFormula, Atom, Formula, Tautology, Contradiction
+from ..terms import Term, CompoundTerm, Variable, Constant, IfThenElse
 from .errors import SubstitutionError
 
 
@@ -16,7 +16,11 @@ class TermSubstitution:
 
     def visit(self, phi):
         from ... import fstrips as fs
-        if isinstance(phi, CompoundFormula):
+
+        if isinstance(phi, (Tautology, Contradiction, Constant)):
+            pass
+        
+        elif isinstance(phi, CompoundFormula):
             _ = [self.visit(f) for f in phi.subformulas]
 
         elif isinstance(phi, QuantifiedFormula):
@@ -25,15 +29,7 @@ class TermSubstitution:
             self.visit(phi.formula)
 
         elif isinstance(phi, (Atom, CompoundTerm)):
-            new_subterms = list(phi.subterms)
-            for k, t in enumerate(new_subterms):
-                if isinstance(t, Variable):
-                    v = symref(t)
-                    if v in self.subst:
-                        new_subterms[k] = self.subst[v]
-                else:
-                    self.visit(t)
-            phi.subterms = tuple(new_subterms)
+            phi.subterms = self.substitute_termlist(phi.subterms)
 
         elif isinstance(phi, fs.BaseEffect):
             self.visit(phi.condition)
@@ -52,15 +48,36 @@ class TermSubstitution:
                         phi.rhs = self.subst.get(v)
                 else:
                     self.visit(phi.rhs)
+        elif isinstance(phi, IfThenElse):
+            self.visit(phi.condition)
+            phi.subterms = self.substitute_termlist(phi.subterms)
+
+        else:
+            raise TypeError(f'Unexpected element {phi} of type {type(phi)} when performing term substitution')
+
+    def substitute_termlist(self, termlist):
+        new_subterms = list(termlist)
+        for k, t in enumerate(new_subterms):
+            if isinstance(t, Variable):
+                v = symref(t)
+                if v in self.subst:
+                    new_subterms[k] = self.subst[v]
+            else:
+                self.visit(t)
+
+        return tuple(new_subterms)
 
 
-def term_substitution(phi, substitution, inplace=False):
-    """ Return the result of applying the given substitution to the given formula or term of the language.
-    If `inplace` is true, the given formula is the one modified.
+def term_substitution(element, substitution, inplace=False):
+    """ Apply the given substitution to the given element of a problem or language.
+    :param element: A formula, term, or FSTRIPS action effect.
+    :param substitution: A dictionary from TermReferences that are expected to be Variables to other terms.
+    :param inplace: If true, the given element is modified in place; otherwise a different object is returned.
+    :return: The result of applying the substituion to the element.
     """
     from ... import fstrips as fs
-    assert isinstance(phi, (Formula, Term, fs.BaseEffect))
-    phi = phi if inplace else copy.deepcopy(phi)
+    assert isinstance(element, (Formula, Term, fs.BaseEffect, fs.Action))
+    phi = element if inplace else copy.deepcopy(element)
     op = TermSubstitution(substitution)
     op.visit(phi)
     return phi

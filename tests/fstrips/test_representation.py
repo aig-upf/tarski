@@ -27,7 +27,7 @@ def test_basic_representation_queries():
 
     assert rep.is_conjunction_of_literals(clear(b1) & clear(b2))
     assert rep.is_conjunction_of_literals(clear(b1) & ~clear(b2))
-    assert rep.is_conjunction_of_literals(clear(b1) & ~~clear(b2))
+    assert not rep.is_conjunction_of_literals(clear(b1) & ~~clear(b2))
 
     assert rep.is_conjunction_of_literals(loc(b1) == b2)
     assert rep.is_conjunction_of_literals(loc(b1) != b2)
