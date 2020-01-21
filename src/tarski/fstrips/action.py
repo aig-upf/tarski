@@ -1,4 +1,4 @@
-
+from ..syntax.ops import flatten
 from .fstrips import AddEffect, DelEffect
 
 
@@ -46,13 +46,14 @@ class GroundOperator:
 
     def __str__(self):
         return self.ident()
+    __repr__ = __str__
 
 
 class PlainOperator(GroundOperator):
     """ """
     def __init__(self, language, name, precondition, effects):
         super().__init__(language, name)
-        self.precondition = precondition
+        self.precondition = flatten(precondition)
         self.effects = effects
         self.validate(self)
 

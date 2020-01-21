@@ -83,6 +83,15 @@ def generate_small_strips_bw_problem(use_inequalities=True):
     x = lang.variable('x', 'object')
     y = lang.variable('y', 'object')
 
+    init = problem.init = tarski.model.create(lang)
+    init.add(clear, b1)
+    init.add(clear, b3)
+    init.add(on, b1, b2)
+
+    init.add(ontable, b2)
+    init.add(ontable, b3)
+    init.add(handempty)
+
     problem.action('pick-up', [x],
                    precondition=clear(x) & ontable(x) & handempty(),
                    effects=[fs.DelEffect(ontable(x)),

@@ -1,4 +1,4 @@
-import pytest
+
 import tarski
 import tarski.model
 from tarski.model import Model

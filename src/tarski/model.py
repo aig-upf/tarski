@@ -65,7 +65,7 @@ class Model:
 
     def set(self, fun, *args):
         """ Set the value of fun(args[:-1]) to be args[-1] for the current interpretation """
-        # TODO: Deprecate in favor of Model.set()
+        # TODO: Deprecate in favor of Model.setx()
         self.setx(fun(*args[:-1]), args[-1])
 
     def add(self, predicate: Predicate, *args):
@@ -88,7 +88,7 @@ class Model:
     def holds(self, predicate: Predicate, point):
         """ Return true iff the given predicate is true on the given point in the current model """
         return predicate.signature in self.predicate_extensions and \
-               wrap_tuple(point) in self.predicate_extensions[predicate.signature]
+            wrap_tuple(point) in self.predicate_extensions[predicate.signature]
 
     def list_all_extensions(self):
         """ Return a mapping between predicate and function signatures and a list of all their respective extensions.
@@ -163,6 +163,7 @@ class ExtensionalFunctionDefinition:
 
 # class IntensionalFunctionDefinition:
 #     pass
+
 
 def wrap_tuple(tup):
     """ Create a tuple of Term references from a tuple of terms """
