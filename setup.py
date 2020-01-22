@@ -27,7 +27,7 @@ def main():
 
         url='https://github.com/aig-upf/tarski',
         author='Miquel Ramírez and Guillem Francès',
-        author_email='guillem.frances@unibas.ch',
+        author_email='guillem.frances@upf.edu',
 
         keywords='planning logic STRIPS RDDL',
         classifiers=[
