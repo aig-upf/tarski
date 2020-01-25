@@ -10,10 +10,11 @@ from tarski.syntax import Constant, ite, symref
 from tarski.theories import Theory
 from tarski.modules import import_scipy_special
 
+import pytest
+
 try:
     sci = import_scipy_special()
 except ImportError:
-    import pytest
     pytest.skip('Please install the "scipy" extra to run the full suite of tests', allow_module_level=True)
 
 
