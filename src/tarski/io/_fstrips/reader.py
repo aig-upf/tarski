@@ -8,7 +8,7 @@ import logging
 from antlr4 import FileStream, CommonTokenStream, InputStream
 from antlr4.error.ErrorListener import ErrorListener
 
-from .common import parse_number, process_requirements, create_sort
+from .common import parse_number, process_requirements, create_sort, process_cost_effects
 from ...errors import SyntacticError
 from ...fstrips import DelEffect, AddEffect, FunctionalEffect, UniversalEffect, OptimizationMetric
 from ...syntax import CompoundFormula, Connective, neg, Tautology, implies, exists, forall, Term, Interval
@@ -181,14 +181,17 @@ class FStripsParser(fstripsVisitor):
         binding = VariableBinding(params)
 
         with self.push_variables(params, root=True) as _:
-            precondition, effect = self.visit(ctx.actionDefBody())
+            precondition, effects = self.visit(ctx.actionDefBody())
 
-        self.problem.action(name, binding, precondition, effect)
+        effects, cost_effects = process_cost_effects(effects)
+        if len(cost_effects) > 1:
+            raise SyntaxError(f'Ill-formed action "{name}" with multiple cost effects: {cost_effects}')
+        self.problem.action(name, binding, precondition, effects, cost_effects[0] if cost_effects else None)
 
     def visitActionDefBody(self, ctx):
         prec = self.visit(ctx.precondition())
-        eff = self.visit(ctx.effect())
-        return prec, eff
+        effs = self.visit(ctx.effect())
+        return prec, effs
 
     def visitTrivialPrecondition(self, ctx):
         return Tautology()

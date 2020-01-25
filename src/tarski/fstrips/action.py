@@ -5,12 +5,13 @@ from .fstrips import AddEffect, DelEffect
 class Action:
     """ A (possibly lifted) planning action """
 
-    def __init__(self, language, name, parameters, precondition, effects):
+    def __init__(self, language, name, parameters, precondition, effects, cost=None):
         self.name = name
         self.language = language
         self.parameters = parameters
         self.precondition = precondition
         self.effects = effects
+        self.cost = [] if cost is None else cost
 
     def __lt__(self, other):
         return self.name < other.name
@@ -65,3 +66,17 @@ class PlainOperator(GroundOperator):
 
         if any(not isinstance(e, (AddEffect, DelEffect)) for e in op.effects):
             raise TypeError(f'The effect list of a PlainOperator can only contain plain add and delete effects')
+
+
+class AdditiveActionCost(object):
+    def __init__(self, addend):
+        self.addend = addend
+
+    def __str__(self):
+        return str(self.addend)
+    __repr__ = __str__
+
+
+def generate_zero_action_cost(lang):
+    return AdditiveActionCost(lang.constant(0, lang.get_sort('Integer')))
+

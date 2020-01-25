@@ -68,7 +68,7 @@ class ReachabilityLPCompiler:
         # Process all atoms in the initial state, e.g. "on(b1, b2)."
         for atom in problem.init.as_atoms():
             if isinstance(atom, tuple) and isinstance(atom[0], CompoundTerm) and atom[0].symbol.symbol == 'total-cost':
-                continue  # Ignore total-cost effects
+                continue  # Ignore total-cost atoms
             if not isinstance(atom, Atom):
                 assert isinstance(atom, tuple) and len(atom) == 2 and isinstance(atom[0], CompoundTerm)
                 t, v = atom
@@ -207,8 +207,6 @@ class ReachabilityLPCompiler:
             return None, []  # Simply ignore the delete effects
 
         if isinstance(eff, FunctionalEffect):
-            if eff.lhs.symbol.name == 'total-cost':
-                return None, []  # We ignore total-cost effects
             raise RuntimeError(
                 f'ReachabilityLPCompiler cannot handle functional effect "{eff}" in action "{action_name}"')
         raise RuntimeError(f'Unexpected effect "{eff}" with type "{type(eff)}"')

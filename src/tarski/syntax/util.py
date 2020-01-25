@@ -2,7 +2,7 @@
 import itertools
 
 
-def get_symbols(lang, type_="all", include_builtin=True):
+def get_symbols(lang, type_="all", include_builtin=True, include_total_cost=False):
     """ Return all symbols of the given type (function/predicate), and including or excluding builtins as desired """
     if type_ == "predicate":
         iterate_over = lang.predicates
@@ -12,10 +12,13 @@ def get_symbols(lang, type_="all", include_builtin=True):
         assert type_ == "all"
         iterate_over = itertools.chain(lang.predicates, lang.functions)
 
-    if include_builtin:
-        return iterate_over
-    else:
-        return (x for x in iterate_over if not x.builtin)
+    if not include_builtin:
+        iterate_over = (x for x in iterate_over if not x.builtin)
+
+    if not include_total_cost:
+        iterate_over = (x for x in iterate_over if x.symbol != "total-cost")
+
+    return iterate_over
 
 
 def termlists_are_equal(terms1, terms2):

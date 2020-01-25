@@ -9,7 +9,7 @@ from ..syntax import Tautology, Contradiction, Atom, CompoundTerm, CompoundFormu
     Term, Variable, Constant, Formula, symref, BuiltinPredicateSymbol
 from ..syntax.sorts import parent, Interval, ancestors
 
-from ._fstrips.common import tarski_to_pddl_type, get_requirements_string, create_number_type
+from ._fstrips.common import tarski_to_pddl_type, get_requirements_string, create_number_type, uniformize_costs
 from ..fstrips import create_fstrips_problem, language, FunctionalEffect, AddEffect, DelEffect, IncreaseEffect,\
     UniversalEffect
 
@@ -51,6 +51,7 @@ class FstripsReader:
 
     def parse_domain(self, filename):
         self.parse_file(filename, 'domain')
+        uniformize_costs(self.problem)
 
     def parse_instance(self, filename):
         self.parse_file(filename, 'problem')

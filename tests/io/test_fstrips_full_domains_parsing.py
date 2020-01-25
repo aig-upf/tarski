@@ -1,4 +1,5 @@
-
+from tarski.fstrips.representation import is_unit_cost_problem, is_unit_cost_action, is_zero_cost_action, \
+    is_constant_cost_action
 from .common import reader, collect_strips_benchmarks, collect_fstrips_benchmarks
 
 SAMPLE_STRIPS_INSTANCES = [
@@ -12,7 +13,7 @@ SAMPLE_STRIPS_INSTANCES = [
     "transport-opt08-strips:p01.pddl",  # action costs
     "settlers-sat18-adl:p01.pddl",
     "spider-sat18-strips:p01.pddl",
-    # "organic-synthesis-sat18-strips:p01.pddl",  # No domain.pddl file for this one
+    "organic-synthesis-sat18-strips:p01.pddl",
     "nurikabe-sat18-adl:p01.pddl"
 ]
 
@@ -36,12 +37,30 @@ def pytest_generate_tests(metafunc):
 
 
 def test_pddl_instances(instance_file, domain_file):
-    return reader().read_problem(domain_file, instance_file)
+    _ = reader().read_problem(domain_file, instance_file)
 
 
-if __name__ == "__main__":
-    benchmarks = collect_strips_benchmarks(SAMPLE_STRIPS_INSTANCES) + \
-        collect_fstrips_benchmarks(SAMPLE_FSTRIPS_INSTANCES)
-    for instance, domain in benchmarks:
-        test_pddl_instances(instance, domain)
-    print("Tests passed")
+def test_action_cost_parsing():
+    instance_file, domain_file = collect_strips_benchmarks(["spider-opt18-strips:p01.pddl"])[0]
+    problem = reader().read_problem(domain_file, instance_file)
+
+    # spider is not unit-cost, since it has some actions with explicit additive cost 1,
+    # and some other actions where no cost is specified, hence 0 is assumed
+    assert not is_unit_cost_problem(problem)
+
+    assert is_unit_cost_action(problem.get_action('start-dealing'))
+    assert is_zero_cost_action(problem.get_action('deal-card'))
+
+    instance_file, domain_file = collect_strips_benchmarks(["transport-opt11-strips:p01.pddl"])[0]
+    problem = reader().read_problem(domain_file, instance_file)
+
+    assert not is_unit_cost_problem(problem)
+
+    drive = problem.get_action('drive')
+    pickup = problem.get_action('pick-up')
+    drop = problem.get_action('drop')
+
+    assert not is_constant_cost_action(drive)
+    assert is_unit_cost_action(pickup)
+    assert is_unit_cost_action(drop)
+

@@ -34,11 +34,11 @@ class Problem:
     def plan_metric(self, value):
         self.metric_ = value
 
-    def action(self, name, parameters, precondition, effects):
+    def action(self, name, parameters, precondition, effects, cost=None):
         if name in self.actions:
             raise err.DuplicateActionDefinition(name, self.actions[name])
 
-        self.actions[name] = Action(self.language, name, parameters, precondition, effects)
+        self.actions[name] = Action(self.language, name, parameters, precondition, effects, cost)
         return self.actions[name]
 
     def derived(self, name, parameters, formula):

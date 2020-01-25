@@ -133,7 +133,7 @@ def test_cost_function_identification():
     instance_file, domain_file = collect_strips_benchmarks(["agricola-opt18-strips:p01.pddl"])[0]
     problem = reader().read_problem(domain_file, instance_file)
     functions = identify_cost_related_functions(problem)
-    assert functions == {"group_worker_cost", "total-cost"}
+    assert functions == {"group_worker_cost"}
 
 
 def test_delete_free_functions():

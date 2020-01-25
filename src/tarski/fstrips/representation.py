@@ -4,7 +4,7 @@ from typing import Set, Union, Tuple, Optional
 from .problem import Problem
 from . import fstrips as fs
 from ..syntax import Formula, CompoundTerm, Atom, CompoundFormula, QuantifiedFormula, is_and, is_neg, exists, symref,\
-    VariableBinding
+    VariableBinding, Constant
 from ..syntax.ops import collect_unique_nodes, flatten, free_variables, all_variables
 from ..syntax.util import get_symbols
 from ..fstrips import AddEffect, DelEffect, LiteralEffect, FunctionalEffect, UniversalEffect, BaseEffect
@@ -267,6 +267,7 @@ def _collect_effect_free_variables(eff: fs.BaseEffect, free: Set):
 
 
 def collect_all_function_names(expression, output):
+    """ Add to `output` the names of all function symbols in the given expression. """
     terms = collect_unique_nodes(expression, lambda x: isinstance(x, CompoundTerm))
     output.update(f.symbol.name for f in terms)
 
@@ -275,16 +276,16 @@ def identify_cost_related_functions(problem: Problem):
     """ Return a list of those function symbols that are *only* used in effects that relate to the special
     "total-cost" function. """
     functions = list(get_symbols(problem.language, type_='function', include_builtin=False))
-    cost_unrelated = set()
+    related_to_non_cost_effects = set()
 
-    collect_all_function_names(problem.goal, cost_unrelated)
+    collect_all_function_names(problem.goal, related_to_non_cost_effects)
 
     for action in problem.actions.values():
-        collect_all_function_names(action.precondition, cost_unrelated)
+        collect_all_function_names(action.precondition, related_to_non_cost_effects)
         for effect in action.effects:
-            mark_cost_unrelated_functions_in_effect(effect, cost_unrelated)
+            mark_cost_unrelated_functions_in_effect(effect, related_to_non_cost_effects)
 
-    return set(f.name for f in functions if f.name not in cost_unrelated)
+    return set(f.name for f in functions if f.name not in related_to_non_cost_effects)
 
 
 def mark_cost_unrelated_functions_in_effect(effect, functions):
@@ -295,15 +296,40 @@ def mark_cost_unrelated_functions_in_effect(effect, functions):
     elif isinstance(effect, LiteralEffect):
         collect_all_function_names(effect.lit, functions)
     elif isinstance(effect, FunctionalEffect):
-        if isinstance(effect.lhs, CompoundTerm) and effect.lhs.symbol.name == "total-cost":
-            pass
-        else:
-            collect_all_function_names(effect.lhs, functions)
-            collect_all_function_names(effect.rhs, functions)
+        collect_all_function_names(effect.lhs, functions)
+        collect_all_function_names(effect.rhs, functions)
     elif isinstance(effect, UniversalEffect):
         _ = [mark_cost_unrelated_functions_in_effect(x, functions) for x in effect.effects]
 
 
+def is_unit_cost_problem(problem):
+    return all(is_unit_cost_action(a) for a in problem.actions.values())
 
 
+def is_constant_cost_problem(problem):
+    return all(is_constant_cost_action(a) for a in problem.actions.values())
+
+
+def is_unit_cost_action(action):
+    if not action.cost:
+        return True
+
+    addend = action.cost.addend
+    return isinstance(addend, Constant) and addend.symbol == 1
+
+
+def is_zero_cost_action(action):
+    if not action.cost:
+        return True
+
+    addend = action.cost.addend
+    return isinstance(addend, Constant) and addend.symbol == 0
+
+
+def is_constant_cost_action(action):
+    if not action.cost:
+        return True
+
+    addend = action.cost.addend
+    return isinstance(addend, Constant)
 

@@ -1,6 +1,9 @@
 
+from ...errors import TarskiError
+from ...fstrips import FunctionalEffect
+from ...fstrips.action import AdditiveActionCost, generate_zero_action_cost
 from ...fstrips.representation import is_typed_problem
-from ...syntax import Interval
+from ...syntax import Interval, CompoundTerm, Tautology, BuiltinFunctionSymbol
 from ... import theories
 from ...theories import Theory
 
@@ -92,3 +95,41 @@ def create_sort(lang, typename, basename):
         lang.interval(typename, parent, lower, upper)
     else:
         lang.sort(typename, lang.get_sort(basename))
+
+
+def process_cost_effects(effects):
+    """ Filter a list of given effects into those that are cost-related and
+    those that are not. """
+    simple, cost_related = [], []
+    for eff in effects:
+        e = process_cost_effect(eff)
+        if e is None:
+            simple.append(eff)
+        else:
+            cost_related.append(process_cost_effect(eff))
+    return simple, cost_related
+
+
+def process_cost_effect(eff):
+    """ Check if the given effect is a cost effect. If it is, return the additive cost; if it is not, return None. """
+    if isinstance(eff, FunctionalEffect) and isinstance(eff.lhs, CompoundTerm) and eff.lhs.symbol.name == "total-cost":
+        if not isinstance(eff.condition, Tautology):
+            raise TarskiError(f'Don\'t know how to process conditional cost effects such as {eff}')
+        if not isinstance(eff.rhs, CompoundTerm) or eff.rhs.symbol.name != BuiltinFunctionSymbol.ADD:
+            raise TarskiError(f'Don\'t know how to process non-additive cost effects such as {eff}')
+        addend = eff.rhs.subterms[1]
+        return AdditiveActionCost(addend)
+
+    return None
+
+
+def uniformize_costs(problem):
+    some_cost_defined = any(action.cost for action in problem.actions.values())
+    if not some_cost_defined:  # No need to do anything
+        return
+
+    # If at least one action has a defined cost, then for those that have no cost, assume that they are zero cost,
+    # and make sure that the zero-cost is properly defined.
+    for action in problem.actions.values():
+        if not action.cost:
+            action.cost = generate_zero_action_cost(action.language)
