@@ -4,7 +4,7 @@
 from ..utils.command import silentremove
 from ..grounding.ops import approximate_symbol_fluency
 from ..reachability import create_reachability_lp, run_clingo, parse_model
-from ..reachability.asp import SOLVABLE
+from ..reachability.asp import GOAL
 from .errors import ReachabilityLPUnsolvable
 from ..util import IndexDictionary
 from .common import StateVariableLite
@@ -72,7 +72,7 @@ class LPGroundingStrategy:
             silentremove(model_filename)
             silentremove(theory_filename)
 
-            if len(self.model[SOLVABLE]) != 1:
+            if len(self.model[GOAL]) != 1:
                 raise ReachabilityLPUnsolvable()
         return self.model
 

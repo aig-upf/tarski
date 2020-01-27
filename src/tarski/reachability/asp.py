@@ -13,7 +13,7 @@ from ..syntax.sorts import parent
 from ..fstrips import Problem, SingleEffect, AddEffect, DelEffect, FunctionalEffect
 from ..fstrips.representation import identify_cost_related_functions
 
-SOLVABLE = "_solvable_"
+GOAL = "goal"
 
 
 def create_reachability_lp(problem: Problem, ground_actions=True, include_variable_inequalities=False):
@@ -97,10 +97,10 @@ class ReachabilityLPCompiler:
         self.add_directives(problem, lp)
 
     def process_goal(self, goal, lang, lp):
-        # Process goal, e.g. "solvable :- on(a,b), on(b,c)." (note that the goal is always ground)
+        # Process goal, e.g. "goal :- on(a,b), on(b,c)." (note that the goal is always ground)
         phi = remove_quantifiers(lang, goal, QuantifierEliminationMode.Forall)
         body = self.process_formula(phi)
-        lp.rule(self.lp_atom(SOLVABLE), body)
+        lp.rule(self.lp_atom(GOAL), body)
 
     def process_action(self, action, lang, lp):
         # Construct the part of the action rule including action atom plus types,
