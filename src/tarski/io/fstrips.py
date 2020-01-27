@@ -152,8 +152,7 @@ def print_problem_constraints(problem):
 
 
 def print_metric(metric):
-    return '(:metric {type} {exp})'.format(type=metric.opt_type.value,
-                                           exp=print_term(metric.opt_expression))
+    return f'(:metric {metric.opt_type} {print_term(metric.opt_expression)})'
 
 
 def print_problem_metric(problem):

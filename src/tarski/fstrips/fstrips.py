@@ -121,6 +121,11 @@ class OptimizationType(Enum):
     def __str__(self):
         return self.value.lower()
 
+    @staticmethod
+    def from_string(string):
+        assert string in ("minimize", "maximize")
+        return OptimizationType.MINIMIZE if string == "minimize" else OptimizationType.MAXIMIZE
+
 
 class ProceduralEffect(SingleEffect):
 

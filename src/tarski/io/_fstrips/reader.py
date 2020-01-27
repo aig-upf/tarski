@@ -10,7 +10,7 @@ from antlr4.error.ErrorListener import ErrorListener
 
 from .common import parse_number, process_requirements, create_sort, process_cost_effects
 from ...errors import SyntacticError
-from ...fstrips import DelEffect, AddEffect, FunctionalEffect, UniversalEffect, OptimizationMetric
+from ...fstrips import DelEffect, AddEffect, FunctionalEffect, UniversalEffect, OptimizationMetric, OptimizationType
 from ...syntax import CompoundFormula, Connective, neg, Tautology, implies, exists, forall, Term, Interval
 from ...syntax.builtins import get_predicate_from_symbol, get_function_from_symbol
 from ...syntax.formulas import VariableBinding
@@ -404,12 +404,12 @@ class FStripsParser(fstripsVisitor):
     #     self.constraints = Conjunction(self.visit(ctx.prefConGD()))
 
     def visitProblemMetric(self, ctx):
-        opt_type = ctx.optimization().getText().lower()
+        opt_type = OptimizationType.from_string(ctx.optimization().getText().lower())
         opt_expression = self.visit(ctx.metricFExp())
         self.problem.plan_metric = OptimizationMetric(opt_expression, opt_type)
 
     def visitFunctionalExprMetric(self, ctx):
-        return None, self.visit(ctx.functionTerm())
+        return self.visit(ctx.functionTerm())
 
     def visitCompositeMetric(self, ctx):
         return self.visit(ctx.terminalCost()), self.visit(ctx.stageCost())
