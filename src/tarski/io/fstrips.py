@@ -2,6 +2,7 @@ import logging
 from collections import defaultdict
 from typing import Optional, List
 
+from ..fstrips.action import AdditiveActionCost
 from ..theories import load_theory, Theory
 from .common import load_tpl
 from ..model import ExtensionalFunctionDefinition
@@ -268,7 +269,7 @@ class FstripsWriter:
             name=a.name,
             parameters=print_variable_list(a.parameters),
             precondition=print_formula(a.precondition, base_indentation),
-            effect=print_effects(a.effects, base_indentation)
+            effect=print_effects(a.effects, a.cost, base_indentation)
         )
 
     def get_derived_predicates(self):
@@ -316,10 +317,15 @@ def print_formula(formula, indentation=0):
     raise RuntimeError("Unexpected element type: {}".format(formula))
 
 
-def print_effects(effects, indentation=0):
-    if not effects:
+def print_effects(effects, cost=None, indentation=0):
+    if not effects and cost is None:
         return "(and )"
-    return "(and\n{})".format("\n".join(print_effect(e, indentation + 1) for e in effects))
+    effects = [print_effect(e, indentation + 1) for e in effects]
+    if cost:  # Add the increase-effect corresponding to the action cost
+        assert isinstance(cost, AdditiveActionCost)
+        totalcost = cost.addend.language.get('total-cost')
+        effects.append(print_unconditional_effect(IncreaseEffect(totalcost(), cost.addend), indentation+1))
+    return "(and\n{})".format("\n".join(effects))
 
 
 def print_unconditional_effect(eff, indentation=0):

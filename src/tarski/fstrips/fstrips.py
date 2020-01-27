@@ -103,15 +103,12 @@ class IncreaseEffect(FunctionalEffect):
 
     def check_well_formed(self):
         if not isinstance(self.lhs, CompoundTerm):
-            msg = "Error declaring IncreaseEffect: {}\n Invalid effect expression: \
-            left hand side '{}' needs to be a functional term!".format(self.tostring(), self.lhs)
-            raise InvalidEffectError(self, msg)
+            raise InvalidEffectError(self, f'Ill-formed increase effect "{self.tostring()}". '
+                                           f'Left hand side needs to be a functional term.')
 
-        if not isinstance(self.rhs, Term) and type(self.rhs) not in [int, float]:
-            msg = "Error declaring IncreaseEffect: {}\n Invalid increase expression: \
-            right hand side '{}' needs to be a constant or functional term!".format(
-                self.tostring(), self.lhs)
-            raise InvalidEffectError(self, msg)
+        if not isinstance(self.rhs, (int, float, Term)):
+            raise InvalidEffectError(self, f'Ill-formed increase effect "{self.tostring()}". '
+                                           f'Right hand side needs to be a constant or functional term.')
 
 
 class OptimizationType(Enum):
