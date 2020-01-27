@@ -11,7 +11,7 @@ class Action:
         self.parameters = parameters
         self.precondition = precondition
         self.effects = effects
-        self.cost = [] if cost is None else cost
+        self.cost = cost
 
     def __lt__(self, other):
         return self.name < other.name

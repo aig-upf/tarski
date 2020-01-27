@@ -3,6 +3,7 @@
 """
 import itertools
 
+from ..fstrips.action import AdditiveActionCost
 from ..syntax.transform import remove_quantifiers, QuantifierEliminationMode, expand_universal_effect
 from ..syntax.builtins import symbol_complements
 from ..syntax.ops import free_variables
@@ -33,11 +34,12 @@ class ReachabilityLPCompiler:
 
     albeit there are some differences which so far we haven't properly described and analyzed.
     """
-    def __init__(self, problem: Problem, lp, include_variable_inequalities=False):
+    def __init__(self, problem: Problem, lp, include_variable_inequalities=False, include_action_costs=False):
         self.problem = problem
         self.lp = lp
         self.aux_atom_count = 0
         self.include_variable_inequalities = include_variable_inequalities
+        self.include_action_costs = include_action_costs
         self.tr = Translator()
 
     def gen_aux_atom(self, args=None):
@@ -73,6 +75,8 @@ class ReachabilityLPCompiler:
                 assert isinstance(atom, tuple) and len(atom) == 2 and isinstance(atom[0], CompoundTerm)
                 t, v = atom
                 if t.symbol.name in cost_related_functions:
+                    if self.include_action_costs:
+                        lp.rule(self.tarski_functional_atom_to_lp_atom(t, v))
                     continue
                 raise RuntimeError(
                     f'ReachabilityLPCompiler cannot handle functional atom "{t} := {v}" in the initial state')
@@ -99,25 +103,48 @@ class ReachabilityLPCompiler:
         lp.rule(self.lp_atom(SOLVABLE), body)
 
     def process_action(self, action, lang, lp):
-        # Construct the head and part of the body of the action atom, e.g. "move(X, Y) :- object(X), object(Y)"
-        # Note that we need to capitalize the parameters of the action schema, as they are LP variables.
-        action_atom = self.lp_atom(action.name, [make_variable_name(v.symbol) for v in action.parameters],
-                                   prefix='action')
-        body = [self.lp_type_atom_from_term(v) for v in action.parameters]
+        # Construct the part of the action rule including action atom plus types,
+        # e.g. "move(X, Y) :- object(X), object(Y)"
+        action_head, action_atom = self.create_action_atoms(action)  # e.g. "move(X, Y)"
+        body = [self.lp_type_atom_from_term(v) for v in action.parameters]  # e.g. "object(X), block(Y)"
+
+        # Process the action costs, if required
+        if self.include_action_costs:
+            self.process_action_cost(action, action_atom, body, lp)
+
         # Remove universal quantifiers and add precondition atoms to the body
         phi = remove_quantifiers(lang, action.precondition, QuantifierEliminationMode.Forall)
-        body += self.process_formula(phi)
-        head = self.create_action_rule_head(action_atom)
-        lp.rule(head, body)
+        body += self.process_formula(phi)  # e.g. "clear(X), on(X, Y)"
+        lp.rule(action_head, body)
         # Now process the effects
         for eff in action.effects:
             for expanded in expand_universal_effect(eff):
                 head, body = self.process_effect(lang, expanded, action.name)
                 if head is not None:
                     lp.rule(head, [action_atom] + body)
-
-    def create_action_rule_head(self, action_atom):
         return action_atom
+
+    def process_action_cost(self, action, action_atom, parameters_types, lp):
+        if action.cost is None:
+            lp.rule(f'cost({action_atom}, 1)', parameters_types)
+        elif isinstance(action.cost, AdditiveActionCost):
+            addend = action.cost.addend
+            if isinstance(addend, Constant):
+                lp.rule(f'cost({action_atom}, {int(addend.symbol)})', parameters_types)
+            elif isinstance(addend, CompoundTerm):
+                v = _var()
+                cost_body = parameters_types + [self.tarski_functional_atom_to_lp_atom(addend, v)]
+                lp.rule(f'cost({action_atom}, {v})', cost_body)
+        else:
+            raise RuntimeError(f'Unknown action cost "{action.cost}"')
+
+    def create_action_atoms(self, action):
+        """ Return the rule head and action atom corresponding to a planning action.
+        The rule head might be different to the atom itself if e.g. we want to enforce choice rules, in which
+        case it will be "{ action_name(X) }". """
+        # Note that we need to capitalize the parameters of the action schema, as they are LP variables.
+        atom = self.lp_atom(action.name, [make_variable_name(v.symbol) for v in action.parameters], prefix='action')
+        return atom, atom
 
     def add_directives(self, problem, lp):
         return
@@ -187,7 +214,7 @@ class ReachabilityLPCompiler:
         if isinstance(t, Variable):
             return make_variable_name(t.symbol)  # lp_atom_from_term(t)
         elif isinstance(t, Constant):
-            return t.symbol
+            return str(t.symbol)
 
         raise RuntimeError('Unexpected term "{}" with type "{}"'.format(t, type(t)))
 
@@ -211,8 +238,14 @@ class ReachabilityLPCompiler:
                 f'ReachabilityLPCompiler cannot handle functional effect "{eff}" in action "{action_name}"')
         raise RuntimeError(f'Unexpected effect "{eff}" with type "{type(eff)}"')
 
-    def tarski_atom_to_lp_atom(self, atom: Atom, prefix=''):
+    def tarski_atom_to_lp_atom(self, atom: Atom):
         return self.lp_atom(atom.predicate.symbol, [self.process_term(sub) for sub in atom.subterms], prefix='atom')
+
+    def tarski_functional_atom_to_lp_atom(self, term: CompoundTerm, value):
+        assert isinstance(value, (Constant, str))
+        args = [self.process_term(sub) for sub in term.subterms]
+        args.append(self.process_term(value) if isinstance(value, Constant) else value)
+        return self.lp_atom(term.symbol.name, args, prefix='atom')
 
     def lp_type_atom_from_term(self, t: Term):
         """ Return a LP atom with type information from a given term, e.g. of the form block(b) for a constant,
@@ -234,6 +267,12 @@ class ReachabilityLPCompiler:
 
 class VariableOnlyReachabilityLPCompiler(ReachabilityLPCompiler):
     """ A variation of the standard LP compiler that cares only about state variable, but not action, groundings. """
+
+    def __init__(self, problem: Problem, lp, include_variable_inequalities=False, include_action_costs=False):
+        if include_action_costs:
+            raise RuntimeError(f'Cannot generate a variable-only reachability LP that includes action costs')
+        super().__init__(problem, lp, include_variable_inequalities, include_action_costs=False)
+
     def process_action(self, action, lang, lp):
         # See & contrast with method in parent class
         # Construct the part of the body corresponding to the parameter types, e.g. "object(X), block(Y)"
