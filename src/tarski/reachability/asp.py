@@ -75,7 +75,7 @@ class ReachabilityLPCompiler:
                 assert isinstance(atom, tuple) and len(atom) == 2 and isinstance(atom[0], CompoundTerm)
                 t, v = atom
                 if t.symbol.name in cost_related_functions:
-                    if self.include_action_costs:
+                    if self.include_action_costs:  # Include init atoms related to costs
                         lp.rule(self.tarski_functional_atom_to_lp_atom(t, v))
                     continue
                 raise RuntimeError(
@@ -125,6 +125,9 @@ class ReachabilityLPCompiler:
         return action_atom
 
     def process_action_cost(self, action, action_atom, parameters_types, lp):
+        """ Process the increase-total-cost effect of the given action. This results in a LP atom
+        of the form cost(action(X), 7) :- block(X). """
+        used_varnames = set(make_variable_name(v.symbol) for v in action.parameters)
         if action.cost is None:
             lp.rule(f'cost({action_atom}, 1)', parameters_types)
         elif isinstance(action.cost, AdditiveActionCost):
@@ -132,7 +135,7 @@ class ReachabilityLPCompiler:
             if isinstance(addend, Constant):
                 lp.rule(f'cost({action_atom}, {int(addend.symbol)})', parameters_types)
             elif isinstance(addend, CompoundTerm):
-                v = _var()
+                v = generate_varname(avoid=used_varnames)
                 cost_body = parameters_types + [self.tarski_functional_atom_to_lp_atom(addend, v)]
                 lp.rule(f'cost({action_atom}, {v})', cost_body)
         else:
@@ -408,8 +411,16 @@ def sanitize(name: str):
     return name.replace("-", "__")
 
 
-def _var(i=0, lowercase=False):
+def _var(i=0):
     """ Return a distinct variable name for each given value of i """
     alphabet = "XYZABCDEFGHIJKLMNOPQRSTUVW"
-    res = alphabet[i] if i < len(alphabet) else "X{}".format(i)
-    return res.lower() if lowercase else res
+    return alphabet[i] if i < len(alphabet) else "X{}".format(i)
+
+
+def generate_varname(avoid=None):
+    """ Return a distinct variable name for each given value of i """
+    for i in range(1000):
+        name = _var(i)
+        if name not in avoid:
+            return name
+    raise RuntimeError(f"Couldn't generate unused variable name")
