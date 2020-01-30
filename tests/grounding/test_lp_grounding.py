@@ -6,6 +6,7 @@ from tarski.grounding.errors import ReachabilityLPUnsolvable
 from tarski.grounding.lp_grounding import compute_action_groundings
 from tarski.reachability import create_reachability_lp
 from tarski.syntax import neg
+from tests.common.benchmarks import get_lenient_benchmarks
 
 from tests.common.gripper import create_sample_problem
 from tests.common.simple import create_simple_problem
@@ -47,7 +48,7 @@ def pytest_generate_tests(metafunc):
 
 
 def test_action_grounding_on_standard_benchmarks(instance_file, domain_file):
-    lenient = any(d in domain_file for d in LENIENT_DOMAINS)
+    lenient = any(d in domain_file for d in get_lenient_benchmarks())
 
     reader_ = reader(strict_with_requirements=not lenient, case_insensitive=lenient)
     problem = reader_.read_problem(domain_file, instance_file)

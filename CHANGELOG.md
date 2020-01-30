@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 ### Added
+  - Almost all benchmarks from the IPC competitions 2008, 2011, 2014, 2018 are now correctly parsed by Tarski.
+  The unit tests also make sure this keeps being true. The only domain that Tarski cannot parse
+  correctly is Tidybot, where "cart" is used both as type name and object name. This does not bode well with 
+  the assumptions made in Tarski first-order languages. Problems from domains Floortile and GED need to be parsed
+  with caution as well, by using, respectively, the parser options `strict_with_requirements=False` and
+  `case_insensitive=True`, since the first one uses action costs without declaring them in the "requirements" section,
+  whereas the second one uses lowercase in the domain file, and uppercase in the instance file.
+  - Improved support for representation and parsing of action costs. 
+  - Added methods to check applicability of an action in a state (model) and to progress a state through an action. 
   - Added some methods to the `fstrips.representation` module to check and compute delete-free relaxations of problems.
   
 ### Removed
