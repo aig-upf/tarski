@@ -24,7 +24,8 @@ from ._fstrips.reader import ParsingError
 class FstripsReader:
     """ A class designed to parse problems specified in PDDL / FSTRIPS. """
 
-    def __init__(self, raise_on_error=False, theories=None, lang=None, strict_with_requirements=True):
+    def __init__(self, raise_on_error=False, theories=None, lang=None,
+                 strict_with_requirements=True, case_insensitive=False):
         """ Create a FSTRIPS reader.
 
         :param raise_on_error: Whether to raise a Tarski ParsingError on every syntax error detected by the parser.
@@ -32,13 +33,14 @@ class FstripsReader:
         :param lang: A FOL language where the problem is to be parsed. If none is provided, a new one will be created.
         :param strict_with_requirements: if False, the parser will be less strict with the PDDL requirement flags,
                                          and will load by default the necessary theories to process action costs.
+        :param case_insensitive: Whether to be strict with cases. If not, the whole PDDL file will be lowercased.
         """
         lang = language(theories=theories) if lang is None else lang
         if not strict_with_requirements:
             load_theory(lang, Theory.ARITHMETIC)
             create_number_type(lang)
         self.problem = create_fstrips_problem(language=lang)
-        self.parser = FStripsParser(self.problem, raise_on_error)
+        self.parser = FStripsParser(self.problem, raise_on_error, case_insensitive)
 
     def read_problem(self, domain, instance):
         self.parse_domain(domain)

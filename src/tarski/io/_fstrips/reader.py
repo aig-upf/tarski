@@ -8,7 +8,7 @@ import logging
 from antlr4 import FileStream, CommonTokenStream, InputStream
 from antlr4.error.ErrorListener import ErrorListener
 
-from .common import parse_number, process_requirements, create_sort, process_cost_effects
+from .common import parse_number, process_requirements, create_sort, process_cost_effects, LowerCasingStreamWrapper
 from ...errors import SyntacticError
 from ...fstrips import DelEffect, AddEffect, FunctionalEffect, UniversalEffect, OptimizationMetric, OptimizationType
 from ...syntax import CompoundFormula, Connective, neg, Tautology, implies, exists, forall, Term, Interval
@@ -24,6 +24,12 @@ class FStripsParser(fstripsVisitor):
     """
     The parser assumes that the domain file is visited _before_ the instance file
     """
+    def __init__(self, problem, raise_on_error=False, case_insensitive=False):
+        self.problem = problem
+        self.error_handler = ExceptionRaiserListener() if raise_on_error else None
+        self.case_insensitive = case_insensitive
+        self.current_binding = None
+        self.requirements = set()
 
     def parse_string(self, string, start_rule='pddlDoc'):
         """ Parse a given string starting from a given grammar rule """
@@ -31,7 +37,10 @@ class FStripsParser(fstripsVisitor):
 
     def parse_file(self, filename, start_rule='pddlDoc'):
         """ Parse a given filename starting from a given grammar rule """
-        return self._parse_stream(FileStream(filename, encoding='utf-8'), start_rule)
+        stream = FileStream(filename, encoding='utf-8')
+        if self.case_insensitive:
+            stream = LowerCasingStreamWrapper(stream)
+        return self._parse_stream(stream, start_rule)
 
     def _parse_stream(self, filestream, start_rule='pddlDoc'):
         lexer = self._configure_error_handling(fstripsLexer(filestream))
@@ -48,12 +57,6 @@ class FStripsParser(fstripsVisitor):
             element.removeErrorListeners()
             element.addErrorListener(self.error_handler)
         return element
-
-    def __init__(self, problem, raise_on_error=False):
-        self.problem = problem
-        self.error_handler = ExceptionRaiserListener() if raise_on_error else None
-        self.current_binding = None
-        self.requirements = set()
 
     @property
     def init(self):

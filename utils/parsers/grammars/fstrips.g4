@@ -65,7 +65,7 @@ pddlDoc : domain | problem;
 /************* DOMAINS ****************************/
 
 domain
-    : '(' 'define' domainName
+    : '(' K_DEFINE domainName
       requireDef ?
       declaration_of_types ?
       constant_declaration ?
@@ -343,7 +343,7 @@ assignOp : K_SCALEUP | K_SCALEDOWN | K_INCREASE | K_DECREASE ;
 /************* PROBLEMS ****************************/
 
 problem
-	: '(' 'define' problemDecl
+	: '(' K_DEFINE problemDecl
 	  problemDomain
       requireDef?
       object_declaration?
@@ -486,9 +486,10 @@ REQUIRE_KEY
     | ':action-costs'
     ;
 
-/* NOTE: The order of the lexer rules matters, esp. when there might be overlapping
- * See e.g. https://stackoverflow.com/q/29777778
- */
+// NOTE that the order of the lexer rules matters, esp. when there might be overlapping
+// See e.g. https://stackoverflow.com/q/29777778
+// This means that any token that goes below the `NAME` token will likely be ignored, as `NAME` will capture
+// most character sequences.
 K_AND: A N D;
 K_NOT: N O T;
 K_OR:  O R;
@@ -497,6 +498,10 @@ K_EXISTS: E X I S T S;
 K_FORALL: F O R A L L;
 K_WHEN: W H E N;
 
+K_INIT: ':' I N I T;
+K_PRECONDITION: ':' P R E C O N D I T I O N;
+K_EFFECT : ':' E F F E C T;
+K_DEFINE : D E F I N E;
 K_ACTION: ':' A C T I O N;
 
 K_INCREASE: I N C R E A S E;
@@ -537,12 +542,6 @@ WHITESPACE
         |   '\n'
         )+ -> channel(HIDDEN)
     ;
-
-
-// Keywords
-K_INIT: ':' I N I T;
-K_PRECONDITION: ':' P R E C O N D I T I O N;
-K_EFFECT : ':' E F F E C T;
 
 
 // Case-insensitive lexing, see e.g. https://github.com/antlr/antlr4/blob/master/doc/case-insensitive-lexing.md

@@ -1,4 +1,3 @@
-
 from ...errors import TarskiError
 from ...fstrips import FunctionalEffect
 from ...fstrips.action import AdditiveActionCost, generate_zero_action_cost
@@ -77,7 +76,7 @@ def create_sort(lang, typename, basename):
     """ Create a Tarski sort from a PDDL type, performing a few checks and translations to ensure consistency """
     if typename == 'object':
         return
-    
+
     typename = pddl_to_tarski_type(typename)
     basename = pddl_to_tarski_type(basename)
 
@@ -133,3 +132,20 @@ def uniformize_costs(problem):
     for action in problem.actions.values():
         if not action.cost:
             action.cost = generate_zero_action_cost(action.language)
+
+
+class LowerCasingStreamWrapper(object):
+    """ A simple wrapper around a stream to lowercase all characters.
+     @see https://github.com/antlr/antlr4/blob/master/doc/case-insensitive-lexing.md
+    """
+    def __init__(self, stream):
+        self._stream = stream
+
+    def __getattr__(self, name):
+        return self._stream.__getattribute__(name)
+
+    def LA(self, offset):
+        c = self._stream.LA(offset)
+        if c <= 0:
+            return c
+        return ord(chr(c).lower())

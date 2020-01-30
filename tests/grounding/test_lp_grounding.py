@@ -17,25 +17,21 @@ if shutil.which("gringo") is None:
 
 
 SAMPLE_STRIPS_INSTANCES = [
-    "organic-synthesis-opt18-strips:p01.pddl",
-    "blocks:probBLOCKS-4-1.pddl",
-    "openstacks:p01.pddl",
-    "visitall-sat11-strips:problem12.pddl",
-    "parcprinter-08-strips:p01.pddl",
-    "floortile-opt11-strips:opt-p01-001.pddl",
-    "pipesworld-notankage:p01-net1-b6-g2.pddl",
-    "pipesworld-tankage:p01-net1-b6-g2-t50.pddl",
-    "pathways:p01.pddl",
+    # "organic-synthesis-opt18-strips:p01.pddl",
+    # "blocks:probBLOCKS-4-1.pddl",
+    # "openstacks:p01.pddl",
+    # "visitall-sat11-strips:problem12.pddl",
+    # "parcprinter-08-strips:p01.pddl",
+    # "floortile-opt11-strips:opt-p01-001.pddl",
+    # "pipesworld-notankage:p01-net1-b6-g2.pddl",
+    # "pipesworld-tankage:p01-net1-b6-g2-t50.pddl",
+    # "pathways:p01.pddl",
+    "ged-opt14-strips:d-1-2.pddl",
 
     # Buggy domains that will raise some parsing exception:
     # "storage:p01.pddl", # type "area" is declared twice
     # "tidybot-opt11-strips:p01.pddl",  # "cart" used both as type name and object name, which we don't support
-    # "ged-opt14-strips:d-1-2.pddl",  # "DEFINE" used in caps. The PDDL grammar doesn't mention it is case-insensitive
 ]
-
-# Domains that require non-strict PDDL parsing because of missing requirement flags or similar that would
-# otherwise result in a parsing error
-LENIENT_DOMAINS = ['floortile-opt11-strips']
 
 
 def pytest_generate_tests(metafunc):
@@ -53,7 +49,8 @@ def pytest_generate_tests(metafunc):
 def test_action_grounding_on_standard_benchmarks(instance_file, domain_file):
     lenient = any(d in domain_file for d in LENIENT_DOMAINS)
 
-    problem = reader(strict_with_requirements=not lenient).read_problem(domain_file, instance_file)
+    reader_ = reader(strict_with_requirements=not lenient, case_insensitive=lenient)
+    problem = reader_.read_problem(domain_file, instance_file)
     grounder = LPGroundingStrategy(problem)
     actions = grounder.ground_actions()
 
@@ -90,6 +87,14 @@ def test_action_grounding_on_standard_benchmarks(instance_file, domain_file):
                               'hydroborationoftetrasubstitutedalkene': 0,
                               'oxidationofborane': 0,
                               'sulfonylationofalcohol': 0},
+        'genome-edit-distance': {'begin-cut': 9, 'continue-cut': 9, 'end-cut-1': 9, 'end-cut-2': 9,
+                                 'begin-transpose-splice': 9, 'continue-splice-1': 9, 'continue-splice-2': 9,
+                                 'end-splice-1': 9, 'end-splice-2': 9, 'begin-transverse-splice': 9,
+                                 'begin-inverse-splice': 9, 'begin-inverse-splice-special-case': 3,
+                                 'continue-inverse-splice-1A': 9, 'continue-inverse-splice-1B': 9,
+                                 'continue-inverse-splice-2': 9, 'end-inverse-splice-1A': 9, 'end-inverse-splice-1B': 9,
+                                 'end-inverse-splice-2': 9, 'invert-single-gene-A': 3, 'invert-single-gene-B': 3,
+                                 'reset-1': 3}
     }[problem.domain_name]
 
     # Make sure that the number of possible groundings of each action schema in the domain is as expected
