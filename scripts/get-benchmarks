@@ -3,7 +3,7 @@
 # Download DOWNWARD-BENCHMARKS
 mkdir -p /tmp/downward-benchmarks
 cd /tmp/downward-benchmarks
-curl -SL https://bitbucket.org/aibasel/downward-benchmarks/get/default.tgz | tar -xz --strip 1
+curl -SL https://github.com/aibasel/downward-benchmarks/archive/master.tar.gz | tar -xz --strip 1
 
 # Download FS-BENCHMARKS
 mkdir -p /tmp/fs-benchmarks
