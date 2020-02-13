@@ -10,7 +10,7 @@ def symref(sym):
     if isinstance(sym, Formula):
         # Formulas are hashable and indexable by themselves, but we wrap them in a Ref object for uniformity reasons
         return TermReference(sym)
-    raise RuntimeError("Unexpected symbol type \"{}\"".format(type(sym)))
+    raise RuntimeError(f'Unexpected symbol type "{type(sym)}"')
 
 
 class TermReference:

@@ -34,3 +34,6 @@ class StateVariableLite:
     @staticmethod
     def from_atom(atom):
         return StateVariableLite(atom.predicate, atom.subterms)
+
+    def to_atom(self):
+        return self.symbol(*self.binding)
