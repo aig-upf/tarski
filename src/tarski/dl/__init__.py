@@ -3,6 +3,6 @@ from .concepts import Concept, PrimitiveConcept, UniversalConcept, NotConcept, E
     EqualConcept, AndConcept, OrConcept, EmptyConcept, NominalConcept, NullaryAtom, GoalConcept, GoalNullaryAtom
 from .concepts import Role, PrimitiveRole, InverseRole, StarRole, RestrictRole, CompositionRole, GoalRole
 from .features import MinDistanceFeature, ConceptCardinalityFeature, EmpiricalBinaryConcept, FeatureValueChange,\
-    NullaryAtomFeature
+    NullaryAtomFeature, Feature
 from .factory import SyntacticFactory, compute_dl_vocabulary
 from .errors import ArityDLMismatch
