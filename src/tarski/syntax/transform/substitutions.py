@@ -4,7 +4,7 @@ import itertools
 from typing import List
 
 from ..symrefs import symref
-from ..formulas import CompoundFormula, QuantifiedFormula, Atom, Formula, Tautology, Contradiction
+from ..formulas import CompoundFormula, QuantifiedFormula, Atom, Formula, Tautology, Contradiction, Connective
 from ..terms import Term, CompoundTerm, Variable, Constant, IfThenElse
 from .errors import SubstitutionError
 
@@ -66,6 +66,37 @@ class TermSubstitution:
                 self.visit(t)
 
         return tuple(new_subterms)
+
+
+def substitute_subformula(phi, subst):
+    if isinstance(phi, (Tautology, Contradiction, Constant)):
+        return phi
+    elif isinstance(phi, CompoundFormula):
+        if phi.connective == Connective.Not:
+            try:
+                return subst[symref(phi)]
+            except KeyError:
+                return phi
+
+        new_subf = []
+        for gamma in phi.subformulas:
+            new_subf += [substitute_subformula(gamma, subst)]
+        phi.subformulas = new_subf
+        return phi
+    elif isinstance(phi, QuantifiedFormula):
+        raise SubstitutionError("substitute_subformula(): this operation is not safe of quantified formulas")
+    elif isinstance(phi, Atom):
+        try:
+            return subst[symref(phi)]
+        except KeyError:
+            return phi
+    elif isinstance(phi, CompoundTerm):
+        return phi
+    elif isinstance(phi, IfThenElse):
+        phi.condition = substitute_subformula(phi.condition, subt)
+        return phi
+    else:
+        raise TypeError(f'Unexpected element {phi} of type {type(phi)} when performing subformula substitution')
 
 
 def term_substitution(element, substitution, inplace=False):
