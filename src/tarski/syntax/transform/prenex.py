@@ -125,7 +125,7 @@ class PrenexTransformation:
         phi.formula = self._convert(phi.formula)
         if isinstance(phi.formula, QuantifiedFormula):
             if phi.formula.quantifier == phi.quantifier:  # absorb
-                new_variables = [x for x in phi.variables]
+                new_variables = list(phi.variables)
                 for x in phi.formula.variables:
                     new_variables.append(x)
                 phi.formula.variables = tuple(new_variables)

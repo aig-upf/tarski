@@ -332,4 +332,3 @@ def is_constant_cost_action(action):
 
     addend = action.cost.addend
     return isinstance(addend, Constant)
-

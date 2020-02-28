@@ -31,10 +31,6 @@ matrix:
     - python: 3.8
       env: TOXENV=py38
 
-# python 3.8 seems unable to install scipy, failing with a "No lapack/blas resources found" error.
-#    - python: 3.8-dev
-#      env: TOXENV=py38
-
 #  pypy doesn't seem to play nice with scipy?
 #    - python: pypy3.5
 #      env: TOXENV=pypy35 GETBENCHMARKS=true

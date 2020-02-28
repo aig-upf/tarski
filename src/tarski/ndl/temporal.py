@@ -12,7 +12,7 @@ from ..syntax import Atom, CompoundTerm, CompoundFormula, Constant, symref, Conn
 from ..model import Model
 
 
-class SyntaxError(Exception):
+class NDLSyntaxError(Exception):
     pass
 
 
@@ -31,7 +31,7 @@ class ResourceLock:
         self.td = kwargs['td']
         self.r = kwargs['r']
         if not isinstance(self.r, CompoundTerm):
-            raise SyntaxError("NDL Syntactic Error: resource lock needs to be a term (given: {})".format(self.r))
+            raise NDLSyntaxError("NDL Syntactic Error: resource lock needs to be a term (given: {})".format(self.r))
 
 
 class ResourceLevel:
@@ -41,12 +41,12 @@ class ResourceLevel:
         self.td = kwargs['td']
         self.r = kwargs['r']
         if not isinstance(self.r, CompoundTerm):
-            raise SyntaxError("NDL Syntactic Error: resource lock must refer to term (given: {})".format(self.r))
+            raise NDLSyntaxError("NDL Syntactic Error: resource lock must refer to term (given: {})".format(self.r))
         self.n = kwargs['n']
         if not isinstance(self.n, Constant):
-            raise SyntaxError("NDL Syntactic Error: resource level must be a constant (given: {}".format(self.n))
+            raise NDLSyntaxError("NDL Syntactic Error: resource level must be a constant (given: {}".format(self.n))
         if self.n.sort != self.r.sort:
-            raise SyntaxError(
+            raise NDLSyntaxError(
                 "NDL Type Mismatch: resource and level have different sorts (resource is: {}, level is: {}".format(
                     self.r.sort, self.n.sort))
 
@@ -79,7 +79,7 @@ class Action:
         # precondition
         prec = kwargs['precondition']
         if not isinstance(prec, CompoundFormula) and not isinstance(prec, Atom):
-            raise SyntaxError(
+            raise NDLSyntaxError(
                 "NDL Syntactic Error: precondition of action must be a compound formula (given: {})".format(prec))
         self.precondition = prec
         # resource requirements
@@ -91,14 +91,14 @@ class Action:
             elif isinstance(req, ResourceLevel):
                 self.levels += [req]
             else:
-                raise SyntaxError("NDL syntax error: '{}' is not a resource lock or level request".format(req))
+                raise NDLSyntaxError("NDL syntax error: '{}' is not a resource lock or level request".format(req))
         # effects
         self.effects = []
         for t, l in kwargs['effects']:
             if not isinstance(t, float):
-                raise SyntaxError("NDL Syntax error: timepoint '{}' must be rational".format(t))
+                raise NDLSyntaxError("NDL Syntax error: timepoint '{}' must be rational".format(t))
             if not is_literal(l):
-                raise SyntaxError("NDL Syntax error: effect '{}' must be a literal".format(l))
+                raise NDLSyntaxError("NDL Syntax error: effect '{}' must be a literal".format(l))
             self.effects += [(t, l)]
 
 
@@ -109,7 +109,7 @@ class Instance:
         self.X = []
         for x in kwargs['X']:
             if not isinstance(x, Atom):
-                raise SyntaxError("NDL Syntax Error: State variables must be boolean terms, found: {}".format(x))
+                raise NDLSyntaxError("NDL Syntax Error: State variables must be boolean terms, found: {}".format(x))
             self.X += [x]
         init = kwargs['I']
         if not isinstance(init, Model):
@@ -119,7 +119,7 @@ class Instance:
         self.I = init
         goal = kwargs['G']
         if not isinstance(goal, CompoundFormula) and not isinstance(goal, Atom):
-            raise SyntaxError("NDL Syntax Error: Goal needs to be a compound formula or an atom")
+            raise NDLSyntaxError("NDL Syntax Error: Goal needs to be a compound formula or an atom")
         self.G = goal
         self.A = []
         self.R = set()

@@ -673,7 +673,7 @@ def join_models(model1, model2):
 
 def truth_value(literal):
     assert literal != 0
-    return False if literal < 0 else True
+    return not (literal < 0)
 
 
 def varid(literal):

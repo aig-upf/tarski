@@ -19,7 +19,7 @@ class TermSubstitution:
 
         if isinstance(phi, (Tautology, Contradiction, Constant)):
             pass
-        
+
         elif isinstance(phi, CompoundFormula):
             _ = [self.visit(f) for f in phi.subformulas]
 
@@ -84,7 +84,7 @@ def substitute_subformula(phi, subst):
         phi.subformulas = new_subf
         return phi
     elif isinstance(phi, QuantifiedFormula):
-        raise SubstitutionError("substitute_subformula(): this operation is not safe of quantified formulas")
+        raise SubstitutionError(phi, subst, "substitute_subformula(): operation unsafe for quantified formulas")
     elif isinstance(phi, Atom):
         try:
             return subst[symref(phi)]
@@ -93,7 +93,7 @@ def substitute_subformula(phi, subst):
     elif isinstance(phi, CompoundTerm):
         return phi
     elif isinstance(phi, IfThenElse):
-        phi.condition = substitute_subformula(phi.condition, subt)
+        phi.condition = substitute_subformula(phi.condition, subst)
         return phi
     else:
         raise TypeError(f'Unexpected element {phi} of type {type(phi)} when performing subformula substitution')

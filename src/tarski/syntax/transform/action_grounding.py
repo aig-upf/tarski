@@ -23,11 +23,12 @@ def ground_schema_into_plain_operator(action: Action, substitution):
     effects = [term_substitution(eff, substitution, inplace=False) for eff in action.effects]
     return PlainOperator(action.language, name, precondition, effects)
 
-def ground_schema(action:Action, grounding):
+
+def ground_schema(action: Action, grounding):
     """
     Grounds a given action with variables in its preconditions and effects
     :param action: FSTRIPS actions with variable symbols
-    :param substitution: objects to replace variables with
+    :param grounding: objects to replace variables with
     :return: "ground" action
     """
     lang = action.language
@@ -46,6 +47,7 @@ def ground_schema(action:Action, grounding):
     effects = [term_substitution(eff, subst, inplace=False) for eff in action.effects]
 
     return Action(lang, name, VariableBinding(), precondition, effects)
+
 
 def ground_schema_into_plain_operator_from_grounding(action: Action, grounding):
     """ A wrapper to ground an schema from a "plain" grounding, i.e. a list of objects

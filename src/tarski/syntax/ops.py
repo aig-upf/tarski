@@ -2,7 +2,7 @@ import itertools
 
 import numpy as np
 
-from .visitors import CollectFreeVariables, CollectVariables
+from .visitors import CollectFreeVariables
 from .terms import Term, Constant, Variable, CompoundTerm, IfThenElse
 from .formulas import CompoundFormula, Connective, QuantifiedFormula, Atom, Tautology, Contradiction
 from .symrefs import symref

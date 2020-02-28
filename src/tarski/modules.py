@@ -13,8 +13,7 @@ def import_sdd():
 def import_scipy_special():
     try:
         import scipy.special as sci
-    except ImportError as err:
+    except ImportError as _:
         raise ImportError('The tarski.scipy module does not seem available. '
                           'Please try installing Tarski with the "scipy" extra.') from None
     return sci
-

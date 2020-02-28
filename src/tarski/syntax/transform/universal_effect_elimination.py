@@ -23,14 +23,12 @@ def expand_universal_effect(effect):
 
 
 def compile_universal_effects_away(problem, inplace=False):
-    if not inplace:
-        processed = copy.deepcopy(problem)
+    processed = copy.deepcopy(problem) if not inplace else problem
 
-    for aname, action in processed.actions.items():
+    for _, action in processed.actions.items():
         expanded = []
         for eff in action.effects:
             expanded += expand_universal_effect(eff)
         action.effects = expanded
     return processed
-
 

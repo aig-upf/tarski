@@ -9,7 +9,7 @@ from tarski.ndl import temporal
 
 def test_resource_lock_creation():
 
-    with pytest.raises(temporal.SyntaxError):
+    with pytest.raises(temporal.NDLSyntaxError):
         req = temporal.ResourceLock(**{
                 "ts": 0.0,
                 "td": 1.0,

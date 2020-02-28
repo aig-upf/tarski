@@ -79,4 +79,3 @@ class AdditiveActionCost(object):
 
 def generate_zero_action_cost(lang):
     return AdditiveActionCost(lang.constant(0, lang.get_sort('Integer')))
-
