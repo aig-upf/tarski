@@ -352,3 +352,7 @@ class VariableBinding:
 
     def __iter__(self):
         yield from self.variables.values()
+
+    def __str__(self):
+        return f"Variables({','.join(map(str, self._v_values))})"
+    __repr__ = __str__

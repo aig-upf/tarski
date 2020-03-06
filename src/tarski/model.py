@@ -41,8 +41,8 @@ def _check_assignment(fun, point, value=None):
 class Model:
     """ A First Order Language Model """
 
-    def __init__(self, language):
-        self.evaluator = None
+    def __init__(self, language, evaluator=None):
+        self.evaluator = evaluator
         self.language = language
         self.function_extensions = dict()
         self.predicate_extensions = dict()
@@ -138,9 +138,16 @@ class Model:
             # MRJ: This for expressions that have the __getitem__ operator overloaded
             return self.evaluator(arg, self)
 
+    def __str__(self):
+        npreds = len(self.predicate_extensions)
+        nfuns = len(self.function_extensions)
+        return f'Model(num_predicates="{npreds}", num_functions="{nfuns}")'
+    __repr__ = __str__
 
-def create(lang):
-    return Model(lang)
+
+def create(lang, evaluator=None):
+    """ Create a Tarski model with given evaluator. """
+    return Model(lang, evaluator)
 
 
 class ExtensionalFunctionDefinition:

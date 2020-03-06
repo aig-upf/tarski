@@ -93,16 +93,15 @@ class Problem:
         self.metric_ = fs.OptimizationMetric(opt_expression, opt_type)
 
     def __str__(self):
-        return 'FSTRIPS Problem "{}", domain "{}"'.format(self.name, self.domain_name)
-
+        return f'Problem(name="{self.name}", domain="{self.domain_name}")'
     __repr__ = __str__
 
 
-def create_fstrips_problem(language, problem_name=None, domain_name=None):
+def create_fstrips_problem(language, problem_name=None, domain_name=None, evaluator=None):
     """ Creates an FSTRIPS problem with empty initial state and with no assigned goal """
     problem_name = problem_name or "Unnamed FSTRIPS problem"
     domain_name = domain_name or "Unnamed FSTRIPS domain"
     problem = Problem(problem_name=problem_name, domain_name=domain_name)
     problem.language = language
-    problem.init = model.create(language)
+    problem.init = model.create(language, evaluator)
     return problem

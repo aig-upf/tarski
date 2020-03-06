@@ -53,15 +53,15 @@ class FirstOrderLanguage:
 
     @property
     def sorts(self):
-        return self._sorts.values()
+        return list(self._sorts.values())
 
     @property
     def predicates(self):
-        return self._predicates.values()
+        return list(self._predicates.values())
 
     @property
     def functions(self):
-        return self._functions.values()
+        return list(self._functions.values())
 
     def _attach_object_sort(self):
         """ The `object` sort, being the root of the sort hierarchy, needs a special treatment"""

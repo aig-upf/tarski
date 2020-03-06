@@ -25,7 +25,8 @@ class FstripsReader:
     """ A class designed to parse problems specified in PDDL / FSTRIPS. """
 
     def __init__(self, raise_on_error=False, theories=None, lang=None,
-                 strict_with_requirements=True, case_insensitive=False):
+                 strict_with_requirements=True, case_insensitive=False,
+                 evaluator=None):
         """ Create a FSTRIPS reader.
 
         :param raise_on_error: Whether to raise a Tarski ParsingError on every syntax error detected by the parser.
@@ -39,7 +40,11 @@ class FstripsReader:
         if not strict_with_requirements:
             load_theory(lang, Theory.ARITHMETIC)
             create_number_type(lang)
-        self.problem = create_fstrips_problem(language=lang)
+
+        if evaluator is None:
+            from tarski.evaluators.simple import evaluate as evaluator
+
+        self.problem = create_fstrips_problem(language=lang, evaluator=evaluator)
         self.parser = FStripsParser(self.problem, raise_on_error, case_insensitive)
 
     def read_problem(self, domain, instance):
@@ -58,6 +63,7 @@ class FstripsReader:
 
     def parse_instance(self, filename):
         self.parse_file(filename, 'problem')
+        return self.problem
 
     def parse_string(self, string, start_rule):
         logging.debug('Parsing custom string from grammar rule "{}"'.format(start_rule))

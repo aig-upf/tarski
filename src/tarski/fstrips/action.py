@@ -24,10 +24,11 @@ class Action:
 
     def ident(self):
         paramlist = "{}".format(','.join("{}: {}".format(p.symbol, p.sort.name) for p in self.parameters))
-        return '{}({})'.format(self.name, paramlist)
+        return f'{self.name}({paramlist})'
 
     def __str__(self):
         return self.ident()
+    __repr__ = __str__
 
     def print(self):
         tokens = ['{}:'.format(self.ident()),
