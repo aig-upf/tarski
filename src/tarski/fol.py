@@ -10,10 +10,10 @@ from .syntax.algebra import Matrix
 
 
 class FirstOrderLanguage:
-    """ A full-fledged many-sorted first-order language """
+    """ A many-sorted first-order language. """
 
-    def __init__(self, name='Tarski FOL'):
-        self.name = name
+    def __init__(self, name=None):
+        self.name = name or 'anonymous'
         self._sorts = {}
 
         # A mapping between each sort and its single immediate parent
@@ -73,32 +73,31 @@ class FirstOrderLanguage:
 
     @property
     def Object(self):
-        """ A shorthand accessor. """
+        """ A shorthand accessor for the object sort. """
         return self._sorts['object']
 
     @property
     def Real(self):
-        """ A shorthand accessor. """
+        """ A shorthand accessor for the Real sort. """
         return self.get_sort('Real')
 
     @property
     def Integer(self):
-        """ A shorthand accessor. """
+        """ A shorthand accessor for the Integer sort. """
         return self.get_sort('Integer')
 
     @property
     def Natural(self):
-        """ A shorthand accessor. """
+        """ A shorthand accessor for the Natural sort. """
         return self.get_sort('Natural')
 
     def sort(self, name: str, parent: Union[Sort, str, None] = None):
-        """
-            Create new sort with given name and parent sort. The parent sort can be given as a Sort object or as its
-            name, if a Sort with that name has already been registered.
-            If no parent is specified, the "object" sort is assumed as parent.
+        """ Create new sort with given name and parent sort. The parent sort can be given as a Sort object or as its
+        name, if a Sort with that name has already been registered.
+        If no parent is specified, the "object" sort is assumed as parent.
 
-            Raises err.DuplicateSortDefinition if a sort with the same name already existed,
-             or err.DuplicateDefinition if some non-sort element with the same name already existed.
+        :raises err.DuplicateSortDefinition: if a sort with the same name already existed.
+        :raises err.DuplicateDefinition: f some non-sort element with the same name already existed.
         """
         parent = self.get_sort("object") if parent is None else self._retrieve_sort(parent)
         return self.attach_sort(Sort(name, self), parent)
@@ -341,6 +340,7 @@ class FirstOrderLanguage:
         """ Return the language element with given name(s).
         This can be a predicate or function symbol, including constants, or a sort name.
         Multiple names can be used to get different elements in one single call:
+
             >>> lang = FirstOrderLanguage()
             >>> lang.predicate('on', lang.get_sort('object'))
             >>> lang.function('loc', lang.get_sort('object'), lang.get_sort('object'))
@@ -361,14 +361,15 @@ class FirstOrderLanguage:
 
     @property
     def ns(self):
-        """ A helper to be able to access the FOL symbols in an elegant and easy manner, to be used e.g. as in:
+        """ A helper to access the FOL symbols in an elegant and easy manner, to be used e.g. as in:
+
             >>> lang = FirstOrderLanguage()
             >>> lang.predicate('on', lang.get_sort('object'))
             >>> print(f'The predicate object "on" is: {lang.ns.on}')
 
-            The overall idea is that the `ns` attribute (for "namespace") encapsulates access to only the symbols
-            in the first-order language (sorts, predicate and function symbols, including constants),
-            and nothing else (that is, it knows nothing about other class methods and attributes).
+        The overall idea is that the `ns` attribute (for "namespace") encapsulates access to only the symbols
+        in the first-order language (sorts, predicate and function symbols, including constants),
+        and nothing else (that is, it knows nothing about other class methods and attributes).
         """
         return _NamespaceAccessor(self)
 

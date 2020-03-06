@@ -14,56 +14,19 @@ Tarski is written in Python and includes parsers for major modeling languages
 (e.g., [PDDL](https://en.wikipedia.org/wiki/Planning_Domain_Definition_Language),
 [FSTRIPS](https://dl.acm.org/citation.cfm?id=566359),
 [RDDL](https://en.wikipedia.org/wiki/Planning_Domain_Definition_Language#RDDL)), 
-along with modules to perform other common tasks such as reachability analysis and 
-grounding of first-order representations.
+along with modules to perform other common tasks such as logical transformations,
+reachability analysis, grounding of first-order representations and problem reformulations.
 
 
-Read the (work-in-progress) documentation of the project in <https://tarski.readthedocs.io>.
+**Documentation**: Read the (work-in-progress) *documentation* of the project at
+<https://tarski.readthedocs.io>.
 
-
-## Installation
-
-Install the latest Tarski release with
-
-    pip install tarski
-
-If instead you want to use the latest code available on the Github repository, use 
-    
-    pip install -U git+https://github.com/aig-upf/tarski.git
-
-## Extras
-
-Tarski allows the _optional_ installation of an `sdd` module that allows to interact
-with the [PySDD package](https://github.com/wannesm/PySDD) for sentential decision diagrams.
-To use this `tarski.sdd` optional package, you'll need to pip install with the `sdd` extra, as in: 
-
-    pip install tarski[sdd]
-
-Support for this is still experimental, as the installation of PySDD does not seem to be
-too pip-friendly.
-
-### Software Requirements
-Tarski requires Python >= 3.6. The above installation instructions will install transparently 
-for you a number of additional dependencies, among which `numpy`, `scipy` and `pyrddl`.
-
-
-## Development and Testing
-If developing Tarski, we recommend cloning from the Github repository and doing a dev installation
-(the`-e` flag for `pip`) on a [virtual environment](https://docs.python.org/3/tutorial/venv.html):
-    
-    git clone https://github.com/aig-upf/tarski
-    cd tarski
-    pip install -e .
-
-This will install the project in "editable mode", meaning that any modification to the files
-is immediately reflected in the _installed_ library.
-
+**Installation**: Check the [*installation instructions*](docs/installation.md).
 
 **Testing**. All of Tarski's tests live under the `tests` directory.
 To run them, you just need to run `pytest` (`pip install pytest`) on the root directory.
 You can also run the tests through `tox` (`pip install tox`), for which several testing environments
-[have been defined](tox.ini), e.g. to test the framework under different Python versions or apply static
-analysis to the code.
+[have been defined](tox.ini).
 
 
 ## Known Limitations

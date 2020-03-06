@@ -35,7 +35,8 @@ release = tarski.__version__
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    # 'sphinx.ext.autodoc',
+    'sphinx.ext.autodoc',
+    'sphinx.ext.doctest',
     'nbsphinx',  # To use Jupyter notebooks within the documentation <https://nbsphinx.readthedocs.io/en/0.4.2/>
     'sphinx.ext.mathjax',  # To render latex in the generated HTML
     'recommonmark',  # To use markdown documents as well
