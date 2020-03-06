@@ -1,4 +1,10 @@
+# NOTE: Use single-quoted strings in TOML for regular expressions.
 
 [build-system]
 # Minimum requirements for the build system to execute.
 requires = ["setuptools", "wheel", "Cython"]  # PEP 508 specifications.
+
+[tool.black]
+line-length = 120
+# target-version = ['py27', 'py35', 'py36', 'py37', 'py38']
+include = '\.pyi?$'

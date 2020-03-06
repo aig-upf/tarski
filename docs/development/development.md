@@ -7,7 +7,7 @@ We aim at following the [PEP 8 Python Style Guide](https://www.python.org/dev/pe
 Many Python IDEs support on-the-fly PEP 8 style checks; we additionally use
 [pylint](https://pylint.readthedocs.io/en/latest/) and
 [pycodestyle](https://pycodestyle.readthedocs.io/en/latest/).
-You can check code compliance by running e.g. `tox -e stylechecks`.
+You can check code compliance by running e.g. `tox -e pylint`.
 
 ## Project Structure
 We follow a [`src`-based](https://blog.ionelmc.ro/2014/05/25/python-packaging/) project structure.

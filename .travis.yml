@@ -9,9 +9,9 @@ env:
 
 matrix:
   include:
-    # Test the lint script only with Python 3.6
+    # Run the pylint linter with Python 3.6
     - python: 3.6
-      env: TOXENV=stylechecks
+      env: TOXENV=pylint
 
     # Test documentation building only with Python 3.6
     - python: 3.6
