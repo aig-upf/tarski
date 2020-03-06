@@ -20,7 +20,7 @@ from recommonmark.transform import AutoStructify
 # -- Project information -----------------------------------------------------
 
 project = 'Tarski'
-copyright = '2019, Miquel Ramírez and Guillem Francès'
+copyright = '2019-2020, Miquel Ramírez and Guillem Francès'
 author = 'Miquel Ramírez and Guillem Francès'
 
 # The short X.Y version.
@@ -51,7 +51,7 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', '**.ipynb_checkpoints', 'requirements.txt']
+exclude_patterns = ['_build', '**.ipynb_checkpoints', 'requirements.txt', 'readme.md']
 
 
 # -- Options for HTML output -------------------------------------------------
