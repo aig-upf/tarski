@@ -5,4 +5,3 @@ nbsphinx
 sphinx_rtd_theme
 ipykernel
 ipython
-tarski
