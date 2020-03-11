@@ -18,23 +18,12 @@ along with modules to perform other common tasks such as logical transformations
 reachability analysis, grounding of first-order representations and problem reformulations.
 
 
-**Documentation**: Read the (work-in-progress) *documentation* of the project at
-<https://tarski.readthedocs.io>.
-
 **Installation**: Check the [*installation instructions*](docs/installation.md).
 
-**Testing**. All of Tarski's tests live under the `tests` directory.
-To run them, you just need to run `pytest` (`pip install pytest`) on the root directory.
-You can also run the tests through `tox` (`pip install tox`), for which several testing environments
-[have been defined](tox.ini).
+**Documentation**: Read the [*documentation of the project*](https://tarski.readthedocs.io).
 
-
-## Known Limitations
-At the moment, Tarski is able to parse problems specified in PDDL, Functional STRIPS and RDDL, 
-but (1) parsing of derived predicates is not supported yet, and (2)
-the PDDL `either` keyword for defining compound types is not supported, and it is unlikely it will ever be.
-Additionally, and for compatibility reasons with old standard benchmarks, the parser represents all predicate,
-function (including constants) and PDDL types (i.e. FOL sorts) _in lowercase_.  
+**Testing**: Most tests can be run by executing `pytest` on the root directory.
+Alternatively, they can be run through `tox`, for which several testing environments [are defined](tox.ini).
 
 ## License
 Tarski is licensed under the [GNU General Public License, version 3](LICENSE).

@@ -2,8 +2,8 @@
 # Installing Tarski
 
 ## Software Requirements
-Tarski requires a working Python>=3.6 installation.
-We strongly recommend installing the software within a Python
+Tarski is mostly developed in Python, and requires a working Python>=3.6 installation.
+We strongly recommend installing Tarski within a Python
 [virtual environment](https://docs.python.org/3/tutorial/venv.html).
 The installation instructions below will install for you any additional
 required dependencies.
@@ -11,12 +11,12 @@ required dependencies.
 
 ## Installation Instructions
 
-Install the latest Tarski release with
+You can install the latest Tarski release with:
 
     pip install tarski
 
 If instead you want to use the latest code available on the Github repository, 
-you can use (to your own risk!) the following:
+you can install with:
     
     pip install -U git+https://github.com/aig-upf/tarski.git
 

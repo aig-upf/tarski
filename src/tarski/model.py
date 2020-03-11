@@ -1,4 +1,3 @@
-
 from . import errors as err
 from .syntax import Function, Constant, CompoundTerm, symref
 from .syntax.predicate import Predicate
@@ -68,7 +67,13 @@ class Model:
         # TODO: Deprecate in favor of Model.setx()
         self.setx(fun(*args[:-1]), args[-1])
 
-    def add(self, predicate: Predicate, *args):
+    def add(self, predicate, *args):
+        """ """
+        from .syntax import Atom
+        if isinstance(predicate, Atom):
+            args = predicate.subterms
+            predicate = predicate.predicate
+
         if not isinstance(predicate, Predicate):
             raise err.SemanticError("Model.add() can only set the value of predicate symbols")
         if predicate.builtin:

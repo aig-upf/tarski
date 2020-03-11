@@ -2,11 +2,16 @@
 Getting Started
 ==================================
 
+The following provides a tutorial-style introduction to the kind of tasks
+you can achieve with Tarski. You can also directly check the
+:doc:`Tarski API <api>`, or head on to some
+:doc:`advanced topics <advanced-topics>`
+
+
 .. toctree::
     :maxdepth: 1
 
-    notebooks/001_first_order_logics.ipynb
-    notebooks/002_fol_semantics.ipynb
-    notebooks/003_planning_problems.ipynb
-    notebooks/004_advanced_techniques.ipynb
-    notebooks/work_in_progress.ipynb
+    notebooks/defining-your-first-planning-problem.ipynb
+    notebooks/parsing-and-inspecting-pddl.ipynb
+
+.. notebooks/advanced-features-problem-definition.ipynb

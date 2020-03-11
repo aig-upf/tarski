@@ -15,10 +15,18 @@ reachability analysis, grounding of first-order representations and problem refo
 
 .. toctree::
     :maxdepth: 1
-    :caption: Documentation:
+    :caption: User Documentation
 
     installation.md
     getting-started.rst
+    advanced-topics.rst
     api.rst
-    development.rst
+    limitations.md
 
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Developing Tarski
+
+    development.rst
+    readme.md

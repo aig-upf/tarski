@@ -312,8 +312,9 @@ class FirstOrderLanguage:
         return self.is_subtype(t1, t2) or self.is_subtype(t2, t1)
 
     def __str__(self):
-        return "{}: Tarski language with {} sorts, {} function symbols, {} predicate symbols".format(
-            self.name, len(self._sorts), len(self._functions), len(self._predicates))
+        return f"{self.name}: Tarski language with {len(self._sorts)} sorts, {len(self._predicates)} predicates, " \
+               f"{len(self._functions)} functions and {len(self.constants())} constants"
+    __repr__ = __str__
 
     def register_operator_handler(self, operator, t1, t2, handler):
         self._operators[(operator, t1, t2)] = handler
