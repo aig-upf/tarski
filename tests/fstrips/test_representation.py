@@ -219,7 +219,8 @@ def test_neg_precondition_compilation_on_action():
 
     act1 = problem.action('act1', [x],
                           precondition=clear(x) & ~ontable(x) & handempty(),
-                          effects=[DelEffect(ontable(x), ~clear(x))])
+                          effects=[DelEffect(ontable(x), ~clear(x)),
+                                   AddEffect(ontable(x))])
     act1c = compile_action_negated_preconditions_away(act1, negpreds)
     assert len(negpreds) == 2  # For ontable and for clear
     assert str(act1c.precondition) == '(clear(x) and _not_ontable(x) and handempty())'
@@ -229,29 +230,44 @@ def test_neg_precondition_compilation_on_action():
 def test_neg_precondition_compilation_on_problem():
     problem = generate_small_strips_bw_problem()
     lang = problem.language
-    clear, on, ontable, handempty, holding = lang.get('clear', 'on', 'ontable', 'handempty', 'holding')
+    b1, clear, on, ontable, handempty, holding = lang.get('b1', 'clear', 'on', 'ontable', 'handempty', 'holding')
     x = lang.variable('x', 'object')
 
     compiled = compile_negated_preconditions_away(problem)
 
+    # Check that nothing was changed
     for aname, a1 in problem.actions.items():
         a2 = compiled.get_action(aname)
         assert flatten(a1.precondition) == a2.precondition
 
     act1 = problem.action('act1', [x],
                           precondition=clear(x) & ~ontable(x) & handempty(),
-                          effects=[DelEffect(ontable(x))])
+                          effects=[DelEffect(ontable(x), ~clear(x)),
+                                   AddEffect(ontable(x))])
+    compiled = compile_negated_preconditions_away(problem)
+    assert str(compiled.get_action('act1').precondition) == '(clear(x) and _not_ontable(x) and handempty())'
 
-    problem.goal = ~ontable(x) & ~handempty()
 
+def test_neg_precondition_compilation_on_problem2():
+    problem = generate_small_strips_bw_problem()
+    lang = problem.language
+    b1, clear, on, ontable, handempty, holding = lang.get('b1', 'clear', 'on', 'ontable', 'handempty', 'holding')
+
+    # Change the goal to include some negated preconditions, this should trigger
+    # the rewriting of some action effects
+    problem.goal = ~ontable(b1) & ~handempty()
     compiled = compile_negated_preconditions_away(problem)
 
-    assert str(compiled.get_action('act1').precondition) == '(clear(x) and _not_ontable(x) and handempty())'
-    assert str(compiled.goal) == '(_not_ontable(x) and _not_handempty())'
+    # Check that indeed new effects have been added of the appropriate type and appropriate predicate
+    assert str(compiled.get_action('unstack').effects[-1]) == '(T -> ADD(_not_handempty()))'
+    assert str(compiled.get_action('stack').effects[-1]) == '(T -> DEL(_not_handempty()))'
 
+    # Check the goal has been correctly rewritten
+    assert str(compiled.goal) == '(_not_ontable(b1) and _not_handempty())'
+
+    # Check the initial state has been correctly updated
     init = compiled.init
-    nhe, nont, b1 = lang.get('_not_handempty', '_not_ontable', 'b1')
-
+    nhe, nont = lang.get('_not_handempty', '_not_ontable')
     assert init[nont(b1)]
     assert init[neg(nhe())]
 

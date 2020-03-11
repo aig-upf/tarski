@@ -397,13 +397,17 @@ def compile_negated_preconditions_away(problem: Problem, inplace=False):
 
     # First compile the action preconditions away
     negpreds = dict()
-    newactions = OrderedDict()
+    newactions = []
     for aname, action in problem.actions.items():
-        newactions[aname] = compile_action_negated_preconditions_away(action, negpreds, inplace=True)
-    problem.actions = newactions
+        newactions.append((aname, compile_action_negated_preconditions_away(action, negpreds, inplace=True)))
 
     # Now compile goal away
     problem.goal = compile_away_formula_negated_literals(problem.goal, negpreds, inplace=True)
+
+    # Now that we know which predicates have been artificially duplicated,
+    # we can add the appropriate effects to update the denotation of those predicates
+    for aname, action in newactions:
+        problem.actions[aname] = update_action_effects_with_negated_counterparts(action, negpreds)
 
     # Finally, if any negated precondition was created, then insert the appropriate atoms
     # in the initial state
@@ -413,6 +417,27 @@ def compile_negated_preconditions_away(problem: Problem, inplace=False):
             model.add(negpred, *point)
 
     return problem
+
+
+def update_action_effects_with_negated_counterparts(action: Action, negpreds):
+    """ """
+    neweffects = []
+    for eff in action.effects:
+        if not is_propositional_effect(eff):
+            raise RepresentationError(f"Don't know how to update negated counterpart atoms for effect {eff}")
+
+        atom = eff.atom
+        negpred = negpreds.get(atom.predicate)
+        if negpred is not None:
+            # Insert the converse type of effect with the converse predicate
+            if isinstance(eff, DelEffect):
+                neweffects.append(AddEffect(negpred(*atom.subterms), eff.condition))
+            else:
+                assert isinstance(eff, AddEffect)
+                neweffects.append(DelEffect(negpred(*atom.subterms), eff.condition))
+
+    action.effects += neweffects
+    return action
 
 
 def compile_action_negated_preconditions_away(action: Action, negpreds, inplace=False):
