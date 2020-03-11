@@ -462,8 +462,11 @@ def _compile_possibly_negated_literal(sub, negpreds):
     if not is_neg(sub):
         return sub
 
+    # raise RuntimeError(f"Negated! {sub}")
     atom = sub.subformulas[0]  # This is well-defined because we assume is_literal(sub)
     pred = atom.predicate
+    if pred.builtin:
+        return sub  # We don't want to compile away negated builtin predicates
     negpred = negpreds.get(pred, None)
     if negpred is None:
         lang = pred.language
