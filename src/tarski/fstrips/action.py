@@ -52,7 +52,8 @@ class GroundOperator:
 
 
 class PlainOperator(GroundOperator):
-    """ """
+    """ A ground STRIPS operator possibly extended with negated preconditions
+    and conditional effects. """
     def __init__(self, language, name, precondition, effects):
         super().__init__(language, name)
         self.precondition = flatten(precondition)

@@ -4,10 +4,10 @@ from typing import Set, Union, Tuple, Optional
 from .problem import Problem
 from . import fstrips as fs
 from ..syntax import Formula, CompoundTerm, Atom, CompoundFormula, QuantifiedFormula, is_and, is_neg, exists, symref,\
-    VariableBinding, Constant
+    VariableBinding, Constant, Tautology
 from ..syntax.ops import collect_unique_nodes, flatten, free_variables, all_variables
 from ..syntax.util import get_symbols
-from ..fstrips import AddEffect, DelEffect, LiteralEffect, FunctionalEffect, UniversalEffect, BaseEffect
+from ..fstrips import AddEffect, DelEffect, LiteralEffect, FunctionalEffect, UniversalEffect, BaseEffect, SingleEffect
 from .action import Action
 
 
@@ -62,7 +62,7 @@ def is_strips_operator(action: Action):
     (1) pre(o) is a conjunction of state variables, and
     (2) eff(o) is a conflict-free conjunction of atomic effects.
     """
-    raise NotImplementedError()
+    return is_conjunction_of_positive_atoms(action.precondition) and is_strips_effect_set(action.effects)
 
 
 def is_strips_problem(problem: Problem):
@@ -70,7 +70,8 @@ def is_strips_problem(problem: Problem):
     A propositional planning task is a STRIPS planning task if all of its operators are STRIPS operators
     its goal is a conjunction of state variables.
     """
-    raise NotImplementedError()
+    return is_conjunction_of_positive_atoms(problem.goal) \
+        and all(is_strips_operator(a) for a in problem.actions.values())
 
 
 def transform_to_strips(what: Union[Problem, Action]):
@@ -80,6 +81,32 @@ def transform_to_strips(what: Union[Problem, Action]):
     elif isinstance(what, Action):
         return transform_operator_to_strips(what)
     raise RuntimeError(f'Unable to transform to positive normal form object {what}')
+
+
+def is_atomic_effect(eff: BaseEffect):
+    """ An effect is atomic if it is a single, unconditional effect. """
+    return isinstance(eff, SingleEffect) and isinstance(eff.condition, Tautology)
+
+
+def is_propositional_effect(eff: BaseEffect):
+    """ An effect is propositional if it is either an add or a delete effect. """
+    return isinstance(eff, (AddEffect, DelEffect))
+
+
+def is_strips_effect_set(effects):
+    """ Return whether the all effects in the given list of effects are propositional, atomic,
+    and there is no two contradictory effect, e.g. in the form of an add-effect and a delete-effect
+    over the same variable. """
+    polarities = dict()
+    for eff in effects:
+        if not is_atomic_effect(eff) or not is_propositional_effect(eff):
+            return False
+        pol = isinstance(eff, AddEffect)  # i.e. polarity will be true if add effect, false otherwise
+        prev = polarities.get(eff.atom, None)
+        if prev is not None and prev != pol:
+            return False  # Two contradicting effects where found
+        polarities[eff.atom] = pol
+    return True
 
 
 def transform_problem_to_strips(problem: Problem):
@@ -148,6 +175,15 @@ def is_conjunction_of_literals(phi: Formula):
     f = flatten(phi)
     return isinstance(f, Atom) or \
         (isinstance(f, CompoundFormula) and all(is_literal(sub) for sub in f.subformulas))
+
+
+def is_conjunction_of_positive_atoms(phi: Formula):
+    """
+    Return whether the given formula is a conjunction of literals, i.e. of atoms or negations of atoms.
+    """
+    f = flatten(phi)
+    return isinstance(f, Atom) or \
+        (isinstance(f, CompoundFormula) and all(isinstance(sub, Atom) for sub in f.subformulas))
 
 
 def collect_literals_from_conjunction(phi: Formula) -> Optional[Set[Tuple[Atom, bool]]]:

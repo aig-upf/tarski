@@ -1,9 +1,10 @@
 from tarski.benchmarks.counters import generate_fstrips_counters_problem
 from tarski.fstrips.representation import collect_effect_free_parameters, project_away_effect_free_variables, \
     collect_effect_free_variables, project_away_effect_free_variables_from_problem, is_typed_problem, \
-    identify_cost_related_functions, compute_delete_free_relaxation, is_delete_free
+    identify_cost_related_functions, compute_delete_free_relaxation, is_delete_free, is_strips_problem, \
+    is_conjunction_of_positive_atoms, is_strips_effect_set
 from tarski.syntax import exists, land
-from tarski.fstrips import representation as rep, AddEffect
+from tarski.fstrips import representation as rep, AddEffect, DelEffect
 
 from tests.common import blocksworld
 from tests.common.blocksworld import generate_small_fstrips_bw_language, generate_small_strips_bw_problem
@@ -150,3 +151,27 @@ def test_delete_free_functions():
     # The new action has had its 3 delete-effects removed
     assert len(pickup.effects) == 1 and isinstance(pickup.effects[0], AddEffect)
 
+
+def test_strips_analysis():
+    problem = generate_small_strips_bw_problem()
+    assert is_strips_problem(problem)
+
+    lang = problem.language
+    clear, on, ontable, handempty, holding = lang.get('clear', 'on', 'ontable', 'handempty', 'holding')
+    x = lang.variable('x', 'object')
+
+    phi = clear(x) & ~ontable(x)
+    assert not is_conjunction_of_positive_atoms(clear(x) & ~ontable(x))
+
+    assert is_strips_effect_set([DelEffect(ontable(x)), DelEffect(clear(x))])
+    assert is_strips_effect_set([DelEffect(ontable(x)), DelEffect(ontable(x))])
+    # Not strips, as it has an effect with conditions:
+    assert not is_strips_effect_set([DelEffect(ontable(x), clear(x)), AddEffect(ontable(x))])
+    # Not strips, as it has two contradictory effects:
+    assert not is_strips_effect_set([DelEffect(ontable(x)), AddEffect(ontable(x))])
+
+    problem = generate_fstrips_counters_problem(ncounters=3)
+
+    assert not is_strips_problem(problem)
+    inc = problem.get_action('increment')
+    assert not is_strips_effect_set(inc.effects)
