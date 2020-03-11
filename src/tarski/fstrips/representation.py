@@ -390,20 +390,20 @@ def is_constant_cost_action(action):
     return isinstance(addend, Constant)
 
 
-def compile_negated_preconditions_away(problem: Problem, do_copy=True):
+def compile_negated_preconditions_away(problem: Problem, inplace=False):
     """ Compile away negated literals in the problem actions and goal.
     See docs from `compile_away_formula_negated_literals` for details. """
-    problem = copy.deepcopy(problem) if do_copy else problem
+    problem = copy.deepcopy(problem) if not inplace else problem
 
     # First compile the action preconditions away
     negpreds = dict()
     newactions = OrderedDict()
     for aname, action in problem.actions.items():
-        newactions[aname] = compile_action_negated_preconditions_away(action, negpreds, do_copy=False)
+        newactions[aname] = compile_action_negated_preconditions_away(action, negpreds, inplace=True)
     problem.actions = newactions
 
     # Now compile goal away
-    problem.goal = compile_away_formula_negated_literals(problem.goal, negpreds, do_copy=False)
+    problem.goal = compile_away_formula_negated_literals(problem.goal, negpreds, inplace=True)
 
     # Finally, if any negated precondition was created, then insert the appropriate atoms
     # in the initial state
@@ -415,26 +415,26 @@ def compile_negated_preconditions_away(problem: Problem, do_copy=True):
     return problem
 
 
-def compile_action_negated_preconditions_away(action: Action, negpreds, do_copy=True):
+def compile_action_negated_preconditions_away(action: Action, negpreds, inplace=False):
     """ Compile away negated literals in the action precondition and effect conditions.
     See docs from `compile_away_formula_negated_literals` for details. """
-    action = copy.deepcopy(action) if do_copy else action
-    action.precondition = compile_away_formula_negated_literals(action.precondition, negpreds, do_copy=False)
+    action = copy.deepcopy(action) if not inplace else action
+    action.precondition = compile_away_formula_negated_literals(action.precondition, negpreds, inplace=True)
     for eff in action.effects:
         if not isinstance(eff, SingleEffect):
             raise RepresentationError(f"Cannot compile away negated conditions for effect '{eff}'")
 
         if not isinstance(eff.condition, Tautology):
-            eff.condition = compile_away_formula_negated_literals(eff.condition, negpreds, do_copy=False)
+            eff.condition = compile_away_formula_negated_literals(eff.condition, negpreds, inplace=True)
 
     return action
 
 
-def compile_away_formula_negated_literals(phi, negpreds, do_copy=True):
+def compile_away_formula_negated_literals(phi, negpreds, inplace=False):
     """ Compile away all negated literals in the given formula, which is assumed to be
     a conjunction of literals, by replacing them by new atoms that use a fresh predicate
     "not_p" for every literal not p(x). """
-    phi = copy.deepcopy(phi) if do_copy else phi
+    phi = copy.deepcopy(phi) if not inplace else phi
     f = flatten(phi)
     if isinstance(f, Atom):
         return f
