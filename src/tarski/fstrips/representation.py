@@ -391,7 +391,8 @@ def is_constant_cost_action(action):
 
 
 def compile_negated_preconditions_away(problem: Problem, do_copy=True):
-    """ """
+    """ Compile away negated literals in the problem actions and goal.
+    See docs from `compile_away_formula_negated_literals` for details. """
     problem = copy.deepcopy(problem) if do_copy else problem
 
     # First compile the action preconditions away
@@ -415,7 +416,8 @@ def compile_negated_preconditions_away(problem: Problem, do_copy=True):
 
 
 def compile_action_negated_preconditions_away(action: Action, negpreds, do_copy=True):
-    """ """
+    """ Compile away negated literals in the action precondition and effect conditions.
+    See docs from `compile_away_formula_negated_literals` for details. """
     action = copy.deepcopy(action) if do_copy else action
     action.precondition = compile_away_formula_negated_literals(action.precondition, negpreds, do_copy=False)
     for eff in action.effects:
@@ -429,14 +431,16 @@ def compile_action_negated_preconditions_away(action: Action, negpreds, do_copy=
 
 
 def compile_away_formula_negated_literals(phi, negpreds, do_copy=True):
-    """ """
+    """ Compile away all negated literals in the given formula, which is assumed to be
+    a conjunction of literals, by replacing them by new atoms that use a fresh predicate
+    "not_p" for every literal not p(x). """
     phi = copy.deepcopy(phi) if do_copy else phi
     f = flatten(phi)
     if isinstance(f, Atom):
         return f
 
     if is_neg(f):
-        return compile_possibly_negated_literal(f, negpreds)
+        return _compile_possibly_negated_literal(f, negpreds)
 
     if not isinstance(f, CompoundFormula):
         raise RepresentationError(f"Cannot compile away negated conditions of formula '{phi}'")
@@ -446,13 +450,15 @@ def compile_away_formula_negated_literals(phi, negpreds, do_copy=True):
         if not is_literal(sub):
             raise RepresentationError(f"Cannot compile away negated conditions of formula '{phi}'")
 
-        compiled_subformulas.append(compile_possibly_negated_literal(sub, negpreds))
+        compiled_subformulas.append(_compile_possibly_negated_literal(sub, negpreds))
 
     return land(*compiled_subformulas, flat=True)
 
 
-def compile_possibly_negated_literal(sub, negpreds):
-    """ """
+def _compile_possibly_negated_literal(sub, negpreds):
+    """ A helper that processes a given literal; if the literal is of the form not p(x),
+    it generates a replacement positive atom _not_p(x), and registers the new predicate
+    _not_p within the problem language. """
     if not is_neg(sub):
         return sub
 
@@ -467,7 +473,7 @@ def compile_possibly_negated_literal(sub, negpreds):
 
 
 def compute_complementary_atoms(model, predicate):
-    """ """
+    """ Generate all bindings for the given predicate which are not true in the given model. """
     extension = model.get_extension(predicate)
     for binding in compute_signature_bindings(predicate.sort):
         refd = tuple(symref(x) for x in binding)
