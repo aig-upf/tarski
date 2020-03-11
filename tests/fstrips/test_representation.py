@@ -2,9 +2,11 @@ from tarski.benchmarks.counters import generate_fstrips_counters_problem
 from tarski.fstrips.representation import collect_effect_free_parameters, project_away_effect_free_variables, \
     collect_effect_free_variables, project_away_effect_free_variables_from_problem, is_typed_problem, \
     identify_cost_related_functions, compute_delete_free_relaxation, is_delete_free, is_strips_problem, \
-    is_conjunction_of_positive_atoms, is_strips_effect_set
-from tarski.syntax import exists, land
+    is_conjunction_of_positive_atoms, is_strips_effect_set, compile_away_formula_negated_literals, \
+    compile_action_negated_preconditions_away, compile_negated_preconditions_away, compute_complementary_atoms
+from tarski.syntax import exists, land, neg
 from tarski.fstrips import representation as rep, AddEffect, DelEffect
+from tarski.syntax.ops import flatten
 
 from tests.common import blocksworld
 from tests.common.blocksworld import generate_small_fstrips_bw_language, generate_small_strips_bw_problem
@@ -175,3 +177,86 @@ def test_strips_analysis():
     assert not is_strips_problem(problem)
     inc = problem.get_action('increment')
     assert not is_strips_effect_set(inc.effects)
+
+
+def test_neg_precondition_compilation_on_formulas():
+    problem = generate_small_strips_bw_problem()
+    lang = problem.language
+    clear, on, ontable, handempty, holding = lang.get('clear', 'on', 'ontable', 'handempty', 'holding')
+    x = lang.variable('x', 'object')
+
+    negpreds = dict()
+
+    comp = compile_away_formula_negated_literals(clear(x) & ontable(x), negpreds)
+    assert comp == clear(x) & ontable(x) and not negpreds  # No change was made
+
+    comp = compile_away_formula_negated_literals(clear(x) & ~ontable(x), negpreds)
+    assert str(comp) == '(clear(x) and _not_ontable(x))'
+
+    # Compile again to check that predicate is not declared twice, which would raise an error
+    comp = compile_away_formula_negated_literals(clear(x) & ~ontable(x), negpreds)
+    assert str(comp) == '(clear(x) and _not_ontable(x))'
+
+
+def test_neg_precondition_compilation_on_action():
+    problem = generate_small_strips_bw_problem()
+    lang = problem.language
+    clear, on, ontable, handempty, holding = lang.get('clear', 'on', 'ontable', 'handempty', 'holding')
+    x = lang.variable('x', 'object')
+
+    negpreds = dict()
+    
+    pickup = problem.get_action('pick-up')
+    pickupc = compile_action_negated_preconditions_away(pickup, negpreds)
+    assert flatten(pickup.precondition) == pickupc.precondition and len(negpreds) == 0
+
+    act1 = problem.action('act1', [x],
+                          precondition=clear(x) & ~ontable(x) & handempty(),
+                          effects=[DelEffect(ontable(x), ~clear(x))])
+    act1c = compile_action_negated_preconditions_away(act1, negpreds)
+    assert len(negpreds) == 2  # For ontable and for clear
+    assert str(act1c.precondition) == '(clear(x) and _not_ontable(x) and handempty())'
+    assert str(act1c.effects[0].condition) == '_not_clear(x)'
+
+
+def test_neg_precondition_compilation_on_problem():
+    problem = generate_small_strips_bw_problem()
+    lang = problem.language
+    clear, on, ontable, handempty, holding = lang.get('clear', 'on', 'ontable', 'handempty', 'holding')
+    x = lang.variable('x', 'object')
+
+    compiled = compile_negated_preconditions_away(problem)
+
+    for aname, a1 in problem.actions.items():
+        a2 = compiled.get_action(aname)
+        assert flatten(a1.precondition) == a2.precondition
+
+    act1 = problem.action('act1', [x],
+                          precondition=clear(x) & ~ontable(x) & handempty(),
+                          effects=[DelEffect(ontable(x))])
+
+    problem.goal = ~ontable(x) & ~handempty()
+
+    compiled = compile_negated_preconditions_away(problem)
+
+    assert str(compiled.get_action('act1').precondition) == '(clear(x) and _not_ontable(x) and handempty())'
+    assert str(compiled.goal) == '(_not_ontable(x) and _not_handempty())'
+
+    init = compiled.init
+    nhe, nont, b1 = lang.get('_not_handempty', '_not_ontable', 'b1')
+
+    assert init[nont(b1)]
+    assert init[neg(nhe())]
+
+
+def test_compute_complementary_atoms():
+    problem = generate_small_strips_bw_problem()
+    lang = problem.language
+    testpred = lang.predicate('test')  # Try a nullary predicate
+
+    assert list(compute_complementary_atoms(problem.init, testpred)) == [()]
+
+    problem.init.add(testpred)
+    assert list(compute_complementary_atoms(problem.init, testpred)) == []
+
+    assert len(list(compute_complementary_atoms(problem.init, lang.get('clear')))) == 2

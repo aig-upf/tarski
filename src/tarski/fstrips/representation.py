@@ -1,14 +1,23 @@
 import copy
+from collections import OrderedDict
 from typing import Set, Union, Tuple, Optional
 
+from ..errors import TarskiError
 from .problem import Problem
 from . import fstrips as fs
 from ..syntax import Formula, CompoundTerm, Atom, CompoundFormula, QuantifiedFormula, is_and, is_neg, exists, symref,\
-    VariableBinding, Constant, Tautology
+    VariableBinding, Constant, Tautology, land
 from ..syntax.ops import collect_unique_nodes, flatten, free_variables, all_variables
+from ..syntax.sorts import compute_signature_bindings
 from ..syntax.util import get_symbols
 from ..fstrips import AddEffect, DelEffect, LiteralEffect, FunctionalEffect, UniversalEffect, BaseEffect, SingleEffect
 from .action import Action
+
+
+class RepresentationError(TarskiError):
+    def __init__(self, msg=None):
+        msg = msg or 'Unexpected representation errir'
+        super().__init__(msg)
 
 
 def is_typed_problem(problem: Problem):
@@ -97,16 +106,27 @@ def is_strips_effect_set(effects):
     """ Return whether the all effects in the given list of effects are propositional, atomic,
     and there is no two contradictory effect, e.g. in the form of an add-effect and a delete-effect
     over the same variable. """
+    try:
+        conflicts = compute_effect_set_conflicts(effects)
+    except RepresentationError:
+        return False  # Some effect was not STRIPS
+
+    return len(conflicts) == 0  # If there was some conflict, the effect is not STRIPS
+
+
+def compute_effect_set_conflicts(effects):
+    """ """
     polarities = dict()
+    conflicts = set()
     for eff in effects:
         if not is_atomic_effect(eff) or not is_propositional_effect(eff):
-            return False
+            raise RepresentationError(f"Don't know how to compute conflicts for effect {eff}")
         pol = isinstance(eff, AddEffect)  # i.e. polarity will be true if add effect, false otherwise
         prev = polarities.get(eff.atom, None)
         if prev is not None and prev != pol:
-            return False  # Two contradicting effects where found
+            conflicts.add(eff.atom)
         polarities[eff.atom] = pol
-    return True
+    return conflicts
 
 
 def transform_problem_to_strips(problem: Problem):
@@ -368,3 +388,88 @@ def is_constant_cost_action(action):
 
     addend = action.cost.addend
     return isinstance(addend, Constant)
+
+
+def compile_negated_preconditions_away(problem: Problem, do_copy=True):
+    """ """
+    problem = copy.deepcopy(problem) if do_copy else problem
+
+    # First compile the action preconditions away
+    negpreds = dict()
+    newactions = OrderedDict()
+    for aname, action in problem.actions.items():
+        newactions[aname] = compile_action_negated_preconditions_away(action, negpreds, do_copy=False)
+    problem.actions = newactions
+
+    # Now compile goal away
+    problem.goal = compile_away_formula_negated_literals(problem.goal, negpreds, do_copy=False)
+
+    # Finally, if any negated precondition was created, then insert the appropriate atoms
+    # in the initial state
+    model = problem.init
+    for pred, negpred in negpreds.items():
+        for point in compute_complementary_atoms(model, pred):
+            model.add(negpred, *point)
+
+    return problem
+
+
+def compile_action_negated_preconditions_away(action: Action, negpreds, do_copy=True):
+    """ """
+    action = copy.deepcopy(action) if do_copy else action
+    action.precondition = compile_away_formula_negated_literals(action.precondition, negpreds, do_copy=False)
+    for eff in action.effects:
+        if not isinstance(eff, SingleEffect):
+            raise RepresentationError(f"Cannot compile away negated conditions for effect '{eff}'")
+
+        if not isinstance(eff.condition, Tautology):
+            eff.condition = compile_away_formula_negated_literals(eff.condition, negpreds, do_copy=False)
+
+    return action
+
+
+def compile_away_formula_negated_literals(phi, negpreds, do_copy=True):
+    """ """
+    phi = copy.deepcopy(phi) if do_copy else phi
+    f = flatten(phi)
+    if isinstance(f, Atom):
+        return f
+
+    if is_neg(f):
+        return compile_possibly_negated_literal(f, negpreds)
+
+    if not isinstance(f, CompoundFormula):
+        raise RepresentationError(f"Cannot compile away negated conditions of formula '{phi}'")
+
+    compiled_subformulas = []
+    for sub in f.subformulas:
+        if not is_literal(sub):
+            raise RepresentationError(f"Cannot compile away negated conditions of formula '{phi}'")
+
+        compiled_subformulas.append(compile_possibly_negated_literal(sub, negpreds))
+
+    return land(*compiled_subformulas, flat=True)
+
+
+def compile_possibly_negated_literal(sub, negpreds):
+    """ """
+    if not is_neg(sub):
+        return sub
+
+    atom = sub.subformulas[0]  # This is well-defined because we assume is_literal(sub)
+    pred = atom.predicate
+    negpred = negpreds.get(pred, None)
+    if negpred is None:
+        lang = pred.language
+        negpreds[pred] = negpred = lang.predicate(f"_not_{pred.name}", *pred.sort)
+
+    return negpred(*atom.subterms)
+
+
+def compute_complementary_atoms(model, predicate):
+    """ """
+    extension = model.get_extension(predicate)
+    for binding in compute_signature_bindings(predicate.sort):
+        refd = tuple(symref(x) for x in binding)
+        if refd not in extension:
+            yield binding

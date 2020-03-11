@@ -4,6 +4,7 @@
 import tarski as tsk
 import tarski.model
 from tarski import fstrips as fs
+from tarski.evaluators.simple import evaluate
 from tarski.fstrips import create_fstrips_problem
 from tarski.syntax import forall, equiv, neg, land, exists
 from tarski.theories import Theory
@@ -43,7 +44,8 @@ def generate_small_fstrips_bw_language(nblocks=4):
 def generate_small_fstrips_bw_problem():
     """ Generate a small Functional STRIPS BW problem with a few blocks, types, and one single action"""
     lang = generate_small_fstrips_bw_language(nblocks=4)
-    problem = create_fstrips_problem(domain_name='blocksworld', problem_name='test-instance', language=lang)
+    problem = create_fstrips_problem(domain_name='blocksworld', problem_name='test-instance',
+                                     language=lang, evaluator=evaluate)
     b1, b2, b3, b4, clear, loc, table = lang.get('b1', 'b2', 'b3', 'b4', 'clear', 'loc', 'table')
     problem.goal = (loc(b1) == b2) & (loc(b2) == b3) & (clear(b1))
 
@@ -57,7 +59,7 @@ def generate_small_fstrips_bw_problem():
                             fs.DelEffect(clear(loc(b)), condition=to != table)
     ])
 
-    init = tarski.model.create(lang)
+    init = problem.init
 
     init.set(loc, b1, b2)     # loc(b1) := b2
     init.set(loc, b2, b3)     # loc(b2) := b3
@@ -75,7 +77,7 @@ def generate_small_fstrips_bw_problem():
 def generate_small_strips_bw_problem(use_inequalities=True):
     """ Generate the standard BW encoding, untyped and with 4 action schemas """
     lang = generate_small_strips_bw_language()
-    problem = create_fstrips_problem(domain_name='blocksworld', problem_name='test', language=lang)
+    problem = create_fstrips_problem(domain_name='blocksworld', problem_name='test', language=lang, evaluator=evaluate)
     b1, b2, b3, clear, on, ontable, handempty, holding = \
         lang.get('b1', 'b2', 'b3', 'clear', 'on', 'ontable', 'handempty', 'holding')
     problem.goal = (on(b1, b2)) & (on(b2, b3)) & (clear(b1))
@@ -83,7 +85,7 @@ def generate_small_strips_bw_problem(use_inequalities=True):
     x = lang.variable('x', 'object')
     y = lang.variable('y', 'object')
 
-    init = problem.init = tarski.model.create(lang)
+    init = problem.init
     init.add(clear, b1)
     init.add(clear, b3)
     init.add(on, b1, b2)

@@ -127,6 +127,15 @@ class Model:
 
         return atoms
 
+    def get_extension(self, symbol):
+        """ Return the extension of the given (predicate or function) symbol in the
+         current model. """
+        if isinstance(symbol, Predicate):
+            return self.predicate_extensions.get(symbol.signature, set())
+
+        # else we must have a function
+        return self.function_extensions.get(symbol.signature, ExtensionalFunctionDefinition())
+
     def __getitem__(self, arg):
         if self.evaluator is None:
             raise ModelWithoutEvaluatorError(arg)
