@@ -60,7 +60,7 @@ def main():
         extras_require={
             'dev': ['pytest', 'tox', 'pytest-cov', 'mypy'],
             'test': ['pytest', 'tox', 'pytest-cov', 'mypy'],
-            'doc': ['sphinx', 'recommonmark', 'nbsphinx', 'sphinx_rtd_theme', 'ipykernel', 'ipython'],
+            'docs': ['sphinx', 'recommonmark', 'nbsphinx', 'sphinx_rtd_theme', 'ipykernel', 'ipython'],
             'sdd': [
                 'Cython',
                 'PySDD>=0.2.9',  # This doesn't seem to fully install pysdd.sdd

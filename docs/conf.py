@@ -23,7 +23,6 @@ root = os.path.abspath(os.path.join('..'))
 spec = importlib.util.spec_from_file_location('tsk.version', os.path.join(root, 'src/tarski/version.py'))
 tskversion = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(tskversion)
-print("Version:", tskversion)
 
 
 # -- Project information -----------------------------------------------------
