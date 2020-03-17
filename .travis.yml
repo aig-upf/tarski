@@ -42,14 +42,22 @@ before_install:
   # Install curl for running the codecov script
   - if [[ $TOXENV == pycoverage ]]; then sudo apt-get install -y --no-install-recommends curl; fi
 
-  # Install pandoc for the generation of the documentation
-  - if [[ $TOXENV == docs ]]; then sudo apt-get install -y --no-install-recommends pandoc; fi
 
+# See:
+# - https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/use-conda-with-travis-ci.html
 install:
-  - python -m pip install --upgrade tox pip setuptools wheel
-  - tox --version
-  - if [[ $TOXENV == py* ]]; then ./scripts/get-benchmarks; fi  # Download benchmarks only if necessary
-  - if [[ $TOXENV == py* ]]; then pip install Cython --install-option="--no-cython-compile"; fi  # Preinstall Cython if necessary
+  - if [[ "$TOXENV" == docs ]]; then
+      ./scripts/install-conda
+   else
+    python -m pip install --upgrade tox pip setuptools wheel
+    tox --version
+    if [[ $TOXENV == py* ]]; then ./scripts/get-benchmarks; fi  # Download benchmarks only if necessary
+    if [[ $TOXENV == py* ]]; then pip install Cython --install-option="--no-cython-compile"; fi  # Preinstall Cython if necessary
+   fi
 
 script:
-  - tox -vv
+  - if [[ "$TOXENV" == docs ]]; then
+      ./scripts/build-docs
+    else
+      tox -vv
+    fi
