@@ -1,4 +1,6 @@
+import itertools
 from typing import Generator, Set
+
 from .. import errors as err
 
 
@@ -196,3 +198,11 @@ def attach_arithmetic_sorts(lang):
     real_t = lang.attach_sort(build_the_reals(lang), lang.ns.object)
     int_t = lang.attach_sort(build_the_integers(lang), real_t)
     _ = lang.attach_sort(build_the_naturals(lang), int_t)
+
+
+def compute_signature_bindings(signature):
+    """ Return an exhaustive list of all possible bindings compatible with the given signature, i.e.
+    list of sorts. """
+    domains = [s.domain() for s in signature]
+    for binding in itertools.product(*domains):
+        yield binding

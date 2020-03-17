@@ -1,14 +1,23 @@
 import copy
+from collections import OrderedDict
 from typing import Set, Union, Tuple, Optional
 
+from ..errors import TarskiError
 from .problem import Problem
 from . import fstrips as fs
 from ..syntax import Formula, CompoundTerm, Atom, CompoundFormula, QuantifiedFormula, is_and, is_neg, exists, symref,\
-    VariableBinding, Constant
+    VariableBinding, Constant, Tautology, land
 from ..syntax.ops import collect_unique_nodes, flatten, free_variables, all_variables
+from ..syntax.sorts import compute_signature_bindings
 from ..syntax.util import get_symbols
-from ..fstrips import AddEffect, DelEffect, LiteralEffect, FunctionalEffect, UniversalEffect, BaseEffect
+from ..fstrips import AddEffect, DelEffect, LiteralEffect, FunctionalEffect, UniversalEffect, BaseEffect, SingleEffect
 from .action import Action
+
+
+class RepresentationError(TarskiError):
+    def __init__(self, msg=None):
+        msg = msg or 'Unexpected representation errir'
+        super().__init__(msg)
 
 
 def is_typed_problem(problem: Problem):
@@ -62,7 +71,7 @@ def is_strips_operator(action: Action):
     (1) pre(o) is a conjunction of state variables, and
     (2) eff(o) is a conflict-free conjunction of atomic effects.
     """
-    raise NotImplementedError()
+    return is_conjunction_of_positive_atoms(action.precondition) and is_strips_effect_set(action.effects)
 
 
 def is_strips_problem(problem: Problem):
@@ -70,7 +79,8 @@ def is_strips_problem(problem: Problem):
     A propositional planning task is a STRIPS planning task if all of its operators are STRIPS operators
     its goal is a conjunction of state variables.
     """
-    raise NotImplementedError()
+    return is_conjunction_of_positive_atoms(problem.goal) \
+        and all(is_strips_operator(a) for a in problem.actions.values())
 
 
 def transform_to_strips(what: Union[Problem, Action]):
@@ -80,6 +90,43 @@ def transform_to_strips(what: Union[Problem, Action]):
     elif isinstance(what, Action):
         return transform_operator_to_strips(what)
     raise RuntimeError(f'Unable to transform to positive normal form object {what}')
+
+
+def is_atomic_effect(eff: BaseEffect):
+    """ An effect is atomic if it is a single, unconditional effect. """
+    return isinstance(eff, SingleEffect) and isinstance(eff.condition, Tautology)
+
+
+def is_propositional_effect(eff: BaseEffect):
+    """ An effect is propositional if it is either an add or a delete effect. """
+    return isinstance(eff, (AddEffect, DelEffect))
+
+
+def is_strips_effect_set(effects):
+    """ Return whether the all effects in the given list of effects are propositional, atomic,
+    and there is no two contradictory effect, e.g. in the form of an add-effect and a delete-effect
+    over the same variable. """
+    try:
+        conflicts = compute_effect_set_conflicts(effects)
+    except RepresentationError:
+        return False  # Some effect was not STRIPS
+
+    return len(conflicts) == 0  # If there was some conflict, the effect is not STRIPS
+
+
+def compute_effect_set_conflicts(effects):
+    """ """
+    polarities = dict()
+    conflicts = set()
+    for eff in effects:
+        if not is_atomic_effect(eff) or not is_propositional_effect(eff):
+            raise RepresentationError(f"Don't know how to compute conflicts for effect {eff}")
+        pol = isinstance(eff, AddEffect)  # i.e. polarity will be true if add effect, false otherwise
+        prev = polarities.get(eff.atom, None)
+        if prev is not None and prev != pol:
+            conflicts.add(eff.atom)
+        polarities[eff.atom] = pol
+    return conflicts
 
 
 def transform_problem_to_strips(problem: Problem):
@@ -148,6 +195,15 @@ def is_conjunction_of_literals(phi: Formula):
     f = flatten(phi)
     return isinstance(f, Atom) or \
         (isinstance(f, CompoundFormula) and all(is_literal(sub) for sub in f.subformulas))
+
+
+def is_conjunction_of_positive_atoms(phi: Formula):
+    """
+    Return whether the given formula is a conjunction of literals, i.e. of atoms or negations of atoms.
+    """
+    f = flatten(phi)
+    return isinstance(f, Atom) or \
+        (isinstance(f, CompoundFormula) and all(isinstance(sub, Atom) for sub in f.subformulas))
 
 
 def collect_literals_from_conjunction(phi: Formula) -> Optional[Set[Tuple[Atom, bool]]]:
@@ -332,3 +388,121 @@ def is_constant_cost_action(action):
 
     addend = action.cost.addend
     return isinstance(addend, Constant)
+
+
+def compile_negated_preconditions_away(problem: Problem, inplace=False):
+    """ Compile away negated literals in the problem actions and goal.
+    See docs from `compile_away_formula_negated_literals` for details. """
+    problem = copy.deepcopy(problem) if not inplace else problem
+
+    # First compile the action preconditions away
+    negpreds = dict()
+    newactions = []
+    for aname, action in problem.actions.items():
+        newactions.append((aname, compile_action_negated_preconditions_away(action, negpreds, inplace=True)))
+
+    # Now compile goal away
+    problem.goal = compile_away_formula_negated_literals(problem.goal, negpreds, inplace=True)
+
+    # Now that we know which predicates have been artificially duplicated,
+    # we can add the appropriate effects to update the denotation of those predicates
+    for aname, action in newactions:
+        problem.actions[aname] = update_action_effects_with_negated_counterparts(action, negpreds)
+
+    # Finally, if any negated precondition was created, then insert the appropriate atoms
+    # in the initial state
+    model = problem.init
+    for pred, negpred in negpreds.items():
+        for point in compute_complementary_atoms(model, pred):
+            model.add(negpred, *point)
+
+    return problem
+
+
+def update_action_effects_with_negated_counterparts(action: Action, negpreds):
+    """ """
+    neweffects = []
+    for eff in action.effects:
+        if not is_propositional_effect(eff):
+            raise RepresentationError(f"Don't know how to update negated counterpart atoms for effect {eff}")
+
+        atom = eff.atom
+        negpred = negpreds.get(atom.predicate)
+        if negpred is not None:
+            # Insert the converse type of effect with the converse predicate
+            if isinstance(eff, DelEffect):
+                neweffects.append(AddEffect(negpred(*atom.subterms), eff.condition))
+            else:
+                assert isinstance(eff, AddEffect)
+                neweffects.append(DelEffect(negpred(*atom.subterms), eff.condition))
+
+    action.effects += neweffects
+    return action
+
+
+def compile_action_negated_preconditions_away(action: Action, negpreds, inplace=False):
+    """ Compile away negated literals in the action precondition and effect conditions.
+    See docs from `compile_away_formula_negated_literals` for details. """
+    action = copy.deepcopy(action) if not inplace else action
+    action.precondition = compile_away_formula_negated_literals(action.precondition, negpreds, inplace=True)
+    for eff in action.effects:
+        if not isinstance(eff, SingleEffect):
+            raise RepresentationError(f"Cannot compile away negated conditions for effect '{eff}'")
+
+        if not isinstance(eff.condition, Tautology):
+            eff.condition = compile_away_formula_negated_literals(eff.condition, negpreds, inplace=True)
+
+    return action
+
+
+def compile_away_formula_negated_literals(phi, negpreds, inplace=False):
+    """ Compile away all negated literals in the given formula, which is assumed to be
+    a conjunction of literals, by replacing them by new atoms that use a fresh predicate
+    "not_p" for every literal not p(x). """
+    phi = copy.deepcopy(phi) if not inplace else phi
+    f = flatten(phi)
+    if isinstance(f, Atom):
+        return f
+
+    if is_neg(f):
+        return _compile_possibly_negated_literal(f, negpreds)
+
+    if not isinstance(f, CompoundFormula):
+        raise RepresentationError(f"Cannot compile away negated conditions of formula '{phi}'")
+
+    compiled_subformulas = []
+    for sub in f.subformulas:
+        if not is_literal(sub):
+            raise RepresentationError(f"Cannot compile away negated conditions of formula '{phi}'")
+
+        compiled_subformulas.append(_compile_possibly_negated_literal(sub, negpreds))
+
+    return land(*compiled_subformulas, flat=True)
+
+
+def _compile_possibly_negated_literal(sub, negpreds):
+    """ A helper that processes a given literal; if the literal is of the form not p(x),
+    it generates a replacement positive atom _not_p(x), and registers the new predicate
+    _not_p within the problem language. """
+    if not is_neg(sub):
+        return sub
+
+    atom = sub.subformulas[0]  # This is well-defined because we assume is_literal(sub)
+    pred = atom.predicate
+    if pred.builtin:
+        return sub  # We don't want to compile away negated builtin predicates
+    negpred = negpreds.get(pred, None)
+    if negpred is None:
+        lang = pred.language
+        negpreds[pred] = negpred = lang.predicate(f"_not_{pred.name}", *pred.sort)
+
+    return negpred(*atom.subterms)
+
+
+def compute_complementary_atoms(model, predicate):
+    """ Generate all bindings for the given predicate which are not true in the given model. """
+    extension = model.get_extension(predicate)
+    for binding in compute_signature_bindings(predicate.sort):
+        refd = tuple(symref(x) for x in binding)
+        if refd not in extension:
+            yield binding

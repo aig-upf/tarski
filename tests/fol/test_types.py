@@ -2,8 +2,7 @@ import pytest
 
 import tarski as tsk
 import tarski.errors as err
-from tarski.syntax.sorts import parent, ancestors
-
+from tarski.syntax.sorts import parent, ancestors, compute_signature_bindings
 
 # TODO NOT SURE WE WANT TO DISALLOW EMPTY TYPES. I HAVE TEMPORARILY DISABLED THE CHECK
 # TODO ALSO, WE SHOULDN'T HAVE TO CALL ANY "CHECK WELL FORMED" METHOD EXPLICITLY
@@ -16,6 +15,7 @@ from tarski.syntax.sorts import parent, ancestors
 #     lang.constant('Miquel', s)
 #     lang.check_well_formed()
 from tarski.theories import Theory
+from tests.common import blocksworld
 
 
 def test_object_type():
@@ -148,3 +148,9 @@ def test_interval_types_create_invalid_constant2():
     interval_sort = lang.interval('I', int_t, 0, 10)
     with pytest.raises(ValueError):
         _ = lang.constant(-2, interval_sort)
+
+
+def test_signature_bindings():
+    bw = blocksworld.generate_small_fstrips_bw_language(nblocks=2)
+    bindings = list(compute_signature_bindings([bw.get('block'), bw.get('place')]))
+    assert len(bindings) == 6

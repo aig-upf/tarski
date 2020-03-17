@@ -20,9 +20,6 @@ class Derived:
         self.parameters = parameters
         self.formula = formula
 
-    def __lt__(self, other):
-        return self.name < other.name
-
     def dump(self):
         return dict(name=self.predicate.symbol,
                     params=[par.dump() for par in self.parameters],
@@ -34,6 +31,6 @@ class Derived:
 
     def __str__(self):
         tokens = ['derived {} {}:'.format(self.predicate.symbol,
-                                          ' '.join([str(o) for o in self.parameters])),
-                  'formula=({})'.format(self.precondition)]
+                                          ' '.join(map(str, self.parameters))),
+                  'formula=({})'.format(self.formula)]
         return '\n'.join(tokens)

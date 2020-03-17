@@ -16,12 +16,6 @@ class Action:
     def __lt__(self, other):
         return self.name < other.name
 
-    def dump(self):
-        return dict(name=self.name,
-                    params=[par.dump() for par in self.parameters],
-                    precondition=self.precondition.dump(),
-                    effects=[eff.dump() for eff in self.effects.dump()])
-
     def ident(self):
         paramlist = "{}".format(','.join("{}: {}".format(p.symbol, p.sort.name) for p in self.parameters))
         return f'{self.name}({paramlist})'
@@ -52,7 +46,8 @@ class GroundOperator:
 
 
 class PlainOperator(GroundOperator):
-    """ """
+    """ A ground STRIPS operator possibly extended with negated preconditions
+    and conditional effects. """
     def __init__(self, language, name, precondition, effects):
         super().__init__(language, name)
         self.precondition = flatten(precondition)

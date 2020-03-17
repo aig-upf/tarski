@@ -8,7 +8,7 @@ from .errors import InvalidEffectError
 
 
 class BaseEffect:
-    """ A base class for all possible effects. """
+    """ A base class for all FSTRIPS effects, which might have an (optional) condition. """
     def __init__(self, condition):
         self.condition = condition
 
@@ -27,6 +27,7 @@ class SingleEffect(BaseEffect):
 
 
 class AddEffect(SingleEffect):
+    """ A standard add-effect, possibly with a condition. """
     def __init__(self, atom, condition=top):
         super().__init__(condition)
         self.atom = atom
@@ -36,6 +37,7 @@ class AddEffect(SingleEffect):
 
 
 class DelEffect(SingleEffect):
+    """ A standard delete-effect, possibly with a condition. """
     def __init__(self, atom, condition=top):
         super().__init__(condition)
         self.atom = atom
@@ -54,6 +56,7 @@ class LiteralEffect(SingleEffect):
 
 
 class FunctionalEffect(SingleEffect):
+    """ A functional effect of the form f(t) := g(u), possibly with a condition. """
     def __init__(self, lhs, rhs, condition=top):
         super().__init__(condition)
         self.lhs = lhs
@@ -62,27 +65,25 @@ class FunctionalEffect(SingleEffect):
 
     def check_well_formed(self):
         if not isinstance(self.lhs, CompoundTerm):
-            msg = "Error declaring FunctionalEffect: {}\n Invalid effect expression: \
-            left hand side '{}' needs to be a functional term!".format(self.tostring(), self.lhs)
-            raise InvalidEffectError(self, msg)
+            raise InvalidEffectError(self, f"Error declaring FunctionalEffect {self}: left hand side"
+                                           f" expression '{self.lhs}' needs to be a functional term")
 
         if not isinstance(self.rhs, Term):
-            msg = "Error declaring FunctionalEffect: {}\n Invalid effect expression: \
-            right hand side '{}' needs to be a functional term!".format(self.tostring(), self.rhs)
-            raise InvalidEffectError(self, msg)
+            raise InvalidEffectError(self, f"Error declaring FunctionalEffect {self}: right hand side"
+                                           f" expression '{self.rhs}' needs to be a functional term")
 
     def tostring(self):
-        return "{} := {}".format(self.lhs, self.rhs)
+        return f"{self.lhs} := {self.rhs}"
 
 
 class UniversalEffect(BaseEffect):
-    """ A forall-effect. """
+    """ A forall-effect that represents a number of effects that results from all possible
+    substitutions to the forall-effect variables. """
 
     def __init__(self, variables, effects, condition=top):
         super().__init__(condition)
         self.variables = variables
         self.effects = effects
-        self.condition = condition
 
     def __str__(self):
         effects_str = ', '.join(map(str, self.effects))
