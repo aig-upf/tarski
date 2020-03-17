@@ -1,17 +1,17 @@
 from setuptools import setup, find_packages
 from codecs import open
-from os import path
 import importlib
+import os
 
-here = path.abspath(path.dirname(__file__))
+root = os.path.abspath(os.path.dirname(__file__))
 
 # Get the long description from the README file
-with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+with open(os.path.join(root, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 
-# Load the version from ./src/tarski/version.py
-spec = importlib.util.spec_from_file_location('tsk.version', path.join(here, 'src/tarski/version.py'))
+# Load the version number from ./src/tarski/version.py
+spec = importlib.util.spec_from_file_location('tsk.version', os.path.join(root, 'src/tarski/version.py'))
 version = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(version)
 
