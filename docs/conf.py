@@ -89,6 +89,9 @@ source_suffix = {
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'Recommonmarkdoc'
 
+if os.environ.get('READTHEDOCS') == 'True':
+    nbsphinx_allow_errors = True
+
 
 # app setup hook
 def setup(app):
