@@ -9,7 +9,5 @@ We here cover some topics that are somewhat more advanced than the ones explaine
 .. toctree::
     :maxdepth: 1
 
-    notebooks/first-order-logics.ipynb
-    notebooks/004_advanced_techniques.ipynb
-
-.. notebooks/advanced-features-problem-definition.ipynb
+    notebooks/advanced-problem-definition-techniques.ipynb
+    notebooks/defining-problems-fstrips.ipynb

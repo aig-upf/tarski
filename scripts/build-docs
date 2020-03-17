@@ -6,5 +6,5 @@ BUILD_DIR=`pwd`/docs/_build
 # This could be lifted once we bump up the Ubuntu image used in the travis configuration
 sphinx-build --version
 
-HOME=`pwd` sphinx-build docs ${BUILD_DIR} --color -W -bhtml
+HOME=`pwd` sphinx-build docs ${BUILD_DIR} --color -bhtml
 echo "Docs available on file://${BUILD_DIR}/index.html"

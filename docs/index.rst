@@ -14,12 +14,13 @@ reachability analysis, grounding of first-order representations and problem refo
 
 
 .. toctree::
-    :maxdepth: 1
+    :maxdepth: 2
     :caption: User Documentation
 
     installation.md
     getting-started.rst
     advanced-topics.rst
+    use-cases.rst
     api.rst
     limitations.md
 

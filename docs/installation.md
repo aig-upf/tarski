@@ -32,7 +32,7 @@ a development installation (the`-e` flag for `pip`):
 This will install the project in "editable mode", meaning that any modification
 to the files is immediately reflected in the _installed_ library.
 
-## Installing Extras
+## Installing Extras (Experimental)
 Tarski allows the _optional_ installation of certain extras that will allow you
 to run certain non-essential functionalities of the library. For instance,
 the `tarski.sdd` experimental package allows you to interact with the

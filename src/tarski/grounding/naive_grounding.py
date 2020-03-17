@@ -59,9 +59,6 @@ def create_all_possible_state_variables(fluent_terms):
     variables = IndexDictionary()
 
     for ref in fluent_terms:
-        # @TODO: Work in Progress and we will need to iterate over this a bit
-        # @TODO: Sort fluent symbols according to the number of variable subterms
-        # L = ref.language
         instantiations = []
         for st in ref.expr.subterms:
             if isinstance(st, Constant):

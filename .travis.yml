@@ -10,15 +10,15 @@ env:
 matrix:
   include:
     # Run the pylint linter with Python 3.6
-    - python: 3.6
+    - python: 3.7
       env: TOXENV=pylint
 
     # Test documentation building only with Python 3.6
-    - python: 3.6
+    - python: 3.7
       env: TOXENV=docs
 
     # Test the building of the ANTLR grammars only with Python 3.6
-    - python: 3.6
+    - python: 3.7
       env: TOXENV=antlrgrammars
 
     # Run the standard pytest tests with different python versions
