@@ -19,7 +19,7 @@ from recommonmark.transform import AutoStructify
 sys.path.insert(0, os.path.abspath(os.path.join('..', 'src')))
 
 # Load the version number from ../src/tarski/version.py
-root = os.path.abspath(os.path.join('..', (os.path.dirname(__file__))))
+root = os.path.abspath(os.path.join('..'))
 spec = importlib.util.spec_from_file_location('tsk.version', os.path.join(root, 'src/tarski/version.py'))
 tskversion = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(tskversion)
