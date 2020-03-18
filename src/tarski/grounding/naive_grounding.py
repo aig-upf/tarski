@@ -119,7 +119,7 @@ class NaiveGroundingStrategy:
             self.static_symbols = {s for s in self.static_symbols if s.name not in ignore_symbols}
 
     def ground_state_variables(self):
-        """ Create an index all state variables of the problem by exhaustively grounding all predicate and function
+        """ Create and index all state variables of the problem by exhaustively grounding all predicate and function
         symbols that are considered to be fluent with respect to the problem constants. Thus, if the problem has one
         fluent predicate "p" and one static predicate "q", and constants "a", "b", "c", the result of this operation
         will be the state variables "p(a)", "p(b)" and "p(c)".
@@ -127,8 +127,13 @@ class NaiveGroundingStrategy:
         return ground_symbols_exhaustively(self.fluent_symbols)
 
     def ground_actions(self):
-        """ """
-        raise NotImplementedError()
+        """  Return a dictionary mapping each action schema of the problem to the set of parameter groundings that
+        make that schema a reachable ground action. """
+        groundings = dict()
+        for aname, action in self.problem.actions.items():
+            domains = [p.sort.domain() for p in action.parameters]
+            groundings[aname] = list(itertools.product(*domains))
+        return groundings
 
     def __str__(self):
         return 'NaiveGroundingStrategy["{}"]'.format(self.problem.name)

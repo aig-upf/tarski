@@ -25,7 +25,7 @@ class LPGroundingStrategy:
         self.fluent_symbols, self.static_symbols = approximate_symbol_fluency(problem)
 
     def ground_state_variables(self):
-        """ Create an index all state variables of the problem by exhaustively grounding all predicate and function
+        """ Create and index all state variables of the problem by exhaustively grounding all predicate and function
         symbols that are considered to be fluent with respect to the problem constants. Thus, if the problem has one
         fluent predicate "p" and one static predicate "q", and constants "a", "b", "c", the result of this operation
         will be the state variables "p(a)", "p(b)" and "p(c)".
