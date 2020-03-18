@@ -1,5 +1,4 @@
 import copy
-from collections import OrderedDict
 from typing import Set, Union, Tuple, Optional
 
 from ..errors import TarskiError

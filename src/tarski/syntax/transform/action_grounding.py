@@ -53,5 +53,6 @@ def ground_schema_into_plain_operator_from_grounding(action: Action, grounding):
     """ A wrapper to ground an schema from a "plain" grounding, i.e. a list of objects
     that correspond to the action parameters"""
     lang = action.language
-    subst = create_substitution(action.parameters, [lang.get_constant(name) for name in grounding])
+    binding = [lang.get_constant(name) if isinstance(name, str) else name for name in grounding]
+    subst = create_substitution(action.parameters, binding)
     return ground_schema_into_plain_operator(action, subst)

@@ -1,4 +1,4 @@
-
+from ..errors import TarskiError
 from ..syntax import Predicate, Function, Constant, termlists_are_equal, termlist_hash
 
 
@@ -15,8 +15,8 @@ class StateVariableLite:
     """
 
     def __init__(self, symbol, binding):
-        assert isinstance(symbol, (Predicate, Function))
-        assert all(isinstance(c, Constant) for c in binding)
+        if not isinstance(symbol, (Predicate, Function)) or not all(isinstance(c, Constant) for c in binding):
+            raise TarskiError(f"Cannot build state variable from {symbol} and {binding}")
         self.symbol = symbol
         self.binding = binding
 

@@ -52,16 +52,7 @@ class PlainOperator(GroundOperator):
         super().__init__(language, name)
         self.precondition = flatten(precondition)
         self.effects = effects
-        self.validate(self)
-
-    @staticmethod
-    def validate(op):
-        from .representation import is_conjunction_of_literals, is_ground
-        if not is_conjunction_of_literals(op.precondition) or not is_ground(op.precondition):
-            raise TypeError(f'The precondition of a PlainOperator must be a conjunction of ground literals')
-
-        if any(not isinstance(e, (AddEffect, DelEffect)) for e in op.effects):
-            raise TypeError(f'The effect list of a PlainOperator can only contain plain add and delete effects')
+        # self.validate(self)
 
 
 class AdditiveActionCost(object):
