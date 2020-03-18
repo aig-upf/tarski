@@ -89,6 +89,8 @@ source_suffix = {
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'Recommonmarkdoc'
 
+# TODO: Remove this once we discover how to install or mock Gringo in the
+#       Readthedocs servers.
 if os.environ.get('READTHEDOCS') == 'True':
     nbsphinx_allow_errors = True
 
