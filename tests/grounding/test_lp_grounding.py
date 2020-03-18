@@ -18,15 +18,15 @@ if shutil.which("gringo") is None:
 
 
 SAMPLE_STRIPS_INSTANCES = [
-    # "organic-synthesis-opt18-strips:p01.pddl",
-    # "blocks:probBLOCKS-4-1.pddl",
-    # "openstacks:p01.pddl",
-    # "visitall-sat11-strips:problem12.pddl",
-    # "parcprinter-08-strips:p01.pddl",
-    # "floortile-opt11-strips:opt-p01-001.pddl",
-    # "pipesworld-notankage:p01-net1-b6-g2.pddl",
-    # "pipesworld-tankage:p01-net1-b6-g2-t50.pddl",
-    # "pathways:p01.pddl",
+    "organic-synthesis-opt18-strips:p01.pddl",
+    "blocks:probBLOCKS-4-1.pddl",
+    "openstacks:p01.pddl",
+    "visitall-sat11-strips:problem12.pddl",
+    "parcprinter-08-strips:p01.pddl",
+    "floortile-opt11-strips:opt-p01-001.pddl",
+    "pipesworld-notankage:p01-net1-b6-g2.pddl",
+    "pipesworld-tankage:p01-net1-b6-g2-t50.pddl",
+    "pathways:p01.pddl",
     "ged-opt14-strips:d-1-2.pddl",
 
     # Buggy domains that will raise some parsing exception:
