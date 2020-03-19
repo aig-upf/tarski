@@ -33,7 +33,7 @@ class FirstOrderLanguage:
                                     Predicate: self._predicates}
 
         self.language_components_frozen = False
-        self.theories = []
+        self.theories = set()
 
         self._attach_object_sort()
 

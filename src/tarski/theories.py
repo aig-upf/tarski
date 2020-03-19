@@ -59,7 +59,12 @@ def load_theory(lang, theory: Union[Theory, str]):
         attach_arithmetic_sorts(lang)
 
     loader(lang)
-    lang.theories.append(th)
+    lang.theories.add(th)
+
+
+def has_theory(lang, theory: Union[Theory, str]):
+    th = Theory(theory) if isinstance(theory, str) else theory  # Make sure we have a valid theory object
+    return th in lang.theories
 
 
 def load_equality_theory(lang):
