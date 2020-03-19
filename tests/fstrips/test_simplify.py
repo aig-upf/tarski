@@ -1,6 +1,6 @@
 from tarski.benchmarks.counters import generate_fstrips_counters_problem
 from tarski.fstrips import UniversalEffect
-from tarski.fstrips.manipulation.simplify import Simplify
+from tarski.fstrips.manipulation import Simplify
 from tarski.syntax import symref, land, lor, neg, bot, top, forall
 from tests.common import blocksworld
 
