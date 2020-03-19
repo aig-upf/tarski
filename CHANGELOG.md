@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 ### Added
+  - Added methods to simplify problems, actions, logical expressions based on evaluation
+  of static atoms and terms.
   - Added method to compile away negated literals in action preconditions, action effect conditions
   and goal, using the standard mechanism of creating additional predicates.
   - Almost all benchmarks from the IPC competitions 2008, 2011, 2014, 2018 are now correctly parsed by Tarski.
