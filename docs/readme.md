@@ -8,8 +8,11 @@ on every push to the main branches of the repo. The main docs are served under
 under <https://tarski.readthedocs.io/en/devel/>.
 
 Readthedocs thus parses the whole `docs` directory and generated the documentation through the
-[Sphinx](https://www.sphinx-doc.org/en/master/) generator.
-The file `conf.py` contains our specific Sphinx setup, which includes, among others,
+[Sphinx](https://www.sphinx-doc.org/en/master/) generator. If you need to fine-tune some readthedocs options
+through their web interface, you'll need to create a user at <https://readthedocs.org/> and ask Guillem
+to add you to the list of people with "maintainer" rights.
+ 
+In any case, the file `conf.py` contains our specific Sphinx setup, which includes, among others,
 instructions to load plugins that enable the parsing and rendering of markdown and even the execution
 of Jupyter notebooks.
 
@@ -27,4 +30,7 @@ And then you should be able to bootstrap Sphinx by running from the `docs` direc
     
 The generated docs are left in `_build/html/index.html`
     
+    
+## Some useful links
+
 * `.readthedocs.yml` [configuration file](https://docs.readthedocs.io/en/stable/config-file/v2.html). 
