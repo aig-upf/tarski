@@ -1,5 +1,6 @@
 import pytest
 
+import tarski.benchmarks.blocksworld
 from tarski.fstrips.representation import is_quantifier_free
 from tarski.syntax import *
 from tests.common import blocksworld
@@ -14,7 +15,7 @@ from tarski.syntax.transform.errors import TransformationError
 
 
 def test_nnf_conjunction():
-    bw = blocksworld.generate_small_fstrips_bw_language()
+    bw = tarski.benchmarks.blocksworld.generate_fstrips_bw_language()
     _ = bw.get_sort('block')
     _ = bw.get_sort('place')
     loc = bw.get_function('loc')
@@ -30,7 +31,7 @@ def test_nnf_conjunction():
 
 
 def test_nnf_double_negation():
-    bw = blocksworld.generate_small_fstrips_bw_language()
+    bw = tarski.benchmarks.blocksworld.generate_fstrips_bw_language()
     _ = bw.get_sort('block')
     _ = bw.get_sort('place')
     loc = bw.get_function('loc')
@@ -46,7 +47,7 @@ def test_nnf_double_negation():
 
 
 def test_nnf_quantifier_flips():
-    bw = blocksworld.generate_small_fstrips_bw_language()
+    bw = tarski.benchmarks.blocksworld.generate_fstrips_bw_language()
     block = bw.get_sort('block')
     loc = bw.get_function('loc')
     b1, b2, b3, b4 = [bw.get_constant('b{}'.format(k)) for k in range(1, 5)]
@@ -71,7 +72,7 @@ def test_nnf_lpl_page_321_antecedent():
 
 
 def test_prenex_idempotency():
-    bw = blocksworld.generate_small_fstrips_bw_language()
+    bw = tarski.benchmarks.blocksworld.generate_fstrips_bw_language()
     loc = bw.get_function('loc')
     b1, b2, b3, b4 = [bw.get_constant('b{}'.format(k)) for k in range(1, 5)]
 
@@ -155,7 +156,7 @@ def test_existential_elimination2():
 
 
 def test_builtin_negation_absorption():
-    bw = blocksworld.generate_small_fstrips_bw_language()
+    bw = tarski.benchmarks.blocksworld.generate_fstrips_bw_language()
     block = bw.get_sort('block')
     _ = bw.get_sort('place')
     loc = bw.get_function('loc')

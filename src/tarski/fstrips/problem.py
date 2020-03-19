@@ -103,5 +103,9 @@ def create_fstrips_problem(language, problem_name=None, domain_name=None, evalua
     domain_name = domain_name or "Unnamed FSTRIPS domain"
     problem = Problem(problem_name=problem_name, domain_name=domain_name)
     problem.language = language
+
+    if evaluator is None:
+        from tarski.evaluators.simple import evaluate as evaluator
+
     problem.init = model.create(language, evaluator)
     return problem

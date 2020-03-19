@@ -1,7 +1,6 @@
 """
     Generate FSTRIPS Counters languages and problems
 """
-from tarski.evaluators.simple import evaluate
 from ..fstrips import create_fstrips_problem, language
 from ..syntax import land
 from ..theories import Theory
@@ -30,8 +29,7 @@ def generate_fstrips_counters_problem(ncounters=3, upper_bound=None):
     upper_bound = ncounters * 2 if upper_bound is None else upper_bound
     lang = generate_fstrips_counters_language(ncounters=ncounters, upper_bound=upper_bound)
 
-    problem = create_fstrips_problem(domain_name=BASE_DOMAIN_NAME, problem_name='test-instance',
-                                     language=lang, evaluator=evaluate)
+    problem = create_fstrips_problem(lang, domain_name=BASE_DOMAIN_NAME, problem_name='test-instance')
     counters = sorted(lang.ns.counter.domain(), key=lambda x: x.symbol)
 
     value = lang.get_function('value')

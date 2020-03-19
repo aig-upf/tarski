@@ -1,3 +1,4 @@
+import tarski.benchmarks.blocksworld
 from tarski.benchmarks.counters import generate_fstrips_counters_problem
 from tarski.fstrips import UniversalEffect
 from tarski.fstrips.manipulation import Simplify
@@ -45,7 +46,7 @@ def test_replacement_of_static_terms_by_constants():
 
 
 def test_simplification_of_negation():
-    problem = blocksworld.generate_small_strips_bw_problem()
+    problem = tarski.benchmarks.blocksworld.generate_strips_blocksworld_problem()
     lang = problem.language
     b1, clear, on, ontable, handempty, holding = lang.get('b1', 'clear', 'on', 'ontable', 'handempty', 'holding')
 

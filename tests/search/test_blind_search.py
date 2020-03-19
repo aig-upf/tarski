@@ -1,13 +1,12 @@
 """
  Tests for the Search module
 """
+from tarski.benchmarks.blocksworld import generate_fstrips_blocksworld_problem
 from tarski.search import ForwardSearchModel, BreadthFirstSearch
-
-from ..common import blocksworld
 
 
 def test_forward_search_model():
-    problem = blocksworld.generate_small_fstrips_bw_problem()
+    problem = generate_fstrips_blocksworld_problem()
     model = ForwardSearchModel(problem)
     assert model.init() == problem.init
 
@@ -15,7 +14,7 @@ def test_forward_search_model():
 
 
 def test_basic_search():
-    problem = blocksworld.create_small_bw_task()
+    problem = generate_fstrips_blocksworld_problem()
     lang = problem.language
 
     model = ForwardSearchModel(problem)

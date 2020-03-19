@@ -1,5 +1,4 @@
-
-
+from tarski.benchmarks.blocksworld import generate_fstrips_blocksworld_problem, generate_strips_blocksworld_problem
 from tarski.grounding import ProblemGrounding, NaiveGroundingStrategy, create_all_possible_state_variables
 from tarski.grounding.naive import instantiation
 from tarski.util import IndexDictionary
@@ -12,8 +11,7 @@ from tarski.grounding.naive.reactions import ReactionGrounder
 
 from ..fstrips.contingent import localize
 from ..fstrips.hybrid.tasks import create_particles_world, create_billiards_world
-from tests.common.blocksworld import create_4blocks_task, generate_small_strips_bw_problem, \
-    generate_small_fstrips_bw_problem
+from tests.common.blocksworld import create_4blocks_task
 from tests.common import parcprinter
 
 
@@ -131,7 +129,7 @@ def test_problem_grounding_on_parcprinter():
 
 def test_problem_grounding_on_bw():
     # Test some grounding routines on a STRIPS blocksworld
-    problem = generate_small_strips_bw_problem()
+    problem = generate_strips_blocksworld_problem()
     grounding = NaiveGroundingStrategy(problem)
     assert as_list1(grounding.static_symbols) == []
     assert as_list1(grounding.fluent_symbols) == ['clear', 'handempty', 'holding', 'on', 'ontable']
@@ -144,7 +142,7 @@ def test_problem_grounding_on_bw():
     assert all(len(groundings) == expected[schema] for schema, groundings in actions.items())
 
     # Test some grounding routines on a (typed) Functional STRIPS blocksworld
-    problem = generate_small_fstrips_bw_problem()
+    problem = generate_fstrips_blocksworld_problem()
     grounding = NaiveGroundingStrategy(problem)
     assert as_list1(grounding.static_symbols) == []
     assert as_list1(grounding.fluent_symbols) == ['clear', 'loc']

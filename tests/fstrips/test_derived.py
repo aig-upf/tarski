@@ -1,4 +1,4 @@
-
+import tarski.benchmarks.blocksworld
 from tarski import fstrips as fs
 from tarski.syntax import *
 
@@ -6,7 +6,7 @@ from ..common import blocksworld
 
 
 def test_derived_creation():
-    lang = blocksworld.generate_small_fstrips_bw_language()
+    lang = tarski.benchmarks.blocksworld.generate_fstrips_bw_language()
 
     b1 = lang.variable('b1', 'block')
     b2 = lang.variable('b2', 'block')

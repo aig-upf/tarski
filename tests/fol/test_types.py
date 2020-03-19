@@ -1,6 +1,7 @@
 import pytest
 
 import tarski as tsk
+import tarski.benchmarks.blocksworld
 import tarski.errors as err
 from tarski.syntax.sorts import parent, ancestors, compute_signature_bindings
 
@@ -151,6 +152,6 @@ def test_interval_types_create_invalid_constant2():
 
 
 def test_signature_bindings():
-    bw = blocksworld.generate_small_fstrips_bw_language(nblocks=2)
+    bw = tarski.benchmarks.blocksworld.generate_fstrips_bw_language(nblocks=2)
     bindings = list(compute_signature_bindings([bw.get('block'), bw.get('place')]))
     assert len(bindings) == 6

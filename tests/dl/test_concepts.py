@@ -2,6 +2,8 @@
  Tests for the Description Logic module
 """
 import pytest
+
+import tarski.benchmarks.blocksworld
 from tarski.dl import SyntacticFactory, PrimitiveRole, PrimitiveConcept, NominalConcept, StarRole, InverseRole, \
     ArityDLMismatch
 from ..common import blocksworld
@@ -49,7 +51,7 @@ def test_basic_concept_creation():
 
 
 def get_bw_language():
-    language = blocksworld.generate_small_strips_bw_language()
+    language = tarski.benchmarks.blocksworld.generate_strips_bw_language()
     # model = Model(lang)
     factory = SyntacticFactory(language)
     return language, factory

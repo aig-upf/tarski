@@ -7,14 +7,13 @@ except ImportError:
     import pytest
     pytest.skip('Please install the "sdd" extra to run the full suite of tests', allow_module_level=True)
 
-
-from ..common.blocksworld import generate_small_strips_bw_problem
+from tarski.benchmarks.blocksworld import generate_strips_blocksworld_problem
 from ..common.gripper import create_sample_problem
 from ..io.common import get_benchmark_dir_if_exists, add_domains_from, reader
 
 
 def test_bw_sdd():
-    problem = generate_small_strips_bw_problem()
+    problem = generate_strips_blocksworld_problem()
     _ = process_problem(problem)
 
 

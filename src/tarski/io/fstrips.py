@@ -41,9 +41,6 @@ class FstripsReader:
             load_theory(lang, Theory.ARITHMETIC)
             create_number_type(lang)
 
-        if evaluator is None:
-            from tarski.evaluators.simple import evaluate as evaluator
-
         self.problem = create_fstrips_problem(language=lang, evaluator=evaluator)
         self.parser = FStripsParser(self.problem, raise_on_error, case_insensitive)
 

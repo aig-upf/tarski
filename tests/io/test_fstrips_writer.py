@@ -2,6 +2,7 @@ import tempfile
 from typing import Optional, List
 
 import tarski.fstrips as fs
+from tarski.benchmarks.blocksworld import generate_fstrips_blocksworld_problem
 from tarski.benchmarks.counters import get_counters_elements, generate_fstrips_counters_problem
 from tarski.fstrips import AddEffect, DelEffect, FunctionalEffect, UniversalEffect
 from tarski.io import FstripsWriter
@@ -10,7 +11,6 @@ from tarski.io.fstrips import print_effects, print_effect, print_objects, print_
 from tarski.syntax import forall, exists, Constant
 from tarski.theories import Theory
 
-from tests.common.blocksworld import generate_small_fstrips_bw_problem
 from tests.common import parcprinter
 from tests.io.common import reader
 from ..common.gridworld import generate_small_gridworld
@@ -27,7 +27,7 @@ def write_problem(problem, domain_constants: Optional[List[Constant]] = None):
 
 
 def get_bw_elements():
-    problem = generate_small_fstrips_bw_problem()
+    problem = generate_fstrips_blocksworld_problem()
     loc, clear, b1, table = problem.language.get("loc", "clear", "b1", "table")
     return problem, loc, clear, b1, table
 
