@@ -127,7 +127,7 @@ def compute_sort_id_assignment(lang):
 
 def _compute_id_assignment(lang, sort, ids, bounds, direct_objects, start):
     lb = start
-    for c in children(sort):
+    for c in sorted(children(sort), key=lambda x: x.name):
         if isinstance(c, Interval):
             continue  # Don't assign IDs to interval, which already have their natural integer interpretation
         cub = lb + len(list(c.domain()))
@@ -135,7 +135,7 @@ def _compute_id_assignment(lang, sort, ids, bounds, direct_objects, start):
         lb = cub
 
     # Now assign ids to the objects that are directly assigned to sort `current`
-    for o in direct_objects[sort]:
+    for o in sorted(direct_objects[sort], key=lambda x: x.name):
         ids[symref(o)] = lb
         lb += 1
 

@@ -123,6 +123,8 @@ def generate_fstrips_blocksworld_problem(nblocks=4, init="random", goal="random"
     if init == 'random':
         clearplaces, locations = generate_random_bw_pattern(lang)
     else:
+        if len(init) != nblocks:
+            raise ValueError(f"Blocksworld configuration ({init}) does not match given number of blocks ({nblocks})")
         locations = init
         clearplaces = compute_clear_from_pattern(lang, locations)
 
@@ -135,6 +137,8 @@ def generate_fstrips_blocksworld_problem(nblocks=4, init="random", goal="random"
     if goal == 'random':
         clearplaces, locations = generate_random_bw_pattern(lang)
     else:
+        if len(goal) != nblocks:
+            raise ValueError(f"Blocksworld configuration ({goal}) does not match given number of blocks ({nblocks})")
         locations = goal
 
     problem.goal = land(*(loc(lang.get(x)) == lang.get(y) for x, y in locations), flat=True)
