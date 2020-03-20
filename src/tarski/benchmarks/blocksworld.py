@@ -49,7 +49,6 @@ def generate_strips_blocksworld_problem(nblocks=4, init="random", goal="random",
     """ Generate the standard BW encoding, untyped and with 4 action schemas """
     lang = generate_strips_bw_language(nblocks=nblocks)
     problem = create_fstrips_problem(lang, domain_name='blocksworld', problem_name='test-instance')
-    init = problem.init
 
     clear, on, ontable, handempty, holding = lang.get('clear', 'on', 'ontable', 'handempty', 'holding')
 
@@ -57,13 +56,13 @@ def generate_strips_blocksworld_problem(nblocks=4, init="random", goal="random",
     clearplaces, locations = generate_random_bw_pattern(lang)
     for x, y in locations:
         if y == 'table':
-            init.add(ontable, lang.get(x))
+            problem.init.add(ontable, lang.get(x))
         else:
-            init.add(on, lang.get(x), lang.get(y))
+            problem.init.add(on, lang.get(x), lang.get(y))
     for x in clearplaces:
         if x != 'table':
-            init.add(clear, lang.get(x))
-    init.add(handempty)
+            problem.init.add(clear, lang.get(x))
+    problem.init.add(handempty)
 
     # Generate goal pattern
     _, locations = generate_random_bw_pattern(lang)
@@ -117,19 +116,27 @@ def generate_strips_blocksworld_problem(nblocks=4, init="random", goal="random",
 def generate_fstrips_blocksworld_problem(nblocks=4, init="random", goal="random"):
     lang = generate_fstrips_bw_language(nblocks=nblocks)
     problem = create_fstrips_problem(lang, domain_name=BASE_DOMAIN_NAME, problem_name='test-instance')
-    init = problem.init
 
     block, place, clear, loc, table = lang.get('block', 'place', 'clear', 'loc', 'table')
 
     # Generate init pattern
-    clearplaces, locations = generate_random_bw_pattern(lang)
+    if init == 'random':
+        clearplaces, locations = generate_random_bw_pattern(lang)
+    else:
+        locations = init
+        clearplaces = compute_clear_from_pattern(lang, locations)
+
     for x, y in locations:
-        init.setx(loc(lang.get(x)), lang.get(y))
+        problem.init.setx(loc(lang.get(x)), lang.get(y))
     for x in clearplaces:
-        init.add(clear, lang.get(x))
+        problem.init.add(clear, lang.get(x))
 
     # Generate goal pattern
-    _, locations = generate_random_bw_pattern(lang)
+    if goal == 'random':
+        clearplaces, locations = generate_random_bw_pattern(lang)
+    else:
+        locations = goal
+
     problem.goal = land(*(loc(lang.get(x)) == lang.get(y) for x, y in locations), flat=True)
 
     # Generate move action: move x to y
@@ -161,3 +168,11 @@ def generate_random_bw_pattern(lang):
             clearplaces.remove(target)  # target is no longer clear!
         clearplaces.add(b)
     return clearplaces, pattern
+
+
+def compute_clear_from_pattern(lang, locations):
+    unclear = {y for x, y in locations}
+    clearplaces = {x.name for x in lang.constants() if x.name not in unclear}
+    clearplaces.add('table')  # Table is always clear!
+    return clearplaces
+

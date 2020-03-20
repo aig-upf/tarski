@@ -19,3 +19,15 @@ def test_blocksworld():
 
     problem = generate_fstrips_blocksworld_problem(nblocks=5)
     assert problem
+
+    # Now let's test the generator with given, fixed configurations:
+    problem = generate_fstrips_blocksworld_problem(
+        nblocks=4,
+        init=[('b1', 'b2'), ('b2', 'table'), ('b3', 'b4'), ('b4', 'table')],
+        goal=[('b2', 'b3'), ('b3', 'b4'), ('b4', 'b1'), ('b1', 'table')]
+    )
+    lang = problem.language
+    loc, b1, b2, table = lang.get('loc', 'b1', 'b2', 'table')
+
+    assert problem.init[loc(b1) == b2] and problem.init[loc(b2) == table]
+    assert is_and(problem.goal) and problem.goal.subformulas[-1] == (loc(b1) == table)
