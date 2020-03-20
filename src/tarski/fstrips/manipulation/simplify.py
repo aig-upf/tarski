@@ -37,15 +37,26 @@ class Simplify:
         """ Simplify the whole problem """
         problem = self.problem if inplace else copy.deepcopy(self.problem)
         problem.goal = self.simplify_expression(problem.goal, inplace=True)
-        for a in problem.actions.values():
-            self.simplify_action(a, inplace=True)
+
+        for aname, a in list(problem.actions.items()):
+            res = self.simplify_action(a, inplace=True)
+            if res is None:
+                del problem.actions[aname]
 
         return problem
 
     def simplify_action(self, action, inplace=False):
         simple = action if inplace else copy.deepcopy(action)
         simple.precondition = self.simplify_expression(simple.precondition, inplace=True)
-        simple.effects = [self.simplify_effect(eff, inplace=True) for eff in simple.effects]
+        if simple.precondition in (False, Contradiction):
+            return None
+
+        # Filter out those effects that are None, e.g. because they are not applicable:
+        simple.effects = list(filter(None.__ne__, (self.simplify_effect(eff, inplace=True) for eff in simple.effects)))
+
+        if not simple.effects:  # If not effects remain, the action is useless
+            return None
+
         return simple
 
     def simplify_expression(self, node, inplace=True):
@@ -112,18 +123,22 @@ class Simplify:
 
         if isinstance(effect, (AddEffect, DelEffect)):
             effect.condition = bool_to_expr(self.simplify_expression(effect.condition))
+            if isinstance(effect.condition, Contradiction):
+                return None
             effect.atom = self.simplify_expression(effect.atom)
             return effect
 
         if isinstance(effect, FunctionalEffect):
             effect.condition = bool_to_expr(self.simplify_expression(effect.condition))
+            if isinstance(effect.condition, Contradiction):
+                return None
             effect.lhs = self.simplify_expression(effect.lhs)
             effect.rhs = self.simplify_expression(effect.rhs)
             return effect
 
         if isinstance(effect, UniversalEffect):
-            # Go recursively to the universally quantified effects
-            effect.effects = [self.simplify_effect(eff) for eff in effect.effects]
+            # Go recursively to the universally quantified effects, filter those that are inapplicable
+            effect.effects = list(filter(None.__ne__, (self.simplify_effect(eff) for eff in effect.effects)))
             return effect
 
         raise RuntimeError(f'Effect "{effect}" of type "{type(effect)}" cannot be analysed')
