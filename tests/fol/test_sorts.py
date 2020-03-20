@@ -3,7 +3,10 @@ import pytest
 import tarski as tsk
 import tarski.benchmarks.blocksworld
 import tarski.errors as err
-from tarski.syntax.sorts import parent, ancestors, compute_signature_bindings
+from tarski.benchmarks.counters import generate_fstrips_counters_problem
+from tarski.syntax import symref
+from tarski.syntax.ops import compute_sort_id_assignment
+from tarski.syntax.sorts import parent, ancestors, compute_signature_bindings, compute_direct_sort_map
 
 # TODO NOT SURE WE WANT TO DISALLOW EMPTY TYPES. I HAVE TEMPORARILY DISABLED THE CHECK
 # TODO ALSO, WE SHOULDN'T HAVE TO CALL ANY "CHECK WELL FORMED" METHOD EXPLICITLY
@@ -155,3 +158,47 @@ def test_signature_bindings():
     bw = tarski.benchmarks.blocksworld.generate_fstrips_bw_language(nblocks=2)
     bindings = list(compute_signature_bindings([bw.get('block'), bw.get('place')]))
     assert len(bindings) == 6
+
+
+def test_sort_id_assignment():
+    lang = tsk.fstrips.language(theories=[])
+
+    # Create some sort hierarchy
+    lang.sort("s1", "object")
+    lang.sort("s2", "object")
+    lang.sort("t1", "s2")
+    lang.sort("t2", "s2")
+
+    # Create some objects in a sequence that alternates types
+    lang.constant("a1", "s1")
+    lang.constant("o1", "object")
+    lang.constant("a2", "s1")
+    lang.constant("b3", "t1")
+    lang.constant("a3", "s1")
+    lang.constant("o2", "object")
+    lang.constant("b1", "s2")
+    lang.constant("b2", "t1")
+    lang.constant("b4", "s2")
+
+    sortmap = compute_direct_sort_map(lang)
+    cards = {s.name: len(objs) for s, objs in sortmap.items()}
+    assert cards == {'object': 2, 's1': 3, 's2': 2, 't1': 2, 't2': 0}
+    bounds, ids = compute_sort_id_assignment(lang)
+
+    assert bounds[lang.Object] == (0, 9)
+    assert {ids[symref(lang.get('o1'))], ids[symref(lang.get('o2'))]} == {7, 8}
+    # Note that the following relies on dict (the dict of sort parents) iterating over its elements in insertion sort.
+    # see https://stackoverflow.com/a/39980744
+    assert {ids[symref(lang.get('a1'))], ids[symref(lang.get('a2'))], ids[symref(lang.get('a3'))]} == {0, 1, 2}
+
+
+def test_sort_id_assignment_on_lang_with_intervals():
+    problem = generate_fstrips_counters_problem(ncounters=6)
+    lang = problem.language
+
+    sortmap = compute_direct_sort_map(lang)
+    cards = {s.name: len(objs) for s, objs in sortmap.items()}
+    assert cards == {'object': 0, 'counter': 6}  # Make sure 'object' doesn't include integer constants
+    bounds, ids = compute_sort_id_assignment(lang)
+
+    assert bounds[lang.Object] == bounds[lang.get('counter')] == (0, 6)

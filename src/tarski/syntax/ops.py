@@ -2,6 +2,7 @@ import itertools
 
 import numpy as np
 
+from .sorts import children, compute_direct_sort_map, Interval
 from .visitors import CollectFreeVariables
 from .terms import Term, Constant, Variable, CompoundTerm, IfThenElse
 from .formulas import CompoundFormula, Connective, QuantifiedFormula, Atom, Tautology, Contradiction
@@ -107,3 +108,36 @@ def _collect_unique_nodes_rec(node, nodes, filter_):
     # Fallback
     else:
         raise RuntimeError(f'Unexpected type "{type(node)}" for expression "{node}"')
+
+
+def compute_sort_id_assignment(lang):
+    """ An experimental method to compute ID layouts for all the constants of a language, so that all
+    sorts get assigned a closed interval.
+
+    The method performs a DFS traversal of the sort hierarchy and assigns consecutive IDs to each object,
+    from bottom up. It returns a tuple (bounds, ids).
+    `ids` returns a map between objects and numerical ids, starting at 0.
+    `bounds` maps each sort to an interval [x, y) of the IDs assigned to the objects of that sort
+    (including objects of child sorts), so that any such object o has an id x <= ids[o] < y.
+    """
+    bounds, ids = {}, {}
+    _compute_id_assignment(lang, lang.Object, ids, bounds, compute_direct_sort_map(lang), start=0)
+    return bounds, ids
+
+
+def _compute_id_assignment(lang, sort, ids, bounds, direct_objects, start):
+    lb = start
+    for c in children(sort):
+        if isinstance(c, Interval):
+            continue  # Don't assign IDs to interval, which already have their natural integer interpretation
+        cub = lb + len(list(c.domain()))
+        _compute_id_assignment(lang, c, ids, bounds, direct_objects, start=lb)
+        lb = cub
+
+    # Now assign ids to the objects that are directly assigned to sort `current`
+    for o in direct_objects[sort]:
+        ids[symref(o)] = lb
+        lb += 1
+
+    # Finally set the whole bounds for this sort
+    bounds[sort] = (start, lb)

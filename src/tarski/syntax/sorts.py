@@ -206,3 +206,11 @@ def compute_signature_bindings(signature):
     domains = [s.domain() for s in signature]
     for binding in itertools.product(*domains):
         yield binding
+
+
+def compute_direct_sort_map(lang):
+    """ Return a map from each sort s to a list of the objects that have s as their direct sort
+     (i.e. ignoring parent sorts). """
+    res = {s: [] for s in lang.sorts if not s.builtin}
+    _ = [res[o.sort].append(o) for o in lang.constants()]
+    return res
