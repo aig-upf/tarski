@@ -2,7 +2,7 @@
 from enum import Enum
 from typing import Union, List, Optional
 
-from .syntax.sorts import attach_arithmetic_sorts
+from .syntax.sorts import attach_arithmetic_sorts, build_the_bools
 from .fol import FirstOrderLanguage
 from .syntax import builtins, Term
 from .syntax.factory import create_atom, create_arithmetic_term
@@ -12,6 +12,7 @@ from . import errors as err
 
 class Theory(Enum):
     """ """
+    BOOLEAN = "boolean"
     EQUALITY = "equality"
     ARITHMETIC = "arithmetic"
     SPECIAL = "special"
@@ -43,6 +44,7 @@ def load_theory(lang, theory: Union[Theory, str]):
         raise err.LanguageError("Cannot load theories once language elements have been defined")
     th = Theory(theory) if isinstance(theory, str) else theory  # Make sure we have a valid theory object
     loaders = {
+        Theory.BOOLEAN: load_bool_theory,
         Theory.EQUALITY: load_equality_theory,
         Theory.ARITHMETIC: load_arithmetic_theory,
         Theory.SPECIAL: load_special_theory,
@@ -65,6 +67,10 @@ def load_theory(lang, theory: Union[Theory, str]):
 def has_theory(lang, theory: Union[Theory, str]):
     th = Theory(theory) if isinstance(theory, str) else theory  # Make sure we have a valid theory object
     return th in lang.theories
+
+
+def load_bool_theory(lang):
+    build_the_bools(lang)
 
 
 def load_equality_theory(lang):

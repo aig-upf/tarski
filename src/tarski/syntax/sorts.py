@@ -175,6 +175,14 @@ def float_encode_fn(x):
     return float(x)
 
 
+def build_the_bools(lang):
+    bools = lang.sort('Boolean')
+    bools.builtin = True
+    lang.constant('True', bools)
+    lang.constant('False', bools)
+    return bools
+
+
 def build_the_naturals(lang):
     the_nats = Interval('Natural', lang, int_encode_fn, 0, 2 ** 32 - 1)
     the_nats.builtin = True
