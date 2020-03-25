@@ -1,6 +1,6 @@
 import copy
 
-from tarski.fstrips import AddEffect, DelEffect, UniversalEffect, FunctionalEffect
+from ..fstrips import AddEffect, DelEffect, UniversalEffect, FunctionalEffect
 from ...evaluators.simple import evaluate
 from ...grounding.ops import approximate_symbol_fluency
 from ...syntax.terms import Constant, Variable, CompoundTerm
@@ -138,7 +138,7 @@ class Simplify:
 
         if isinstance(effect, UniversalEffect):
             # Go recursively to the universally quantified effects, filter those that are inapplicable
-            effect.effects = list(filter(None.__ne__, (self.simplify_effect(eff) for eff in effect.effects)))
+            effect.effects = list(filter(None.__ne__, (self.simplify_effect(eff, inplace=True) for eff in effect.effects)))
             return effect
 
         raise RuntimeError(f'Effect "{effect}" of type "{type(effect)}" cannot be analysed')
