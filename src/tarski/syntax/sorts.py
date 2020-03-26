@@ -177,7 +177,10 @@ def float_encode_fn(x):
 
 def build_the_bools(lang):
     bools = lang.sort('Boolean')
-    bools.builtin = True
+    # TODO: we really should be setting builtin to True, but at the moment this is undesirable, as in many places in
+    #       the code we seem to assume that "builtin" sorts are kind of "numeric" sorts, which leads us to try to do
+    #       things with the new Bool sort that cannot be done, e.g. to cast string object "True" to a value, etc.
+    # bools.builtin = True
     lang.constant('True', bools)
     lang.constant('False', bools)
     return bools

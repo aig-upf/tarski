@@ -45,7 +45,7 @@ class SortMismatch(SyntacticError):
 
 
 class DuplicateDefinition(SyntacticError):
-    def __init__(self, name, other, msg=None):
+    def __init__(self, name, other=None, msg=None):
         msg = msg or f'Duplicate definition of element "{name}"'
         super().__init__(msg)
         self.name = name
@@ -67,6 +67,10 @@ class UnexpectedElementType(SyntacticError):
 
 
 class DuplicateSortDefinition(DuplicateDefinition):
+    pass
+
+
+class DuplicateTheoryDefinition(DuplicateDefinition):
     pass
 
 

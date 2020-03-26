@@ -90,6 +90,11 @@ class FirstOrderLanguage:
         """ A shorthand accessor for the Natural sort. """
         return self.get_sort('Natural')
 
+    @property
+    def Boolean(self):
+        """ A shorthand accessor for the Boolean sort. """
+        return self.get_sort('Boolean')
+
     def sort(self, name: str, parent: Union[Sort, str, None] = None):
         """ Create new sort with given name and parent sort. The parent sort can be given as a Sort object or as its
         name, if a Sort with that name has already been registered.

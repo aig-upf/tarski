@@ -59,10 +59,14 @@ def test_load_arithmetic_module_fails_when_language_frozen():
     ints = lang.Integer
     two, three = lang.constant(2, ints), lang.constant(3, ints)
 
-    with pytest.raises(err.LanguageError):
-        # load_theory() should raise LanguageError as we have created two constants
+    with pytest.raises(err.DuplicateTheoryDefinition):
+        # load_theory() should raise exception since arithmetic theory is already loaded
         theories.load_theory(lang, Theory.ARITHMETIC)
-        _ = two + three
+
+
+def test_load_booleans():
+    lang = fstrips.language(theories=["boolean"])
+    assert len(list(lang.get('Boolean').domain())) == 2
 
 
 def test_special_terms_does_not_fail_with_load_theory():
