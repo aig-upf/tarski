@@ -32,7 +32,6 @@ class FirstOrderLanguage:
                                     Function: self._functions,
                                     Predicate: self._predicates}
 
-        self.language_components_frozen = False
         self.theories = set()
 
         self._attach_object_sort()
@@ -196,8 +195,8 @@ class FirstOrderLanguage:
 
         if sort.builtin:
             if sort.cast(name) is None:
-                raise err.SemanticError("Cannot create constant with sort '{}' from '{}' of Python type '{}'".
-                                        format(sort.name, name, type(name)))
+                raise err.SemanticError(
+                    f"Cannot create constant with sort '{sort.name}' from '{name}' of Python type '{type(name)}'")
 
             # MRJ: if name is a Python primitive type literal that can be interpreted as the underlying
             # type of the built in sort, we return a Constant object.
