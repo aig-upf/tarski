@@ -7,16 +7,17 @@ class Predicate:
     def __init__(self, name, language, *args):
         self.name = name
         self.language = language
-        self.sort = []
+        self.sort = tuple(args)
         self.builtin = False
+        self._check_well_formed()
 
-        # Validate the arguments
-        for k, a in enumerate(args):
+    def _check_well_formed(self):
+        for k, a in enumerate(self.domain):
             if not isinstance(a, Sort):
                 raise LanguageError(f"Predicate arg #{k} ('{a}') is a '{type(a)}' instead of a Sort")
+
             if self.language != a.language:
                 raise LanguageMismatch(a, a.language, self.language)
-            self.sort.append(a)
 
     @property
     def symbol(self):
@@ -24,7 +25,7 @@ class Predicate:
 
     @property
     def signature(self):
-        return tuple([self.symbol] + [a.name for a in self.sort])
+        return (self.name, ) + tuple(a.name for a in self.sort)
 
     @property
     def arity(self):
@@ -37,6 +38,9 @@ class Predicate:
     def domain(self):
         return self.sort
 
+    def dump(self):
+        return dict(symbol=self.name, domain=[a.name for a in self.sort])
+
     def __hash__(self):
         return hash(self.signature)
 
@@ -44,13 +48,8 @@ class Predicate:
         return self.signature == other.signature
 
     def __str__(self):
-        # return "{}/{}".format(self.symbol, self.arity)
-        return "{}/{}".format(self.name, self.arity)
-
+        return f"{self.name}/{self.arity}"
     __repr__ = __str__
-
-    def dump(self):
-        return dict(symbol=self.name, sort=[a.name for a in self.sort])
 
     def __call__(self, *args):
         from .formulas import Atom
