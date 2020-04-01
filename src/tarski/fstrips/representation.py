@@ -230,6 +230,21 @@ def _collect_literals_from_conjunction(f, literals: Set[Tuple[Atom, bool]]):
     return True
 
 
+def classify_atom_occurrences_in_formula(phi: Formula):
+    """ Classify atoms in the given formula according to whether they occur as positive or negative literals
+    """
+    pos, neg, fun = set(), set(), set()
+    for atom, truthval in collect_literals_from_conjunction(phi):
+        if atom.predicate.builtin:
+            fun.update(symref(t) for t in collect_unique_nodes(atom, lambda x: isinstance(x, CompoundTerm)))
+
+        elif truthval:
+            pos.add(symref(atom))
+        else:
+            neg.add(symref(atom))
+    return pos, neg, fun
+
+
 def is_function_free(phi: Formula):
     """
     Return whether the given formula is function-free, that is, has no function symbols other than constant symbols.
@@ -505,3 +520,12 @@ def compute_complementary_atoms(model, predicate):
         refd = tuple(symref(x) for x in binding)
         if refd not in extension:
             yield binding
+
+
+def has_state_variable_shape(expression):
+    """ Return whether the given atom or compound term can be considered a state variable for planning purposes, i.e.
+    all their subterms are constants. Whether the expression is actually used as a state variable or not will also
+    depend on whether the head is static or fluent, or on other types analyses, but we don't deal with that here."""
+    if not isinstance(expression, (CompoundTerm, Atom)):
+        return False
+    return all(isinstance(s, Constant) for s in expression.subterms)
