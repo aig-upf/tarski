@@ -1,7 +1,7 @@
 from tarski.benchmarks.blocksworld import generate_fstrips_blocksworld_problem, generate_strips_blocksworld_problem
 from tarski.grounding import ProblemGrounding, NaiveGroundingStrategy, create_all_possible_state_variables
 from tarski.grounding.naive import instantiation
-from tarski.util import IndexDictionary
+from tarski.util import SymbolIndex
 from tarski.syntax import create_substitution
 from tarski.grounding.naive.actions import ActionGrounder
 from tarski.grounding.naive.sensors import SensorGrounder
@@ -19,7 +19,7 @@ def create_small_bw_with_index():
     problem = create_4blocks_task()
     grounding = ProblemGrounding(problem)
     grounding.process_symbols(problem)
-    grounding.state_variables = IndexDictionary()
+    grounding.state_variables = SymbolIndex()
 
     for var in create_all_possible_state_variables(grounding.fluent_terms):
         grounding.state_variables.add(var)
@@ -29,7 +29,7 @@ def create_small_bw_with_index():
 
 def test_enumeration_of_action_parameters_for_small_bw():
     prob, index = create_small_bw_with_index()
-    index.ground_actions = IndexDictionary()
+    index.ground_actions = SymbolIndex()
     actions = list(prob.actions.values())
     card, syms, substs = instantiation.enumerate_groundings(actions[0].parameters)
     assert card == 6
@@ -41,7 +41,7 @@ def test_generate_substitutions_for_small_bw():
     import itertools
 
     prob, index = create_small_bw_with_index()
-    index.ground_actions = IndexDictionary()
+    index.ground_actions = SymbolIndex()
     actions = list(prob.actions.values())
     card, syms, substs = instantiation.enumerate_groundings(actions[0].parameters)
     for values in itertools.product(*substs):
@@ -70,7 +70,7 @@ def test_ground_sensors_for_small_contingent_problem():
     prob = localize.create_small_task()
     index = ProblemGrounding(prob)
     index.process_symbols(prob)
-    index.state_variables = IndexDictionary()
+    index.state_variables = SymbolIndex()
 
     grounder = SensorGrounder(prob, index)
     grounder.calculate_sensors()
@@ -81,7 +81,7 @@ def test_ground_differential_constraints_for_hybrid_problem():
     prob = create_particles_world()
     index = ProblemGrounding(prob)
     index.process_symbols(prob)
-    index.state_variables = IndexDictionary()
+    index.state_variables = SymbolIndex()
     grounder = DifferentialConstraintGrounder(prob, index)
     grounder.calculate_constraints()
     assert len(prob.ground_differential_constraints) == 8
@@ -91,7 +91,7 @@ def test_ground_reactions_for_hybrid_problem():
     prob = create_billiards_world()
     index = ProblemGrounding(prob)
     index.process_symbols(prob)
-    index.state_variables = IndexDictionary()
+    index.state_variables = SymbolIndex()
     grounder = ReactionGrounder(prob, index)
     grounder.calculate_reactions()
     assert len(prob.ground_reactions) == 4
@@ -156,7 +156,7 @@ def test_all_state_variables_can_be_evaluated_in_init_parcprinter():
     prob = parcprinter.create_small_task()
     index = ProblemGrounding(prob)
     index.process_symbols(prob)
-    index.state_variables = IndexDictionary()
+    index.state_variables = SymbolIndex()
     for var in create_all_possible_state_variables(index.fluent_terms):
         index.state_variables.add(var)
     for var in index.state_variables:
@@ -168,7 +168,7 @@ def test_task_index_create_state_variables_blocksworld():
     prob = create_4blocks_task()
     index = ProblemGrounding(prob)
     index.process_symbols(prob)
-    index.state_variables = IndexDictionary()
+    index.state_variables = SymbolIndex()
     for var in create_all_possible_state_variables(index.fluent_terms):
         index.state_variables.add(var)
 
@@ -180,7 +180,7 @@ def test_create_state_variables_for_hybrid_problem_with_reactions():
     prob = create_billiards_world()
     index = ProblemGrounding(prob)
     index.process_symbols(prob)
-    index.state_variables = IndexDictionary()
+    index.state_variables = SymbolIndex()
     for var in create_all_possible_state_variables(index.fluent_terms):
         index.state_variables.add(var)
     assert len(index.state_variables) == 4

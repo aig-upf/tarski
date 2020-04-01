@@ -9,7 +9,7 @@ from ..syntax import Constant, Variable, CompoundTerm, Atom, create_substitution
 from ..errors import DuplicateDefinition
 from .errors import UnableToGroundError
 from .common import StateVariableLite
-from ..util import IndexDictionary
+from ..util import SymbolIndex
 from ..fstrips.visitors import FluentSymbolCollector, FluentHeuristic
 
 
@@ -56,7 +56,7 @@ def create_all_possible_state_variables(fluent_terms):
     """ Creates an index with all possible state variables by brute-force
         enumeration.
     """
-    variables = IndexDictionary()
+    variables = SymbolIndex()
 
     for ref in fluent_terms:
         instantiations = []
@@ -144,7 +144,7 @@ class NaiveGroundingStrategy:
 def ground_symbols_exhaustively(symbols):
     """ Creates an index with all possible groundings of the given predicate and function symbols
     in the given language """
-    variables = IndexDictionary()
+    variables = SymbolIndex()
 
     for symbol in symbols:
         # We need to consider full sort for predicates, domain only for functions

@@ -6,7 +6,7 @@ from ..grounding.ops import approximate_symbol_fluency
 from ..reachability import create_reachability_lp, run_clingo, parse_model
 from ..reachability.asp import GOAL
 from .errors import ReachabilityLPUnsolvable
-from ..util import IndexDictionary
+from ..util import SymbolIndex
 from .common import StateVariableLite
 
 
@@ -32,7 +32,7 @@ class LPGroundingStrategy:
         """
         model = self._solve_lp()
 
-        variables = IndexDictionary()
+        variables = SymbolIndex()
         for symbol in self.fluent_symbols:
             lang = symbol.language
             key = 'atom_' + symbol.name

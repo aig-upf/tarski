@@ -6,7 +6,7 @@ from collections import OrderedDict
 from .errors import DuplicateDefinition
 
 
-class IndexDictionary:
+class SymbolIndex:
     """ A basic indexing object that assigns consecutive indexes to the indexed objects. """
     def __init__(self, elements=None):
         self.data = OrderedDict()

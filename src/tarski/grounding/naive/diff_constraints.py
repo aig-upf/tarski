@@ -3,7 +3,7 @@ import itertools
 
 from ...fstrips import hybrid
 from ...syntax import create_substitution, TermSubstitution
-from ...util import IndexDictionary
+from ...util import SymbolIndex
 from . import instantiation
 from .elements import process_expression
 
@@ -14,7 +14,7 @@ class DifferentialConstraintGrounder:
         self.problem = prob
         self.L = self.problem.language
         self.index = index
-        self.problem.ground_differential_constraints = IndexDictionary()
+        self.problem.ground_differential_constraints = SymbolIndex()
         self.schemas = list(self.problem.differential_constraints.values())
         self.differential_constraints_generated = 0
 

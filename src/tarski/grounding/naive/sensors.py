@@ -3,7 +3,7 @@ import itertools
 
 from ...fstrips.contingent import Sensor
 from ...syntax import create_substitution, TermSubstitution
-from ...util import IndexDictionary
+from ...util import SymbolIndex
 from .elements import process_expression
 from . import instantiation
 
@@ -14,7 +14,7 @@ class SensorGrounder:
         self.problem = prob
         self.L = self.problem.language
         self.index = index
-        self.problem.ground_sensors = IndexDictionary()
+        self.problem.ground_sensors = SymbolIndex()
         self.schemas = list(self.problem.sensors.values())
         self.sensors_generated = 0
 

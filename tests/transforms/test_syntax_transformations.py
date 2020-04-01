@@ -3,11 +3,10 @@ import pytest
 import tarski.benchmarks.blocksworld
 from tarski.fstrips.representation import is_quantifier_free
 from tarski.syntax import *
-from tests.common import blocksworld
 from tests.common import tarskiworld
 
 from tarski.syntax.transform.nnf import NNFTransformation
-from tarski.syntax.transform.prenex import PrenexTransformation, to_prenex_negation_normal_form
+from tarski.syntax.transform.prenex import to_prenex_negation_normal_form
 from tarski.syntax.transform import CNFTransformation, QuantifierElimination, remove_quantifiers, \
     QuantifierEliminationMode
 from tarski.syntax.transform import NegatedBuiltinAbsorption

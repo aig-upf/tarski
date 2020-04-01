@@ -5,7 +5,7 @@ from ...syntax import QuantifiedFormula, Quantifier, create_substitution
 from ...syntax.transform import TermSubstitution, NegatedBuiltinAbsorption, CNFTransformation,\
     QuantifierEliminationMode, remove_quantifiers
 from ...syntax.ops import all_variables
-from ...util import IndexDictionary
+from ...util import SymbolIndex
 from . import instantiation
 from .elements import process_expression
 
@@ -16,7 +16,7 @@ class ConstraintGrounder:
         self.problem = prob
         self.L = self.problem.language
         self.index = index
-        self.problem.ground_constraints = IndexDictionary()
+        self.problem.ground_constraints = SymbolIndex()
         self.schemas = list(self.problem.constraints)
         self.constraints_generated = 0
 

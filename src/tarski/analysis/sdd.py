@@ -30,7 +30,6 @@ class UnsupportedFormalism(RuntimeError):
 
 def scout_actions(task, data):
     """ Check & report which actions have (potentially) some groundings, and which not """
-    # TODO: This will probably fail on parameter-less actions??
     actions, empty = [], []
     for action in task.actions.values():
         cardinalities = [len(list(x.sort.domain())) for x in action.parameters]

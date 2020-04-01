@@ -4,7 +4,7 @@ import copy
 
 from ...syntax import create_substitution, TermSubstitution
 from ... import fstrips as fs
-from ...util import IndexDictionary
+from ...util import SymbolIndex
 from . import instantiation
 from .elements import process_expression, process_effect
 
@@ -15,7 +15,7 @@ class ActionGrounder:
         self.problem = prob
         self.L = self.problem.language
         self.index = index
-        self.problem.ground_actions = IndexDictionary()
+        self.problem.ground_actions = SymbolIndex()
         self.schemas = list(self.problem.actions.values())
         self.actions_generated = 0
 
