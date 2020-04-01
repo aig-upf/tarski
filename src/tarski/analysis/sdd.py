@@ -8,7 +8,7 @@ from collections import defaultdict
 from functools import reduce
 from pathlib import Path
 
-from .util import stdout_redirector
+from ..utils.command import stdout_redirector
 from ..utils import resources
 from ..utils.serialization import serialize_atom
 from ..evaluators.simple import evaluate
