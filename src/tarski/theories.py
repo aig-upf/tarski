@@ -7,7 +7,7 @@ from .syntax.sorts import attach_arithmetic_sorts, build_the_bools
 from .fol import FirstOrderLanguage
 from .syntax import builtins, Term
 from .syntax.factory import create_atom, create_arithmetic_term
-from .syntax.ops import cast_to_closest_common_ancestor
+from .syntax.ops import cast_to_closest_common_numeric_ancestor
 from . import errors as err
 
 
@@ -135,6 +135,6 @@ def load_random_theory(lang):
 def create_casting_handler(symbol, factory_method):
     """ """
     def handler(lhs, rhs):
-        lhs, rhs = cast_to_closest_common_ancestor(lhs, rhs)
+        lhs, rhs = cast_to_closest_common_numeric_ancestor(lhs, rhs)
         return factory_method(symbol, lhs, rhs)
     return handler

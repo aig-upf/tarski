@@ -7,6 +7,7 @@ from typing import Union
 from . import errors as err
 from .syntax import Function, Constant, Variable, Sort, inclusion_closure, Predicate, Interval
 from .syntax.algebra import Matrix
+from . import modules
 
 
 class FirstOrderLanguage:
@@ -230,7 +231,7 @@ class FirstOrderLanguage:
 
     @staticmethod
     def vector(arraylike, sort: Sort):
-        import numpy as np
+        np = modules.import_numpy()
         return Matrix(np.reshape(arraylike, (len(arraylike), 1)), sort)
 
     @staticmethod

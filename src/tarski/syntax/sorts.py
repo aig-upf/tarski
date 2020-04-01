@@ -201,7 +201,6 @@ def build_the_integers(lang):
 def build_the_reals(lang):
     reals = Interval('Real', lang, float_encode_fn, -3.40282e+38, 3.40282e+38)
     reals.builtin = True
-    # the_reals.pi = scipy.constants.pi
     return reals
 
 

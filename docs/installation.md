@@ -44,3 +44,9 @@ as in:
     pip install tarski[sdd]
 
 We strongly recommend to use these extras only if you know what you're doing.
+Current extras include:
+
+* `arithmetic`: Enables use of Tarski for dealing with numeric planning problems, algebraic matrix sorts, etc.
+               Installs `scipy` and `numpy` python packages.
+* `sdd`: SDD-based analysis of action schemas (might require additional manual installation steps).
+* `rddl`: Enables dealing with RDDL probabilistic problems. Installs `pyrddl` python package.

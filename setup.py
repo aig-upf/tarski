@@ -49,16 +49,13 @@ def main():
         packages=find_packages('src'),  # include all packages under src
         package_dir={'': 'src'},  # tell distutils packages are under src
 
-
+        python_requires='>=3.6',  # supported Python ranges
         install_requires=[
             'psutil',
             'antlr4-python3-runtime>=4.7.2',
-            'numpy',
-            'pyrddl',
         ],
 
         extras_require={
-            'dev': ['pytest', 'tox', 'pytest-cov', 'mypy'],
             'test': ['pytest', 'tox', 'pytest-cov', 'mypy'],
             'docs': ['sphinx>=2.1.2', 'recommonmark', 'nbsphinx', 'sphinx_rtd_theme', 'ipykernel', 'ipython'],
             'sdd': [
@@ -68,7 +65,8 @@ def main():
                 # 'pysdd@https://github.com/wannesm/PySDD/archive/259e8b5.zip',  # This doesn't seem to work on Travis
                 'cysignals'
             ],
-            'scipy': ['scipy']
+            'arithmetic': ['scipy', 'numpy'],
+            'rddl': ['pyrddl'],
         },
 
         # This will include non-code files specified in the manifest, see e.g.

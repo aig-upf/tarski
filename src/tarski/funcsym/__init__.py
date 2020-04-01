@@ -1,4 +1,6 @@
 
+from .. import modules
+
 
 def impl(symbol):
     """ """
@@ -11,7 +13,7 @@ def impl(symbol):
             "erfc": sci.erfc,
         }.get(symbol)
 
-    import numpy as np
+    np = modules.import_numpy()
     return {
         "min": lambda x, y: np.min((x, y)),
         "max": lambda x, y: np.max((x, y)),

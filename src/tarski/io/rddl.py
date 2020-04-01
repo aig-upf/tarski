@@ -3,8 +3,7 @@
 """
 from enum import Enum
 
-from pyrddl.parser import RDDLParser
-
+from .. import modules
 from .common import load_tpl
 from ..fol import FirstOrderLanguage
 from ..syntax import implies, land, lor, neg, Connective, Quantifier, CompoundTerm, Interval, Atom, IfThenElse, \
@@ -222,7 +221,7 @@ class Reader:
     def _load_rddl_model(filename):
         with open(filename, 'r') as input_file:
             rddl = input_file.read()
-        parser = RDDLParser()
+        parser = modules.import_pyrddl_parser()()
         parser.build()
         # parse RDDL
         return parser.parse(rddl)

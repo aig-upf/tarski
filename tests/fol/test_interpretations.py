@@ -16,7 +16,7 @@ import pytest
 try:
     sci = import_scipy_special()
 except ImportError:
-    pytest.skip('Please install the "scipy" extra to run the full suite of tests', allow_module_level=True)
+    pytest.skip('Please install the "arithmetic" extra to run the full suite of tests', allow_module_level=True)
 
 
 def test_interpretation_instance():

@@ -1,7 +1,6 @@
 import itertools
 
-import numpy as np
-
+from .. import modules
 from .sorts import children, compute_direct_sort_map, Interval
 from .visitors import CollectFreeVariables
 from .terms import Term, Constant, Variable, CompoundTerm, IfThenElse
@@ -9,26 +8,33 @@ from .formulas import CompoundFormula, Connective, QuantifiedFormula, Atom, Taut
 from .symrefs import symref
 
 
-def cast_to_closest_common_ancestor(lhs, rhs):
-    if isinstance(lhs, Term):
-        if isinstance(rhs, np.ndarray):
-            # lhs is scalar, rhs is matrix
-            return lhs.language.matrix([[lhs]], lhs.sort), rhs
-        if not isinstance(rhs, Term):
-            rhs = Constant(lhs.sort.cast(rhs), lhs.sort)
+def cast_to_closest_common_numeric_ancestor(lhs, rhs):
+    """ Cast both given operands to the sort that is their closest common ancestor, e.g. when
+    applied to a 3 and Constant(2, Int), it should return Constant(3, Int), Constant(2, Int).
+    Non-arithmetic objects should be left unchanged.
+    """
+    # TODO - THE CODE DOES NOT COVER ALL POSSIBLE CASES YET (E.G. "1.0 + 2", ETC.).
+    #        WE NEED TO UNIT-TEST THIS AS WELL
+
+    if isinstance(lhs, Term) and isinstance(rhs, Term):
         return lhs, rhs
-    if isinstance(lhs, np.ndarray):
-        # lhs is matrix
+
+    np = modules.import_numpy()
+    if isinstance(lhs, Term):
+        if isinstance(rhs, np.ndarray):  # lhs is scalar, rhs is matrix
+            return lhs.language.matrix([[lhs]], lhs.sort), rhs
+
+        return lhs, Constant(lhs.sort.cast(rhs), lhs.sort)
+
+    if isinstance(lhs, np.ndarray):  # lhs is matrix
         if isinstance(rhs, Term):
             return lhs, rhs.language.matrix([[rhs]])
-    assert isinstance(rhs, Term)  # this should not happen
-    lhs = Constant(rhs.sort.cast(lhs), rhs.sort)
 
-    return lhs, rhs
+    assert isinstance(rhs, Term)
+    return Constant(rhs.sort.cast(lhs), rhs.sort), rhs
 
 
 def infer_numeric_sort(value, language):
-    # Note that this will only work in Python 3, which is fine.
     if isinstance(value, int):
         return language.Integer
     elif isinstance(value, float):

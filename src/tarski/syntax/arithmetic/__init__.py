@@ -1,6 +1,5 @@
 import itertools
 import copy
-import numpy as np
 
 from ...syntax import Term, AggregateCompoundTerm, CompoundTerm, Constant, Variable, IfThenElse, create_substitution, \
     term_substitution
@@ -8,6 +7,7 @@ from ...syntax.algebra import Matrix
 from ... import errors as err
 from ... grounding.naive import instantiation
 from ..builtins import BuiltinFunctionSymbol, get_arithmetic_binary_functions
+from ... import modules
 
 
 def sumterm(*args):
@@ -150,6 +150,7 @@ def one(sort):
 
 
 def simplify(expr: Term) -> Term:
+    np = modules.import_numpy()
     if isinstance(expr, Constant):
         return expr
     elif isinstance(expr, Variable):

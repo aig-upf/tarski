@@ -1,5 +1,4 @@
-import numpy as np
-
+from ... import modules
 from ...syntax import Term, Constant
 from ...syntax.sorts import Sort
 from ... import errors as err
@@ -7,6 +6,7 @@ from ... import errors as err
 
 class Matrix(Term):
     def __init__(self, arraylike, sort: Sort):
+        np = modules.import_numpy()
         self.matrix = np.array(arraylike, dtype=np.dtype(object))
         self._sort = sort
         # verify and cast
