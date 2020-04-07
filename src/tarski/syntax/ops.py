@@ -116,7 +116,7 @@ def _collect_unique_nodes_rec(node, nodes, filter_):
         raise RuntimeError(f'Unexpected type "{type(node)}" for expression "{node}"')
 
 
-def compute_sort_id_assignment(lang):
+def compute_sort_id_assignment(lang, start=0):
     """ An experimental method to compute ID layouts for all the constants of a language, so that all
     sorts get assigned a closed interval.
 
@@ -127,7 +127,7 @@ def compute_sort_id_assignment(lang):
     (including objects of child sorts), so that any such object o has an id x <= ids[o] < y.
     """
     bounds, ids = {}, {}
-    _compute_id_assignment(lang, lang.Object, ids, bounds, compute_direct_sort_map(lang), start=0)
+    _compute_id_assignment(lang, lang.Object, ids, bounds, compute_direct_sort_map(lang), start=start)
     return bounds, ids
 
 
