@@ -152,6 +152,14 @@ class ExternalCommandError(TarskiError):
     pass
 
 
+class OutOfMemoryError(TarskiError):
+    pass
+
+
+class OutOfTimeError(TarskiError):
+    pass
+
+
 # class WrongTermUsageError(TarskiError):
 #     def __init__(self):
 #         super().__init__("""Tarski terms overload the equality operator `__eq__` to allow the
