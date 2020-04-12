@@ -2,11 +2,12 @@ import os
 from enum import Enum
 from pathlib import Path
 
+from ..fstrips.manipulation import Simplify
 from ..errors import TarskiError
 from ..fstrips.representation import is_conjunction_of_literals, has_state_variable_shape
 from ..grounding.common import StateVariableLite
 from ..syntax import QuantifiedFormula, Quantifier, Contradiction, CompoundFormula, Atom, CompoundTerm, \
-    is_neg, symref, Constant, Variable
+    is_neg, symref, Constant, Variable, Tautology, top
 from ..syntax.ops import collect_unique_nodes, flatten
 from ..syntax.transform import to_prenex_negation_normal_form
 
@@ -92,13 +93,20 @@ class CSPCompiler:
         self.object_ids = object_ids
 
     def process_problem(self, serialization_directory=None):
+        simplifier = Simplify(self.problem, self.problem.init)
+        inapplicable = set()
+
         for action in self.problem.actions.values():
-            csp = self.compile_schema_csp(action)
+            csp = self.compile_schema_csp(action, simplifier)
+            if csp is None:
+                inapplicable.add(action.name)
+                continue
 
             if serialization_directory is not None:
                 self.serialize_schema_csp(action, csp, serialization_directory)
+        return inapplicable
 
-    def compile_schema_csp(self, action):
+    def compile_schema_csp(self, action, simplifier):
         print(f'Processing action "{action}"')
 
         # Do some transformation and validation of the action precondition
@@ -111,6 +119,12 @@ class CSPCompiler:
         if not is_conjunction_of_literals(precondition):
             raise CSPSchemaCompilationError(
                 f"Compilation not yet finished for actions with non-conjunctive preconditions such as {action}")
+
+        precondition = simplifier.simplify_expression(precondition)
+        if precondition is False:
+            return None
+        if precondition is True:
+            precondition = top
 
         csp = CSPInformation()
         csp.parameter_index = [self.variable(p, csp, "param") for p in action.parameters]
@@ -125,7 +139,7 @@ class CSPCompiler:
         elif isinstance(node, Constant):
             return self.variable(node, csp, "const")
 
-        elif isinstance(node, Contradiction):
+        elif isinstance(node, Tautology):
             pass  # No need to do anything
 
         elif isinstance(node, Contradiction):
