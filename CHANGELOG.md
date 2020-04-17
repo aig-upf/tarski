@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 ### Added
+### Removed
+### Deprecated
+### Fixed
+
+
+## [0.5.1] - 2020-04-17
+### Changed
+
+### Added
+  - Improved documentation (still work in progress though).
   - Added methods to simplify problems, actions, logical expressions based on evaluation
   of static atoms and terms.
   - Added method to compile away negated literals in action preconditions, action effect conditions
@@ -21,10 +31,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Improved support for representation and parsing of action costs. 
   - Added methods to check applicability of an action in a state (model) and to progress a state through an action. 
   - Added some methods to the `fstrips.representation` module to check and compute delete-free relaxations of problems.
+  - Modularize Tarski dependencies so that the use and  installation of numpy, scipy, etc. is optional.
+  - Generation of action schema CSPs.
   
 ### Removed
 ### Deprecated
 ### Fixed
+
 
 ## [0.4.0] - 2019-12-28
 ### Changed
