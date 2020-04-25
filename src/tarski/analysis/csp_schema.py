@@ -4,7 +4,8 @@ from pathlib import Path
 
 from ..fstrips.manipulation import Simplify
 from ..errors import TarskiError
-from ..fstrips.representation import is_conjunction_of_literals, has_state_variable_shape
+from ..fstrips.representation import is_conjunction_of_literals, has_state_variable_shape, \
+    collect_effect_free_parameters
 from ..grounding.common import StateVariableLite
 from ..syntax import QuantifiedFormula, Quantifier, Contradiction, CompoundFormula, Atom, CompoundTerm, \
     is_neg, symref, Constant, Variable, Tautology, top
@@ -36,6 +37,7 @@ class CSPInformation:
         self.name_to_vardata = dict()
         self.vardata = list()
         self.constraints = []
+        self.effect_relevant_variables = set()
 
     def add_constraint(self, c):
         self.constraints.append(c)
@@ -129,6 +131,9 @@ class CSPCompiler:
         csp = CSPInformation()
         csp.parameter_index = [self.variable(p, csp, "param") for p in action.parameters]
         self.compile_expression(precondition, csp)
+
+        eff_free_vars = collect_effect_free_parameters(action)
+        csp.effect_relevant_variables = [x for x in action.parameters if symref(x) not in eff_free_vars]
         return csp
 
     def compile_expression(self, node, csp, reify=False, negate=False):
@@ -219,6 +224,16 @@ class CSPCompiler:
             for name, type_, cspvartype, range_ in csp.vardata:
                 print(f'{name} {type_} {cspvartype} {range_[0]} {range_[1]}', file=f)
             print(f'end-variables', file=f)
+
+            print(f'effect-relevant-variables', file=f)
+            if len(csp.effect_relevant_variables) == len(csp.parameter_index):
+                # We don't want any special treatment for the effect-relevant parameters, as all parameters are relevant
+                print(0, file=f)
+            else:
+                print(len(csp.effect_relevant_variables), file=f)
+                for name in csp.effect_relevant_variables:
+                    print(name, file=f)
+            print(f'end-effect-relevant-variables', file=f)
 
             print(f'parameter-index', file=f)
             print(len(csp.parameter_index), file=f)
