@@ -2,10 +2,11 @@
 import tarski
 import tarski.benchmarks.blocksworld
 import tarski.model
+from tarski.fstrips import language
 from tarski.model import Model
 from tarski import errors
 
-from ..common import blocksworld, numeric
+from ..common import numeric
 from tarski.evaluators.simple import evaluate
 from tarski.syntax import Constant, ite, symref
 from tarski.theories import Theory
@@ -46,23 +47,23 @@ def test_numeric_builtin_addition():
     assert isinstance(expr, Constant)
     assert expr.symbol == 2.0
 
+
 def test_numeric_builtin_addition_int():
-    lang = tsk.fstrips.language(theories=[Theory.EQUALITY, Theory.ARITHMETIC])
+    lang = language(theories=[Theory.EQUALITY, Theory.ARITHMETIC])
 
     # The sorts
     particle = lang.sort('bowl')
 
-    eggs = lang.function('eggs', object, lang.Integer)
+    eggs = lang.function('eggs', lang.Object, lang.Integer)
     bowl_1 = lang.constant('bowl_1', particle)
     model = tarski.model.create(lang)
     model.evaluator = evaluate
-    model.set(eggs(bowl_1), 1)
+    model.setx(eggs(bowl_1), 1)
     expr = model[eggs(bowl_1) + 1]
 
-    assert isinstance(expr, constant)
+    assert isinstance(expr, Constant)
     assert isinstance(expr.symbol, int)
     assert expr.symbol == 2
-
 
 
 def test_numeric_rel_formula_evaluation():
