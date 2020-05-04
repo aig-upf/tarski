@@ -27,6 +27,16 @@ def create_atom(symbol: BuiltinPredicateSymbol, lhs, rhs):
 
 
 def create_arithmetic_term(symbol: BuiltinFunctionSymbol, lhs, rhs):
-    language = check_same_language(lhs, rhs)
-    fun = language.get_function(symbol)
+    lang = check_same_language(lhs, rhs)
+    # assert lhs.sort == rhs.sort
+    # cs = get_closest_builtin_sort(lhs.sort)
+    # overload = get_overloaded_function_name(symbol, cs)
+    # if lang.has_function(overload):
+    #     fun = lang.get_function(overload)
+    # else:
+    fun = lang.get_function(symbol)
     return fun(lhs, rhs)
+
+
+def get_overloaded_function_name(symbol, sort):
+    return f'{symbol}_{sort.name.lower()}'

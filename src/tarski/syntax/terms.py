@@ -2,7 +2,7 @@
 from typing import Tuple
 
 from .util import termlists_are_equal, termlist_hash
-from .sorts import Sort, parent
+from .sorts import Sort, parent, Interval
 from .. import errors as err
 from .builtins import BuiltinPredicateSymbol, BuiltinFunctionSymbol
 
@@ -307,12 +307,12 @@ class Constant(Term):
     def __init__(self, name, sort: Sort):
         self.name = name
         self._sort = sort
-        # symbol validation
-        if not self._sort.builtin:
-            # construction of constants extends the domain of sorts
-            self._sort.extend(self)
+
+        if isinstance(sort, Interval):
+            self.name = sort.cast(self.name)
         else:
-            self.name = self._sort.cast(self.name)
+            # If the sort is an enumerated type, constructing a new constant extends its domain
+            sort.extend(self)
 
     @property
     def symbol(self):

@@ -68,8 +68,8 @@ class Sort:
 
 
 class Interval(Sort):
-    def __init__(self, name, lang, encode_fn, lower_bound=None, upper_bound=None):
-        super().__init__(name, lang, builtin=True)
+    def __init__(self, name, lang, encode_fn, lower_bound, upper_bound, builtin=False):
+        super().__init__(name, lang, builtin=builtin)
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
         self.encode = encode_fn
@@ -187,19 +187,19 @@ def build_the_bools(lang):
 
 
 def build_the_naturals(lang):
-    the_nats = Interval('Natural', lang, int_encode_fn, 0, 2 ** 32 - 1)
+    the_nats = Interval('Natural', lang, int_encode_fn, 0, 2 ** 32 - 1, builtin=True)
     the_nats.builtin = True
     return the_nats
 
 
 def build_the_integers(lang):
-    the_ints = Interval('Integer', lang, int_encode_fn, -(2 ** 31 - 1), 2 ** 31 - 1)
+    the_ints = Interval('Integer', lang, int_encode_fn, -(2 ** 31 - 1), 2 ** 31 - 1, builtin=True)
     the_ints.builtin = True
     return the_ints
 
 
 def build_the_reals(lang):
-    reals = Interval('Real', lang, float_encode_fn, -3.40282e+38, 3.40282e+38)
+    reals = Interval('Real', lang, float_encode_fn, -3.40282e+38, 3.40282e+38, builtin=True)
     reals.builtin = True
     return reals
 
@@ -224,3 +224,10 @@ def compute_direct_sort_map(lang):
     res = {s: [] for s in lang.sorts if not s.builtin}
     _ = [res[o.sort].append(o) for o in lang.constants()]
     return res
+
+
+def get_closest_builtin_sort(s: Sort):
+    for s in inclusion_closure(s):
+        if s.builtin:
+            break
+    return s

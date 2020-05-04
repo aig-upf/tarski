@@ -128,7 +128,7 @@ class FirstOrderLanguage:
             raise err.UndefinedSort(name)
         return self._sorts[name]
 
-    def interval(self, name, parent: Interval, lower_bound=None, upper_bound=None):
+    def interval(self, name, parent: Interval, lower_bound, upper_bound):
         """ Create a (bound) interval sort.
 
         We allow only the new sort to derive from the built-in natural, integer or real sorts.
@@ -136,15 +136,15 @@ class FirstOrderLanguage:
         self._check_name_not_defined(name, self._sorts, err.DuplicateSortDefinition)
 
         if parent not in (self.Real, self.Natural, self.Integer):
-            raise err.SemanticError("Cannot create interval that does not subclass one of "
-                                    "the real, integer or natural sort")
+            raise err.SemanticError("Only intervals derived or real, integer or naturals are allowed")
+
+        # if (lower_bound is None) != (upper_bound is None):
+        #     raise err.SemanticError("Either set both interval bounds or set none")
 
         if upper_bound <= lower_bound:
-            raise err.SemanticError("Cannot create interval where the upper bound is greater or "
-                                    "equal than the lower bound")
+            raise err.SemanticError("Cannot create interval with upper bound is <= than the lower bound")
 
         sort = Interval(name, self, parent.encode, lower_bound, upper_bound)
-        sort.builtin = parent.builtin
         self._sorts[name] = sort
         self._global_index[name] = sort
 

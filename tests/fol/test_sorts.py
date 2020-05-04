@@ -120,7 +120,7 @@ def test_interval_types_valid():
     interval_sort = lang.interval('I', int_t, 0, 10)
     assert interval_sort.lower_bound == 0
     assert interval_sort.upper_bound == 10
-    assert interval_sort.builtin
+    assert not interval_sort.builtin
 
 
 def test_interval_types_invalid():
@@ -198,7 +198,7 @@ def test_sort_id_assignment_on_lang_with_intervals():
 
     sortmap = compute_direct_sort_map(lang)
     cards = {s.name: len(objs) for s, objs in sortmap.items()}
-    assert cards == {'object': 0, 'counter': 6}  # Make sure 'object' doesn't include integer constants
+    assert cards == {'object': 0, 'counter': 6, 'val': 0}  # Make sure 'object' doesn't include integer constants
     bounds, ids = compute_sort_id_assignment(lang)
 
     assert bounds[lang.Object] == bounds[lang.get('counter')] == (0, 6)
