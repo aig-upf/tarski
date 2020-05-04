@@ -46,6 +46,24 @@ def test_numeric_builtin_addition():
     assert isinstance(expr, Constant)
     assert expr.symbol == 2.0
 
+def test_numeric_builtin_addition_int():
+    lang = tsk.fstrips.language(theories=[Theory.EQUALITY, Theory.ARITHMETIC])
+
+    # The sorts
+    particle = lang.sort('bowl')
+
+    eggs = lang.function('eggs', object, lang.Integer)
+    bowl_1 = lang.constant('bowl_1', particle)
+    model = tarski.model.create(lang)
+    model.evaluator = evaluate
+    model.set(eggs(bowl_1), 1)
+    expr = model[eggs(bowl_1) + 1]
+
+    assert isinstance(expr, constant)
+    assert isinstance(expr.symbol, int)
+    assert expr.symbol == 2
+
+
 
 def test_numeric_rel_formula_evaluation():
     lang = numeric.generate_numeric_instance()
