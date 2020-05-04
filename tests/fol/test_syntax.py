@@ -347,3 +347,16 @@ def test_syntax_exceptions():
     with pytest.raises(TarskiError):
         atoms = []
         _ = lor(*atoms, flat=True)
+
+
+def test_numeric_sort_deduction():
+    lang = fstrips.language(theories=[Theory.EQUALITY, Theory.ARITHMETIC])
+
+    # The sorts
+    particle = lang.sort('bowl')
+
+    eggs = lang.function('eggs', lang.Object, lang.Integer)
+    bowl_1 = lang.constant('bowl_1', particle)
+    plus1 = eggs(bowl_1) + 1
+
+    assert plus1.sort == lang.Integer
