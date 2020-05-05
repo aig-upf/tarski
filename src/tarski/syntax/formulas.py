@@ -181,6 +181,8 @@ def land(*args, flat=False):
     """ Create an and-formula with the given subformulas. If binary is true, the and-formula will be shaped as a binary
      tree (e.g. (...((p1 and p2) and p3) and ...))), otherwise it will have a flat structure. This is an implementation
      detail, but might be relevant performance-wise when dealing with large structures """
+    if not args:
+        return top
     return _create_compound(args, Connective.And, flat)
 
 
@@ -188,6 +190,8 @@ def lor(*args, flat=False):
     """ Create an or-formula with the given subformulas. If binary is true, the or-formula will be shaped as a binary
     tree (e.g. (...((p1 or p2) or p3) or ...))), otherwise it will have a flat structure. This is an implementation
     detail, but might be relevant performance-wise when dealing with large structures """
+    if not args:
+        return bot
     return _create_compound(args, Connective.Or, flat)
 
 
