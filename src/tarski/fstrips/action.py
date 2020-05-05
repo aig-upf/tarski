@@ -1,5 +1,4 @@
 from ..syntax.ops import flatten
-from .fstrips import AddEffect, DelEffect
 
 
 class Action:

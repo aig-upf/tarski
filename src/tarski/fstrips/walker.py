@@ -1,23 +1,13 @@
+""" A Walker (Visitor) for FSTRIPS entities.
+Note that there is some code duplication with the FOLWalker at syntax/walker.py,
+but that one is only in charge of FOL elements and should remain agnostic wrt planning, FSTRIPS, actions, effects, etc.
+"""
 
 import copy
 from enum import Enum
-from functools import singledispatch, update_wrapper
 
-from ..syntax.formulas import CompoundFormula, QuantifiedFormula, Atom, Tautology, Contradiction
-from ..syntax.terms import Constant, Variable, CompoundTerm
 from ..errors import TarskiError
-from . import AddEffect, DelEffect, UniversalEffect, FunctionalEffect
-
-
-def dispatch(func):
-    dispatcher = singledispatch(func)
-
-    def wrapper(*args, **kw):
-        return dispatcher.dispatch(args[1].__class__)(*args, **kw)
-
-    wrapper.register = dispatcher.register
-    update_wrapper(wrapper, func)
-    return wrapper
+from ..utils.algorithms import dispatch
 
 
 class WalkerError(TarskiError):
@@ -51,8 +41,7 @@ class WalkerContext(Enum):
 class ProblemWalker:
     """
     """
-    def __init__(self, problem, raise_on_undefined=False):
-        self.problem = problem
+    def __init__(self, raise_on_undefined=False):
         self.default_handler = self._raise if raise_on_undefined else self._donothing
         self.context = None
 
@@ -66,8 +55,23 @@ class ProblemWalker:
     def visit(self, node):
         return self.default_handler(node)
 
-    def run(self, inplace=False):
-        problem = self.problem if inplace else copy.deepcopy(self.problem)
+    def run(self, expression, inplace=True):
+        from . import Action, BaseEffect, Problem  # Import here to break circular refs
+        from ..syntax import Formula, Term
+        # Simply dispatch according to type
+        expression = expression if inplace else copy.deepcopy(expression)
+        if isinstance(expression, (Formula, Term)):
+            self.visit_expression(expression, inplace=True)
+        elif isinstance(expression, BaseEffect):
+            self.visit_effect(expression, inplace=True)
+        elif isinstance(expression, Action):
+            self.visit_effect(expression, inplace=True)
+        elif isinstance(expression, Problem):
+            self.visit_problem(expression, inplace=True)
+        return expression
+
+    def visit_problem(self, problem, inplace=False):
+        problem = problem if inplace else copy.deepcopy(problem)
         problem.goal = self.visit_expression(problem.goal, inplace=True)
 
         for aname, a in list(problem.actions.items()):
@@ -75,19 +79,18 @@ class ProblemWalker:
             if res is WalkerAction.Supress:
                 del problem.actions[aname]
 
-        # TODO Deal with problem.init? Makes less sense, as there is no AST there.
-
         return problem
 
     def visit_action(self, node, inplace=False):
         node = node if inplace else copy.deepcopy(node)
         node.precondition = self.visit_expression(node.precondition, inplace=True)
 
-        node.effects = self._filter(self.visit_effect(eff, inplace=True) for eff in node.effects)
+        node.effects = self.accept(self.visit_effect(eff, inplace=True) for eff in node.effects)
 
         return node
 
     def visit_effect(self, effect, inplace=True):
+        from . import AddEffect, DelEffect, UniversalEffect, FunctionalEffect  # Import here to break circular refs
         effect = effect if inplace else copy.deepcopy(effect)
 
         if isinstance(effect, (AddEffect, DelEffect)):
@@ -100,7 +103,7 @@ class ProblemWalker:
             effect.rhs = self.visit_effect_atom(effect.rhs)
 
         elif isinstance(effect, UniversalEffect):
-            effect.effects = self._filter(self.visit_effect(eff, inplace=True) for eff in effect.effects)
+            effect.effects = self.accept(self.visit_effect(eff, inplace=True) for eff in effect.effects)
 
         else:
             raise RuntimeError(f'Effect "{effect}" of type "{type(effect)}" cannot be analysed')
@@ -108,20 +111,26 @@ class ProblemWalker:
         return self.visit(effect)
 
     def visit_expression(self, node, inplace=True):
+        from ..syntax import CompoundFormula, QuantifiedFormula, Atom, Tautology, Contradiction, Constant, Variable,\
+            CompoundTerm, IfThenElse  # Import here to break circular refs
         node = node if inplace else copy.deepcopy(node)
 
         if isinstance(node, (Variable, Constant, Contradiction, Tautology)):
             pass
 
         elif isinstance(node, (CompoundTerm, Atom)):
-            node.subterms = self._filter(self.visit_expression(eff, inplace=True) for eff in node.subterms)
+            node.subterms = self.accept(self.visit_expression(sub, inplace=True) for sub in node.subterms)
 
         elif isinstance(node, CompoundFormula):
-            node.subformulas = self._filter(self.visit_expression(eff, inplace=True) for eff in node.subformulas)
+            node.subformulas = self.accept(self.visit_expression(sub, inplace=True) for sub in node.subformulas)
+
+        elif isinstance(node, IfThenElse):
+            node.condition = self.visit_expression(node.condition, inplace=True)
+            node.subterms = self.accept(self.visit_expression(sub, inplace=True) for sub in node.subterms)
 
         elif isinstance(node, QuantifiedFormula):
             node.formula = self.visit_expression(node.formula)
-            node.variables = self._filter(self.visit_expression(eff, inplace=True) for eff in node.variables)
+            node.variables = self.accept(self.visit_expression(eff, inplace=True) for eff in node.variables)
         else:
             raise RuntimeError(f'Unexpected expression "{node}" of type "{type(node)}"')
 
@@ -133,6 +142,5 @@ class ProblemWalker:
         self.context = WalkerContext.Formula
         return x
 
-    @staticmethod
-    def _filter(iterator):
+    def accept(self, iterator):
         return [x for x in iterator if x is not WalkerAction.Supress]

@@ -1,5 +1,6 @@
 import itertools
 
+from .walker import FOLWalker
 from .. import modules
 from .sorts import children, compute_direct_sort_map, Interval
 from .visitors import CollectFreeVariables
@@ -73,7 +74,7 @@ def _flatten(formula, parent_connective):
     with the given connective have been flattened themselves.
     """
     if not isinstance(formula, CompoundFormula) or formula.connective != parent_connective:
-        return (formula, )  # (returns a tuple)
+        return formula,  # (returns a tuple)
     return tuple(itertools.chain.from_iterable(_flatten(sub, parent_connective) for sub in formula.subformulas))
 
 
@@ -81,39 +82,22 @@ def collect_unique_nodes(expression, filter_=None):
     """ Return all nodes in the AST of the given expression, formula or term.
     If a Boolean function `filter_` is provided, only those nodes that satisfy the function are returned.
     The method returns only one copy of each node, under syntactic equivalence. """
-    filter_ = filter_ if filter_ is not None else lambda x: True
-    nodes = set()
-    _collect_unique_nodes_rec(expression, nodes, filter_)
-    return list(x.expr for x in nodes)  # Unpack the symrefs
+    walker = NodeCollectionWalker(filter_)
+    walker.run(expression)
+    return list(x.expr for x in walker.nodes)  # Unpack the symrefs
 
 
-def _collect_unique_nodes_rec(node, nodes, filter_):
-    if filter_(node):
-        nodes.add(symref(node))
+class NodeCollectionWalker(FOLWalker):
+    """ A walker that simply collects all visited nodes into a set (i.e. w/o repetitions). """
+    def __init__(self, filter_=None):
+        super().__init__()
+        self.nodes = set()
+        self.filter_ = filter_ if filter_ is not None else lambda x: True  # by default we collect all nodes
 
-    # Term subclasses
-    if isinstance(node, (Variable, Constant)):
-        pass
-    elif isinstance(node, CompoundTerm):
-        _ = [_collect_unique_nodes_rec(sub, nodes, filter_) for sub in node.subterms]
-    elif isinstance(node, IfThenElse):
-        _collect_unique_nodes_rec(node.condition, nodes, filter_)
-        _ = [_collect_unique_nodes_rec(sub, nodes, filter_) for sub in node.subterms]
-
-    # Formula subclasses
-    elif isinstance(node, (Contradiction, Tautology)):
-        pass
-    elif isinstance(node, Atom):
-        _ = [_collect_unique_nodes_rec(sub, nodes, filter_) for sub in node.subterms]
-    elif isinstance(node, CompoundFormula):
-        _ = [_collect_unique_nodes_rec(sub, nodes, filter_) for sub in node.subformulas]
-    elif isinstance(node, QuantifiedFormula):
-        _collect_unique_nodes_rec(node.formula, nodes, filter_)
-        _ = [_collect_unique_nodes_rec(sub, nodes, filter_) for sub in node.variables]
-
-    # Fallback
-    else:
-        raise RuntimeError(f'Unexpected type "{type(node)}" for expression "{node}"')
+    def visit(self, node):
+        if self.filter_ is not None and self.filter_(node):
+            self.nodes.add(symref(node))
+        return node
 
 
 def compute_sort_id_assignment(lang, start=0):
