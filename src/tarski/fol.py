@@ -135,6 +135,7 @@ class FirstOrderLanguage:
         We allow only the new sort to derive from the built-in natural, integer or real sorts.
         """
         self._check_name_not_defined(name, self._sorts, err.DuplicateSortDefinition)
+        parent = self._retrieve_sort(parent)
 
         if parent not in (self.Real, self.Natural, self.Integer):
             raise err.SemanticError("Only intervals derived or real, integer or naturals are allowed")
