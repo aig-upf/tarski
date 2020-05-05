@@ -4,7 +4,6 @@ import copy
 from enum import Enum
 
 from ..errors import TarskiError
-from ..utils.algorithms import dispatch
 
 
 class WalkerError(TarskiError):
@@ -27,21 +26,29 @@ class WalkerAction(Enum):
 
 
 class FOLWalker:
-    """
+    """ This is an experimental implementation of a visitor pattern based on single-dispatch.
+    At the moment we're using the "multipledispatch" package to implement single-argument dispatching.
+    It's far from perfect; it requires that the subclass declares the following "default" method:
+
+    >>> @dispatch(object)
+    >>> def visit(self, node):
+    >>>    return self.default_handler(node)
+
+    Whenever we move to support Python 3.8+, we could directly use:
+        https://docs.python.org/3/library/functools.html#functools.singledispatchmethod
     """
     def __init__(self, raise_on_undefined=False):
         self.default_handler = self._raise if raise_on_undefined else self._donothing
         self.context = None
+
+    def visit(self, node):
+        raise NotImplementedError()
 
     def _raise(self, node):
         raise NoHandlerError(node)
 
     def _donothing(self, node):
         return node
-
-    @dispatch
-    def visit(self, node):
-        return self.default_handler(node)
 
     def run(self, expression, inplace=True):
         from .formulas import Formula

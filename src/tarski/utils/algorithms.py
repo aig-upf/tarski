@@ -47,14 +47,3 @@ def compute_min_distance(c1s, relation, c2s):
 
     # Return the minimum distance
     return min(min_distances[o] for o in c2s)
-
-
-def dispatch(func):
-    dispatcher = singledispatch(func)
-
-    def wrapper(*args, **kw):
-        return dispatcher.dispatch(args[1].__class__)(*args, **kw)
-
-    wrapper.register = dispatcher.register
-    update_wrapper(wrapper, func)
-    return wrapper

@@ -1,4 +1,5 @@
 """ A Walker (Visitor) for FSTRIPS entities.
+
 Note that there is some code duplication with the FOLWalker at syntax/walker.py,
 but that one is only in charge of FOL elements and should remain agnostic wrt planning, FSTRIPS, actions, effects, etc.
 """
@@ -7,7 +8,6 @@ import copy
 from enum import Enum
 
 from ..errors import TarskiError
-from ..utils.algorithms import dispatch
 
 
 class WalkerError(TarskiError):
@@ -39,21 +39,29 @@ class WalkerContext(Enum):
 
 
 class ProblemWalker:
-    """
+    """ This is an experimental implementation of a visitor pattern based on single-dispatch.
+    At the moment we're using the "multipledispatch" package to implement single-argument dispatching.
+    It's far from perfect; it requires that the subclass declares the following "default" method:
+
+    >>> @dispatch(object)
+    >>> def visit(self, node):
+    >>>    return self.default_handler(node)
+
+    Whenever we move to support Python 3.8+, we could directly use:
+        https://docs.python.org/3/library/functools.html#functools.singledispatchmethod
     """
     def __init__(self, raise_on_undefined=False):
         self.default_handler = self._raise if raise_on_undefined else self._donothing
         self.context = None
+
+    def visit(self, node):
+        raise NotImplementedError()
 
     def _raise(self, node):
         raise NoHandlerError(node)
 
     def _donothing(self, node):
         return node
-
-    @dispatch
-    def visit(self, node):
-        return self.default_handler(node)
 
     def run(self, expression, inplace=True):
         from . import Action, BaseEffect, Problem  # Import here to break circular refs

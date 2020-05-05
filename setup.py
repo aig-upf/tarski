@@ -52,6 +52,7 @@ def main():
         python_requires='>=3.6',  # supported Python ranges
         install_requires=[
             'psutil',
+            'multipledispatch',
             'antlr4-python3-runtime>=4.7.2',
         ],
 

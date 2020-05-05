@@ -48,7 +48,7 @@ def generate_fstrips_bw_language(nblocks=4):
 def generate_strips_blocksworld_problem(nblocks=4, init="random", goal="random", use_inequalities=True):
     """ Generate the standard BW encoding, untyped and with 4 action schemas """
     lang = generate_strips_bw_language(nblocks=nblocks)
-    problem = create_fstrips_problem(lang, domain_name='blocksworld', problem_name='test-instance')
+    problem = create_fstrips_problem(lang, domain_name=BASE_DOMAIN_NAME, problem_name='test-instance')
 
     clear, on, ontable, handempty, holding = lang.get('clear', 'on', 'ontable', 'handempty', 'holding')
 
