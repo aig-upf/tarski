@@ -5,6 +5,7 @@ from collections import defaultdict, OrderedDict
 from typing import Union
 
 from . import errors as err
+from .errors import UndefinedElement
 from .syntax import Function, Constant, Variable, Sort, inclusion_closure, Predicate, Interval
 from .syntax.algebra import Matrix
 from . import modules
@@ -264,6 +265,16 @@ class FirstOrderLanguage:
         if not self.has_predicate(name):
             raise err.UndefinedPredicate(name)
         return self._predicates[name]
+
+    def remove_symbol(self, symbol: Union[Function, Predicate]):
+        if symbol.name in self._predicates:
+            del self._predicates[symbol.name]
+        elif symbol.name in self._functions:
+            del self._functions[symbol.name]
+        else:
+            raise UndefinedElement(symbol)
+
+        del self._global_index[symbol.name]
 
     def function(self, name: str, *args):
         self._check_name_not_defined(name, self._functions, err.DuplicateFunctionDefinition)

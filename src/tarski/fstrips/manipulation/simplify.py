@@ -1,10 +1,12 @@
 import copy
 
 from ..fstrips import AddEffect, DelEffect, UniversalEffect, FunctionalEffect
+from ..ops import collect_all_symbols
 from ...evaluators.simple import evaluate
 from ...grounding.ops import approximate_symbol_fluency
 from ...syntax.terms import Constant, Variable, CompoundTerm
 from ...syntax.formulas import CompoundFormula, QuantifiedFormula, Atom, Tautology, Contradiction, Connective, is_neg
+from ...syntax.util import get_symbols
 
 
 def bool_to_expr(val):
@@ -36,12 +38,26 @@ class Simplify:
     def simplify(self, inplace=False):
         """ Simplify the whole problem """
         problem = self.problem if inplace else copy.deepcopy(self.problem)
+
+        # Simplify the goal
         problem.goal = self.simplify_expression(problem.goal, inplace=True)
 
+        # Simplify the actions
         for aname, a in list(problem.actions.items()):
             res = self.simplify_action(a, inplace=True)
             if res is None:
                 del problem.actions[aname]
+
+        # Check what symbols are still used after the simplifications
+        used = collect_all_symbols(problem)
+
+        # Remove unused symbols from language and initial state
+        for s in get_symbols(problem.language, type_='all', include_builtin=False):
+            if s not in used:
+                problem.language.remove_symbol(s)
+
+                if problem.init is not None:
+                    problem.init.remove_symbol(s)
 
         return problem
 

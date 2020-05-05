@@ -5,7 +5,7 @@ from tarski.fstrips.manipulation import Simplify
 from tarski.syntax import symref, land, lor, neg, bot, top, forall
 
 
-def test_replacement_of_static_terms_by_constants():
+def test_simplifier():
     problem = generate_fstrips_counters_problem(ncounters=3)
     lang = problem.language
     value, max_int, counter, val_t, c1 = lang.get('value', 'max_int', 'counter', 'val', 'c1')
@@ -42,6 +42,13 @@ def test_replacement_of_static_terms_by_constants():
 
     simp = s.simplify()
     assert str(simp.get_action('increment').precondition) == '<(value(c),6)'
+
+    # Make sure there is no mention to the compiled away "max_int" symbol in the language
+    assert not simp.language.has_function("max_int")
+
+    # Make sure there is no mention to the compiled away "max_int" symbol in the initial state
+    exts = list(simp.init.list_all_extensions().keys())
+    assert ('max_int', 'val') not in exts
 
 
 def test_simplification_of_negation():

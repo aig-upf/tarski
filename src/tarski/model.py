@@ -1,4 +1,7 @@
+from typing import Union
+
 from . import errors as err
+from .errors import UndefinedElement
 from .syntax import Function, Constant, CompoundTerm, symref
 from .syntax.predicate import Predicate
 
@@ -157,6 +160,15 @@ class Model:
         nfuns = len(self.function_extensions)
         return f'Model(num_predicates="{npreds}", num_functions="{nfuns}")'
     __repr__ = __str__
+
+    def remove_symbol(self, symbol: Union[Function, Predicate]):
+        signature = symbol.signature
+        if signature in self.function_extensions:
+            del self.function_extensions[signature]
+        elif signature in self.predicate_extensions:
+            del self.predicate_extensions[signature]
+        else:
+            raise UndefinedElement(symbol)
 
 
 def create(lang, evaluator=None):

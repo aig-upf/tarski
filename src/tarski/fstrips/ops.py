@@ -11,7 +11,7 @@ from . import fstrips as fs
 from multipledispatch import dispatch
 
 
-def collect_all_symbols(problem: Problem) -> Set[Union[Predicate, Function]]:
+def collect_all_symbols(problem: Problem, include_builtin=False) -> Set[Union[Predicate, Function]]:
     """ Return a set with all predicate and function symbols that are actually used in the given problem's goal
     and actions descriptions.
 
@@ -21,7 +21,9 @@ def collect_all_symbols(problem: Problem) -> Set[Union[Predicate, Function]]:
     """
     walker = AllSymbolWalker()
     walker.run(problem)
-    return walker.symbols
+    if include_builtin:
+        return walker.symbols
+    return set(s for s in walker.symbols if not s.builtin)
 
 
 def collect_affected_symbols(problem: Problem) -> Set[Union[Predicate, Function]]:
