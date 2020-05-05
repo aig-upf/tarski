@@ -5,7 +5,8 @@ from collections import defaultdict
 import pytest
 from tarski import theories, Term, Constant
 from tarski.fstrips import fstrips
-from tarski.syntax import symref, CompoundFormula, Atom, ite, AggregateCompoundTerm, CompoundTerm, lor
+from tarski.syntax import symref, CompoundFormula, Atom, ite, AggregateCompoundTerm, CompoundTerm, lor, Tautology, \
+    Contradiction, land, top, bot
 from tarski.theories import Theory
 from tarski import errors as err
 from tarski import fstrips as fs
@@ -342,11 +343,10 @@ def test_term_hash_raises_exception():
     assert counter[atom] == 2
 
 
-def test_syntax_exceptions():
-    from tarski.errors import TarskiError
-    with pytest.raises(TarskiError):
-        atoms = []
-        _ = lor(*atoms, flat=True)
+def test_syntax_shorthands():
+    assert lor(*[]) == Contradiction(), "a lor(·) of no disjuncts is False"
+    assert land(*[]) == Tautology(), "a land(·) of no conjuncts is True"
+    assert land(bot & top) == bot & top, "A land(·) of a single element returns that single element"
 
 
 def test_numeric_sort_deduction():
