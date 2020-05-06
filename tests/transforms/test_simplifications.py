@@ -4,8 +4,6 @@ import tarski.benchmarks.blocksworld
 from tarski.syntax.transform.errors import TransformationError
 from tarski.syntax.transform.simplifications import transform_to_ground_atoms
 
-from tests.common import blocksworld as bw
-
 
 def test_ground_atom_transformation():
     lang = tarski.benchmarks.blocksworld.generate_fstrips_bw_language()

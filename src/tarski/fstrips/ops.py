@@ -1,3 +1,5 @@
+import operator
+from functools import reduce
 from typing import Set, Union
 
 from .walker import ProblemWalker
@@ -91,3 +93,8 @@ class AffectedSymbolWalker(ProblemWalker):
     def visit(self, effect):  # pylint: disable-msg=E0102
         self.symbols.update(lhs.symbol for lhs in effect.y[:, 0])
         return effect
+
+
+def compute_number_potential_groundings(signature):
+    cardinalities = [len(list(s.domain())) for s in signature]
+    return reduce(operator.mul, cardinalities, 1)

@@ -4,7 +4,7 @@ from multipledispatch import dispatch
 from tarski.syntax import term_substitution
 
 from ..fstrips import AddEffect, DelEffect, UniversalEffect, FunctionalEffect
-from ..ops import collect_all_symbols
+from ..ops import collect_all_symbols, compute_number_potential_groundings
 from ...evaluators.simple import evaluate
 from ...grounding.ops import approximate_symbol_fluency
 from ...syntax.terms import Constant, Variable, CompoundTerm
@@ -59,6 +59,10 @@ class Simplify:
 
         # Simplify the actions
         for aname, a in list(problem.actions.items()):
+            if compute_number_potential_groundings(a.sort()) == 0:
+                del problem.actions[aname]
+                continue
+
             problem.actions[aname] = self.simplify_action(a, inplace=True)
             if problem.actions[aname] is None:
                 del problem.actions[aname]

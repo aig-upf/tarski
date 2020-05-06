@@ -12,6 +12,9 @@ class Action:
         self.effects = effects
         self.cost = cost
 
+    def sort(self):
+        return [x.sort for x in self.parameters]
+
     def __lt__(self, other):
         return self.name < other.name
 
