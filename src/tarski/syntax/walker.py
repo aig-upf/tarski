@@ -31,7 +31,7 @@ class FOLWalker:
     It's far from perfect; it requires that the subclass declares the following "default" method:
 
     >>> @dispatch(object)
-    >>> def visit(self, node):
+    >>> def visit(self, node):  # pylint: disable-msg=E0102
     >>>    return self.default_handler(node)
 
     Whenever we move to support Python 3.8+, we could directly use:
@@ -51,8 +51,6 @@ class FOLWalker:
         return node
 
     def run(self, expression, inplace=True):
-        from .formulas import Formula
-        from .terms import Term
         # Simply dispatch according to type
         expression = expression if inplace else copy.deepcopy(expression)
         return self.visit_expression(expression, inplace=True)

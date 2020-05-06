@@ -94,7 +94,7 @@ class ReachabilityLPCompiler:
 
         self.process_goal(problem.goal, lang, lp)
 
-        self.add_directives(problem, lp)
+        # self.add_directives(problem, lp)
 
     def process_goal(self, goal, lang, lp):
         # Process goal, e.g. "goal :- on(a,b), on(b,c)." (note that the goal is always ground)
@@ -149,8 +149,8 @@ class ReachabilityLPCompiler:
         atom = self.lp_atom(action.name, [make_variable_name(v.symbol) for v in action.parameters], prefix='action')
         return atom, atom
 
-    def add_directives(self, problem, lp):
-        return
+    # def add_directives(self, problem, lp):  # pylint: disable-msg=W0613,
+    #     return
 
     def process_formula(self, f: Formula):
         """ Process a given formula and return the corresponding LP rule body, along with declaring in the given LP
@@ -273,7 +273,7 @@ class VariableOnlyReachabilityLPCompiler(ReachabilityLPCompiler):
 
     def __init__(self, problem: Problem, lp, include_variable_inequalities=False, include_action_costs=False):
         if include_action_costs:
-            raise RuntimeError(f'Cannot generate a variable-only reachability LP that includes action costs')
+            raise RuntimeError('Cannot generate a variable-only reachability LP that includes action costs')
         super().__init__(problem, lp, include_variable_inequalities, include_action_costs=False)
 
     def process_action(self, action, lang, lp):
@@ -423,4 +423,4 @@ def generate_varname(avoid=None):
         name = _var(i)
         if name not in avoid:
             return name
-    raise RuntimeError(f"Couldn't generate unused variable name")
+    raise RuntimeError("Couldn't generate unused variable name")

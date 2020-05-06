@@ -43,16 +43,16 @@ class AllSymbolWalker(ProblemWalker):
         self.symbols = set()
 
     @dispatch(object)
-    def visit(self, node):
+    def visit(self, node):  # pylint: disable-msg=E0102
         return self.default_handler(node)
 
     @dispatch(CompoundTerm)
-    def visit(self, node):
+    def visit(self, node):  # pylint: disable-msg=E0102
         self.symbols.add(node.symbol)
         return node
 
     @dispatch(Atom)
-    def visit(self, node):
+    def visit(self, node):  # pylint: disable-msg=E0102
         self.symbols.add(node.symbol)
         return node
 
@@ -64,30 +64,30 @@ class AffectedSymbolWalker(ProblemWalker):
         self.symbols = set()
 
     @dispatch(object)
-    def visit(self, node):
+    def visit(self, node):  # pylint: disable-msg=E0102
         return self.default_handler(node)
 
     @dispatch(fs.AddEffect)
-    def visit(self, effect):
+    def visit(self, effect):  # pylint: disable-msg=E0102
         self.symbols.add(effect.atom.symbol)
         return effect
 
     @dispatch(fs.DelEffect)
-    def visit(self, effect):
+    def visit(self, effect):  # pylint: disable-msg=E0102
         self.symbols.add(effect.atom.symbol)
         return effect
 
     @dispatch(fs.FunctionalEffect)
-    def visit(self, effect):
+    def visit(self, effect):  # pylint: disable-msg=E0102
         self.symbols.add(effect.lhs.symbol)
         return effect
 
     @dispatch(fs.ChoiceEffect)
-    def visit(self, effect):
+    def visit(self, effect):  # pylint: disable-msg=E0102
         self.symbols.add(effect.obj.symbol)
         return effect
 
     @dispatch(fs.LinearEffect)
-    def visit(self, effect):
+    def visit(self, effect):  # pylint: disable-msg=E0102
         self.symbols.update(lhs.symbol for lhs in effect.y[:, 0])
         return effect

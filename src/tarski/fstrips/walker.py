@@ -44,7 +44,7 @@ class ProblemWalker:
     It's far from perfect; it requires that the subclass declares the following "default" method:
 
     >>> @dispatch(object)
-    >>> def visit(self, node):
+    >>> def visit(self, node):  # pylint: disable-msg=E0102
     >>>    return self.default_handler(node)
 
     Whenever we move to support Python 3.8+, we could directly use:
