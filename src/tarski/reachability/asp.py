@@ -9,7 +9,7 @@ from ..syntax.builtins import symbol_complements
 from ..syntax.ops import free_variables
 from ..syntax import Formula, Atom, CompoundFormula, Connective, Term, Variable, Constant, Tautology, \
     BuiltinPredicateSymbol, QuantifiedFormula, Quantifier, CompoundTerm
-from ..syntax.sorts import parent
+from ..syntax.sorts import parent, Interval
 from ..fstrips import Problem, SingleEffect, AddEffect, DelEffect, FunctionalEffect
 from ..fstrips.representation import identify_cost_related_functions
 
@@ -60,9 +60,9 @@ class ReachabilityLPCompiler:
 
         # Declare the type hierarchy, e.g. with a rule "object(X) :- block(X)."
         for s in lang.sorts:
-            if not s.builtin:  # TODO Decide what to do with builtins
+            if not isinstance(s, Interval):  # TODO Decide what to do with intervals
                 p = parent(s)
-                if p is not None and len(list(s.domain())) > 0:
+                if p is not None and next(s.domain(), None) is not None:
                     # Don't output the type hierarchy rule if the type has no element
                     lp.rule(self.lp_atom(p.name, [_var()], prefix='type'),
                             [self.lp_atom(s.name, [_var()], prefix='type')])

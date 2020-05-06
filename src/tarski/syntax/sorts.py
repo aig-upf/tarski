@@ -139,7 +139,8 @@ class Interval(Sort):
         return dict(name=self.name, domain=[self.lower_bound, self.upper_bound])
 
     def domain(self):
-        assert not self.builtin
+        if self.builtin or self.upper_bound - self.lower_bound > 9999:  # Yes, very hacky
+            raise err.TarskiError(f'Cannot iterate over interval with range [{self.lower_bound}, {self.upper_bound}]')
         from . import Constant
         return (Constant(x, self) for x in range(self.lower_bound, self.upper_bound))
 
