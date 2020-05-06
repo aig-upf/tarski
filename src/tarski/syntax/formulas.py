@@ -4,6 +4,7 @@ from enum import Enum
 from typing import List
 
 from .. import errors as err
+from .builtins import BuiltinPredicateSymbol
 from .terms import Variable, Term
 from .util import termlists_are_equal, termlist_hash
 from .predicate import Predicate
@@ -199,18 +200,6 @@ def neg(phi):
     return CompoundFormula(Connective.Not, [phi])
 
 
-def is_and(phi: Formula):
-    return isinstance(phi, CompoundFormula) and phi.connective == Connective.And
-
-
-def is_or(phi: Formula):
-    return isinstance(phi, CompoundFormula) and phi.connective == Connective.Or
-
-
-def is_neg(phi: Formula):
-    return isinstance(phi, CompoundFormula) and phi.connective == Connective.Not
-
-
 def implies(phi, psi):
     """ Create the implication phi -> psi """
     return lor(neg(phi), psi)
@@ -257,6 +246,45 @@ def _quantified(quantifier, *args):
         raise err.LanguageError('Illformed arguments for quantified formula: {}'.format(args))
 
     return QuantifiedFormula(quantifier, variables, args[-1])
+
+
+def is_and(phi: Formula):
+    """ Return whether the given formula is a conjunction """
+    return isinstance(phi, CompoundFormula) and phi.connective == Connective.And
+
+
+def is_or(phi: Formula):
+    """ Return whether the given formula is a disjunction """
+    return isinstance(phi, CompoundFormula) and phi.connective == Connective.Or
+
+
+def is_neg(phi: Formula):
+    """ Return whether the given formula is a negation """
+    return isinstance(phi, CompoundFormula) and phi.connective == Connective.Not
+
+
+def is_atom(phi: Formula):
+    """ Return whether the given formula is an atom """
+    return isinstance(phi, Atom)
+
+
+def is_eq_atom(phi: Formula):
+    """ Return whether the given formula is an equality """
+    return isinstance(phi, Atom) and phi.predicate.symbol == BuiltinPredicateSymbol.EQ
+
+
+def is_ne_atom(phi: Formula):
+    """ Return whether the given formula is an inequality """
+    return isinstance(phi, Atom) and phi.predicate.symbol == BuiltinPredicateSymbol.NE
+
+
+def unwrap_conjunction_or_atom(phi):
+    """ """
+    if is_atom(phi):
+        return [phi]
+    if is_and(phi):
+        return phi.subformulas
+    return []
 
 
 class Atom(Formula):
