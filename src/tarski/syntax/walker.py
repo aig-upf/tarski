@@ -55,9 +55,7 @@ class FOLWalker:
         from .terms import Term
         # Simply dispatch according to type
         expression = expression if inplace else copy.deepcopy(expression)
-        if isinstance(expression, (Formula, Term)):
-            self.visit_expression(expression, inplace=True)
-        return expression
+        return self.visit_expression(expression, inplace=True)
 
     def visit_expression(self, node, inplace=True):
         from .formulas import CompoundFormula, QuantifiedFormula, Atom, Tautology, Contradiction
@@ -78,7 +76,7 @@ class FOLWalker:
             node.subterms = self.accept(self.visit_expression(sub, inplace=True) for sub in node.subterms)
 
         elif isinstance(node, QuantifiedFormula):
-            node.formula = self.visit_expression(node.formula)
+            node.formula = self.visit_expression(node.formula, inplace=True)
             node.variables = self.accept(self.visit_expression(eff, inplace=True) for eff in node.variables)
         else:
             raise RuntimeError(f'Unexpected expression "{node}" of type "{type(node)}"')

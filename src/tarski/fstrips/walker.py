@@ -69,14 +69,13 @@ class ProblemWalker:
         # Simply dispatch according to type
         expression = expression if inplace else copy.deepcopy(expression)
         if isinstance(expression, (Formula, Term)):
-            self.visit_expression(expression, inplace=True)
+            return self.visit_expression(expression, inplace=True)
         elif isinstance(expression, BaseEffect):
-            self.visit_effect(expression, inplace=True)
+            return self.visit_effect(expression, inplace=True)
         elif isinstance(expression, Action):
-            self.visit_effect(expression, inplace=True)
+            return self.visit_effect(expression, inplace=True)
         elif isinstance(expression, Problem):
-            self.visit_problem(expression, inplace=True)
-        return expression
+            return self.visit_problem(expression, inplace=True)
 
     def visit_problem(self, problem, inplace=False):
         problem = problem if inplace else copy.deepcopy(problem)

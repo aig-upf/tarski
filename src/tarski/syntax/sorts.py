@@ -85,7 +85,9 @@ class Interval(Sort):
         self.upper_bound = upper_bound
 
     def extend(self, constant):
-        pass  # TODO ???
+        # Overload to avoid doing any extension.
+        # TODO Better would be to subclass not from Sort but from a different, common baseclass
+        pass
 
     def cardinality(self):
         return self.upper_bound - self.lower_bound + 1
@@ -135,6 +137,11 @@ class Interval(Sort):
 
     def dump(self):
         return dict(name=self.name, domain=[self.lower_bound, self.upper_bound])
+
+    def domain(self):
+        assert not self.builtin
+        from . import Constant
+        return (Constant(x, self) for x in range(self.lower_bound, self.upper_bound))
 
 
 def inclusion_closure(s: Sort) -> Generator[Sort, None, None]:
