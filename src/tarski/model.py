@@ -162,13 +162,14 @@ class Model:
     __repr__ = __str__
 
     def remove_symbol(self, symbol: Union[Function, Predicate]):
+        """ Remove the extension of the given symbol, if it existed within this model"""
+        # Note that it might well be that the language contains a symbol p, but it is not registered
+        # in the model, because e.g. there is no p-atom that is true in the model
         signature = symbol.signature
         if signature in self.function_extensions:
             del self.function_extensions[signature]
         elif signature in self.predicate_extensions:
             del self.predicate_extensions[signature]
-        else:
-            raise UndefinedElement(symbol)
 
 
 def create(lang, evaluator=None):
@@ -193,9 +194,6 @@ class ExtensionalFunctionDefinition:
 
     def __iter__(self):
         yield from self.data.items()
-
-# class IntensionalFunctionDefinition:
-#     pass
 
 
 def wrap_tuple(tup):
