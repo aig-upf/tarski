@@ -216,7 +216,7 @@ def forall(*args):
     we would use:
     >>> forall(x, y, x<y)
     """
-    return _quantified(Quantifier.Forall, *args)
+    return quantified(Quantifier.Forall, *args)
 
 
 def exists(*args):
@@ -225,10 +225,10 @@ def exists(*args):
     we would use:
     >>> exists(x, y, x<y)
     """
-    return _quantified(Quantifier.Exists, *args)
+    return quantified(Quantifier.Exists, *args)
 
 
-def _quantified(quantifier, *args):
+def quantified(quantifier, *args):
     """ Create a quantified formula.
 
         'args' is expected to be of the form [v1, ..., vn, f], where v_i are the variables
