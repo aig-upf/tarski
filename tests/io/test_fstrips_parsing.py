@@ -2,6 +2,7 @@
 import pytest
 from tarski.errors import UndefinedSort, UndefinedPredicate
 from tarski.fstrips import AddEffect, FunctionalEffect
+from tarski.fstrips.errors import InvalidEffectError
 from tarski.io.fstrips import ParsingError, FstripsReader
 from tarski.syntax import Atom, CompoundFormula, Tautology
 from tarski.syntax.util import get_symbols
@@ -159,10 +160,14 @@ def test_functional_effects():
     read = _setup_function_environment(theories=[Theory.EQUALITY, Theory.ARITHMETIC])
     _test_inputs([
         ("(assign (f o1) o1)", "effect"),
-        ("(assign (f o1) 10)", "effect"),
-        ("(assign (f o1) (+ 5 15))", "effect"),
-        ("(assign (f o1) (- 10 2))", "effect"),
+        ("(assign (f o1) (f (f o2)))", "effect"),
     ], r=read)
+
+    with pytest.raises(InvalidEffectError):
+        _test_inputs([
+            ("(assign (f o1) 5))", "effect"),  # RHS not compatible with LHS sort
+            # ("(assign (f o1) (+ 5 15))", "effect"),  # RHS not compatible with LHS sort
+        ], r=read)
 
     # Likely we won't check this at the grammar level
     # with pytest.raises(ParsingError):

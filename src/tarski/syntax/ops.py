@@ -9,14 +9,11 @@ from .formulas import CompoundFormula, Connective, QuantifiedFormula, Atom, Taut
 from .symrefs import symref
 
 
-def cast_to_closest_common_numeric_ancestor(lhs, rhs):
+def cast_to_closest_common_numeric_ancestor(lang, lhs, rhs):
     """ Cast both given operands to the sort that is their closest common ancestor, e.g. when
     applied to a 3 and Constant(2, Int), it should return Constant(3, Int), Constant(2, Int).
     Non-arithmetic objects should be left unchanged.
     """
-    # TODO - THE CODE DOES NOT COVER ALL POSSIBLE CASES YET (E.G. "1.0 + 2", ETC.).
-    #        WE NEED TO UNIT-TEST THIS AS WELL
-
     if isinstance(lhs, Term) and isinstance(rhs, Term):
         return lhs, rhs
 
@@ -31,8 +28,13 @@ def cast_to_closest_common_numeric_ancestor(lhs, rhs):
         if isinstance(rhs, Term):
             return lhs, rhs.language.matrix([[rhs]])
 
-    assert isinstance(rhs, Term)
-    return Constant(rhs.sort.cast(lhs), rhs.sort), rhs
+    if isinstance(rhs, Term):
+        return Constant(rhs.sort.cast(lhs), rhs.sort), rhs
+
+    # Otherwise, we can only cast to generic int or real types
+    if isinstance(lhs, int) and isinstance(rhs, int):
+        return lang.constant(lhs, lang.Integer), lang.constant(rhs, lang.Integer)
+    return lang.constant(lhs, lang.Real), lang.constant(rhs, lang.Real)
 
 
 def infer_numeric_sort(value, language):

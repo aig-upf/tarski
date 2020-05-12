@@ -78,7 +78,7 @@ def load_equality_theory(lang):
     # TODO We should create type-specific versions of each predicate / function.
     object_t = lang.get_sort('object')
     for pred in builtins.get_equality_predicates():
-        lang.register_operator_handler(pred, Term, Term, create_casting_handler(pred, create_atom))
+        lang.register_operator_handler(pred, Term, Term, create_casting_handler(lang, pred, create_atom))
         p = lang.predicate(pred, object_t, object_t)
         p.builtin = True
 
@@ -90,51 +90,51 @@ def load_arithmetic_theory(lang):
     ite_func.builtin = True
 
     fun = builtins.BuiltinFunctionSymbol.MATMUL
-    lang.register_operator_handler(fun, Term, Term, create_casting_handler(fun, create_arithmetic_term))
+    lang.register_operator_handler(fun, Term, Term, create_casting_handler(lang, fun, create_arithmetic_term))
     f = lang.function(fun, lang.Real, lang.Real, lang.Real)
     f.builtin = True
 
     for pred in builtins.get_arithmetic_predicates():
-        lang.register_operator_handler(pred, Term, Term, create_casting_handler(pred, create_atom))
+        lang.register_operator_handler(pred, Term, Term, create_casting_handler(lang, pred, create_atom))
         p = lang.predicate(pred, lang.Real, lang.Real)
         p.builtin = True
 
     for fun in builtins.get_arithmetic_binary_functions():
-        lang.register_operator_handler(fun, Term, Term, create_casting_handler(fun, create_arithmetic_term))
+        lang.register_operator_handler(fun, Term, Term, create_casting_handler(lang, fun, create_arithmetic_term))
         f = lang.function(fun, lang.Real, lang.Real, lang.Real)
         f.builtin = True
 
     for fun in builtins.get_arithmetic_unary_functions():
-        lang.register_unary_operator_handler(fun, Term, create_casting_handler(fun, create_arithmetic_term))
+        lang.register_unary_operator_handler(fun, Term, create_casting_handler(lang, fun, create_arithmetic_term))
         f = lang.function(fun, lang.Real, lang.Real)
         f.builtin = True
 
 
 def load_special_theory(lang):
     for fun in builtins.get_special_binary_functions():
-        lang.register_operator_handler(fun, Term, Term, create_casting_handler(fun, create_arithmetic_term))
+        lang.register_operator_handler(fun, Term, Term, create_casting_handler(lang, fun, create_arithmetic_term))
         f = lang.function(fun, lang.Real, lang.Real, lang.Real)
         f.builtin = True
     for fun in builtins.get_special_unary_functions():
-        lang.register_unary_operator_handler(fun, Term, create_casting_handler(fun, create_arithmetic_term))
+        lang.register_unary_operator_handler(fun, Term, create_casting_handler(lang, fun, create_arithmetic_term))
         f = lang.function(fun, lang.Real, lang.Real)
         f.builtin = True
 
 
 def load_random_theory(lang):
     for fun in builtins.get_random_binary_functions():
-        lang.register_operator_handler(fun, Term, Term, create_casting_handler(fun, create_arithmetic_term))
+        lang.register_operator_handler(fun, Term, Term, create_casting_handler(lang, fun, create_arithmetic_term))
         f = lang.function(fun, lang.Real, lang.Real, lang.Real)
         f.builtin = True
     for fun in builtins.get_random_unary_functions():
-        lang.register_unary_operator_handler(fun, Term, create_casting_handler(fun, create_arithmetic_term))
+        lang.register_unary_operator_handler(fun, Term, create_casting_handler(lang, fun, create_arithmetic_term))
         f = lang.function(fun, lang.Real, lang.Real)
         f.builtin = True
 
 
-def create_casting_handler(symbol, factory_method):
+def create_casting_handler(lang, symbol, factory_method):
     """ """
     def handler(lhs, rhs):
-        lhs, rhs = cast_to_closest_common_numeric_ancestor(lhs, rhs)
+        lhs, rhs = cast_to_closest_common_numeric_ancestor(lang, lhs, rhs)
         return factory_method(symbol, lhs, rhs)
     return handler

@@ -59,18 +59,21 @@ class FunctionalEffect(SingleEffect):
     """ A functional effect of the form f(t) := g(u), possibly with a condition. """
     def __init__(self, lhs, rhs, condition=top):
         super().__init__(condition)
-        self.lhs = lhs
-        self.rhs = rhs
-        self.check_well_formed()
+        self.lhs, self.rhs = self.check_well_formed(lhs, rhs)
 
-    def check_well_formed(self):
-        if not isinstance(self.lhs, CompoundTerm):
-            raise InvalidEffectError(self, f"Error declaring FunctionalEffect {self}: left hand side"
-                                           f" expression '{self.lhs}' needs to be a functional term")
+    def check_well_formed(self, lhs, rhs):
+        if not isinstance(lhs, CompoundTerm):
+            raise InvalidEffectError(self, f"Incorrect FunctionalEffect {lhs} := {rhs}."
+                                           f" Left-hand side needs to be a compound term")
 
-        if not isinstance(self.rhs, Term):
-            raise InvalidEffectError(self, f"Error declaring FunctionalEffect {self}: right hand side"
-                                           f" expression '{self.rhs}' needs to be a functional term")
+        if not isinstance(rhs, Term):
+            try:
+                rhs = lhs.sort.to_constant(rhs)
+            except ValueError:
+                raise InvalidEffectError(self, f"Incorrect FunctionalEffect {lhs} := {rhs}. Right-hand side needs"
+                                               f" to be a term of sort compatible to left-hand side sort "
+                                               f"({lhs.sort})") from None
+        return lhs, rhs
 
     def tostring(self):
         return f"{self.lhs} := {self.rhs}"
@@ -95,21 +98,6 @@ class UniversalEffect(BaseEffect):
 class IncreaseEffect(FunctionalEffect):
     def __init__(self, lhs, rhs, condition=top):
         super().__init__(lhs, rhs, condition)
-
-        # MRJ: normalise rhs so it is easier to handle later on
-        if type(self.rhs) == int:
-            self.rhs = Constant(self.rhs, self.lhs.language.Integer)
-        elif type(self.rhs) == float:
-            self.rhs = Constant(self.rhs, self.lhs.language.Real)
-
-    def check_well_formed(self):
-        if not isinstance(self.lhs, CompoundTerm):
-            raise InvalidEffectError(self, f'Ill-formed increase effect "{self.tostring()}". '
-                                           f'Left hand side needs to be a functional term.')
-
-        if not isinstance(self.rhs, (int, float, Term)):
-            raise InvalidEffectError(self, f'Ill-formed increase effect "{self.tostring()}". '
-                                           f'Right hand side needs to be a constant or functional term.')
 
 
 class OptimizationType(Enum):

@@ -24,12 +24,10 @@ def tarski_to_pddl_type(typename):
 
 def parse_number(number, lang):
     # Because of the grammar, we know that number will be either an int or a float
-    try:
-        value = int(number)
-        return lang.constant(lang.Integer.cast(value), lang.Integer)
-    except ValueError:
-        value = float(number)
-        return lang.constant(lang.Real.cast(value), lang.Real)
+    value = float(number)
+    if value.is_integer():
+        return int(number)
+    return value
 
 
 def process_requirements(requirements, lang):
