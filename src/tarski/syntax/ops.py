@@ -22,14 +22,14 @@ def cast_to_closest_common_numeric_ancestor(lang, lhs, rhs):
         if isinstance(rhs, np.ndarray):  # lhs is scalar, rhs is matrix
             return lhs.language.matrix([[lhs]], lhs.sort), rhs
 
-        return lhs, Constant(lhs.sort.cast(rhs), lhs.sort)
+        return lhs, Constant(lhs.sort.literal(rhs), lhs.sort)
 
     if isinstance(lhs, np.ndarray):  # lhs is matrix
         if isinstance(rhs, Term):
             return lhs, rhs.language.matrix([[rhs]])
 
     if isinstance(rhs, Term):
-        return Constant(rhs.sort.cast(lhs), rhs.sort), rhs
+        return Constant(rhs.sort.literal(lhs), rhs.sort), rhs
 
     # Otherwise, we can only cast to generic int or real types
     if isinstance(lhs, int) and isinstance(rhs, int):

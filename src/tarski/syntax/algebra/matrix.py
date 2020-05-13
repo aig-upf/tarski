@@ -17,11 +17,10 @@ class Matrix(Term):
                 m_ij = self.matrix[i, j]
                 if isinstance(m_ij, Term):
                     if m_ij.sort != sort:
-                        raise err.SyntacticError("Matrix: all \
-                        entries need to be of sort '{}', \
-                        entry ({},{}) is '{}'".format(sort.name, i, j, m_ij.sort.name))
+                        raise err.SyntacticError(f"Matrix: all entries need to be of sort '{sort.name}',"
+                                                 f"  but entry ({i},{j}) is '{m_ij.sort.name}'")
                 else:
-                    self.matrix[i, j] = Constant(sort.cast(m_ij), sort)
+                    self.matrix[i, j] = Constant(sort.literal(m_ij), sort)
 
     @property
     def shape(self):

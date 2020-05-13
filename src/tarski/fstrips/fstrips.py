@@ -2,7 +2,8 @@
 from enum import Enum
 from typing import Union, List, Optional, Callable, Any
 
-from ..syntax import CompoundTerm, Term, Constant, symref, top
+from ..errors import CastError
+from ..syntax import CompoundTerm, Term, symref, top
 from .. import theories as ths
 from .errors import InvalidEffectError
 
@@ -68,8 +69,8 @@ class FunctionalEffect(SingleEffect):
 
         if not isinstance(rhs, Term):
             try:
-                rhs = lhs.sort.to_constant(rhs)
-            except ValueError:
+                rhs = lhs.sort.cast(rhs)
+            except CastError:
                 raise InvalidEffectError(self, f"Incorrect FunctionalEffect {lhs} := {rhs}. Right-hand side needs"
                                                f" to be a term of sort compatible to left-hand side sort "
                                                f"({lhs.sort})") from None

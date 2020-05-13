@@ -3,6 +3,7 @@ import pytest
 import tarski as tsk
 import tarski.benchmarks.blocksworld
 import tarski.errors as err
+from tarski import Constant
 from tarski.benchmarks.counters import generate_fstrips_counters_problem
 from tarski.syntax import symref
 from tarski.syntax.ops import compute_sort_id_assignment
@@ -12,7 +13,7 @@ from tarski.theories import Theory
 
 def test_object_type():
     lang = tsk.fstrips.language()
-    lang.get_sort("object")
+    assert lang.Object == lang.get_sort("object")
 
 
 def test_type_retrieval():
@@ -122,23 +123,17 @@ def test_interval_types_create_valid_constant():
     lang = tsk.fstrips.language(theories=[Theory.ARITHMETIC])
     int_t = lang.Integer
     interval_sort = lang.interval('I', int_t, 0, 10)
-    ii = tsk.syntax.Constant(3, interval_sort)
-    assert isinstance(ii, tsk.syntax.Constant)
+    assert isinstance(Constant(3, interval_sort), Constant)
 
 
 def test_interval_types_create_invalid_constant():
     lang = tsk.fstrips.language(theories=[Theory.ARITHMETIC])
     int_t = lang.Integer
     interval_sort = lang.interval('I', int_t, 0, 10)
-    with pytest.raises(ValueError):
-        _ = tsk.syntax.Constant(-2, interval_sort)
+    with pytest.raises(err.CastError):
+        _ = Constant(-2, interval_sort)
 
-
-def test_interval_types_create_invalid_constant2():
-    lang = tsk.fstrips.language(theories=[Theory.ARITHMETIC])
-    int_t = lang.Integer
-    interval_sort = lang.interval('I', int_t, 0, 10)
-    with pytest.raises(ValueError):
+    with pytest.raises(err.CastError):
         _ = lang.constant(-2, interval_sort)
 
 

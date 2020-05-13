@@ -9,6 +9,7 @@ from .errors import UndefinedElement
 from .syntax import Function, Constant, Variable, Sort, inclusion_closure, Predicate, Interval
 from .syntax.algebra import Matrix
 from . import modules
+from .syntax.sorts import Enumeration
 
 
 class FirstOrderLanguage:
@@ -38,6 +39,14 @@ class FirstOrderLanguage:
 
         self._attach_object_sort()
 
+    def __eq__(self, other):
+        """ A (very) shallow equality test. """
+        return self.name == other.name
+
+    def __hash__(self):
+        """ A (very) shallow hash method. """
+        return hash(self.name)
+
     def __deepcopy__(self, memo):
         """ At the moment we forbid deep copies of this class, as they might be too expensive"""
         memo[id(self)] = self
@@ -66,7 +75,7 @@ class FirstOrderLanguage:
 
     def _attach_object_sort(self):
         """ The `object` sort, being the root of the sort hierarchy, needs a special treatment"""
-        sort = Sort('object', self)
+        sort = Enumeration('object', self)
         self._sorts['object'] = sort
         self._global_index['object'] = sort
         self.immediate_parent[sort] = None
@@ -98,15 +107,15 @@ class FirstOrderLanguage:
         return self.get_sort('Boolean')
 
     def sort(self, name: str, parent: Union[Sort, str, None] = None):
-        """ Create new sort with given name and parent sort. The parent sort can be given as a Sort object or as its
-        name, if a Sort with that name has already been registered.
+        """ Create new enumerated sort with given name and parent sort.
+        The parent sort can be given as a Sort object or as its name, if a Sort with that name is already registered.
         If no parent is specified, the "object" sort is assumed as parent.
 
         :raises err.DuplicateSortDefinition: if a sort with the same name already existed.
-        :raises err.DuplicateDefinition: f some non-sort element with the same name already existed.
+        :raises err.DuplicateDefinition: if some non-sort element with the same name already existed.
         """
         parent = self.get_sort("object") if parent is None else self._retrieve_sort(parent)
-        return self.attach_sort(Sort(name, self), parent)
+        return self.attach_sort(Enumeration(name, self), parent)
 
     def attach_sort(self, sort: Sort, parent: Sort):
         """ Attach a given sort to the language. For standard creation of sorts, better use `lang.sort()`. """
@@ -189,7 +198,7 @@ class FirstOrderLanguage:
 
         # obj must be a string, which we take as the name of a language element
         if type_ not in self._element_containers:
-            raise RuntimeError("Trying to index incorrect type {}".format(type_))
+            raise RuntimeError(f'Trying to index incorrect type "{type_}"')
 
         if obj not in self._element_containers[type_]:
             raise err.UndefinedElement(obj)
@@ -201,16 +210,12 @@ class FirstOrderLanguage:
         if a Sort with that name has already been registered. """
         sort = self._retrieve_sort(sort)
 
-        if sort.builtin:
-            if sort.cast(name) is None:
-                raise err.SemanticError(
-                    f"Cannot create constant with sort '{sort.name}' from '{name}' of Python type '{type(name)}'")
+        if not sort.symbol_is_consistent(name):
+            raise err.CastError(
+                f"Cannot create constant with sort '{sort}' from element '{name}' of Python type '{type(name)}'")
 
-            # MRJ: if name is a Python primitive type literal that can be interpreted as the underlying
-            # type of the built in sort, we return a Constant object.
-            # TODO: I don't see it is desirable to store constants of built in sorts.
-            # MRJ: We're not storing them anywhere, but we need the Python literals
-            # to be decorated so we can use them in our ASTs
+        if not sort.has_extensional_storage():
+            # If the sort doesn't need to be stored, we're done
             return Constant(name, sort)
 
         self._check_name_not_defined(name, self._constants, err.DuplicateConstantDefinition)

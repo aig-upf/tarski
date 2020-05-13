@@ -1,7 +1,6 @@
 from typing import Union
 
 from . import errors as err
-from .errors import UndefinedElement
 from .syntax import Function, Constant, CompoundTerm, symref
 from .syntax.predicate import Predicate
 
@@ -22,7 +21,7 @@ def _check_assignment(fun, point, value=None):
 
         if not isinstance(element, Constant):
             # Assume a literal value has been passed instead of its corresponding constant
-            element = Constant(expected_type.cast(element), expected_type)
+            element = Constant(expected_type.literal(element), expected_type)
             # raise err.IncorrectExtensionDefinition(fun, point, value)
 
         if element.language != language:

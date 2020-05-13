@@ -44,6 +44,10 @@ class SortMismatch(SyntacticError):
         super().__init__(msg)
 
 
+class CastError(SyntacticError):
+    pass
+
+
 class DuplicateDefinition(SyntacticError):
     def __init__(self, name, other=None, msg=None):
         msg = msg or f'Duplicate definition of element "{name}"'

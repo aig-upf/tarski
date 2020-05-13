@@ -183,7 +183,7 @@ class CompoundTerm(Term):
                     raise err.SortMismatch(self.symbol, subterms[k].sort, s)
                 processed_st.append(subterms[k])
             except AttributeError:
-                s_k = s.cast(subterms[k])
+                s_k = s.literal(subterms[k])
                 if s_k is None:
                     raise err.SortMismatch(self.symbol, subterms[k], s)
                 processed_st.append(s_k)
@@ -307,12 +307,7 @@ class Constant(Term):
     def __init__(self, name, sort: Sort):
         self.name = name
         self._sort = sort
-
-        if isinstance(sort, Interval):
-            self.name = sort.cast(self.name)
-        else:
-            # If the sort is an enumerated type, constructing a new constant extends its domain
-            sort.extend(self)
+        self.name = sort.extend(name)
 
     @property
     def symbol(self):

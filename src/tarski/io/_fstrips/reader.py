@@ -234,7 +234,7 @@ class FStripsParser(fstripsVisitor):
         fun = self.language.get_function(symbol)
         subterms = [self.visit(t) for t in ctx.term()]
         assert len(fun.domain) == len(subterms)
-        subterms = tuple(s.to_constant(x) if not isinstance(x, Term) else x for s, x in zip(fun.domain, subterms))
+        subterms = tuple(s.cast(x) if not isinstance(x, Term) else x for s, x in zip(fun.domain, subterms))
         return fun(*subterms)
 
     def visitBinaryArithmeticFunctionTerm(self, ctx):
@@ -366,7 +366,7 @@ class FStripsParser(fstripsVisitor):
         fun, subterms = self.visit(ctx.flat_term())
         assert len(fun.domain) == len(subterms)
         value = self.visit(ctx.constant_name())
-        subterms = tuple(s.to_constant(x) for s, x in zip(fun.domain, subterms))
+        subterms = tuple(s.cast(x) for s, x in zip(fun.domain, subterms))
         self.init.setx(fun(*subterms), value)
 
     def visitFlat_atom(self, ctx):

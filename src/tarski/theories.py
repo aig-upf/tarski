@@ -3,7 +3,7 @@ from enum import Enum
 from typing import Union, List, Optional
 
 from tarski.errors import DuplicateTheoryDefinition
-from .syntax.sorts import attach_arithmetic_sorts, build_the_bools
+from .syntax.sorts import attach_arithmetic_sorts, attach_bool_sort
 from .fol import FirstOrderLanguage
 from .syntax import builtins, Term
 from .syntax.factory import create_atom, create_arithmetic_term
@@ -40,10 +40,11 @@ def language(name='L', theories: Optional[List[Union[str, Theory]]] = None):
 
 
 def load_theory(lang, theory: Union[Theory, str]):
-    """ Load one of the buillt-in theories into the given language """
+    """ Load one of the built-in theories into the given language """
     th = Theory(theory) if isinstance(theory, str) else theory  # Make sure we have a valid theory object
     if th in lang.theories:
         raise DuplicateTheoryDefinition(th)
+
     loaders = {
         Theory.BOOLEAN: load_bool_theory,
         Theory.EQUALITY: load_equality_theory,
@@ -71,7 +72,7 @@ def has_theory(lang, theory: Union[Theory, str]):
 
 
 def load_bool_theory(lang):
-    build_the_bools(lang)
+    attach_bool_sort(lang)
 
 
 def load_equality_theory(lang):

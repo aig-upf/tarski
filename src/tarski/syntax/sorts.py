@@ -1,63 +1,101 @@
 import itertools
-from typing import Generator, Set
+from typing import Generator, Set as SetT
 
 from .. import errors as err
 
 
 class Sort:
-    """ A logical sort (aka type)
+    """ A logical sort (aka type).
         Sorts are uniquely identified by their name (i.e. we don't allow two sorts with different characteristics
         but the same name). Hence, implementation-wise, we can hash and compare them based on name alone.
     """
     def __init__(self, name, language, builtin=False):
         self.name = name
         self.language = language
-        self._domain = set()
         self.builtin = builtin
-
-    def __str__(self):
-        return 'Sort({})'.format(self.name)
-
-    __repr__ = __str__
-
-    def __deepcopy__(self, memo):
-        """ At the moment we forbid deep copies of this class, as they might be too expensive"""
-        memo[id(self)] = self
-        return self
-
-    def __hash__(self):
-        return hash(self.name)
 
     def __eq__(self, other):
         return self.name == other.name and self.language == other.language
 
+    def __hash__(self):
+        return hash((self.name, self.language))
+
+    def __str__(self):
+        raise NotImplementedError
+    __repr__ = __str__
+
+    def __deepcopy__(self, memo):
+        """ At the moment we forbid deep copies of Sort objects, as they might be too expensive"""
+        memo[id(self)] = self
+        return self
+
+    def contains(self, element):
+        """ Return true iff the current sort contains the specified element. """
+        raise NotImplementedError
+
+    def literal(self, element):
+        """ Return the Python object corresponding to the given element if the element belongs to this sort.
+        Thus a Constant(10, Integer) will cast as the Python 10 int object, whereas a Constant("b1", Block)
+        will be casted as a Block as the Python string "b1".
+        If the element does not belong to this sort, a CastError is raised.
+        This can happen for instance if we attempt to get the literal corresponding to a block "b1" that has not been
+        created as a constant of sort "Block", or if we attempt to retrieve an int literal from an object 3.14159.
+        """
+        raise NotImplementedError
+
+    def cast(self, element):
+        """ Cast the given element to a constant of this sort. """
+        raise NotImplementedError
+
+    def cardinality(self):
+        raise NotImplementedError
+
+    def dump(self):
+        raise NotImplementedError
+
+    def extend(self, symbol):
+        """ Register the given symbol as a constant of this sort. """
+        raise NotImplementedError
+
+    def domain(self):
+        """ Return an iterator over all constants defined in this sort. """
+        raise NotImplementedError
+
+    def symbol_is_consistent(self, element):
+        """ Return whether the given element is a-priori consistent with this sort. """
+        raise NotImplementedError
+
+    def has_extensional_storage(self):
+        """ Return whether this sort requires to to store all constants that are created in the language register. """
+        raise NotImplementedError
+
+
+class Enumeration(Sort):
+    """ A finite-domain sort with no arithmetic/scalar meaning, i.e. an enumeration sort, such as
+    "block" in blocksworld, or "stone" in Sokoban. """
+
+    def __init__(self, name, language, builtin=False):
+        super().__init__(name, language, builtin)
+        self._domain = set()
+
+    def __str__(self):
+        return f'Enumeration({self.name})'
+
     def contains(self, x):
-        """ Return true iff the current sort contains a constant with the given value  """
-        # TODO - Refactor this, we shouldn't be checking for two different ways of representing a value
-        try:
-            return x.symbol in self._domain
-        except AttributeError:
-            return x in self._domain
+        from .terms import Constant
+        value = x.symbol if isinstance(x, Constant) and x.sort == self else x
+        return value in self._domain
+
+    def literal(self, x):
+        from .terms import Constant
+        value = x.symbol if isinstance(x, Constant) and x.sort == self else x
+        if value in self._domain:
+            return value
+        raise err.CastError(f'Cannot convert "{x}" to literal of sort {self}')
 
     def cast(self, x):
-        # TODO - Refactor this, we shouldn't be checking for two different ways of representing a value
-        try:
-            if x.symbol in self._domain:
-                return x.symbol
-        except AttributeError:
-            if x in self._domain:
-                return x
-            raise ValueError(f"Cast: Symbol '{x}' does not belong to domain {self}")
-        return None
-
-    def to_constant(self, x):
-        """ Cast the given element to a constant of this sort. """
-        from . import Constant, Variable
-        if isinstance(x, (Constant, Variable)) and x.sort == self:
-            return x
-        if x not in self._domain:
-            raise ValueError(f"Cast: Symbol '{x}' does not belong to domain {self}")
-        return Constant(x, self)
+        from .terms import Constant
+        return Constant(self.literal(x), self)
 
     def cardinality(self):
         return len(self._domain)
@@ -66,22 +104,40 @@ class Sort:
         return dict(name=self.name,
                     domain=list(self._domain))  # Copy the list
 
-    def extend(self, constant):
+    def extend(self, symbol):
         """ Extend the domain of the current sort, and recursively of the parent sorts, with a new constant. """
-        self._domain.add(constant.symbol)
+        self._domain.add(symbol)
         for p in ancestors(self):
-            p.extend(constant)
+            p.extend(symbol)
+        return symbol
 
     def domain(self):
         return (self.language.get_constant(v) for v in self._domain)
 
+    def symbol_is_consistent(self, element):
+        return isinstance(element, str)
+
+    def has_extensional_storage(self):
+        return True
+
 
 class Interval(Sort):
-    def __init__(self, name, lang, encode_fn, lower_bound, upper_bound, builtin=False):
-        super().__init__(name, lang, builtin=builtin)
+    """ An (bounded) real or integer interval type. The Integers and the Reals, for instance, are
+    (built-in) interval sorts, with large predefined bounds. User-created intervals should be defined
+    through the FirstOrderLanguage.interval() function. """
+
+    def __init__(self, name, language, encode_fn, lower_bound, upper_bound, builtin=False):
+        """ Create an interval defined by the range [lower_bound, upper_bound], i.e. both inclusive.
+        `encode_fn` should be a function able to encode string objects into the Python arithmetic object that
+         underlies this sort (e.g. the int function, that can be invoked as int("34")).
+        """
+        super().__init__(name, language, builtin)
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
         self.encode = encode_fn
+
+    def __str__(self):
+        return f'Interval({self.name})'
 
     def is_within_bounds(self, x):
         """ Check whether a given value is within the bounds of the interval """
@@ -93,33 +149,35 @@ class Interval(Sort):
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
 
-    def extend(self, constant):
-        # Overload to avoid doing any extension.
-        # TODO Better would be to subclass not from Sort but from a different, common baseclass
-        pass
+    def extend(self, symbol):
+        """ Intervals simply cast to literal. """
+        return self.literal(symbol)
 
     def cardinality(self):
+        # Note that the range is inclusive, hence we add 1
         return self.upper_bound - self.lower_bound + 1
 
-    def cast(self, x):
-        """ Casts the given value as an element of the current domain,
-        or raise ValueError if it does not belong to it """
-        # if isinstance(x, str):
-        #     try:
-        #         return getattr(self, x)  # TODO: WHAT IS THIS?? ANSWER: MADNESS
-        #     except AttributeError:
-        #         pass
-        y = self.encode(x)  # can raise ValueError
-        if not self.is_within_bounds(y):
-            raise ValueError("Cast: Symbol '{}' (encoded '{}') outside of defined interval bounds".format(x, y))
-        return y
+    def symbol_is_consistent(self, element):
+        try:
+            self.literal(element)
+            return True
+        except err.CastError:
+            return False
 
-    def to_constant(self, x):
+    def literal(self, x):
+        try:
+            x = self.encode(x)
+        except ValueError:
+            raise err.CastError(f'Cannot convert "{x}" to literal of sort {self}')
+        if not self.is_within_bounds(x):
+            raise err.CastError(f'Cannot convert "{x}" to literal of sort {self},'
+                                f' as it lies outside the defined interval bounds')
+        return x
+
+    def cast(self, x):
         """ Cast the given element to a constant of this sort. """
-        from . import Constant, Variable
-        if isinstance(x, (Constant, Variable)) and x.sort == self:
-            return x
-        return Constant(self.cast(x), self)
+        from .terms import Constant
+        return Constant(self.literal(x), self)
 
     def contains(self, x):
         """ Returns true iff the given value belongs to the current domain """
@@ -131,7 +189,7 @@ class Interval(Sort):
 
     def _downcast(self, x):
         """ Check whether the given value belongs to the current sort _or_ can be downcasted to it.
-        e.g. Integer.downcast(1.0) would return 1; whereas Integer.downcast(1.4) would return None. """
+        e.g. Integer.downliteral(1.0) would return 1; whereas Integer.downliteral(1.4) would return None. """
         # TODO (GFM) - Not sure we need this, and not sure whether the method works as it is
         # TODO (GFM) - If noone is using this we should remove it soon
         if self.contains(x):
@@ -144,7 +202,7 @@ class Interval(Sort):
         p = parent(self)
         while p is not None:
             try:
-                z = p.cast(x)
+                z = p.literal(x)
             except ValueError:
                 raise err.LanguageError()
             if z is not None and x != z:
@@ -157,8 +215,11 @@ class Interval(Sort):
     def domain(self):
         if self.builtin or self.upper_bound - self.lower_bound > 9999:  # Yes, very hacky
             raise err.TarskiError(f'Cannot iterate over interval with range [{self.lower_bound}, {self.upper_bound}]')
-        from . import Constant
+        from .terms import Constant
         return (Constant(x, self) for x in range(self.lower_bound, self.upper_bound+1))
+
+    def has_extensional_storage(self):
+        return False
 
 
 def inclusion_closure(s: Sort) -> Generator[Sort, None, None]:
@@ -174,13 +235,13 @@ def parent(s: Sort) -> Sort:
     return s.language.immediate_parent[s]
 
 
-def ancestors(s: Sort) -> Set[Sort]:
+def ancestors(s: Sort) -> SetT[Sort]:
     """ Return the set of all ancestors of `s` along the sort hierarchy, but not `s` itself """
     assert s in s.language.ancestor_sorts
     return s.language.ancestor_sorts[s]
 
 
-def children(s: Sort) -> Set[Sort]:
+def children(s: Sort) -> SetT[Sort]:
     """ Return the direct children of the given sort """
     result = set()
     for child, par in s.language.immediate_parent.items():
@@ -199,39 +260,29 @@ def float_encode_fn(x):
     return float(x)
 
 
-def build_the_bools(lang):
-    bools = lang.sort('Boolean')
-    # TODO: we really should be setting builtin to True, but at the moment this is undesirable, as in many places in
-    #       the code we seem to assume that "builtin" sorts are kind of "numeric" sorts, which leads us to try to do
-    #       things with the new Bool sort that cannot be done, e.g. to cast string object "True" to a value, etc.
-    # bools.builtin = True
-    lang.constant('True', bools)
-    lang.constant('False', bools)
-    return bools
-
-
 def build_the_naturals(lang):
-    the_nats = Interval('Natural', lang, int_encode_fn, 0, 2 ** 32 - 1, builtin=True)
-    the_nats.builtin = True
-    return the_nats
+    return Interval('Natural', lang, int_encode_fn, 0, 2 ** 32 - 1, builtin=True)
 
 
 def build_the_integers(lang):
-    the_ints = Interval('Integer', lang, int_encode_fn, -(2 ** 31 - 1), 2 ** 31 - 1, builtin=True)
-    the_ints.builtin = True
-    return the_ints
+    return Interval('Integer', lang, int_encode_fn, -(2 ** 31 - 1), 2 ** 31 - 1, builtin=True)
 
 
 def build_the_reals(lang):
-    reals = Interval('Real', lang, float_encode_fn, -3.40282e+38, 3.40282e+38, builtin=True)
-    reals.builtin = True
-    return reals
+    return Interval('Real', lang, float_encode_fn, -3.40282e+38, 3.40282e+38, builtin=True)
 
 
 def attach_arithmetic_sorts(lang):
     real_t = lang.attach_sort(build_the_reals(lang), lang.ns.object)
     int_t = lang.attach_sort(build_the_integers(lang), real_t)
     _ = lang.attach_sort(build_the_naturals(lang), int_t)
+
+
+def attach_bool_sort(lang):
+    bools = Enumeration('Boolean', lang, builtin=True)
+    lang.attach_sort(bools, lang.ns.object)
+    lang.constant('True', bools)
+    lang.constant('False', bools)
 
 
 def compute_signature_bindings(signature):

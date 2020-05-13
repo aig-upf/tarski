@@ -2,6 +2,7 @@
 import tarski
 import tarski.benchmarks.blocksworld
 import tarski.model
+from tarski.errors import CastError
 from tarski.fstrips import language
 from tarski.model import Model
 from tarski import errors
@@ -345,7 +346,7 @@ def test_predicate_extensions():
         # This should raise an error, as the predicate is binary
         model.add(pred)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(CastError):
         # This should raise an error, as the predicate sort does not coincide with the sort of the parameters
         model.add(pred, 1, 2)
 
