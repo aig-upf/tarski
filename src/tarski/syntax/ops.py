@@ -4,8 +4,8 @@ from .walker import FOLWalker
 from .. import modules
 from .sorts import children, compute_direct_sort_map, Interval
 from .visitors import CollectFreeVariables
-from .terms import Term, Constant, Variable, CompoundTerm, IfThenElse
-from .formulas import CompoundFormula, Connective, QuantifiedFormula, Atom, Tautology, Contradiction
+from .terms import Term, Constant, Variable
+from .formulas import CompoundFormula, Connective
 from .symrefs import symref
 
 

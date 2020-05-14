@@ -48,12 +48,15 @@ class CastError(SyntacticError):
     pass
 
 
+class InvalidSortError(SyntacticError):
+    pass
+
+
 class DuplicateDefinition(SyntacticError):
-    def __init__(self, name, other=None, msg=None):
+    def __init__(self, name, msg=None):
         msg = msg or f'Duplicate definition of element "{name}"'
         super().__init__(msg)
         self.name = name
-        self.other = other
 
 
 class UndefinedElement(SyntacticError):

@@ -12,6 +12,8 @@ class BuiltinPredicateSymbol(Enum):
     GT = ">"
     GE = ">="
 
+    SET_IS_EMPTY = "set_is_empty"
+
     def __str__(self):
         return self.value.lower()
 
@@ -48,6 +50,13 @@ class BuiltinFunctionSymbol(Enum):
     BERNOULLI = "bernoulli"
     DISCRETE = "discrete"
     POISSON = "poisson"
+
+    ITE = "ite"  # If-then-else
+
+    SET_EMPTYSET = "set_emptyset"
+    SET_INTERSECTION = "set_intersection"
+    SET_UNION = "set_union"
+    SET_CARDINALITY = "set_cardinality"
 
     def __str__(self):
         return self.value.lower()
@@ -86,13 +95,52 @@ def get_arithmetic_predicates():
     return [BuiltinPredicateSymbol.LT, BuiltinPredicateSymbol.LE, BuiltinPredicateSymbol.GT, BuiltinPredicateSymbol.GE]
 
 
+def get_real_signature(lang):
+    return lang.Real, lang.Real, lang.Real
+
+
+def get_int_signature(lang):
+    return lang.Integer, lang.Integer, lang.Integer
+
+
+def get_natural_signature(lang):
+    return lang.Natural, lang.Natural, lang.Natural
+
+
+def get_function_overloads(lang, symbol):
+    real_only_signature = [get_real_signature(lang)]
+    int_only_signature = [get_int_signature(lang)]
+    real_and_int_signature = real_only_signature + int_only_signature
+
+    return {
+        BuiltinFunctionSymbol.ADD: real_and_int_signature + [get_natural_signature(lang)],
+        BuiltinFunctionSymbol.SUB: real_and_int_signature,
+        BuiltinFunctionSymbol.MUL: real_and_int_signature,
+        BuiltinFunctionSymbol.DIV: real_only_signature,
+        BuiltinFunctionSymbol.POW: real_and_int_signature,
+        BuiltinFunctionSymbol.MOD: int_only_signature,
+    }.get(symbol, real_only_signature)
+
+
 def get_arithmetic_binary_functions():
     return [BuiltinFunctionSymbol.ADD, BuiltinFunctionSymbol.SUB, BuiltinFunctionSymbol.MUL, BuiltinFunctionSymbol.DIV,
             BuiltinFunctionSymbol.POW, BuiltinFunctionSymbol.MOD]
 
 
+def get_matrix_functions():
+    return [BuiltinFunctionSymbol.MATMUL]
+
+
 def get_arithmetic_unary_functions():
     return [BuiltinFunctionSymbol.SQRT]
+
+
+def get_set_predicates():
+    return [BuiltinPredicateSymbol.SET_IS_EMPTY]
+
+
+def get_set_functions():
+    return [BuiltinFunctionSymbol.SET_EMPTYSET]
 
 
 def get_special_binary_functions():
@@ -111,7 +159,6 @@ def get_random_binary_functions():
 
 
 def get_random_unary_functions():
-    # BFS = BuiltinFunctionSymbol
     return []
 
 

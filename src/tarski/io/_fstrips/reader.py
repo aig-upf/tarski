@@ -241,7 +241,7 @@ class FStripsParser(fstripsVisitor):
         op = ctx.builtin_binary_function().getText().lower()
         subterms = [self.visit(t) for t in ctx.term()]
         lhs, rhs = subterms
-        return self.language.dispatch_operator(get_function_from_symbol(op), Term, Term, lhs, rhs)
+        return self.language.dispatch_operator(get_function_from_symbol(op), lhs, rhs)
     #
     # def visitUnaryArithmeticFunctionTerm(self, ctx):
     #     func_name = ctx.builtin_unary_function().getText().lower()
@@ -301,7 +301,7 @@ class FStripsParser(fstripsVisitor):
         op = ctx.builtin_binary_predicate().getText().lower()
         lhs = self.visit(ctx.term(0))
         rhs = self.visit(ctx.term(1))
-        return self.language.dispatch_operator(get_predicate_from_symbol(op), Term, Term, lhs, rhs)
+        return self.language.dispatch_operator(get_predicate_from_symbol(op), lhs, rhs)
 
     def visitGoal(self, ctx):
         self.problem.goal = self.visit(ctx.goalDesc())
@@ -438,7 +438,7 @@ class FStripsParser(fstripsVisitor):
         lhs = self.visit(ctx.functionTerm())
         rhs = self.visit(ctx.term())
         operator = {'scale-up': '*', 'scale-down': '/', 'increase': '+', 'decrease': '-'}[operation]
-        rhs = self.language.dispatch_operator(get_function_from_symbol(operator), Term, Term, lhs, rhs)
+        rhs = self.language.dispatch_operator(get_function_from_symbol(operator), lhs, rhs)
         return FunctionalEffect(lhs, rhs)
 
     def visitDerivedDef(self, ctx):

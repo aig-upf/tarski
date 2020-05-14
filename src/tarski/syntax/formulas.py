@@ -315,7 +315,7 @@ class Atom(Formula):
         # Check arguments are all terms of the appropriate type and matching language
         for arg, expected_sort in zip(self.subterms, head.sort):
             if not isinstance(arg, Term):
-                raise err.LanguageError("Wrong argument for atomic formula: '{}' ".format(arg))
+                raise err.LanguageError(f"Wrong argument for atomic formula: '{arg}'")
 
             if arg.language != language:
                 raise err.LanguageMismatch(arg, arg.language, language)

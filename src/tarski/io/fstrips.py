@@ -3,6 +3,7 @@ from collections import defaultdict
 from typing import Optional, List
 
 from ..fstrips.action import AdditiveActionCost
+from ..syntax.util import get_symbols
 from ..theories import load_theory, Theory
 from .common import load_tpl
 from ..model import ExtensionalFunctionDefinition
@@ -247,9 +248,7 @@ class FstripsWriter:
 
     def get_functions(self):
         res = []
-        for fun in self.lang.functions:
-            if fun.builtin:
-                continue  # Don't declare builtin elements
+        for fun in get_symbols(self.lang, type_="function", include_builtin=False):
             domain_str = build_signature_string(fun.domain)
             codomain_str = tarski_to_pddl_type(fun.codomain)
             res.append("({} {}) - {}".format(fun.symbol, domain_str, codomain_str))
@@ -257,9 +256,7 @@ class FstripsWriter:
 
     def get_predicates(self):
         res = []
-        for fun in self.lang.predicates:
-            if fun.builtin:
-                continue  # Don't declare builtin elements
+        for fun in get_symbols(self.lang, type_="predicate", include_builtin=False):
             domain_str = build_signature_string(fun.sort)
             res.append("({} {})".format(fun.symbol, domain_str))
         return ("\n" + _TAB * 2).join(res)

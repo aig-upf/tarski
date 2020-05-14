@@ -35,10 +35,10 @@ relational_rddl_to_tarski = {
 }
 
 arithmetic_rddl_to_tarski = {
-    '-': lambda lang, x, y: lang.dispatch_operator(BFS.SUB, Term, Term, x, y),
-    '+': lambda lang, x, y: lang.dispatch_operator(BFS.ADD, Term, Term, x, y),
-    '*': lambda lang, x, y: lang.dispatch_operator(BFS.MUL, Term, Term, x, y),
-    '/': lambda lang, x, y: lang.dispatch_operator(BFS.DIV, Term, Term, x, y)
+    '-': lambda lang, x, y: lang.dispatch_operator(BFS.SUB, x, y),
+    '+': lambda lang, x, y: lang.dispatch_operator(BFS.ADD, x, y),
+    '*': lambda lang, x, y: lang.dispatch_operator(BFS.MUL, x, y),
+    '/': lambda lang, x, y: lang.dispatch_operator(BFS.DIV, x, y)
 }
 
 func_rddl_to_tarski = {
@@ -173,7 +173,7 @@ def translate_expression(lang, rddl_expr):
     elif expr_type == 'func':
         func = func_rddl_to_tarski[expr_sym]
         targs = [translate_expression(lang, arg) for arg in rddl_expr.args]
-        return lang.get(func)(*targs)
+        return lang.dispatch_operator(func, *targs)
     elif expr_type == 'randomvar':
         func = func_rddl_to_tarski[expr_sym]
         targs = [translate_expression(lang, arg) for arg in rddl_expr.args]

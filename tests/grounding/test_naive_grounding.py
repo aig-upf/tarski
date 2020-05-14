@@ -161,7 +161,7 @@ def test_all_state_variables_can_be_evaluated_in_init_parcprinter():
         index.state_variables.add(var)
     for var in index.state_variables:
         val = prob.init[var.ground]
-        assert val in (True, False, 0.0)
+        assert isinstance(val, bool) or val.symbol == 0.0
 
 
 def test_task_index_create_state_variables_blocksworld():

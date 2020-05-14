@@ -4,11 +4,11 @@ from .sorts import Sort
 
 
 class Predicate:
-    def __init__(self, name, language, *args):
+    def __init__(self, name, language, *args, builtin=False):
         self.name = name
         self.language = language
         self.sort = tuple(args)
-        self.builtin = False
+        self.builtin = builtin
         self._check_well_formed()
 
     def _check_well_formed(self):

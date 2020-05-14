@@ -46,76 +46,76 @@ class Term:
         return exc_type is not None
 
     def __lshift__(self, rhs):
-        return self.language.dispatch_operator('<<', Term, Term, self, rhs)
+        return self.language.dispatch_operator('<<', self, rhs)
 
     def __rshift__(self, rhs):
-        return self.language.dispatch_operator('>>', Term, Term, self, rhs)
+        return self.language.dispatch_operator('>>', self, rhs)
 
     def __eq__(self, rhs):
-        return self.language.dispatch_operator(BuiltinPredicateSymbol.EQ, Term, Term, self, rhs)
+        return self.language.dispatch_operator(BuiltinPredicateSymbol.EQ, self, rhs)
 
     def __ne__(self, rhs):
-        return self.language.dispatch_operator(BuiltinPredicateSymbol.NE, Term, Term, self, rhs)
+        return self.language.dispatch_operator(BuiltinPredicateSymbol.NE, self, rhs)
 
     def __lt__(self, rhs):
-        return self.language.dispatch_operator(BuiltinPredicateSymbol.LT, Term, Term, self, rhs)
+        return self.language.dispatch_operator(BuiltinPredicateSymbol.LT, self, rhs)
 
     def __gt__(self, rhs):
-        return self.language.dispatch_operator(BuiltinPredicateSymbol.GT, Term, Term, self, rhs)
+        return self.language.dispatch_operator(BuiltinPredicateSymbol.GT, self, rhs)
 
     def __le__(self, rhs):
-        return self.language.dispatch_operator(BuiltinPredicateSymbol.LE, Term, Term, self, rhs)
+        return self.language.dispatch_operator(BuiltinPredicateSymbol.LE, self, rhs)
 
     def __ge__(self, rhs):
-        return self.language.dispatch_operator(BuiltinPredicateSymbol.GE, Term, Term, self, rhs)
+        return self.language.dispatch_operator(BuiltinPredicateSymbol.GE, self, rhs)
 
     def __add__(self, rhs):
-        return self.language.dispatch_operator(BuiltinFunctionSymbol.ADD, Term, Term, self, rhs)
+        return self.language.dispatch_operator(BuiltinFunctionSymbol.ADD, self, rhs)
 
     def __sub__(self, rhs):
-        return self.language.dispatch_operator(BuiltinFunctionSymbol.SUB, Term, Term, self, rhs)
+        return self.language.dispatch_operator(BuiltinFunctionSymbol.SUB, self, rhs)
 
     def __mul__(self, rhs):
-        return self.language.dispatch_operator(BuiltinFunctionSymbol.MUL, Term, Term, self, rhs)
+        return self.language.dispatch_operator(BuiltinFunctionSymbol.MUL, self, rhs)
 
     def __matmul__(self, rhs):
-        return self.language.dispatch_operator(BuiltinFunctionSymbol.MATMUL, Term, Term, self, rhs)
+        return self.language.dispatch_operator(BuiltinFunctionSymbol.MATMUL, self, rhs)
 
     def __truediv__(self, rhs):
-        return self.language.dispatch_operator(BuiltinFunctionSymbol.DIV, Term, Term, self, rhs)
+        return self.language.dispatch_operator(BuiltinFunctionSymbol.DIV, self, rhs)
 
     def __radd__(self, lhs):
-        return self.language.dispatch_operator(BuiltinFunctionSymbol.ADD, Term, Term, lhs, self)
+        return self.language.dispatch_operator(BuiltinFunctionSymbol.ADD, lhs, self)
 
     def __rsub__(self, lhs):
-        return self.language.dispatch_operator(BuiltinFunctionSymbol.SUB, Term, Term, lhs, self)
+        return self.language.dispatch_operator(BuiltinFunctionSymbol.SUB, lhs, self)
 
     def __rmul__(self, lhs):
-        return self.language.dispatch_operator(BuiltinFunctionSymbol.MUL, Term, Term, lhs, self)
+        return self.language.dispatch_operator(BuiltinFunctionSymbol.MUL, lhs, self)
 
     def __rtruediv__(self, lhs):
-        return self.language.dispatch_operator(BuiltinFunctionSymbol.DIV, Term, Term, lhs, self)
+        return self.language.dispatch_operator(BuiltinFunctionSymbol.DIV, lhs, self)
 
     def __pow__(self, rhs):
-        return self.language.dispatch_operator(BuiltinFunctionSymbol.POW, Term, Term, self, rhs)
+        return self.language.dispatch_operator(BuiltinFunctionSymbol.POW, self, rhs)
 
     def __mod__(self, rhs):
-        return self.language.dispatch_operator(BuiltinFunctionSymbol.MOD, Term, Term, self, rhs)
+        return self.language.dispatch_operator(BuiltinFunctionSymbol.MOD, self, rhs)
 
     def __floordiv__(self, rhs):
-        return self.language.dispatch_operator('//', Term, Term, self, rhs)
+        return self.language.dispatch_operator('//', self, rhs)
 
     def __divmod__(self, rhs):
-        return self.language.dispatch_operator('divmod', Term, Term, self, rhs)
+        return self.language.dispatch_operator('divmod', self, rhs)
 
     def __and__(self, rhs):
-        return self.language.dispatch_operator('&', Term, Term, self, rhs)
+        return self.language.dispatch_operator('&', self, rhs)
 
     def __xor__(self, rhs):
-        return self.language.dispatch_operator('^', Term, Term, self, rhs)
+        return self.language.dispatch_operator('^', self, rhs)
 
     def __or__(self, rhs):
-        return self.language.dispatch_operator('|', Term, Term, self, rhs)
+        return self.language.dispatch_operator('|', self, rhs)
 
     def is_syntactically_equal(self, other):
         """ Return true if this term and other are strictly syntactically equivalent.
@@ -123,9 +123,7 @@ class Term:
         namely, to be able to use Python expressions such as "loc(b1)==table" in order to construct a FOL atom. """
         raise NotImplementedError()  # To be subclassed
 
-    # def __hash__(self):
-    #     Raise an informative exception to prevent wrong usage of terms in associative containers
-        # raise err.WrongTermUsageError()
+    # This will raise an appropriate error if anyone tries to hash a term
     # @see https://docs.python.org/3/reference/datamodel.html#object.__hash__
     __hash__ = None  # type: ignore
 
@@ -169,15 +167,25 @@ class CompoundTerm(Term):
     """
 
     def __init__(self, symbol, subterms: Tuple[Term]):
-
+        """ Construct a compound term (aka function application term) symbol(*subterms). """
+        from .ops import cast_to_closest_common_numeric_ancestor
         self.symbol = symbol
+        self.inferred_sort = self.symbol.codomain
+
+        if isinstance(self.inferred_sort, Interval) and symbol.builtin:
+            # For builtin arithmetic functions, we want the sort of the compound term to be that of the closest common
+            # ancestor sort
+            if len(subterms) == 2:
+                sts = cast_to_closest_common_numeric_ancestor(symbol.language, *subterms)
+                self.inferred_sort = sts[0].sort
+            elif len(subterms) > 0:
+                self.inferred_sort = subterms[0].sort
 
         if len(subterms) != self.symbol.arity:
             raise err.ArityMismatch(symbol, subterms)
         argument_sorts = list(self.symbol.sort)[:-1]
         processed_st = []
         for k, s in enumerate(argument_sorts):
-            # @TODO Implement upcasting for non built-in compound terms
             try:
                 if subterms[k].sort.name != s.name and not self.symbol.language.is_subtype(subterms[k].sort, s):
                     raise err.SortMismatch(self.symbol, subterms[k].sort, s)
@@ -195,7 +203,7 @@ class CompoundTerm(Term):
 
     @property
     def sort(self):
-        return self.symbol.codomain
+        return self.inferred_sort
 
     def __str__(self):
         return '{}({})'.format(self.symbol.symbol, ', '.join(str(t) for t in self.subterms))
@@ -259,7 +267,7 @@ class IfThenElse(Term):
         if len(subterms) != 2:
             raise err.ArityMismatch('IfThenElse', subterms, msg='IfThenElse term needs exactly two sub terms')
 
-        self.symbol = subterms[0].language.get('ite')
+        self.symbol = subterms[0].language.get(BuiltinFunctionSymbol.ITE)
         self.condition = condition
         # Our implementation of ite requires both branches to have equal sort
         if subterms[0].sort != subterms[1].sort:

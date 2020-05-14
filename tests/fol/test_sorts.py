@@ -78,7 +78,7 @@ def test_ints():
     assert ints.contains(1)
     assert ints.contains(0)
     assert ints.contains(-999)
-    assert ints.contains(1.0)  # Implicit downcasting
+    assert not ints.contains(1.0)  # We don't want to consider 1.0 as an int
     assert not ints.contains(1.2)
 
 

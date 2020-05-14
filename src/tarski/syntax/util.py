@@ -12,6 +12,8 @@ def get_symbols(lang, type_="all", include_builtin=True, include_total_cost=Fals
         assert type_ == "all"
         iterate_over = itertools.chain(lang.predicates, lang.functions)
 
+    iterate_over = _chain_possibly_nested_iterator(iterate_over)
+
     if not include_builtin:
         iterate_over = (x for x in iterate_over if not x.builtin)
 
@@ -19,6 +21,15 @@ def get_symbols(lang, type_="all", include_builtin=True, include_total_cost=Fals
         iterate_over = (x for x in iterate_over if x.symbol != "total-cost")
 
     return iterate_over
+
+
+def _chain_possibly_nested_iterator(iterator):
+    for x in iterator:
+        if isinstance(x, list):
+            for y in x:
+                yield y
+        else:
+            yield x
 
 
 def termlists_are_equal(terms1, terms2):

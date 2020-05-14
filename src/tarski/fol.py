@@ -9,6 +9,7 @@ from .errors import UndefinedElement
 from .syntax import Function, Constant, Variable, Sort, inclusion_closure, Predicate, Interval
 from .syntax.algebra import Matrix
 from . import modules
+from .syntax.ops import cast_to_closest_common_numeric_ancestor
 from .syntax.sorts import Enumeration
 
 
@@ -114,7 +115,7 @@ class FirstOrderLanguage:
         :raises err.DuplicateSortDefinition: if a sort with the same name already existed.
         :raises err.DuplicateDefinition: if some non-sort element with the same name already existed.
         """
-        parent = self.get_sort("object") if parent is None else self._retrieve_sort(parent)
+        parent = self.get_sort("object") if parent is None else self.retrieve_sort(parent)
         return self.attach_sort(Enumeration(name, self), parent)
 
     def attach_sort(self, sort: Sort, parent: Sort):
@@ -144,7 +145,7 @@ class FirstOrderLanguage:
         We allow only the new sort to derive from the built-in natural, integer or real sorts.
         """
         self._check_name_not_defined(name, self._sorts, err.DuplicateSortDefinition)
-        parent = self._retrieve_sort(parent)
+        parent = self.retrieve_sort(parent)
 
         if parent not in (self.Real, self.Natural, self.Integer):
             raise err.SemanticError("Only intervals derived or real, integer or naturals are allowed")
@@ -166,7 +167,7 @@ class FirstOrderLanguage:
     def variable(self, name: str, sort: Union[Sort, str]):
         """ Create a variable symbol with the specified sort, which can be given as a Sort object or as its name,
         if a Sort with that name has already been registered. """
-        sort = self._retrieve_sort(sort)
+        sort = self.retrieve_sort(sort)
         return Variable(name, sort)
 
     def set_parent(self, sort: Sort, parent: Sort):
@@ -180,7 +181,7 @@ class FirstOrderLanguage:
         self.immediate_parent[sort] = parent
         self.ancestor_sorts[sort].update(inclusion_closure(parent))
 
-    def _retrieve_sort(self, obj: Union[Sort, str]) -> Sort:
+    def retrieve_sort(self, obj: Union[Sort, str]) -> Sort:
         return self._retrieve_object(obj, Sort)
 
     def _retrieve_object(self, obj, type_):
@@ -208,7 +209,7 @@ class FirstOrderLanguage:
     def constant(self, name: str, sort: Union[Sort, str]):
         """ Create a constant symbol with the specified sort, which can be given as a Sort object or as its name,
         if a Sort with that name has already been registered. """
-        sort = self._retrieve_sort(sort)
+        sort = self.retrieve_sort(sort)
 
         if not sort.symbol_is_consistent(name):
             raise err.CastError(
@@ -255,11 +256,11 @@ class FirstOrderLanguage:
         if name in self._global_index:
             raise err.DuplicateDefinition(name, self._global_index[name])
 
-    def predicate(self, name: str, *args):
+    def predicate(self, name: str, *args, builtin=False):
         self._check_name_not_defined(name, self._predicates, err.DuplicatePredicateDefinition)
 
-        types = [self._retrieve_sort(a) for a in args]  # Convert possible strings into Sort objects
-        predicate = Predicate(name, self, *types)
+        types = [self.retrieve_sort(a) for a in args]  # Convert possible strings into Sort objects
+        predicate = Predicate(name, self, *types, builtin=builtin)
         self._predicates[name] = predicate
         self._global_index[name] = predicate
         return predicate
@@ -276,28 +277,62 @@ class FirstOrderLanguage:
         if symbol.name in self._predicates:
             del self._predicates[symbol.name]
         elif symbol.name in self._functions:
+            assert not isinstance(self._functions[symbol.name], list)
             del self._functions[symbol.name]
         else:
             raise UndefinedElement(symbol)
 
         del self._global_index[symbol.name]
 
-    def function(self, name: str, *args):
-        self._check_name_not_defined(name, self._functions, err.DuplicateFunctionDefinition)
+    def function(self, name: str, *args, builtin=False, overload=False):
+        types = [self.retrieve_sort(a) for a in args]  # Convert possible strings into Sort objects
+        func = Function(name, self, *types, builtin=builtin)
 
-        types = [self._retrieve_sort(a) for a in args]  # Convert possible strings into Sort objects
-        func = Function(name, self, *types)
-        self._functions[name] = func
-        self._global_index[name] = func
+        previous = self._functions.get(name)
+        if previous is None and name in self._global_index:
+            # Some other element (not a function) already declared with this name
+            raise err.DuplicateDefinition(name, self._global_index[name])
+
+        if previous is None:
+            self._global_index[name] = self._functions[name] = func
+            return func
+
+        # If we get here, we're dealing with a potential function overload
+        previous = [previous] if not isinstance(previous, list) else previous
+
+        # A function already declared with this name. We can only allow that if the caller asks for overload
+        # and the signatures are different
+        if not overload:
+            raise err.DuplicateFunctionDefinition(name, msg=f'Duplicate definition of function "{name}". '
+                                                  f'Set overload=True if you want to register a function overload')
+
+        if func.signature in [s.signature for s in previous]:
+            raise err.DuplicateFunctionDefinition(
+                name, f'Cannot redeclare function "{name}" with same signature "{func.signature}"')
+
+        if previous is not None:
+            self._global_index[name] = self._functions[name] = previous + [func]
+
         return func
 
     def has_function(self, name):
         return name in self._functions
 
-    def get_function(self, name):
-        if not self.has_function(name):
+    def get_function(self, name, signature=None):
+        res = self._functions.get(name)
+        if res is None:
             raise err.UndefinedFunction(name)
-        return self._functions[name]
+
+        if isinstance(res, list):  # An overloaded function
+            if signature is None:
+                raise err.UndefinedElement(f"Cannot retrieve overloaded function '{name}' "
+                                           f"without specifying the desired overload")
+            for f in res:  # Let's do just a linear search, should never have too many overloads
+                if f.sort == signature:
+                    return f
+            raise err.UndefinedElement(f"Cannot retrieve overloaded function '{name}': overload {signature} undefined")
+
+        return res
 
     def dump(self):
         return dict(
@@ -319,18 +354,18 @@ class FirstOrderLanguage:
         return None
 
     def is_subtype(self, t, st):
-        t = self._retrieve_sort(t)
-        st = self._retrieve_sort(st)
+        t = self.retrieve_sort(t)
+        st = self.retrieve_sort(st)
         return t == st or self.is_strict_subtype(t, st)
 
     def is_strict_subtype(self, t, st):
-        t = self._retrieve_sort(t)
-        st = self._retrieve_sort(st)
+        t = self.retrieve_sort(t)
+        st = self.retrieve_sort(st)
         return st in self.ancestor_sorts[t]
 
     def are_vertically_related(self, t1, t2):
-        t1 = self._retrieve_sort(t1)
-        t2 = self._retrieve_sort(t2)
+        t1 = self.retrieve_sort(t1)
+        t2 = self.retrieve_sort(t2)
         return self.is_subtype(t1, t2) or self.is_subtype(t2, t1)
 
     def __str__(self):
@@ -344,20 +379,42 @@ class FirstOrderLanguage:
     def register_unary_operator_handler(self, operator, t, handler):
         self._operators[(operator, t)] = handler
 
-    def dispatch_unary_operator(self, operator, t, term):
-        try:
-            return self._operators[(operator, t)](term)
-        except KeyError:
-            raise err.LanguageError("Operator '{}' not defined on domain ({})".format(operator, t))
+    def dispatch_operator(self, symbol, lhs, rhs=None):
+        """ Dispatch operator with given symbol and return the expression symbol(lhs, rhs).
+        Deals with symbol overloading (in a rather naive way).
+        If rhs is None, the operator is assumed to be unary.
+        """
+        if rhs is None:
+            return self._dispatch_unary_operator(symbol, lhs)
 
-    def dispatch_operator(self, operator, t1, t2, lhs, rhs):
-        # assert isinstance(lhs, t1)
-        # assert isinstance(rhs, t2)
-        op = self._operators.get((operator, t1, t2), None)
-        if op is None:
-            raise err.LanguageError("Operator '{}' not defined on domain ({}, {})".format(operator, t1, t2))
-
+        op, lhs, rhs = self.get_operator_matching_arguments(symbol, lhs, rhs)
         return op(lhs, rhs)
+
+    def _dispatch_unary_operator(self, symbol, lhs):
+        # @ see method dispatch_operator
+        sort = lhs.sort
+        while sort is not None:
+            op = self._operators.get((symbol, sort))
+            if op is not None:
+                return op(lhs)
+            sort = self.immediate_parent[sort]
+
+        raise err.LanguageError(f"Operator '{symbol}' undefined on domain ({sort})")
+
+    def get_operator_matching_arguments(self, symbol, *args):
+        lhs, rhs = cast_to_closest_common_numeric_ancestor(self, *args)
+
+        # Let's look up among possible overloads for the given symbol (e.g. +) for one overload that matches the
+        # argument sorts. We simply do a linear lookup, as we don't expect a large number of subtypes.
+        # The whole overload resolution strategy of course could be made more sophisticated, but at the moment we'll
+        # go with this.
+        sort = lhs.sort
+        while sort is not None:
+            op = self._operators.get((symbol, sort, sort))
+            if op is not None:
+                return op, lhs, rhs
+            sort = self.immediate_parent[sort]
+        raise err.LanguageError(f"Operator '{symbol}' undefined on domain ({lhs.sort}, {rhs.sort})")
 
     def get(self, first, *args):
         """ Return the language element with given name(s).
@@ -370,10 +427,12 @@ class FirstOrderLanguage:
             >>> on, loc = lang.get("on", "loc")
         """
         def access_next(elem):
-            try:
-                return self._global_index[elem]
-            except KeyError:
-                raise err.UndefinedElement(elem) from None
+            res = self._global_index.get(elem)
+            if res is None:
+                raise err.UndefinedElement(elem)
+            elif isinstance(res, list):
+                raise err.UndefinedElement(f"Attempted to retrieve element '{elem}' with several overloads")
+            return res
 
         if not args:  # The user asked for one single element, return it directly
             return access_next(first)

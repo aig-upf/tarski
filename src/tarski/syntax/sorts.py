@@ -2,6 +2,12 @@ import itertools
 from typing import Generator, Set as SetT
 
 from .. import errors as err
+from ..errors import InvalidSortError
+
+
+def _extract_python_literal(x):
+    from .terms import Constant
+    return x.symbol if isinstance(x, Constant) else x
 
 
 class Sort:
@@ -22,7 +28,9 @@ class Sort:
 
     def __str__(self):
         raise NotImplementedError
-    __repr__ = __str__
+
+    def __repr__(self):
+        return self.__str__()
 
     def __deepcopy__(self, memo):
         """ At the moment we forbid deep copies of Sort objects, as they might be too expensive"""
@@ -82,13 +90,10 @@ class Enumeration(Sort):
         return f'Enumeration({self.name})'
 
     def contains(self, x):
-        from .terms import Constant
-        value = x.symbol if isinstance(x, Constant) and x.sort == self else x
-        return value in self._domain
+        return _extract_python_literal(x) in self._domain
 
     def literal(self, x):
-        from .terms import Constant
-        value = x.symbol if isinstance(x, Constant) and x.sort == self else x
+        value = _extract_python_literal(x)
         if value in self._domain:
             return value
         raise err.CastError(f'Cannot convert "{x}" to literal of sort {self}')
@@ -165,6 +170,72 @@ class Interval(Sort):
             return False
 
     def literal(self, x):
+        # Check that the python literal is compatible with this sort, and within the sort range
+        try:
+            x = self.encode(_extract_python_literal(x))
+        except TypeError:
+            raise err.CastError(f'Cannot convert "{x}" to literal of sort {self}') from None
+        if not self.is_within_bounds(x):
+            raise err.CastError(f'Cannot convert "{x}" to literal of sort {self},'
+                                f' as it lies outside the defined interval bounds')
+        return x
+
+    def cast(self, x):
+        """ Cast the given element to a constant of this sort. """
+        from .terms import Constant
+        return Constant(self.literal(x), self)
+
+    def contains(self, x):
+        """ Returns true iff the given value belongs to the current domain """
+        try:
+            y = self.encode(x)
+        except TypeError:
+            return False
+        return self.is_within_bounds(y)
+
+    def dump(self):
+        return dict(name=self.name, domain=[self.lower_bound, self.upper_bound])
+
+    def domain(self):
+        if self.builtin or self.upper_bound - self.lower_bound > 9999:  # Yes, very hacky
+            raise err.TarskiError(f'Cannot iterate over interval with range [{self.lower_bound}, {self.upper_bound}]')
+        from .terms import Constant
+        return (Constant(x, self) for x in range(self.lower_bound, self.upper_bound+1))
+
+    def has_extensional_storage(self):
+        return False
+
+
+class Set(Sort):
+    """ A parametrized "set of X" type, where X is a primitive type, i.e. either an enumerated or an interval sort. """
+
+    def __init__(self, language, subtype):
+        """
+        """
+        subtype = language.retrieve_sort(subtype)
+        if not isinstance(subtype, (Enumeration, Interval)):
+            raise InvalidSortError(f"Cannot create a set of {subtype} objects")
+        super().__init__(name=f"Set-of-{subtype.name}", language=language, builtin=False)
+        self.subtype = subtype
+
+    def __str__(self):
+        return self.name
+
+    def extend(self, symbol):
+        return self.literal(symbol)
+
+    def cardinality(self):
+        """ Return the cardinality of the sort (not of the set!). """
+        return 2 ** self.subtype.cardinality()
+
+    def symbol_is_consistent(self, element):
+        try:
+            self.literal(element)
+            return True
+        except err.CastError:
+            return False
+
+    def literal(self, x):
         try:
             x = self.encode(x)
         except ValueError:
@@ -192,9 +263,10 @@ class Interval(Sort):
 
     def domain(self):
         if self.builtin or self.upper_bound - self.lower_bound > 9999:  # Yes, very hacky
-            raise err.TarskiError(f'Cannot iterate over interval with range [{self.lower_bound}, {self.upper_bound}]')
+            raise err.TarskiError(
+                f'Cannot iterate over interval with range [{self.lower_bound}, {self.upper_bound}]')
         from .terms import Constant
-        return (Constant(x, self) for x in range(self.lower_bound, self.upper_bound+1))
+        return (Constant(x, self) for x in range(self.lower_bound, self.upper_bound + 1))
 
     def has_extensional_storage(self):
         return False
@@ -229,8 +301,9 @@ def children(s: Sort) -> SetT[Sort]:
 
 
 def int_encode_fn(x):
-    if isinstance(x, float) and not x.is_integer():
-        raise ValueError()  # We don't want 1.2 to get encoded as an int
+    # We don't want 1.2, not even 1.0 to get encoded as an int
+    if isinstance(x, float):
+        raise TypeError()
     return int(x)
 
 

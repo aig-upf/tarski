@@ -67,7 +67,7 @@ def summation(*args):
 
     lhs = processed_expr[0]
     for k in range(1, len(processed_expr)):
-        lhs = L.dispatch_operator(BuiltinFunctionSymbol.ADD, Term, Term, lhs, processed_expr[k])
+        lhs = L.dispatch_operator(BuiltinFunctionSymbol.ADD, lhs, processed_expr[k])
 
     return lhs
 
@@ -97,19 +97,17 @@ def product(*args):
 
     lhs = processed_expr[0]
     for k in range(1, len(processed_expr)):
-        lhs = L.dispatch_operator(BuiltinFunctionSymbol.MUL, Term, Term, lhs, processed_expr[k])
+        lhs = L.dispatch_operator(BuiltinFunctionSymbol.MUL, lhs, processed_expr[k])
 
     return lhs
 
 
 def pow(x, y):
-    pow_func = x.language.get_function(BuiltinFunctionSymbol.POW)
-    return pow_func(x, y)
+    return x.language.dispatch_operator(BuiltinFunctionSymbol.POW, x, y)
 
 
 def sqrt(x):
-    sqrt_func = x.language.get_function(BuiltinFunctionSymbol.SQRT)
-    return sqrt_func(x)
+    return x.language.dispatch_operator(BuiltinFunctionSymbol.SQRT, x)
 
 
 def transpose(m: Term):

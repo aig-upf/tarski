@@ -4,9 +4,11 @@ from collections import defaultdict
 
 import pytest
 from tarski import theories, Term, Constant
+from tarski.errors import CastError, UndefinedElement
 from tarski.fstrips import fstrips
 from tarski.syntax import symref, CompoundFormula, Atom, ite, AggregateCompoundTerm, CompoundTerm, lor, Tautology, \
-    Contradiction, land, top, bot
+    Contradiction, land, top, bot, BuiltinFunctionSymbol
+from tarski.syntax.builtins import get_real_signature, get_int_signature
 from tarski.theories import Theory
 from tarski import errors as err
 from tarski import fstrips as fs
@@ -29,11 +31,52 @@ def test_language_creation():
     assert sorts == ['object']  # The default equality theory should not import the arithmetic sorts either
 
 
-def test_builtin_constants():
+def test_casting_and_literals():
     lang = fstrips.language(theories=[Theory.ARITHMETIC])
-    ints = lang.Integer
+    ints, reals = lang.Integer, lang.Real
     two = lang.constant(2, ints)
     assert isinstance(two, Constant), "two should be the constant 2, not the integer value 2"
+
+    assert ints.literal(two) == 2, "literal() maps to the underlying python integer"
+    assert ints.literal("2") == 2
+    assert ints.literal(2) == 2
+
+    # We don't want 1.2 or 1.0 to get encoded as an int
+    with pytest.raises(CastError):
+        assert ints.literal(2.0) == 2
+    with pytest.raises(CastError):
+        ints.literal(2.1)
+
+    with pytest.raises(CastError):
+        lang.constant(3.1, ints)  # Cannot create an int constant from a real!
+
+    pi = Constant(3.14159, reals)
+    assert reals.literal(pi) == 3.14159
+    assert reals.literal("3.14159") == 3.14159
+    assert reals.literal(3.14159) == 3.14159
+
+
+def test_function_overloads():
+    lang = fstrips.language(theories=[Theory.ARITHMETIC])
+    ints, reals = lang.Integer, lang.Real
+
+    # Cannot access function with several overloaded versions without specifying which overload we want:
+    with pytest.raises(UndefinedElement):
+        lang.get_function(BuiltinFunctionSymbol.ADD)
+    with pytest.raises(UndefinedElement):
+        lang.get(BuiltinFunctionSymbol.ADD)
+
+    sum_reals = lang.get_function(BuiltinFunctionSymbol.ADD, get_real_signature(lang))
+    sum_ints = lang.get_function(BuiltinFunctionSymbol.ADD, get_int_signature(lang))
+    assert sum_reals != sum_ints
+
+    two, three = lang.constant(2, ints), lang.constant(3, ints)
+    assert (two + three).sort == ints
+
+    two1, three1 = lang.constant(2.1, reals), lang.constant(3.1, reals)
+    assert (two1 + three1).sort == reals
+
+    assert (two + 3).sort == ints
 
 
 def test_arithmetic_term_plus_float_lit_is_term():

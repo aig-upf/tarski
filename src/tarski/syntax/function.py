@@ -4,12 +4,12 @@ from .sorts import Sort
 
 
 class Function:
-    def __init__(self, name, language, *args):
+    def __init__(self, name, language, *args, builtin=False):
         self.name = name
         self.language = language
         self.domain = tuple(args[:-1])
         self.codomain = args[-1]
-        self.builtin = False
+        self.builtin = builtin
         self._check_well_formed()
 
     def _check_well_formed(self):
