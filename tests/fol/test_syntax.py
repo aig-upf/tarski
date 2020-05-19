@@ -98,14 +98,10 @@ def test_arithmetic_terms_does_not_fail_with_load_theory():
     assert isinstance(sum_, Term), "sum_ should be the term +(Const(2), Const(3)), not the integer value 5"
 
 
-def test_load_arithmetic_module_fails_when_language_frozen():
+def test_load_arithmetic_theory_twice():
     lang = fstrips.language(theories=[Theory.ARITHMETIC])
-    ints = lang.Integer
-    two, three = lang.constant(2, ints), lang.constant(3, ints)
-
-    with pytest.raises(err.DuplicateTheoryDefinition):
-        # load_theory() should raise exception since arithmetic theory is already loaded
-        theories.load_theory(lang, Theory.ARITHMETIC)
+    # invoking load_theory() twice over the same theory is fine:
+    theories.load_theory(lang, Theory.ARITHMETIC)
 
 
 def test_load_booleans():

@@ -45,11 +45,6 @@ def infer_numeric_sort(value, language):
     return None
 
 
-def cast_to_number(rhs):
-    assert isinstance(rhs, Constant)
-    return rhs.symbol
-
-
 def free_variables(formula):
     """ Return a list with all variables in the given formula that appear free."""
     visitor = CollectFreeVariables()

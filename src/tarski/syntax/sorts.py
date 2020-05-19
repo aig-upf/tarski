@@ -70,7 +70,10 @@ class Sort:
         raise NotImplementedError
 
     def symbol_is_consistent(self, element):
-        """ Return whether the given element is a-priori consistent with this sort. """
+        """ Return whether the given element is a-priori valid for this sort. Enumerated sorts, for intance, will take
+        as valid any string, whereas the Integer sort will require that the element is a Python int, or something
+        convertible to it.
+        """
         raise NotImplementedError
 
     def has_extensional_storage(self):
@@ -207,7 +210,11 @@ class Interval(Sort):
 
 
 class Set(Sort):
-    """ A parametrized "set of X" type, where X is a primitive type, i.e. either an enumerated or an interval sort. """
+    """ A parametrized "set of X" type, where X is a primitive type, i.e. either an enumerated or an interval sort.
+    At the moment we only support sets of Objects, Reals, Ints and Naturals; leaving support for user-defined sorts
+    for the future. One challenge in supporting those is that they are now known when the set theory is loaded, so
+    we cannot register (overloaded) set operators for all possible set-of-X's.
+    """
 
     def __init__(self, language, subtype):
         """
@@ -215,8 +222,18 @@ class Set(Sort):
         subtype = language.retrieve_sort(subtype)
         if not isinstance(subtype, (Enumeration, Interval)):
             raise InvalidSortError(f"Cannot create a set of {subtype} objects")
+
+        # This one is redundant with the check above, but we might one to lift this one in the future and leave the
+        # previous one, so doesn't hurt
+        if subtype not in (language.Object, language.Real, language.Integer, language.Natural):
+            raise InvalidSortError(f"Only sets of primitive sorts are allowed. Cannot create a set of {subtype}'s")
+
         super().__init__(name=f"Set-of-{subtype.name}", language=language, builtin=False)
         self.subtype = subtype
+
+        if self not in language.immediate_parent:
+            # All sets are considered sort-subtypes of Object
+            language.set_parent(self, language.Object)
 
     def __str__(self):
         return self.name
@@ -236,14 +253,12 @@ class Set(Sort):
             return False
 
     def literal(self, x):
-        try:
-            x = self.encode(x)
-        except ValueError:
+        value = _extract_python_literal(x)
+        if not isinstance(value, set):
             raise err.CastError(f'Cannot convert "{x}" to literal of sort {self}')
-        if not self.is_within_bounds(x):
-            raise err.CastError(f'Cannot convert "{x}" to literal of sort {self},'
-                                f' as it lies outside the defined interval bounds')
-        return x
+
+        # This will cast to a literal of the subtype, which will in turn raise an exception if that's not possible
+        return set(self.subtype.literal(y) for y in value)
 
     def cast(self, x):
         """ Cast the given element to a constant of this sort. """
@@ -252,21 +267,13 @@ class Set(Sort):
 
     def contains(self, x):
         """ Returns true iff the given value belongs to the current domain """
-        try:
-            y = self.encode(x)
-        except ValueError:
-            return False
-        return self.is_within_bounds(y)
+        raise NotImplementedError
 
     def dump(self):
-        return dict(name=self.name, domain=[self.lower_bound, self.upper_bound])
+        raise NotImplementedError
 
     def domain(self):
-        if self.builtin or self.upper_bound - self.lower_bound > 9999:  # Yes, very hacky
-            raise err.TarskiError(
-                f'Cannot iterate over interval with range [{self.lower_bound}, {self.upper_bound}]')
-        from .terms import Constant
-        return (Constant(x, self) for x in range(self.lower_bound, self.upper_bound + 1))
+        raise NotImplementedError
 
     def has_extensional_storage(self):
         return False

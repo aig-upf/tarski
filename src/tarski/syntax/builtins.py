@@ -13,6 +13,7 @@ class BuiltinPredicateSymbol(Enum):
     GE = ">="
 
     SET_IS_EMPTY = "set_is_empty"
+    SET_IN = "set_in"
 
     def __str__(self):
         return self.value.lower()
@@ -53,9 +54,10 @@ class BuiltinFunctionSymbol(Enum):
 
     ITE = "ite"  # If-then-else
 
-    SET_EMPTYSET = "set_emptyset"
+    # SET_EMPTYSET = "set_emptyset"  # ATM we consider this as a language constant
     SET_INTERSECTION = "set_intersection"
     SET_UNION = "set_union"
+    SET_DIFFERENCE = "set_difference"
     SET_CARDINALITY = "set_cardinality"
 
     def __str__(self):
@@ -123,24 +125,26 @@ def get_function_overloads(lang, symbol):
 
 
 def get_arithmetic_binary_functions():
-    return [BuiltinFunctionSymbol.ADD, BuiltinFunctionSymbol.SUB, BuiltinFunctionSymbol.MUL, BuiltinFunctionSymbol.DIV,
-            BuiltinFunctionSymbol.POW, BuiltinFunctionSymbol.MOD]
+    return {BuiltinFunctionSymbol.ADD, BuiltinFunctionSymbol.SUB, BuiltinFunctionSymbol.MUL, BuiltinFunctionSymbol.DIV,
+            BuiltinFunctionSymbol.POW, BuiltinFunctionSymbol.MOD}
+
+
+def get_arithmetic_unary_functions():
+    return {BuiltinFunctionSymbol.SQRT}
+
+
+def get_arithmetic_functions():
+    return get_arithmetic_binary_functions() | get_arithmetic_unary_functions()
+
+
+def get_set_symbols():
+    return {BuiltinFunctionSymbol.SET_CARDINALITY, BuiltinFunctionSymbol.SET_UNION,
+            BuiltinFunctionSymbol.SET_INTERSECTION, BuiltinFunctionSymbol.SET_DIFFERENCE,
+            BuiltinPredicateSymbol.SET_IN}
 
 
 def get_matrix_functions():
     return [BuiltinFunctionSymbol.MATMUL]
-
-
-def get_arithmetic_unary_functions():
-    return [BuiltinFunctionSymbol.SQRT]
-
-
-def get_set_predicates():
-    return [BuiltinPredicateSymbol.SET_IS_EMPTY]
-
-
-def get_set_functions():
-    return [BuiltinFunctionSymbol.SET_EMPTYSET]
 
 
 def get_special_binary_functions():

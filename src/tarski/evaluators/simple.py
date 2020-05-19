@@ -1,7 +1,8 @@
 import operator
 from typing import List
 
-from .. import funcsym
+from ..theories import arithmetic
+from ..theories.sets import set_semantics_evaluation
 from .. import errors as err
 from ..syntax import ops, Connective, Atom, Formula, CompoundFormula, QuantifiedFormula, builtins, Variable, \
     Constant, CompoundTerm, Tautology, Contradiction, IfThenElse, AggregateCompoundTerm, Term
@@ -50,7 +51,8 @@ _compound_evaluators = {
 
 def evaluate_atom(atom: Atom, m: Model, sigma):
     if builtins.is_builtin_predicate(atom.predicate):
-        return evaluate_builtin_predicate(atom, m, sigma)
+        subterms = tuple(evaluate_term(x, m, sigma) for x in atom.subterms)
+        return evaluate_builtin_predicate(atom.language, atom.symbol.symbol, subterms)
 
     # Otherwise, the extension is given by the model
     point = tuple(evaluate(t, m, sigma) for t in atom.subterms)
@@ -78,7 +80,9 @@ def evaluate_term(term, m: Model, sigma):
         return Matrix(result, term.sort)
 
     if isinstance(term, CompoundTerm) and builtins.is_builtin_function(term.symbol):
-        return evaluate_builtin_function(term, m, sigma)
+        subterms = tuple(evaluate_term(x, m, sigma) for x in term.subterms)
+        return _evaluate_builtin_function(term.language, term.symbol.symbol, term.sort, subterms, m, sigma)
+
     # MRJ: Coerce float and int Python literals into constants
     if isinstance(term, float):
         term = Constant(term, m.language.Real)
@@ -106,18 +110,23 @@ def evaluate_term(term, m: Model, sigma):
         raise err.UndefinedTerm(term)
 
 
-def evaluate_builtin_predicate(atom, model, sigma):
+def evaluate_builtin_predicate(lang, symbol, subterms):
     bip = builtins.BuiltinPredicateSymbol
+
+    if symbol in builtins.get_set_symbols():
+        return set_semantics_evaluation(lang, symbol, subterms, sort=None)
+
     _evaluators = {
-        bip.EQ: lambda f, m, s: evaluate(f.subterms[0], m, s).symbol == evaluate(f.subterms[1], m, s).symbol,
-        bip.NE: lambda f, m, s: evaluate(f.subterms[0], m, s).symbol != evaluate(f.subterms[1], m, s).symbol,
-        bip.LT: lambda f, m, s: evaluate(f.subterms[0], m, s).symbol < evaluate(f.subterms[1], m, s).symbol,
-        bip.LE: lambda f, m, s: evaluate(f.subterms[0], m, s).symbol <= evaluate(f.subterms[1], m, s).symbol,
-        bip.GT: lambda f, m, s: evaluate(f.subterms[0], m, s).symbol > evaluate(f.subterms[1], m, s).symbol,
-        bip.GE: lambda f, m, s: evaluate(f.subterms[0], m, s).symbol >= evaluate(f.subterms[1], m, s).symbol,
+        bip.EQ: lambda: subterms[0].symbol == subterms[1].symbol,
+        bip.NE: lambda: subterms[0].symbol != subterms[1].symbol,
+        bip.LT: lambda: subterms[0].symbol < subterms[1].symbol,
+        bip.LE: lambda: subterms[0].symbol <= subterms[1].symbol,
+        bip.GT: lambda: subterms[0].symbol > subterms[1].symbol,
+        bip.GE: lambda: subterms[0].symbol >= subterms[1].symbol,
     }
 
-    return _evaluators[atom.predicate.symbol](atom, model, sigma)
+    evaluator = _evaluators.get(symbol)
+    return evaluator()
 
 
 def symbolic_matrix_multiplication(lhs: Matrix, rhs: Matrix):
@@ -132,69 +141,65 @@ def symbolic_matrix_multiplication(lhs: Matrix, rhs: Matrix):
              for col_b in zip_b] for row_a in lhs.matrix]
 
 
-def evaluate_builtin_function(term, model, sigma):
+def _evaluate_builtin_function(lang, symbol, sort, subterms, model, sigma):
     bif = builtins.BuiltinFunctionSymbol
     ae1 = _arithmetic_evaluator_1
     ae2 = _arithmetic_evaluator_2
+
+    if symbol in builtins.get_set_symbols():
+        return set_semantics_evaluation(lang, symbol, subterms, sort)
+
+    if symbol == bif.MATMUL:
+        return ae2(symbolic_matrix_multiplication, subterms, model, sigma)
+
     _evaluators = {
-        bif.ADD: lambda f, m, s: ae2(operator.add, f.subterms[0], f.subterms[1], m, s),
-        bif.SUB: lambda f, m, s: ae2(operator.sub, f.subterms[0], f.subterms[1], m, s),
-        bif.MUL: lambda f, m, s: ae2(operator.mul, f.subterms[0], f.subterms[1], m, s),
-        bif.MATMUL: lambda f, m, s: ae2(symbolic_matrix_multiplication, f.subterms[0], f.subterms[1], m, s),
-        bif.DIV: lambda f, m, s: ae2(operator.truediv, f.subterms[0], f.subterms[1], m, s),
-        bif.POW: lambda f, m, s: ae2(operator.pow, f.subterms[0], f.subterms[1], m, s),
-        bif.MOD: lambda f, m, s: ae2(operator.mod, f.subterms[0], f.subterms[1], model, s),
-        bif.MIN: lambda f, m, s: ae2(funcsym.impl(bif.MIN.value), f.subterms[0], f.subterms[1], m, s),
-        bif.MAX: lambda f, m, s: ae2(funcsym.impl(bif.MAX.value), f.subterms[0], f.subterms[1], m, s),
-        bif.ABS: lambda f, m, s: ae1(funcsym.impl(bif.ABS.value), f.subterms[0], m, s),
-        bif.SIN: lambda f, m, s: ae1(funcsym.impl(bif.SIN.value), f.subterms[0], m, s),
-        bif.COS: lambda f, m, s: ae1(funcsym.impl(bif.COS.value), f.subterms[0], m, s),
-        bif.TAN: lambda f, m, s: ae1(funcsym.impl(bif.TAN.value), f.subterms[0], m, s),
-        bif.ATAN: lambda f, m, s: ae1(funcsym.impl(bif.ATAN.value), f.subterms[0], m, s),
-        bif.ASIN: lambda f, m, s: ae1(funcsym.impl(bif.ASIN.value), f.subterms[0], m, s),
-        bif.EXP: lambda f, m, s: ae1(funcsym.impl(bif.EXP.value), f.subterms[0], m, s),
-        bif.LOG: lambda f, m, s: ae1(funcsym.impl(bif.LOG.value), f.subterms[0], m, s),
-        bif.ERF: lambda f, m, s: ae1(funcsym.impl(bif.ERF.value), f.subterms[0], m, s),
-        bif.ERFC: lambda f, m, s: ae1(funcsym.impl(bif.ERFC.value), f.subterms[0], m, s),
-        bif.SGN: lambda f, m, s: ae1(funcsym.impl(bif.SGN.value), f.subterms[0], m, s),
-        bif.SQRT: lambda f, m, s: ae1(funcsym.impl(bif.SQRT.value), f.subterms[0], m, s),
-        bif.NORMAL: lambda f, m, s: ae2(funcsym.impl(bif.NORMAL.value), f.subterms[0], f.subterms[1], m, s),
-        bif.GAMMA: lambda f, m, s: ae2(funcsym.impl(bif.GAMMA.value), f.subterms[0], f.subterms[1], m, s),
+        bif.ADD: lambda: ae2(operator.add, subterms, model, sigma),
+        bif.SUB: lambda: ae2(operator.sub, subterms, model, sigma),
+        bif.MUL: lambda: ae2(operator.mul, subterms, model, sigma),
+        bif.DIV: lambda: ae2(operator.truediv, subterms, model, sigma),
+        bif.POW: lambda: ae2(operator.pow, subterms, model, sigma),
+        bif.MOD: lambda: ae2(operator.mod, subterms, model, sigma),
+        bif.MIN: lambda: ae2(arithmetic.impl(bif.MIN.value), subterms, model, sigma),
+        bif.MAX: lambda: ae2(arithmetic.impl(bif.MAX.value), subterms, model, sigma),
+        bif.ABS: lambda: ae1(arithmetic.impl(bif.ABS.value), subterms, model, sigma),
+        bif.SIN: lambda: ae1(arithmetic.impl(bif.SIN.value), subterms, model, sigma),
+        bif.COS: lambda: ae1(arithmetic.impl(bif.COS.value), subterms, model, sigma),
+        bif.TAN: lambda: ae1(arithmetic.impl(bif.TAN.value), subterms, model, sigma),
+        bif.ATAN: lambda: ae1(arithmetic.impl(bif.ATAN.value), subterms, model, sigma),
+        bif.ASIN: lambda: ae1(arithmetic.impl(bif.ASIN.value), subterms, model, sigma),
+        bif.EXP: lambda: ae1(arithmetic.impl(bif.EXP.value), subterms, model, sigma),
+        bif.LOG: lambda: ae1(arithmetic.impl(bif.LOG.value), subterms, model, sigma),
+        bif.ERF: lambda: ae1(arithmetic.impl(bif.ERF.value), subterms, model, sigma),
+        bif.ERFC: lambda: ae1(arithmetic.impl(bif.ERFC.value), subterms, model, sigma),
+        bif.SGN: lambda: ae1(arithmetic.impl(bif.SGN.value), subterms, model, sigma),
+        bif.SQRT: lambda: ae1(arithmetic.impl(bif.SQRT.value), subterms, model, sigma),
+        bif.NORMAL: lambda: ae2(arithmetic.impl(bif.NORMAL.value), subterms, model, sigma),
+        bif.GAMMA: lambda: ae2(arithmetic.impl(bif.GAMMA.value), subterms, model, sigma),
     }
+    evaluator = _evaluators.get(symbol)
+    return evaluator()
 
-    return _evaluators[term.symbol.symbol](term, model, sigma)
 
-
-def _arithmetic_evaluator_1(operation, expr, model, sigma):
-    # _lhs = args[0].symbol
-    # _rhs = args[1].symbol
-    # assert self.domain[0].contains(_lhs)
-    # assert self.domain[1].contains(_rhs)
-    expr = evaluate_term(expr, model, sigma)
-    value = operation(ops.cast_to_number(expr))
+def _arithmetic_evaluator_1(operation, subterms, model, sigma):
+    expr = subterms[0]
+    value = operation(expr.sort.literal(expr))
     sort = ops.infer_numeric_sort(value, expr.language)
     return Constant(value, sort)
 
 
-def _arithmetic_evaluator_2(operation, lhs, rhs, model, sigma):
-    # _lhs = args[0].symbol
-    # _rhs = args[1].symbol
-    # assert self.domain[0].contains(_lhs)
-    # assert self.domain[1].contains(_rhs)
-    lhs = evaluate_term(lhs, model, sigma)
-    rhs = evaluate_term(rhs, model, sigma)
+def _arithmetic_evaluator_2(operation, subterms, model, sigma):
+    lhs, rhs = subterms
+
     if isinstance(lhs, Matrix) and isinstance(rhs, Matrix):
-        # print("Matrix op Matrix")
         value = operation(lhs, rhs)
-        # print('Result : {}'.format(value))
         return evaluate_term(Matrix(value, lhs.sort), model, sigma)
     elif isinstance(lhs, Matrix) and not isinstance(rhs, Matrix):
-        value = operation(lhs.matrix, ops.cast_to_number(rhs))
+        value = operation(lhs.matrix, rhs.sort.literal(rhs))
         return evaluate_term(Matrix(value, lhs.sort), model, sigma)
     elif isinstance(rhs, Matrix) and not isinstance(lhs, Matrix):
-        value = operation(ops.cast_to_number(lhs), rhs.matrix)
+        value = operation(lhs.sort.literal(lhs), rhs.matrix)
         return evaluate_term(Matrix(value, rhs.sort), model, sigma)
 
-    value = operation(ops.cast_to_number(lhs), ops.cast_to_number(rhs))
+    value = operation(lhs.sort.literal(lhs), rhs.sort.literal(rhs))
     sort = ops.infer_numeric_sort(value, lhs.language)
     return Constant(value, sort)

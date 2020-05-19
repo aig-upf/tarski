@@ -1,10 +1,11 @@
 
 from typing import Tuple
 
-from .util import termlists_are_equal, termlist_hash
-from .sorts import Sort, parent, Interval
+from .util import termlists_are_equal, termlist_hash, validate_compound_expression
+from .sorts import Sort, parent
 from .. import errors as err
 from .builtins import BuiltinPredicateSymbol, BuiltinFunctionSymbol
+from . import Function
 
 
 class Term:
@@ -166,36 +167,15 @@ class CompoundTerm(Term):
     of terms, sorts matching.
     """
 
-    def __init__(self, symbol, subterms: Tuple[Term]):
+    def __init__(self, symbol: Function, subterms: Tuple[Term]):
         """ Construct a compound term (aka function application term) symbol(*subterms). """
-        from .ops import cast_to_closest_common_numeric_ancestor
         self.symbol = symbol
-        self.inferred_sort = self.symbol.codomain
 
-        if isinstance(self.inferred_sort, Interval) and symbol.builtin:
-            # For builtin arithmetic functions, we want the sort of the compound term to be that of the closest common
-            # ancestor sort
-            if len(subterms) == 2:
-                sts = cast_to_closest_common_numeric_ancestor(symbol.language, *subterms)
-                self.inferred_sort = sts[0].sort
-            elif len(subterms) > 0:
-                self.inferred_sort = subterms[0].sort
+        # Check expression head is indeed a function
+        if not isinstance(symbol, Function):
+            raise err.LanguageError(f"Incorrect atom head: '{symbol}'")
 
-        if len(subterms) != self.symbol.arity:
-            raise err.ArityMismatch(symbol, subterms)
-        argument_sorts = list(self.symbol.sort)[:-1]
-        processed_st = []
-        for k, s in enumerate(argument_sorts):
-            try:
-                if subterms[k].sort.name != s.name and not self.symbol.language.is_subtype(subterms[k].sort, s):
-                    raise err.SortMismatch(self.symbol, subterms[k].sort, s)
-                processed_st.append(subterms[k])
-            except AttributeError:
-                s_k = s.literal(subterms[k])
-                if s_k is None:
-                    raise err.SortMismatch(self.symbol, subterms[k], s)
-                processed_st.append(s_k)
-        self.subterms = tuple(processed_st)
+        self.subterms, self.inferred_sort = validate_compound_expression(symbol, subterms)
 
     @property
     def language(self):
@@ -333,7 +313,7 @@ class Constant(Term):
         return str(self.name)
 
     def __repr__(self):
-        return '{} ({})'.format(self.name, self.sort.name)
+        return f'{self.name} ({self.sort.name})'
 
     def hash(self):
         return hash((self.name, self.sort))

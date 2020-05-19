@@ -1,9 +1,8 @@
-
-from .. import modules
+from tarski import modules
 
 
 def impl(symbol):
-    """ """
+    """ Semantics of some built-in arithmetic functions. """
 
     if symbol in {"erf", "erfc"}:
         from ..modules import import_scipy_special

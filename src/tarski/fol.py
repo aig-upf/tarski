@@ -6,7 +6,7 @@ from typing import Union
 
 from . import errors as err
 from .errors import UndefinedElement
-from .syntax import Function, Constant, Variable, Sort, inclusion_closure, Predicate, Interval
+from .syntax import Function, Constant, Variable, Sort, inclusion_closure, Predicate, Interval, BuiltinPredicateSymbol
 from .syntax.algebra import Matrix
 from . import modules
 from .syntax.ops import cast_to_closest_common_numeric_ancestor
@@ -256,25 +256,18 @@ class FirstOrderLanguage:
         if name in self._global_index:
             raise err.DuplicateDefinition(name, self._global_index[name])
 
-    def predicate(self, name: str, *args, builtin=False):
-        self._check_name_not_defined(name, self._predicates, err.DuplicatePredicateDefinition)
-
-        types = [self.retrieve_sort(a) for a in args]  # Convert possible strings into Sort objects
-        predicate = Predicate(name, self, *types, builtin=builtin)
-        self._predicates[name] = predicate
-        self._global_index[name] = predicate
-        return predicate
+    def predicate(self, name: str, *args, builtin=False, overload=False):
+        return self._declare_symbol(Predicate, name, *args, builtin=builtin, overload=overload)
 
     def has_predicate(self, name):
         return name in self._predicates
 
-    def get_predicate(self, name):
-        if not self.has_predicate(name):
-            raise err.UndefinedPredicate(name)
-        return self._predicates[name]
+    def get_predicate(self, name, signature=None):
+        return self._retrieve_symbol(name, self._predicates, signature)
 
     def remove_symbol(self, symbol: Union[Function, Predicate]):
         if symbol.name in self._predicates:
+            assert not isinstance(self._predicates[symbol.name], list)
             del self._predicates[symbol.name]
         elif symbol.name in self._functions:
             assert not isinstance(self._functions[symbol.name], list)
@@ -285,16 +278,27 @@ class FirstOrderLanguage:
         del self._global_index[symbol.name]
 
     def function(self, name: str, *args, builtin=False, overload=False):
-        types = [self.retrieve_sort(a) for a in args]  # Convert possible strings into Sort objects
-        func = Function(name, self, *types, builtin=builtin)
+        return self._declare_symbol(Function, name, *args, builtin=builtin, overload=overload)
 
-        previous = self._functions.get(name)
+    def has_function(self, name):
+        return name in self._functions
+
+    def get_function(self, name, signature=None):
+        return self._retrieve_symbol(name, self._functions, signature)
+
+    def _declare_symbol(self, type_, name: str, *args, builtin=False, overload=False):
+        types = [self.retrieve_sort(a) for a in args]  # Convert possible strings into Sort objects
+        func = type_(name, self, *types, builtin=builtin)
+
+        container = self._functions if type_ is Function else self._predicates
+
+        previous = container.get(name)
         if previous is None and name in self._global_index:
             # Some other element (not a function) already declared with this name
             raise err.DuplicateDefinition(name, self._global_index[name])
 
         if previous is None:
-            self._global_index[name] = self._functions[name] = func
+            self._global_index[name] = container[name] = func
             return func
 
         # If we get here, we're dealing with a potential function overload
@@ -311,15 +315,13 @@ class FirstOrderLanguage:
                 name, f'Cannot redeclare function "{name}" with same signature "{func.signature}"')
 
         if previous is not None:
-            self._global_index[name] = self._functions[name] = previous + [func]
+            self._global_index[name] = container[name] = previous + [func]
 
         return func
 
-    def has_function(self, name):
-        return name in self._functions
-
-    def get_function(self, name, signature=None):
-        res = self._functions.get(name)
+    @staticmethod
+    def _retrieve_symbol(name, container, signature=None):
+        res = container.get(name)
         if res is None:
             raise err.UndefinedFunction(name)
 
@@ -404,7 +406,12 @@ class FirstOrderLanguage:
     def get_operator_matching_arguments(self, symbol, *args):
         lhs, rhs = cast_to_closest_common_numeric_ancestor(self, *args)
 
-        # Let's look up among possible overloads for the given symbol (e.g. +) for one overload that matches the
+        # First check if the operator has been declared with the arguments sorts.
+        op = self._operators.get((symbol, lhs.sort, rhs.sort))
+        if op is not None:
+            return op, lhs, rhs
+
+        # If not, look up among possible overloads for the given symbol (e.g. +) for one overload that matches the
         # argument sorts. We simply do a linear lookup, as we don't expect a large number of subtypes.
         # The whole overload resolution strategy of course could be made more sophisticated, but at the moment we'll
         # go with this.

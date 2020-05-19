@@ -1,12 +1,12 @@
 
 from collections import OrderedDict
 from enum import Enum
-from typing import List
+from typing import List, Tuple
 
 from .. import errors as err
 from .builtins import BuiltinPredicateSymbol
 from .terms import Variable, Term
-from .util import termlists_are_equal, termlist_hash
+from .util import termlists_are_equal, termlist_hash, validate_compound_expression
 from .predicate import Predicate
 
 
@@ -290,38 +290,24 @@ def unwrap_conjunction_or_atom(phi):
 class Atom(Formula):
     """ A first-order atom. """
 
-    def __init__(self, predicate, arguments):
+    def __init__(self, predicate: Predicate, subterms: Tuple[Term]):
         super().__init__()
         self.predicate = predicate
-        self.subterms = arguments
-        self._check_well_formed()
+        self.subterms = subterms
+
+        # Check expression head is indeed a predicate
+        if not isinstance(predicate, Predicate):
+            raise err.LanguageError(f"Incorrect atom head: '{predicate}'")
+
+        self.subterms, _ = validate_compound_expression(predicate, subterms)
 
     @property
     def symbol(self):
         return self.predicate  # For uniformity with CompoundTerms
 
-    def _check_well_formed(self):
-        head = self.predicate
-
-        if not isinstance(head, Predicate):
-            raise err.LanguageError("Incorrect atom head: '{}' ".format(head))
-
-        # Check arities match
-        if len(self.subterms) != self.predicate.arity:
-            raise err.ArityMismatch(head, self.subterms)
-
-        language = head.language
-
-        # Check arguments are all terms of the appropriate type and matching language
-        for arg, expected_sort in zip(self.subterms, head.sort):
-            if not isinstance(arg, Term):
-                raise err.LanguageError(f"Wrong argument for atomic formula: '{arg}'")
-
-            if arg.language != language:
-                raise err.LanguageMismatch(arg, arg.language, language)
-
-            if not language.is_subtype(arg.sort, expected_sort):
-                raise err.SortMismatch(arg, arg.sort, expected_sort)
+    @property
+    def language(self):
+        return self.symbol.language
 
     def __str__(self):
         return '{}({})'.format(self.predicate.symbol, ','.join(str(t) for t in self.subterms))
