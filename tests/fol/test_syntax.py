@@ -194,7 +194,7 @@ def test_duplicate_detection_and_global_getter():
         lang.constant('c1', lang.Object)
     with pytest.raises(err.DuplicateFunctionDefinition):
         lang.function('f1', lang.Object)
-    with pytest.raises(err.DuplicatePredicateDefinition):
+    with pytest.raises(err.DuplicateFunctionDefinition):
         lang.predicate('p1')
 
     # Declaring any language element with same name as a language element of a different type also  raises exception

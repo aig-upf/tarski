@@ -1,6 +1,6 @@
 
 import pytest
-from tarski.errors import UndefinedSort, UndefinedPredicate
+from tarski.errors import UndefinedSort, UndefinedElement
 from tarski.fstrips import AddEffect, FunctionalEffect
 from tarski.fstrips.errors import InvalidEffectError
 from tarski.io.fstrips import ParsingError, FstripsReader
@@ -241,7 +241,7 @@ def test_symbol_casing():
 
     # PDDL parsing represents all symbols in lowercase. The PDDL contains a predicate TO-DEAL, but will get lowercased
     _ = problem.language.get_predicate("to-deal")
-    with pytest.raises(UndefinedPredicate):
+    with pytest.raises(UndefinedElement):
         _ = problem.language.get_predicate("TO-DEAL")
 
     # PDDL predicate current-deal remains unaffected

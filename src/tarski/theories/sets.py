@@ -1,8 +1,8 @@
 
 from .. import Term
 from ..errors import SortMismatch
-from ..syntax import Constant, BuiltinFunctionSymbol, CompoundTerm, BuiltinPredicateSymbol, Atom
-from ..syntax.sorts import Set
+from ..syntax import Constant, BuiltinFunctionSymbol, CompoundTerm, BuiltinPredicateSymbol, Atom, sorts
+from ..syntax.sorts import Set, Enumeration
 
 
 def set_emptyset(set_t: Set):
@@ -53,8 +53,13 @@ def set_in(x, s):
         # Check x is a possible element of s
         raise SortMismatch(x, x.sort, s.subtype)
 
-    op, lhs, rhs = lang.get_operator_matching_arguments(BuiltinPredicateSymbol.SET_IN, x, s)
-    return op(lhs, rhs)
+    # We enforce a restrictive type compliance: we only accept X in set<X>, for X either object or an interval type.
+    lhs_sort = lang.Object if isinstance(x.sort, Enumeration) else x.sort
+    rhs_sort = sorts.Set(lang, lhs_sort)
+
+    op = lang._operators.get((BuiltinPredicateSymbol.SET_IN, lhs_sort, rhs_sort))
+    assert op is not None
+    return op(x, s)
 
 
 def _compound_set(fun: BuiltinFunctionSymbol, *args):
