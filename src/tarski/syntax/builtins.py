@@ -68,6 +68,14 @@ def is_builtin_predicate(predicate):
     return isinstance(predicate.symbol, BuiltinPredicateSymbol)
 
 
+def is_builtin_function(fun):
+    return isinstance(fun.symbol, BuiltinFunctionSymbol)
+
+
+def is_builtin_symbol(fun):
+    return isinstance(fun.symbol, (BuiltinPredicateSymbol, BuiltinFunctionSymbol))
+
+
 def create_atom(lang, symbol: BuiltinPredicateSymbol, lhs, rhs):
     from .formulas import Atom
     predicate = lang.get_predicate(symbol)
@@ -83,10 +91,6 @@ def negate_builtin_atom(atom):
         pred = atom.predicate
         return create_atom(pred.language, pred.symbol.complement(), *atom.subterms)
     return atom
-
-
-def is_builtin_function(fun):
-    return isinstance(fun.symbol, BuiltinFunctionSymbol)
 
 
 def get_equality_predicates():

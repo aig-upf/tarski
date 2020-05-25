@@ -286,9 +286,9 @@ def language(name="Unnamed FOL Language", theories: Optional[List[Union[str, ths
     # By default, when defining a FSTRIPS problem we use FOL with equality
     theories = ['equality'] if theories is None else theories
     lang = ths.language(name, theories)
-    lang.register_operator_handler("<<", lang.Object, lang.Object, FunctionalEffect)
+    lang.register_operator_handler("<<", FunctionalEffect, lang.Object, lang.Object)
     # Simply an inverted version:
-    lang.register_operator_handler(">>", lang.Object, lang.Object, lambda lhs, rhs: FunctionalEffect(rhs, lhs))
+    lang.register_operator_handler(">>", lambda lhs, rhs: FunctionalEffect(rhs, lhs), lang.Object, lang.Object)
     return lang
 
 

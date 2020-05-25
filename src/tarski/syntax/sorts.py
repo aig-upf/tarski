@@ -216,7 +216,7 @@ class Set(Sort):
     we cannot register (overloaded) set operators for all possible set-of-X's.
     """
 
-    def __init__(self, language, subtype):
+    def __init__(self, language, subtype, builtin=True):
         """
         """
         subtype = language.retrieve_sort(subtype)
@@ -228,10 +228,13 @@ class Set(Sort):
         if subtype not in (language.Object, language.Real, language.Integer, language.Natural):
             raise InvalidSortError(f"Only sets of primitive sorts are allowed. Cannot create a set of {subtype}'s")
 
-        super().__init__(name=f"Set-of-{subtype.name}", language=language, builtin=False)
+        super().__init__(name=f"Set-of-{subtype.name}", language=language, builtin=builtin)
         self.subtype = subtype
 
         if self not in language.immediate_parent:
+            language._sorts[self.name] = self
+            language._global_index[self.name] = self
+
             # All sets are considered sort-subtypes of Object
             language.set_parent(self, language.Object)
 

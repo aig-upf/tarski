@@ -42,6 +42,7 @@ def generate_language(nstorytellers, naudiences, nstories):
     return lang
 
 
+# From Gregory et al. (2012):
 # (:action entertain
 # :parameters (?t - storyteller ?a - audience)
 # :precondition (true)
@@ -49,6 +50,7 @@ def generate_language(nstorytellers, naudiences, nstories):
 
 def generate_problem(nstorytellers, naudiences, nstories, goal_type="saturation"):
     assert nstorytellers > 0 and naudiences > 0 and nstories > 0
+    assert goal_type in ("saturation", "equality")
     lang = generate_language(nstorytellers, naudiences, nstories)
 
     problem = create_fstrips_problem(lang, domain_name=BASE_DOMAIN_NAME,
@@ -70,12 +72,14 @@ def generate_problem(nstorytellers, naudiences, nstories, goal_type="saturation"
         effects=[heard(a) << set_union(heard(a), known(teller))]
     )
 
-    # We consider two different goals with the same basic problems: saturation and equality. Both of these goals
+    # From Gregory et al. (2012):
+    # "We consider two different goals with the same basic problems: saturation and equality. Both of these goals
     # require the audiences to hear at least half of the stories, but the saturation problems require all of the
     # stories to have been heard by at least one of the audiences, while the equality problems require that the
     # audiences all hear the same stories.
-    # We use problems with two audiences and five storytellers and vary the number of stories
-    at_least_half = forall(a, set_cardinality(heard(a)) >= math.floor(nstories / 2))
+    # We use problems with two audiences and five storytellers and vary the number of stories"
+
+    at_least_half = forall(a, set_cardinality(heard(a)) >= max(1, math.floor(nstories / 2)))
     if goal_type == "saturation":
         extra = forall(st, exists(a, set_in(st, heard(a))))
     else:
@@ -88,7 +92,7 @@ def generate_problem(nstorytellers, naudiences, nstories, goal_type="saturation"
         problem.init.setx(heard(a), set_emptyset(set_of_stories))
 
     for teller in tellers:
-        chosen = random.sample(stories, math.floor(nstories / 4))
+        chosen = random.sample(stories, max(1, math.floor(nstories / 3)))
         problem.init.setx(known(teller), set_literal(set_of_stories, *chosen))
 
     return problem

@@ -375,11 +375,9 @@ class FirstOrderLanguage:
                f"{len(self._functions)} functions and {len(self.constants())} constants"
     __repr__ = __str__
 
-    def register_operator_handler(self, operator, t1, t2, handler):
-        self._operators[(operator, t1, t2)] = handler
-
-    def register_unary_operator_handler(self, operator, t, handler):
-        self._operators[(operator, t)] = handler
+    def register_operator_handler(self, operator, handler, *args):
+        key = (operator, ) + tuple(args)
+        self._operators[key] = handler
 
     def dispatch_operator(self, symbol, lhs, rhs=None):
         """ Dispatch operator with given symbol and return the expression symbol(lhs, rhs).

@@ -52,7 +52,7 @@ _compound_evaluators = {
 def evaluate_atom(atom: Atom, m: Model, sigma):
     if builtins.is_builtin_predicate(atom.predicate):
         subterms = tuple(evaluate_term(x, m, sigma) for x in atom.subterms)
-        return evaluate_builtin_predicate(atom.language, atom.symbol.symbol, subterms)
+        return evaluate_builtin_symbol(atom.language, atom.symbol.symbol, subterms)
 
     # Otherwise, the extension is given by the model
     point = tuple(evaluate(t, m, sigma) for t in atom.subterms)
@@ -110,8 +110,18 @@ def evaluate_term(term, m: Model, sigma):
         raise err.UndefinedTerm(term)
 
 
-def evaluate_builtin_predicate(lang, symbol, subterms):
+def evaluate_builtin_symbol(lang, symbol, subterms):
+    """ Evaluate a given symbol on the given values.
+
+     The `subterms` iterable is assumed to be made up of (already-evaluated) Constants.
+     Note: ideally we would want to migrate all symbol evaluation in `_evaluate_builtin_function` below to
+     this method, where values are received already evaluated, and it is the responsibility of the caller to
+     have evaluated them. At the moment we cannot do so because of the special Matrix type subcasing there,
+     which hopefully can be refactored soon.
+     """
+
     bip = builtins.BuiltinPredicateSymbol
+    bif = builtins.BuiltinFunctionSymbol
 
     if symbol in builtins.get_set_symbols():
         return set_semantics_evaluation(lang, symbol, subterms, sort=None)
@@ -123,10 +133,21 @@ def evaluate_builtin_predicate(lang, symbol, subterms):
         bip.LE: lambda: subterms[0].symbol <= subterms[1].symbol,
         bip.GT: lambda: subterms[0].symbol > subterms[1].symbol,
         bip.GE: lambda: subterms[0].symbol >= subterms[1].symbol,
+        bif.ADD: lambda: simple_arithmetic_evaluation(operator.add, subterms),
+        bif.SUB: lambda: simple_arithmetic_evaluation(operator.sub, subterms),
+        bif.MUL: lambda: simple_arithmetic_evaluation(operator.mul, subterms),
+        bif.DIV: lambda: simple_arithmetic_evaluation(operator.truediv, subterms),
     }
 
     evaluator = _evaluators.get(symbol)
     return evaluator()
+
+
+def simple_arithmetic_evaluation(operation, subterms):
+    assert subterms
+    value = operation(*(st.sort.literal(st) for st in subterms))
+    sort = ops.infer_numeric_sort(value, subterms[0].language)
+    return Constant(value, sort)
 
 
 def symbolic_matrix_multiplication(lhs: Matrix, rhs: Matrix):

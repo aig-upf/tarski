@@ -86,13 +86,13 @@ def load_bool_theory(lang):
 def load_equality_theory(lang):
     for symbol in builtins.get_equality_predicates():
         p = lang.predicate(symbol, lang.Object, lang.Object, builtin=True)
-        lang.register_operator_handler(symbol, lang.Object, lang.Object, p)
+        lang.register_operator_handler(symbol, p, lang.Object, lang.Object)
 
 
 def load_arithmetic_theory(lang):
     for symbol in builtins.get_arithmetic_predicates():
         p = lang.predicate(symbol, lang.Real, lang.Real, builtin=True)
-        lang.register_operator_handler(symbol, lang.Real, lang.Real, p)
+        lang.register_operator_handler(symbol, p, lang.Real, lang.Real)
 
     for symbol in builtins.get_arithmetic_binary_functions():
         overloads = builtins.get_function_overloads(lang, symbol)
@@ -100,16 +100,16 @@ def load_arithmetic_theory(lang):
         for signature in overloads:
             domain = signature[:-1]
             fun = lang.function(symbol, *signature, builtin=True, overload=do_overload)
-            lang.register_operator_handler(symbol, *domain, fun)
+            lang.register_operator_handler(symbol, fun, *domain)
             fun.sort_inference = _infer_arithmetic_sort
 
     for symbol in builtins.get_matrix_functions():
         fun = lang.function(symbol, lang.Real, lang.Real, lang.Real, builtin=True)
-        lang.register_operator_handler(symbol, lang.Real, lang.Real, fun)
+        lang.register_operator_handler(symbol, fun, lang.Real, lang.Real)
 
     for symbol in builtins.get_arithmetic_unary_functions():
         fun = lang.function(symbol, lang.Real, lang.Real, builtin=True)
-        lang.register_unary_operator_handler(symbol, lang.Real, fun)
+        lang.register_operator_handler(symbol, fun, lang.Real)
         fun.sort_inference = _infer_arithmetic_sort
 
     # MRJ: ite function is now part of the Arithmetic theory
@@ -123,41 +123,45 @@ def load_set_theory(lang):
     lang.predicate(BuiltinPredicateSymbol.SET_IS_EMPTY, set_of_object, builtin=True)
 
     fun = lang.predicate(BuiltinPredicateSymbol.SET_IN, lang.Object, set_of_object, builtin=True, overload=True)
-    lang.register_operator_handler(BuiltinPredicateSymbol.SET_IN, lang.Object, set_of_object, fun)
+    lang.register_operator_handler(BuiltinPredicateSymbol.SET_IN, fun, lang.Object, set_of_object)
 
     fun = lang.predicate(BuiltinPredicateSymbol.SET_IN, lang.Integer, set_of_int, builtin=True, overload=True)
-    lang.register_operator_handler(BuiltinPredicateSymbol.SET_IN, lang.Integer, set_of_int, fun)
+    lang.register_operator_handler(BuiltinPredicateSymbol.SET_IN, fun, lang.Integer, set_of_int)
 
     fun = lang.function(BuiltinFunctionSymbol.SET_UNION, set_of_object, set_of_object, set_of_object, builtin=True)
+    lang.register_operator_handler(BuiltinFunctionSymbol.SET_UNION, fun, set_of_object, set_of_object)
     fun.sort_inference = _infer_set_sort
 
     fun = lang.function(BuiltinFunctionSymbol.SET_INTERSECTION, set_of_object, set_of_object, set_of_object, builtin=True)
+    lang.register_operator_handler(BuiltinFunctionSymbol.SET_INTERSECTION, fun, set_of_object, set_of_object)
     fun.sort_inference = _infer_set_sort
 
     fun = lang.function(BuiltinFunctionSymbol.SET_DIFFERENCE, set_of_object, set_of_object, set_of_object, builtin=True)
+    lang.register_operator_handler(BuiltinFunctionSymbol.SET_DIFFERENCE, fun, set_of_object, set_of_object)
     fun.sort_inference = _infer_set_sort
 
     fun = lang.function(BuiltinFunctionSymbol.SET_CARDINALITY, set_of_object, lang.Natural, builtin=True)
+    lang.register_operator_handler(BuiltinFunctionSymbol.SET_CARDINALITY, fun, set_of_object)
 
 
 def load_special_theory(lang):
     for symbol in builtins.get_special_binary_functions():
         fun = lang.function(symbol, lang.Real, lang.Real, lang.Real, builtin=True)
-        lang.register_operator_handler(symbol, lang.Real, lang.Real, fun)
+        lang.register_operator_handler(symbol, fun, lang.Real, lang.Real)
 
     for symbol in builtins.get_special_unary_functions():
         fun = lang.function(symbol, lang.Real, lang.Real, builtin=True)
-        lang.register_unary_operator_handler(symbol, lang.Real, fun)
+        lang.register_operator_handler(symbol, fun, lang.Real)
 
 
 def load_random_theory(lang):
     for symbol in builtins.get_random_binary_functions():
         fun = lang.function(symbol, lang.Real, lang.Real, lang.Real, builtin=True)
-        lang.register_operator_handler(symbol, lang.Real, lang.Real, fun)
+        lang.register_operator_handler(symbol, fun, lang.Real, lang.Real)
 
     for symbol in builtins.get_random_unary_functions():
         fun = lang.function(symbol, lang.Real, lang.Real, builtin=True)
-        lang.register_unary_operator_handler(symbol, lang.Real, fun)
+        lang.register_operator_handler(symbol, fun, lang.Real)
 
 
 def _infer_arithmetic_sort(symbol, subterms):

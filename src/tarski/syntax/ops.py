@@ -2,7 +2,7 @@ import itertools
 
 from .walker import FOLWalker
 from .. import modules
-from .sorts import children, compute_direct_sort_map, Interval
+from .sorts import children, compute_direct_sort_map, Interval, Set
 from .visitors import CollectFreeVariables
 from .terms import Term, Constant, Variable
 from .formulas import CompoundFormula, Connective
@@ -115,7 +115,7 @@ def compute_sort_id_assignment(lang, start=0):
 def _compute_id_assignment(lang, sort, ids, bounds, direct_objects, start):
     lb = start
     for c in sorted(children(sort), key=lambda x: x.name):
-        if isinstance(c, Interval):
+        if isinstance(c, (Interval, Set)):
             continue  # Don't assign IDs to interval, which already have their natural integer interpretation
         cub = lb + len(list(c.domain()))
         _compute_id_assignment(lang, c, ids, bounds, direct_objects, start=lb)

@@ -5,15 +5,15 @@ from tarski.syntax import term_substitution
 
 from ..fstrips import AddEffect, DelEffect, UniversalEffect, FunctionalEffect
 from ..ops import collect_all_symbols, compute_number_potential_groundings
-from ...evaluators.simple import evaluate
+from ...evaluators.simple import evaluate, evaluate_builtin_symbol
 from ...grounding.ops import approximate_symbol_fluency
 from ...syntax.terms import Constant, Variable, CompoundTerm
 from ...syntax.formulas import CompoundFormula, QuantifiedFormula, Atom, Tautology, Contradiction, Connective, is_neg, \
-    Quantifier, unwrap_conjunction_or_atom, is_eq_atom, land, exists
+    Quantifier, unwrap_conjunction_or_atom, is_eq_atom, land, exists, bot
 from ...syntax.util import get_symbols
 from ...syntax.walker import FOLWalker
 from ...syntax.ops import flatten
-from ...syntax import symref
+from ...syntax import symref, builtins
 
 
 def bool_to_expr(val):
@@ -82,8 +82,8 @@ class Simplify:
 
     def simplify_action(self, action, inplace=False):
         simple = action if inplace else copy.deepcopy(action)
-        simple.precondition = self.simplify_expression(simple.precondition, inplace=True)
-        if simple.precondition in (False, Contradiction):
+        simple.precondition = bool_to_expr(self.simplify_expression(simple.precondition, inplace=True))
+        if simple.precondition == bot:
             return None
 
         # Filter out those effects that are None, e.g. because they are not applicable:
@@ -109,6 +109,11 @@ class Simplify:
 
         if isinstance(node, (CompoundTerm, Atom)):
             node.subterms = [self.simplify_expression(st) for st in node.subterms]
+
+            if builtins.is_builtin_symbol(node.symbol) and all(isinstance(st, Constant) for st in node.subterms):
+                # If the node can be statically evaluated even without looking into whether we have a model, let's do so
+                return evaluate_builtin_symbol(node.language, node.symbol.symbol, node.subterms)
+
             if not self.node_can_be_statically_evaluated(node):
                 return node
             return evaluate(node, self.model)  # Will return the constant to which this expression evaluates
@@ -143,7 +148,7 @@ class Simplify:
                 return newsubformulas[0]
 
             node.subformulas = newsubformulas
-            return node
+            return flatten(node)
 
         if isinstance(node, QuantifiedFormula):
             node.formula = self.simplify_expression(node.formula)
