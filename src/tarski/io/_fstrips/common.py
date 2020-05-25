@@ -4,6 +4,7 @@ from ...fstrips.action import AdditiveActionCost, generate_zero_action_cost
 from ...fstrips.representation import is_typed_problem
 from ...syntax import Interval, CompoundTerm, Tautology, BuiltinFunctionSymbol
 from ... import theories
+from ...syntax.util import get_symbols
 from ...theories import Theory
 
 
@@ -41,22 +42,24 @@ def process_requirements(requirements, lang):
 def get_requirements_string(problem):
     """ Get a list with all PDDL requirement strings based on the given problem """
     # TODO To be completed
-    requirements = []
+    requirements = set()
     if is_typed_problem(problem):
-        requirements.append(":typing")
+        requirements.add(":typing")
 
     # TODO Add ":negative-preconditions" requirement when representation.is_positive_normal_form_problem is implemented
 
-    for t in problem.language.theories:
-        # The Arithmetic theory incorporates arithmetic functions (which are PDDL numeric operators)
-        if t == Theory.ARITHMETIC:
-            requirements.append(":numeric-fluents")
-        elif t == Theory.EQUALITY:
-            requirements.append(":equality")
+    if Theory.EQUALITY in problem.language.theories:
+        requirements.add(":equality")
 
-    # Functional STRIPS with action costs, keeping in line with IPC convention
-    if problem.metric is not None and problem.language.has_function('total-cost'):
-        requirements.append(":action-costs")
+    # If problem has standard "total-cost" function, assume we have action costs and add appropriate requirement
+    if problem.language.has_function('total-cost'):
+        requirements.add(":action-costs")
+
+    # Let's check now whether the problem has any predicate or function symbol *other than "total-cost"* which
+    # has some arithmetic parameter or result. If so, we add the ":numeric-fluents" requirement.
+    for symbol in get_symbols(problem.language, type_='all', include_builtin=False):
+        if any(isinstance(s, Interval) for s in symbol.sort) and symbol.name != 'total-cost':
+            requirements.add(":numeric-fluents")
 
     return requirements
 
