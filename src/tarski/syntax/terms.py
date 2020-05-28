@@ -47,10 +47,12 @@ class Term:
         return exc_type is not None
 
     def __lshift__(self, rhs):
-        return self.language.dispatch_operator('<<', self, rhs)
+        from ..fstrips import FunctionalEffect
+        return FunctionalEffect(self, rhs)
 
     def __rshift__(self, rhs):
-        return self.language.dispatch_operator('>>', self, rhs)
+        from ..fstrips import FunctionalEffect
+        return FunctionalEffect(rhs, self)
 
     def __eq__(self, rhs):
         return self.language.dispatch_operator(BuiltinPredicateSymbol.EQ, self, rhs)

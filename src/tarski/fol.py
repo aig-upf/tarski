@@ -6,9 +6,10 @@ from typing import Union
 
 from . import errors as err
 from .errors import UndefinedElement
-from .syntax import Function, Constant, Variable, Sort, inclusion_closure, Predicate, Interval, BuiltinPredicateSymbol
+from .syntax import Function, Constant, Variable, Sort, inclusion_closure, Predicate, Interval
 from .syntax.algebra import Matrix
 from . import modules
+from .syntax.builtins import BuiltinPredicateSymbol, BuiltinFunctionSymbol
 from .syntax.ops import cast_to_closest_common_numeric_ancestor
 from .syntax.sorts import Enumeration
 
@@ -379,47 +380,46 @@ class FirstOrderLanguage:
         key = (operator, ) + tuple(args)
         self._operators[key] = handler
 
-    def dispatch_operator(self, symbol, lhs, rhs=None):
-        """ Dispatch operator with given symbol and return the expression symbol(lhs, rhs).
-        Deals with symbol overloading (in a rather naive way).
-        If rhs is None, the operator is assumed to be unary.
+    def dispatch_operator(self, symbol, *args):
+        """ Dispatch operator / function with given symbol and return the expression `symbol(lhs, rhs)`.
+
+        This method deals with symbol overloading (in a rather naive way).
         """
-        if rhs is None:
-            return self._dispatch_unary_operator(symbol, lhs)
+        if not isinstance(symbol, (BuiltinPredicateSymbol, BuiltinFunctionSymbol)):
+            # At the moment we don't allow overloading of used-declared functions and predicates, so no need to do
+            # anything other than just create the appropriate compound term or atom:
+            return symbol(*args)
 
-        op, lhs, rhs = self.get_operator_matching_arguments(symbol, lhs, rhs)
-        return op(lhs, rhs)
-
-    def _dispatch_unary_operator(self, symbol, lhs):
-        # @ see method dispatch_operator
-        sort = lhs.sort
-        while sort is not None:
-            op = self._operators.get((symbol, sort))
-            if op is not None:
-                return op(lhs)
-            sort = self.immediate_parent[sort]
-
-        raise err.LanguageError(f"Operator '{symbol}' undefined on domain ({sort})")
+        op, *args = self.get_operator_matching_arguments(symbol, *args)
+        return op(*args)
 
     def get_operator_matching_arguments(self, symbol, *args):
-        lhs, rhs = cast_to_closest_common_numeric_ancestor(self, *args)
+        assert len(args) > 0
+
+        if len(args) > 1:
+            # For binary operators we'll want to cast possible numeric arguments to a common ancestor.
+            # The code in the method below is rather shaky and could use some careful refactoring
+            args = cast_to_closest_common_numeric_ancestor(self, *args)
+
+        sorts = tuple(a.sort for a in args)
 
         # First check if the operator has been declared with the arguments sorts.
-        op = self._operators.get((symbol, lhs.sort, rhs.sort))
+        op = self._operators.get((symbol, ) + sorts)
         if op is not None:
-            return op, lhs, rhs
+            return op, *args
 
         # If not, look up among possible overloads for the given symbol (e.g. +) for one overload that matches the
         # argument sorts. We simply do a linear lookup, as we don't expect a large number of subtypes.
         # The whole overload resolution strategy of course could be made more sophisticated, but at the moment we'll
         # go with this.
-        sort = lhs.sort
+        sort = sorts[0]
         while sort is not None:
-            op = self._operators.get((symbol, sort, sort))
+            casted_sorts = (sort, ) * len(args)
+            op = self._operators.get((symbol, ) + casted_sorts)
             if op is not None:
-                return op, lhs, rhs
+                return op, *args
             sort = self.immediate_parent[sort]
-        raise err.LanguageError(f"Operator '{symbol}' undefined on domain ({lhs.sort}, {rhs.sort})")
+        raise err.LanguageError(f"Operator '{symbol}' undefined on domain {sorts}")
 
     def get(self, first, *args):
         """ Return the language element with given name(s).
