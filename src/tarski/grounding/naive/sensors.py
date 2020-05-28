@@ -2,9 +2,8 @@
 import itertools
 
 from ...fstrips.contingent import Sensor
-from ...syntax import create_substitution, TermSubstitution
+from ...syntax import create_substitution, substitute_expression
 from ...util import SymbolIndex
-from .elements import process_expression
 from . import instantiation
 
 
@@ -29,9 +28,7 @@ class SensorGrounder:
             K, syms, substs = instantiation.enumerate_groundings(act_schema.parameters)
             for values in itertools.product(*substs):
                 subst = create_substitution(syms, values)
-
-                op = TermSubstitution(subst)
-                g_prec = process_expression(self.L, act_schema.condition, op)
-                g_obs = process_expression(self.L, act_schema.obs, op)
+                g_prec = substitute_expression(act_schema.condition, subst)
+                g_obs = substitute_expression(act_schema.obs, subst)
                 self.problem.ground_sensors.add(Sensor(self.L, act_schema.name, [], g_prec, g_obs))
             self.sensors_generated += K

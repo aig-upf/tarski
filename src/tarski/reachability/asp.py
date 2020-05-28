@@ -4,14 +4,14 @@
 import itertools
 
 from ..fstrips.action import AdditiveActionCost
-from ..syntax.transform import remove_quantifiers, QuantifierEliminationMode, expand_universal_effect
+from ..syntax.transform import remove_quantifiers, QuantifierEliminationMode
 from ..syntax.builtins import symbol_complements
 from ..syntax.ops import free_variables
 from ..syntax import Formula, Atom, CompoundFormula, Connective, Term, Variable, Constant, Tautology, \
     BuiltinPredicateSymbol, QuantifiedFormula, Quantifier, CompoundTerm
 from ..syntax.sorts import parent, Interval
 from ..fstrips import Problem, SingleEffect, AddEffect, DelEffect, FunctionalEffect
-from ..fstrips.representation import identify_cost_related_functions
+from ..fstrips.representation import identify_cost_related_functions, expand_universal_effect
 
 GOAL = "goal"
 

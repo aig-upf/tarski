@@ -1,8 +1,8 @@
 import itertools
 import copy
 
-from ...syntax import Term, AggregateCompoundTerm, CompoundTerm, Constant, Variable, IfThenElse, create_substitution, \
-    term_substitution
+from ..transform.substitutions import substitute_expression
+from ...syntax import Term, AggregateCompoundTerm, CompoundTerm, Constant, Variable, IfThenElse, create_substitution
 from ...syntax.algebra import Matrix
 from ... import errors as err
 from ... grounding.naive import instantiation
@@ -63,7 +63,7 @@ def summation(*args):
     processed_expr = []
     for values in itertools.product(*substs):
         subst = create_substitution(syms, values)
-        processed_expr.append(term_substitution(expr, subst))
+        processed_expr.append(substitute_expression(expr, subst))
 
     lhs = processed_expr[0]
     for k in range(1, len(processed_expr)):
@@ -93,7 +93,7 @@ def product(*args):
     processed_expr = []
     for values in itertools.product(*substs):
         subst = create_substitution(syms, values)
-        processed_expr.append(term_substitution(expr, subst))
+        processed_expr.append(substitute_expression(expr, subst))
 
     lhs = processed_expr[0]
     for k in range(1, len(processed_expr)):
