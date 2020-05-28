@@ -5,10 +5,11 @@ from ..errors import TarskiError
 from .problem import Problem
 from . import fstrips as fs
 from ..syntax import Formula, CompoundTerm, Atom, CompoundFormula, QuantifiedFormula, is_and, is_neg, exists, symref,\
-    VariableBinding, Constant, Tautology, land, Variable
+    VariableBinding, Constant, Tautology, land, Term
 from ..syntax.ops import collect_unique_nodes, flatten, free_variables, all_variables
 from ..syntax.sorts import compute_signature_bindings
-from ..syntax.transform.substitutions import substitute_expression, enumerate_substitutions
+from ..syntax.transform.substitutions import enumerate_substitutions
+from ..syntax.transform.substitutions import substitute_expression as fol_substitute_expression
 from ..syntax.util import get_symbols
 from ..fstrips import AddEffect, DelEffect, LiteralEffect, FunctionalEffect, UniversalEffect, BaseEffect, SingleEffect
 from .action import Action
@@ -532,30 +533,33 @@ def has_state_variable_shape(expression):
     return all(isinstance(s, Constant) for s in expression.subterms)
 
 
-def substitute_expression_in_effect(effect, substitution, inplace=False):
-    """ Apply the given syntactic substitution to the given FSTRIPS action effect.
-    :param effect: An FSTRIPS effect.
+def substitute_expression(expression, substitution, inplace=False):
+    """ Apply the given syntactic substitution to the given FSTRIPS action effect, formula or term.
+    :param expression: An FSTRIPS effect, formula or term.
     :param substitution: A dictionary from TermReferences to other expressions.
     :param inplace: If true, the given element is modified in place; otherwise a different object is returned.
     :return: The result of applying the substitution to the element.
     """
-    effect = effect if inplace else copy.deepcopy(effect)
-    if not isinstance(effect, BaseEffect):
-        raise RepresentationError(f'Unexpected effect type: "{effect}"')
+    expression = expression if inplace else copy.deepcopy(expression)
+    if isinstance(expression, (Formula, Term)):
+        return fol_substitute_expression(expression, substitution, inplace=True)
 
-    effect.condition = substitute_expression(effect.condition, substitution, inplace=True)
+    if not isinstance(expression, BaseEffect):
+        raise RepresentationError(f'Unexpected effect type: "{expression}"')
 
-    if isinstance(effect, (AddEffect, DelEffect)):
-        effect.atom = substitute_expression(effect.atom, substitution, inplace=True)
+    expression.condition = fol_substitute_expression(expression.condition, substitution, inplace=True)
 
-    elif isinstance(effect, fs.LiteralEffect):
-        effect.lit = substitute_expression(effect.lit, substitution, inplace=True)
+    if isinstance(expression, (AddEffect, DelEffect)):
+        expression.atom = fol_substitute_expression(expression.atom, substitution, inplace=True)
 
-    elif isinstance(effect, fs.FunctionalEffect):
-        effect.lhs = substitute_expression(effect.lhs, substitution, inplace=True)
-        effect.rhs = substitute_expression(effect.rhs, substitution, inplace=True)
+    elif isinstance(expression, fs.LiteralEffect):
+        expression.lit = fol_substitute_expression(expression.lit, substitution, inplace=True)
 
-    return effect
+    elif isinstance(expression, fs.FunctionalEffect):
+        expression.lhs = fol_substitute_expression(expression.lhs, substitution, inplace=True)
+        expression.rhs = fol_substitute_expression(expression.rhs, substitution, inplace=True)
+
+    return expression
 
 
 def expand_universal_effect(effect):
@@ -567,7 +571,7 @@ def expand_universal_effect(effect):
     expanded = []
     for subst in enumerate_substitutions(effect.variables):
         for sub in effect.effects:
-            expanded.append(substitute_expression_in_effect(sub, subst))
+            expanded.append(substitute_expression(sub, subst))
     return expanded
 
 

@@ -2,8 +2,8 @@
 import itertools
 
 from ...fstrips import hybrid
-from ...fstrips.representation import substitute_expression_in_effect
-from ...syntax import create_substitution, substitute_expression
+from ...fstrips.representation import substitute_expression
+from ...syntax import create_substitution
 from ...util import SymbolIndex
 from . import instantiation
 
@@ -36,7 +36,7 @@ class ReactionGrounder:
                 subst = create_substitution(syms, values)
 
                 g_cond = substitute_expression(react_schema.condition, subst)
-                g_eff = substitute_expression_in_effect(react_schema.effect, subst)
+                g_eff = substitute_expression(react_schema.effect, subst)
 
                 self.problem.ground_reactions.add(hybrid.Reaction(self.L, react_schema.name, [], g_cond, g_eff))
             self.reactions_generated += k

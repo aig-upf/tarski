@@ -1,5 +1,4 @@
-from .substitutions import substitute_expression
-from ...fstrips.representation import substitute_expression_in_effect
+from ...fstrips.representation import substitute_expression
 from ...syntax import symref, Constant, create_substitution, VariableBinding
 from ...fstrips.action import Action, PlainOperator
 
@@ -21,7 +20,7 @@ def ground_schema_into_plain_operator(action: Action, substitution):
     name = f'{action.name}({paramlist})'
 
     precondition = substitute_expression(action.precondition, substitution, inplace=False)
-    effects = [substitute_expression_in_effect(eff, substitution, inplace=False) for eff in action.effects]
+    effects = [substitute_expression(eff, substitution, inplace=False) for eff in action.effects]
     return PlainOperator(action.language, name, precondition, effects)
 
 
@@ -45,7 +44,7 @@ def ground_schema(action: Action, grounding):
     name = f'{action.name}({paramlist})'
 
     precondition = substitute_expression(action.precondition, subst, inplace=False)
-    effects = [substitute_expression_in_effect(eff, subst, inplace=False) for eff in action.effects]
+    effects = [substitute_expression(eff, subst, inplace=False) for eff in action.effects]
 
     return Action(lang, name, VariableBinding(), precondition, effects)
 
