@@ -109,7 +109,8 @@ class StateVariable:
 class NaiveGroundingStrategy:
     """ A naive problem grounding grounds actions and state variables of a lifted Tarski problem by (type-informed)
     exhaustive enumeration of all possible subsitutions of the representation variables.
-    Note: This is a lightweight version of the ProblemGrounding class above, hoping that it can eventually replace it.
+    TODO / Note: This is a lightweight version of the ProblemGrounding class above, hoping that it can eventually
+                 replace it.
     """
     def __init__(self, problem, ignore_symbols=None):
         self.problem = problem
@@ -128,7 +129,7 @@ class NaiveGroundingStrategy:
 
     def ground_actions(self):
         """  Return a dictionary mapping each action schema of the problem to the set of parameter groundings that
-        make that schema a reachable ground action. """
+        make that schema a possible ground action. """
         groundings = dict()
         for aname, action in self.problem.actions.items():
             domains = [p.sort.domain() for p in action.parameters]
