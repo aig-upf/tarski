@@ -1,12 +1,11 @@
 
 import itertools
-import copy
 
 from ...fstrips import hybrid
-from ...syntax import create_substitution, TermSubstitution
+from ...fstrips.representation import substitute_expression
+from ...syntax import create_substitution
 from ...util import SymbolIndex
 from . import instantiation
-from .elements import process_expression, process_effect
 
 
 class ReactionGrounder:
@@ -36,13 +35,8 @@ class ReactionGrounder:
             for values in itertools.product(*substs):
                 subst = create_substitution(syms, values)
 
-                op = TermSubstitution(subst)
-
-                g_cond = process_expression(self.L, react_schema.condition, op)
-
-                g_eff = copy.deepcopy(react_schema.effect)
-                g_eff.condition = process_expression(self.L, g_eff.condition, op, False)
-                g_eff = process_effect(self.L, g_eff, op)
+                g_cond = substitute_expression(react_schema.condition, subst)
+                g_eff = substitute_expression(react_schema.effect, subst)
 
                 self.problem.ground_reactions.add(hybrid.Reaction(self.L, react_schema.name, [], g_cond, g_eff))
             self.reactions_generated += k

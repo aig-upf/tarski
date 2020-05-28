@@ -1,10 +1,10 @@
 """
     Rewrite formulas into prenex negation normal form
 """
+from .substitutions import substitute_expression
 from ..symrefs import symref
 from ..formulas import CompoundFormula, QuantifiedFormula, Connective, Quantifier, lor
 from ..transform.nnf import NNFTransformation
-from ..transform import term_substitution
 
 from .errors import TransformationError
 
@@ -32,7 +32,7 @@ class PrenexTransformation:
                     subst[y] = y2
                     new_variables[(y2.symbol, y2.sort.name)] = y2
         if len(subst) > 0:
-            rhs.formula = term_substitution(rhs.formula, subst, inplace=True)
+            rhs.formula = substitute_expression(rhs.formula, subst, inplace=True)
         new_phi = QuantifiedFormula(lhs.quantifier, list(new_variables.values()), lor(lhs.formula, rhs.formula))
         return new_phi
 
@@ -53,7 +53,7 @@ class PrenexTransformation:
                 subst[symref(y)] = y2
                 new_out_vars.append(y2)
         if len(subst) > 0:
-            term_substitution(out_phi, subst, inplace=True)
+            substitute_expression(out_phi, subst, inplace=True)
         phi = CompoundFormula(conn, tuple([lhs, rhs]))
         inner = QuantifiedFormula(inner_q, inner_vars, phi)
         return QuantifiedFormula(out_q, new_out_vars, inner)

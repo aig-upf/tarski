@@ -136,8 +136,9 @@ def test_blocksworld_writing_with_different_constants():
 def test_requirements_string():
     problem = parcprinter.create_small_task()
 
-    # action costs should be required if there is a metric defined.
-    assert sorted(get_requirements_string(problem)) == [':action-costs', ':equality', ':numeric-fluents', ':typing']
+    # action costs should be required if there is a metric defined, but if "total-cost" is the only arithmetic
+    # function, we don't print the ':numeric-fluents' requirement
+    assert sorted(get_requirements_string(problem)) == [':action-costs', ':equality', ':typing']
 
     problem, loc, clear, b1, table = get_bw_elements()
     assert sorted(get_requirements_string(problem)) == [':equality', ':typing']

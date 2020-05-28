@@ -2,10 +2,9 @@
 import itertools
 
 from ...fstrips import hybrid
-from ...syntax import create_substitution, TermSubstitution
+from ...syntax import create_substitution, substitute_expression
 from ...util import SymbolIndex
 from . import instantiation
-from .elements import process_expression
 
 
 class DifferentialConstraintGrounder:
@@ -27,10 +26,9 @@ class DifferentialConstraintGrounder:
             k, syms, substs = instantiation.enumerate_groundings(ode_schema.parameters)
             for values in itertools.product(*substs):
                 subst = create_substitution(syms, values)
-                op = TermSubstitution(subst)
-                g_cond = process_expression(self.L, ode_schema.condition, op)
-                g_variate = process_expression(self.L, ode_schema.variate, op)
-                g_ode = process_expression(self.L, ode_schema.ode, op)
+                g_cond = substitute_expression(ode_schema.condition, subst)
+                g_variate = substitute_expression(ode_schema.variate, subst)
+                g_ode = substitute_expression(ode_schema.ode, subst)
 
                 self.problem.ground_differential_constraints.add(
                     hybrid.DifferentialConstraint(self.L, ode_schema.name, [], g_cond, g_variate, g_ode))

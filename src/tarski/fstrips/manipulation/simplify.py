@@ -1,7 +1,6 @@
 import copy
 
 from multipledispatch import dispatch
-from tarski.syntax import term_substitution
 
 from ..fstrips import AddEffect, DelEffect, UniversalEffect, FunctionalEffect
 from ..ops import collect_all_symbols, compute_number_potential_groundings
@@ -10,6 +9,7 @@ from ...grounding.ops import approximate_symbol_fluency
 from ...syntax.terms import Constant, Variable, CompoundTerm
 from ...syntax.formulas import CompoundFormula, QuantifiedFormula, Atom, Tautology, Contradiction, Connective, is_neg, \
     Quantifier, unwrap_conjunction_or_atom, is_eq_atom, land, exists, bot
+from ...syntax.transform.substitutions import substitute_expression
 from ...syntax.util import get_symbols
 from ...syntax.walker import FOLWalker
 from ...syntax.ops import flatten
@@ -259,9 +259,5 @@ def _attempt_single_ex_var_substitution(exvars, conjuncts):
 
     exvars.remove(substitution[0])
     substitution = dict([substitution])
-    conjuncts = [term_substitution(c, substitution, inplace=True) for i, c in enumerate(conjuncts) if i != replaced]
+    conjuncts = [substitute_expression(c, substitution, inplace=True) for i, c in enumerate(conjuncts) if i != replaced]
     return True, conjuncts
-
-
-
-

@@ -3,7 +3,6 @@ from tarski.grounding import ProblemGrounding, NaiveGroundingStrategy, create_al
 from tarski.grounding.naive import instantiation
 from tarski.util import SymbolIndex
 from tarski.syntax import create_substitution
-from tarski.grounding.naive.actions import ActionGrounder
 from tarski.grounding.naive.sensors import SensorGrounder
 from tarski.grounding.naive.constraints import ConstraintGrounder
 from tarski.grounding.naive.diff_constraints import DifferentialConstraintGrounder
@@ -48,15 +47,6 @@ def test_generate_substitutions_for_small_bw():
         assert (len(syms) == len(values))
         subst = create_substitution(syms, values)
         assert len(subst) == 1
-
-
-def test_ground_actions_for_small_bw():
-    # import itertools, copy
-
-    prob, index = create_small_bw_with_index()
-    grounder = ActionGrounder(prob, index)
-    grounder.calculate_actions()
-    assert len(prob.ground_actions) == 84
 
 
 def test_ground_constraints_for_small_bw():

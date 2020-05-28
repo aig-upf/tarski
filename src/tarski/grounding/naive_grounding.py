@@ -4,11 +4,11 @@
 import itertools
 
 from ..grounding.ops import approximate_symbol_fluency
-from ..syntax import Constant, Variable, CompoundTerm, Atom, create_substitution, term_substitution,\
-    termlists_are_equal, termlist_hash
+from ..syntax import Constant, Variable, CompoundTerm, Atom, create_substitution, termlists_are_equal, termlist_hash
 from ..errors import DuplicateDefinition
 from .errors import UnableToGroundError
 from .common import StateVariableLite
+from ..syntax.transform.substitutions import substitute_expression
 from ..util import SymbolIndex
 from ..fstrips.visitors import FluentSymbolCollector, FluentHeuristic
 
@@ -103,13 +103,14 @@ class StateVariable:
     @property
     def ground(self):
         subst = create_substitution(self.term.subterms, self.instantiation)
-        return term_substitution(self.term, subst)
+        return substitute_expression(self.term, subst)
 
 
 class NaiveGroundingStrategy:
     """ A naive problem grounding grounds actions and state variables of a lifted Tarski problem by (type-informed)
     exhaustive enumeration of all possible subsitutions of the representation variables.
-    Note: This is a lightweight version of the ProblemGrounding class above, hoping that it can eventually replace it.
+    TODO / Note: This is a lightweight version of the ProblemGrounding class above, hoping that it can eventually
+                 replace it.
     """
     def __init__(self, problem, ignore_symbols=None):
         self.problem = problem
@@ -128,7 +129,7 @@ class NaiveGroundingStrategy:
 
     def ground_actions(self):
         """  Return a dictionary mapping each action schema of the problem to the set of parameter groundings that
-        make that schema a reachable ground action. """
+        make that schema a possible ground action. """
         groundings = dict()
         for aname, action in self.problem.actions.items():
             domains = [p.sort.domain() for p in action.parameters]

@@ -1,10 +1,8 @@
 import tarski.benchmarks.blocksworld
 from tarski.fstrips.action import PlainOperator
 from tarski.grounding import ProblemGrounding
-from tarski.search.applicability import is_applicable, apply
 from tarski.syntax import symref
 from tarski.syntax.transform.action_grounding import ground_schema_into_plain_operator
-from tarski.evaluators.simple import evaluate
 
 from tests.common import blocksworld
 
