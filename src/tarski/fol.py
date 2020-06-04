@@ -406,7 +406,7 @@ class FirstOrderLanguage:
         # First check if the operator has been declared with the arguments sorts.
         op = self._operators.get((symbol, ) + sorts)
         if op is not None:
-            return op, *args
+            return [op, *args]
 
         # If not, look up among possible overloads for the given symbol (e.g. +) for one overload that matches the
         # argument sorts. We simply do a linear lookup, as we don't expect a large number of subtypes.
@@ -417,7 +417,7 @@ class FirstOrderLanguage:
             casted_sorts = (sort, ) * len(args)
             op = self._operators.get((symbol, ) + casted_sorts)
             if op is not None:
-                return op, *args
+                return [op, *args]
             sort = self.immediate_parent[sort]
         raise err.LanguageError(f"Operator '{symbol}' undefined on domain {sorts}")
 
