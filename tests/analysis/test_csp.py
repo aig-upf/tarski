@@ -18,3 +18,10 @@ def test_hypergraph_generation():
 
     acyclicity = compute_acyclicity("ged-opt14-strips:d-1-2.pddl")
     assert all(x is True for x in acyclicity.values())
+
+
+def check_acyclicity(domain_file, instance_file):
+    problem = reader(case_insensitive=True, strict_with_requirements=False).read_problem(domain_file, instance_file)
+    for a in problem.actions.values():
+        acyclic = check_hypergraph_acyclicity(compute_schema_constraint_hypergraph(a))
+        print(f'Action {a.name} is {"acyclic" if acyclic else "cyclic"}.')
