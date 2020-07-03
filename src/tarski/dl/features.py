@@ -9,13 +9,16 @@ from ..utils.hashing import consistent_hash
 
 
 class FeatureValueChange(Enum):
-    ADD = 1
-    DEL = 2
-    INC = 3
-    DEC = 4
-    NIL = 5
-    INC_OR_NIL = 6
-    ADD_OR_NIL = 7
+    ADD = "Add"
+    DEL = "Del"
+    INC = "Inc"
+    DEC = "Dec"
+    NIL = "Nil"
+    INC_OR_NIL = "Inc_or_Nil"
+    ADD_OR_NIL = "Add_or_Nil"
+
+    def __str__(self):
+        return self.value.lower()
 
 
 class Feature:
