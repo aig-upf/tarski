@@ -220,6 +220,38 @@ class MinDistanceFeature(Feature):
         return self.c1.size + self.r.size + self.c2.size + 1
 
 
+class DifferenceFeature(Feature):
+    def __init__(self, f1, f2):
+        assert isinstance(f1, ConceptCardinalityFeature) and isinstance(f2, ConceptCardinalityFeature)
+        self.f1 = f1
+        self.f2 = f2
+        self.hash = consistent_hash((self.__class__, self.f1, self.f2))
+
+    def __hash__(self):
+        return self.hash
+
+    def __eq__(self, other):
+        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
+                self.f1 == other.f1 and self.f2 == other.f2)
+
+    def denotation(self, model):
+        """ The value of the feature is f1 < f2 """
+        ext_f1 = self.f1.denotation(model)
+        ext_f2 = self.f2.denotation(model)
+        return ext_f1 < ext_f2
+
+    def diff(self, x, y):
+        return compute_bool_feature_diff(x, y)
+
+    def __repr__(self):
+        return f'LessThan{{{self.f1}}}{{{self.f2}}}'
+
+    __str__ = __repr__
+
+    def complexity(self):
+        return self.f1.size + self.f2.size + 1
+
+
 class NullaryAtomFeature(Feature):
     def __init__(self, atom):
         assert isinstance(atom, NullaryAtom)
