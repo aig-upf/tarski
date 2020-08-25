@@ -1,10 +1,10 @@
 import pytest
 
-from tarski import FirstOrderLanguage, errors
+from tarski import FirstOrderLanguage, errors, language
 
 
 def test_namespace_accessor():
-    lang = FirstOrderLanguage()
+    lang = language()
 
     # Let's test different ways of accessing the same things
     assert lang.get_sort('object') == lang.get("object") == lang.ns.object

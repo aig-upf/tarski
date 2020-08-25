@@ -7,6 +7,7 @@ from typing import Union
 from . import errors as err
 from .errors import UndefinedElement
 from .syntax import Function, Constant, Variable, Sort, inclusion_closure, Predicate, Interval
+from .syntax.formulas import FormulaTerm
 from .syntax.algebra import Matrix
 from . import modules
 
@@ -159,6 +160,14 @@ class FirstOrderLanguage:
         if a Sort with that name has already been registered. """
         sort = self._retrieve_sort(sort)
         return Variable(name, sort)
+
+    #todo: [John Peterson] not ideal to have to add this just to be able to fix booleans done 2 ways
+    def change_parent(self, sort: Sort, parent: Sort):
+        if parent.language is not self:
+            raise err.LanguageError("Tried to set as parent a sort from a different language")
+
+        self.immediate_parent[sort] = parent
+        self.ancestor_sorts[sort].update(inclusion_closure(parent))
 
     def set_parent(self, sort: Sort, parent: Sort):
         if parent.language is not self:
@@ -332,6 +341,10 @@ class FirstOrderLanguage:
         return f"{self.name}: Tarski language with {len(self._sorts)} sorts, {len(self._predicates)} predicates, " \
                f"{len(self._functions)} functions and {len(self.constants())} constants"
     __repr__ = __str__
+
+    #todo: [John Peterson] I'm not sure if this should be here. We need access to the language's sorts to be able to inject the necessary special boolean sort. Reevaluate as a todo.
+    def generate_formula_term(self, formula):
+        return FormulaTerm(formula, self.Boolean)
 
     def register_operator_handler(self, operator, t1, t2, handler):
         self._operators[(operator, t1, t2)] = handler

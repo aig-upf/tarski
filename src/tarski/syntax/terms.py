@@ -5,6 +5,7 @@ from .util import termlists_are_equal, termlist_hash
 from .sorts import Sort, parent, Interval
 from .. import errors as err
 from .builtins import BuiltinPredicateSymbol, BuiltinFunctionSymbol
+#from .formulas import Formula, FormulaTerm
 
 
 class Term:
@@ -261,6 +262,12 @@ class IfThenElse(Term):
 
         self.symbol = subterms[0].language.get('ite')
         self.condition = condition
+        #if either of the subterms are boolean Formulae, wrap them as Terms
+#        if isinstance(subterms[0], Formula):
+#            subterms[0] = FormulaTerm(subterms[0], lhs.language.get_sort("Boolean")) #todo: [John Peterson] having to look up the boolean type this way seems wrong
+#        if isinstance(subterms[1], Formula):
+#            subterms[1] = FormulaTerm(subterms[1], subterms[1].language.get_sort("Boolean"))
+
         # Our implementation of ite requires both branches to have equal sort
         if subterms[0].sort != subterms[1].sort:
             if parent(subterms[0].sort) == subterms[1].sort:
@@ -301,7 +308,6 @@ class IfThenElse(Term):
 
 def ite(c, t1: Term, t2: Term):
     return IfThenElse(c, (t1, t2))
-
 
 class Constant(Term):
     def __init__(self, name, sort: Sort):

@@ -3,7 +3,7 @@ from enum import Enum
 from typing import Union, List, Optional
 
 from tarski.errors import DuplicateTheoryDefinition
-from .syntax.sorts import attach_arithmetic_sorts, build_the_bools
+from .syntax.sorts import attach_arithmetic_sorts, attach_the_non_arithmetic_bools
 from .fol import FirstOrderLanguage
 from .syntax import builtins, Term
 from .syntax.factory import create_atom, create_arithmetic_term
@@ -35,7 +35,11 @@ def language(name='L', theories: Optional[List[Union[str, Theory]]] = None):
      """
     theories = theories or []
     lang = FirstOrderLanguage(name)
-    _ = [load_theory(lang, t) for t in theories]
+    load_theory(lang, Theory.BOOLEAN) #todo: [John Peterson] would like to either do this differently, or eliminate the boolean theory alltogether
+    for t in theories:
+        if t != "boolean" and t != Theory.BOOLEAN:
+            _ = load_theory(lang,t)
+            
     return lang
 
 
@@ -71,7 +75,8 @@ def has_theory(lang, theory: Union[Theory, str]):
 
 
 def load_bool_theory(lang):
-    build_the_bools(lang)
+    if not lang.has_sort("Boolean"):
+        attach_the_non_arithmetic_bools(lang)
 
 
 def load_equality_theory(lang):

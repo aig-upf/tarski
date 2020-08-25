@@ -295,6 +295,7 @@ class Atom(Formula):
         self.predicate = predicate
         self.subterms = arguments
         self._check_well_formed()
+        self.language = predicate.language
 
     @property
     def symbol(self):
@@ -388,3 +389,51 @@ class VariableBinding:
     def __str__(self):
         return f"Variables({','.join(map(str, self._v_values))})"
     __repr__ = __str__
+
+
+class FormulaTerm(Term):
+    """A Term wrapper for (boolean) formulas"""
+    def __init__(self, formula, sort):
+        self.symbol = formula_symbol_extractor(formula)
+        self.formula = formula
+        self._sort = sort
+
+    @property
+    def language(self):
+        return self.symbol.language
+
+    @property
+    def sort(self):
+        return self._sort
+
+    def __str__(self):
+        return str(self.formula)
+
+    __repr__ = __str__
+
+    def hash(self):
+        return hash(self.formula) #[John Peterson] todo: should this actually work this way? I'm not sure if we want these to hash the same as the underlying formula
+
+    def is_syntactically_equal(self, other):
+        return self.formula.is_syntactically_equal(other.formula)
+
+def formula_symbol_extractor(f):
+    """Depending on the type of Formula, extracts and appropriate symbol for the FormulaTerm wrapper"""
+    if isinstance(f, CompoundFormula):
+        symbol = f.connective
+    elif isinstance(f, Atom):
+        symbol = f.predicate
+    else:
+        raise NotImplementedError() #unknown formula type
+    return symbol
+
+
+def formula_arity_extractor(f):
+    if isinstance(f, CompoundFormula):
+        if f.connective == Connective.Not:
+            arity = 1
+        else:
+            arity = 2
+    else:
+        raise NotImplementedError() #unknown formula type
+    return arity 
