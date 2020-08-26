@@ -110,13 +110,13 @@ class Term:
         return self.language.dispatch_operator('divmod', Term, Term, self, rhs)
 
     def __and__(self, rhs):
-        return self.language.dispatch_operator('&', Term, Term, self, rhs)
+        return self.language.dispatch_operator(BuiltinPredicateSymbol.AND, Term, Term, self, rhs)
 
     def __xor__(self, rhs):
         return self.language.dispatch_operator('^', Term, Term, self, rhs)
 
     def __or__(self, rhs):
-        return self.language.dispatch_operator('|', Term, Term, self, rhs)
+        return self.language.dispatch_operator(BuiltinPredicateSymbol.OR, Term, Term, self, rhs)
 
     def is_syntactically_equal(self, other):
         """ Return true if this term and other are strictly syntactically equivalent.
@@ -223,6 +223,8 @@ class AggregateCompoundTerm(Term):
     def __init__(self, operator, bound_vars, subterm: Term):
         self.symbol = operator
         self.bound_vars = bound_vars
+        if not isinstance(subterm, Term):
+            subterm = subterm.build_formulaterm()
         self.subterm = subterm  # TODO: type checking?
 
     @property
@@ -262,11 +264,11 @@ class IfThenElse(Term):
 
         self.symbol = subterms[0].language.get('ite')
         self.condition = condition
-        #if either of the subterms are boolean Formulae, wrap them as Terms
-#        if isinstance(subterms[0], Formula):
-#            subterms[0] = FormulaTerm(subterms[0], lhs.language.get_sort("Boolean")) #todo: [John Peterson] having to look up the boolean type this way seems wrong
-#        if isinstance(subterms[1], Formula):
-#            subterms[1] = FormulaTerm(subterms[1], subterms[1].language.get_sort("Boolean"))
+       #if either of the subterms are boolean Formulae, wrap them as Terms
+        if not isinstance(subterms[0], Term): #todo: [John Peterson] It's gross that we can't directly compare against Formula (because of circular import concerns). This needs to be fixed eventually (likely with the full Formula/Term refactor)
+            subterms = (subterms[0].build_formulaterm(), subterms[1])
+        if not isinstance(subterms[1], Term):
+            subterms = (subterms[0], subterms[1].build_formulaterm())#todo:[John Peterson] I'm not sure if I like this build_formulaterm name. Consider renaming.
 
         # Our implementation of ite requires both branches to have equal sort
         if subterms[0].sort != subterms[1].sort:
@@ -297,7 +299,7 @@ class IfThenElse(Term):
     __repr__ = __str__
 
     def hash(self):
-        return hash(('ite', self.condition, termlist_hash(self.subterms)))
+        return hash(('ite', self.condition.hash(), termlist_hash(self.subterms)))
 
     def is_syntactically_equal(self, other):
         return self.__class__ is other.__class__ and \

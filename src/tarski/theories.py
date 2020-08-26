@@ -77,6 +77,10 @@ def has_theory(lang, theory: Union[Theory, str]):
 def load_bool_theory(lang):
     if not lang.has_sort("Boolean"):
         attach_the_non_arithmetic_bools(lang)
+        for pred in builtins.get_boolean_predicates():
+            lang.register_operator_handler(pred, Term, Term, create_casting_handler(lang, pred, create_atom))
+            p = lang.predicate(pred, lang.Boolean, lang.Boolean)
+            p.builtin = True
 
 
 def load_equality_theory(lang):

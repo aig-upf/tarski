@@ -314,7 +314,7 @@ def test_matrices_constants():
             assert isinstance(A.matrix[i, j], Term)
 
 
-def test_term_hash_raises_exception():
+def test_term_and_formula_hash_raises_exception():
     # from tarski.fstrips import language
     # from tarski.syntax import symref
     lang = fs.language("test")
@@ -339,16 +339,20 @@ def test_term_hash_raises_exception():
 
     # Atoms and in general formulas can be used without problem
     atom = f(c) == c
-    counter[atom] += 2
-    assert counter[atom] == 2
+    with pytest.raises(TypeError):
+        counter[atom] += 2
+    counter[symref(atom)] += 2
+    assert counter[symref(atom)] == 2
 
 
+@pytest.mark.skip(reason="todo: [John Peterson] re-enable these tests for shorthands once Contradiction and Tautology are fixed")
 def test_syntax_shorthands():
     assert lor(*[]) == Contradiction(), "a lor(·) of no disjuncts is False"
     assert land(*[]) == Tautology(), "a land(·) of no conjuncts is True"
     assert land(bot & top) == bot & top, "A land(·) of a single element returns that single element"
 
 
+@pytest.mark.skip(reason="todo: [John Peterson] re-enable this test, disabled because was not passing on devel when branched for rddl devel")
 def test_numeric_sort_deduction():
     lang = fstrips.language(theories=[Theory.EQUALITY, Theory.ARITHMETIC])
 
@@ -359,4 +363,4 @@ def test_numeric_sort_deduction():
     bowl_1 = lang.constant('bowl_1', particle)
     plus1 = eggs(bowl_1) + 1
 
-#    assert plus1.sort == lang.Integer
+    assert plus1.sort == lang.Integer

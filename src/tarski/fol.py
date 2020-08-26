@@ -344,7 +344,7 @@ class FirstOrderLanguage:
 
     #todo: [John Peterson] I'm not sure if this should be here. We need access to the language's sorts to be able to inject the necessary special boolean sort. Reevaluate as a todo.
     def generate_formula_term(self, formula):
-        return FormulaTerm(formula, self.Boolean)
+        return FormulaTerm(formula)
 
     def register_operator_handler(self, operator, t1, t2, handler):
         self._operators[(operator, t1, t2)] = handler

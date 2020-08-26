@@ -21,7 +21,10 @@ def sumterm(*args):
             raise err.SyntacticError(msg='sum(x0,...,xn,expr) require each\
             argument xi to be an instance of Variable')
     if not isinstance(expr, Term):
-        raise err.SyntacticError(msg='sum(x0,x1,...,xn,expr) requires last \
+        try:
+            expr.build_formulaterm
+        except:
+            raise err.SyntacticError(msg='sum(x0,x1,...,xn,expr) requires last \
         argument "expr" to be an instance of Term, got "{}"'.format(expr))
     return AggregateCompoundTerm(BuiltinFunctionSymbol.ADD, variables, expr)
 

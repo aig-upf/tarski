@@ -5,6 +5,7 @@ from typing import List
 
 from .. import errors as err
 from .builtins import BuiltinPredicateSymbol
+from .builtins import BuiltinPredicateSymbol, BuiltinFunctionSymbol
 from .terms import Variable, Term
 from .util import termlists_are_equal, termlist_hash
 from .predicate import Predicate
@@ -48,32 +49,80 @@ class Formula:
     def __gt__(self, rhs):
         return implies(self, rhs)
 
-    def __eq__(self, other):
-        raise NotImplementedError()  # To be subclassed
+    def __eq__(self, rhs):
+        return self.language.dispatch_operator(BuiltinPredicateSymbol.EQ, Term, Term, self, rhs)
 
-    def __hash__(self):
-        raise NotImplementedError()  # To be subclassed
+    def __ne__(self, rhs):
+        return self.language.dispatch_operator(BuiltinPredicateSymbol.NE, Term, Term, self, rhs)
+
+    def __lt__(self, rhs):
+        return self.language.dispatch_operator(BuiltinPredicateSymbol.LT, Term, Term, self, rhs)
+
+    def __gt__(self, rhs):
+        return self.language.dispatch_operator(BuiltinPredicateSymbol.GT, Term, Term, self, rhs)
+
+    def __le__(self, rhs):
+        return self.language.dispatch_operator(BuiltinPredicateSymbol.LE, Term, Term, self, rhs)
+
+    def __ge__(self, rhs):
+        return self.language.dispatch_operator(BuiltinPredicateSymbol.GE, Term, Term, self, rhs)
+
+    def __add__(self, rhs):
+        return self.language.dispatch_operator(BuiltinFunctionSymbol.ADD, Term, Term, self, rhs)
+
+    def __sub__(self, rhs):
+        return self.language.dispatch_operator(BuiltinFunctionSymbol.SUB, Term, Term, self, rhs)
+
+    def __mul__(self, rhs):
+        return self.language.dispatch_operator(BuiltinFunctionSymbol.MUL, Term, Term, self, rhs)
+
+    def __matmul__(self, rhs):
+        return self.language.dispatch_operator(BuiltinFunctionSymbol.MATMUL, Term, Term, self, rhs)
+
+    def __truediv__(self, rhs):
+        return self.language.dispatch_operator(BuiltinFunctionSymbol.DIV, Term, Term, self, rhs)
+
+    def __radd__(self, lhs):
+        return self.language.dispatch_operator(BuiltinFunctionSymbol.ADD, Term, Term, lhs, self)
+
+    def __rsub__(self, lhs):
+        return self.language.dispatch_operator(BuiltinFunctionSymbol.SUB, Term, Term, lhs, self)
+
+    def __rmul__(self, lhs):
+        return self.language.dispatch_operator(BuiltinFunctionSymbol.MUL, Term, Term, lhs, self)
+
+    def __rtruediv__(self, lhs):
+        return self.language.dispatch_operator(BuiltinFunctionSymbol.DIV, Term, Term, lhs, self)
+
+    def __pow__(self, rhs):
+        return self.language.dispatch_operator(BuiltinFunctionSymbol.POW, Term, Term, self, rhs)
+
+    def __mod__(self, rhs):
+        return self.language.dispatch_operator(BuiltinFunctionSymbol.MOD, Term, Term, self, rhs)
+
+    __hash__ = None  # type: ignore
 
     def hash(self):
-        # Define a shortcut for uniformity with the Term class
-        return self.__hash__()
+         raise NotImplementedError()  # To be subclassed
 
     def is_syntactically_equal(self, other):
         """ Return true if this formula and other are strictly syntactically equivalent.
         This is equivalent to self == other, but is provided for reasons of uniformity with the Term class.
         """
-        return self.__eq__(other)
+        raise NotImplementedError
 
+    def build_formulaterm(self):
+        return FormulaTerm(self)
 
 class Tautology(Formula):
     def __str__(self):
         return "T"
     __repr__ = __str__
 
-    def __eq__(self, other):
+    def is_syntactically_equal(self, other):
         return self.__class__ is other.__class__
 
-    def __hash__(self):
+    def hash(self):
         return hash(self.__class__)
 
 
@@ -82,10 +131,10 @@ class Contradiction(Formula):
         return "F"
     __repr__ = __str__
 
-    def __eq__(self, other):
+    def is_syntactically_equal(self, other):
         return self.__class__ is other.__class__
 
-    def __hash__(self):
+    def hash(self):
         return hash(self.__class__)
 
 
@@ -94,6 +143,7 @@ class CompoundFormula(Formula):
 
     def __init__(self, connective, subformulas):
         super().__init__()
+        self.language = subformulas[0].language
         self.connective = connective
         self.subformulas = subformulas
         self._check_well_formed()
@@ -117,18 +167,18 @@ class CompoundFormula(Formula):
         return "({})".format(inner)
     __repr__ = __str__
 
-    def __eq__(self, other):
+    def is_syntactically_equal(self, other):
         return self.__class__ is other.__class__ and \
                self.connective == other.connective and \
-               self.subformulas == other.subformulas
+               termlists_are_equal(self.subformulas, other.subformulas)
 
-    def __hash__(self):
+    def hash(self):
         element_hashes = [self.__class__, self.connective]
         # TODO: formulas need to be flattened if we want to hash them,
         # it would be good to check if there is a better way of flattening
         # than this
         for phi in self.subformulas:
-            element_hashes += [hash(phi)]
+            element_hashes += [phi.hash()]
         return hash(tuple(element_hashes))
 
 
@@ -138,6 +188,7 @@ class QuantifiedFormula(Formula):
         self.variables = variables
         self.formula = formula
         self._check_well_formed()
+        self.language = formula.language
 
     def _check_well_formed(self):
         if len(self.variables) == 0:
@@ -148,18 +199,14 @@ class QuantifiedFormula(Formula):
         return '{} {} : ({})'.format(self.quantifier, vars_, self.formula)
     __repr__ = __str__
 
-    def __eq__(self, other):
+    def is_syntactically_equal(self, other):
         return self.__class__ is other.__class__ \
                and self.quantifier == other.quantifier \
                and termlists_are_equal(self.variables, other.variables) \
-               and self.formula == other.formula
+               and self.formula.is_syntactically_equal(other.formula)
 
-    def __hash__(self):
-        return hash((self.__class__, self.quantifier, termlist_hash(self.variables), self.formula))
-
-
-top = Tautology()
-bot = Contradiction()
+    def hash(self):
+        return hash((self.__class__, self.quantifier, termlist_hash(self.variables), self.formula.hash()))
 
 
 def _to_binary_tree(args, connective):
@@ -177,13 +224,14 @@ def _create_compound(args, connective, flat):
         return CompoundFormula(connective, args)
     return _to_binary_tree(args, connective)
 
+top = Tautology()
+bot = Contradiction()
 
 def land(*args, flat=False):
     """ Create an and-formula with the given subformulas. If binary is true, the and-formula will be shaped as a binary
      tree (e.g. (...((p1 and p2) and p3) and ...))), otherwise it will have a flat structure. This is an implementation
      detail, but might be relevant performance-wise when dealing with large structures """
-    if not args:
-        return top
+    #todo: [John Peterson] --- this had originally allowed not giving it arguments (which returned a Tautology) --- not possible without a language, so we're making do here by removing it (see lor for equiv with Contradiction)
     return _create_compound(args, Connective.And, flat)
 
 
@@ -191,8 +239,6 @@ def lor(*args, flat=False):
     """ Create an or-formula with the given subformulas. If binary is true, the or-formula will be shaped as a binary
     tree (e.g. (...((p1 or p2) or p3) or ...))), otherwise it will have a flat structure. This is an implementation
     detail, but might be relevant performance-wise when dealing with large structures """
-    if not args:
-        return bot
     return _create_compound(args, Connective.Or, flat)
 
 
@@ -328,12 +374,12 @@ class Atom(Formula):
         return '{}({})'.format(self.predicate.symbol, ','.join(str(t) for t in self.subterms))
     __repr__ = __str__
 
-    def __eq__(self, other):
+    def is_syntactically_equal(self, other):
         return self.__class__ is other.__class__ and \
                self.predicate == other.predicate and \
                termlists_are_equal(self.subterms, other.subterms)
 
-    def __hash__(self):
+    def hash(self):
         return hash((self.__class__, self.predicate, termlist_hash(self.subterms)))
 
 
@@ -393,14 +439,14 @@ class VariableBinding:
 
 class FormulaTerm(Term):
     """A Term wrapper for (boolean) formulas"""
-    def __init__(self, formula, sort):
+    def __init__(self, formula):
         self.symbol = formula_symbol_extractor(formula)
         self.formula = formula
-        self._sort = sort
-
+        self._sort = formula.language.Boolean
+        
     @property
     def language(self):
-        return self.symbol.language
+        return self.formula.language
 
     @property
     def sort(self):
