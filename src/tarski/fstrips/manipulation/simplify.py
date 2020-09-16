@@ -16,10 +16,10 @@ from ...syntax.ops import flatten
 from ...syntax import symref
 
 
-def bool_to_expr(val):
+def bool_to_expr(val, lang):
     if not isinstance(val, bool):
         return val
-    return Tautology() if val else Contradiction()
+    return Tautology(lang) if val else Contradiction(lang)
 
 
 class Simplify:
@@ -83,7 +83,7 @@ class Simplify:
     def simplify_action(self, action, inplace=False):
         simple = action if inplace else copy.deepcopy(action)
         simple.precondition = self.simplify_expression(simple.precondition, inplace=True)
-        if simple.precondition in (False, Contradiction):
+        if simple.precondition is False or isinstance(simple.precondition, Contradiction):
             return None
 
         # Filter out those effects that are None, e.g. because they are not applicable:
@@ -157,14 +157,14 @@ class Simplify:
         effect = effect if inplace else copy.deepcopy(effect)
 
         if isinstance(effect, (AddEffect, DelEffect)):
-            effect.condition = bool_to_expr(self.simplify_expression(effect.condition))
+            effect.condition = bool_to_expr(self.simplify_expression(effect.condition), self.problem.language)
             if isinstance(effect.condition, Contradiction):
                 return None
             effect.atom = self.simplify_expression(effect.atom)
             return effect
 
         if isinstance(effect, FunctionalEffect):
-            effect.condition = bool_to_expr(self.simplify_expression(effect.condition))
+            effect.condition = bool_to_expr(self.simplify_expression(effect.condition), self.problem.language)
             if isinstance(effect.condition, Contradiction):
                 return None
             effect.lhs = self.simplify_expression(effect.lhs)

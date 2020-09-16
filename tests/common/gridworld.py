@@ -15,7 +15,7 @@ def generate_small_gridworld():
     ypos = lang.function('Y', coord_t)
 
     problem.action(name='move-up', parameters=[],
-                   precondition=Tautology(),
+                   precondition=Tautology(lang),
                    # effects=[fs.FunctionalEffect(ypos(), ypos() + 1)])
                    effects=[ypos() << ypos() + 1])
 

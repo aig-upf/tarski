@@ -2,6 +2,7 @@
 from tarski.reachability.asp import create_reachability_lp, LogicProgram, ReachabilityLPCompiler, LPAtom
 from tarski.syntax import exists
 from tarski import fstrips as fs
+from tarski.fstrips import FSFactory
 from tests.io.common import collect_strips_benchmarks, reader
 
 from ..common.gripper import create_sample_problem
@@ -60,13 +61,15 @@ def test_lp_on_caldera():
 def test_lp_translation():
     problem = create_sample_problem()
     lang = problem.language
+    fsf = FSFactory(lang)
+    
 
     # Create a fake "gripper" action with same name as the "gripper" predicate
     g = lang.variable("g", lang.Object)
     gripper = lang.get("gripper")
     fake = problem.action("gripper", [g],
                           precondition=gripper(g),
-                          effects=[fs.AddEffect(gripper(g))])
+                          effects=[fsf.add_effect(gripper(g))])
 
     lp = LogicProgram()
     compiler = ReachabilityLPCompiler(problem, lp)

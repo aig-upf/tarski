@@ -115,6 +115,12 @@ class Formula:
         return FormulaTerm(self)
 
 class Tautology(Formula):
+
+    def __init__(self, lang):
+        """Requires a FirstOrderLanguage to be constructed"""
+        super().__init__()
+        self.language = lang
+
     def __str__(self):
         return "T"
     __repr__ = __str__
@@ -127,6 +133,11 @@ class Tautology(Formula):
 
 
 class Contradiction(Formula):
+    def __init__(self, lang):
+        """Requires a FirstOrderLanguage to be constructed"""
+        super().__init__()
+        self.language = lang
+
     def __str__(self):
         return "F"
     __repr__ = __str__
@@ -189,7 +200,7 @@ class QuantifiedFormula(Formula):
         self.formula = formula
         self._check_well_formed()
         self.language = formula.language
-
+        
     def _check_well_formed(self):
         if len(self.variables) == 0:
             raise err.LanguageError("Quantified formula with no variable")
@@ -224,14 +235,13 @@ def _create_compound(args, connective, flat):
         return CompoundFormula(connective, args)
     return _to_binary_tree(args, connective)
 
-top = Tautology()
-bot = Contradiction()
-
 def land(*args, flat=False):
     """ Create an and-formula with the given subformulas. If binary is true, the and-formula will be shaped as a binary
      tree (e.g. (...((p1 and p2) and p3) and ...))), otherwise it will have a flat structure. This is an implementation
      detail, but might be relevant performance-wise when dealing with large structures """
     #todo: [John Peterson] --- this had originally allowed not giving it arguments (which returned a Tautology) --- not possible without a language, so we're making do here by removing it (see lor for equiv with Contradiction)
+    if not args:
+        return top
     return _create_compound(args, Connective.And, flat)
 
 
@@ -469,6 +479,8 @@ def formula_symbol_extractor(f):
         symbol = f.connective
     elif isinstance(f, Atom):
         symbol = f.predicate
+    elif isinstance(f, QuantifiedFormula):
+        symbol = f.quantifier
     else:
         raise NotImplementedError() #unknown formula type
     return symbol

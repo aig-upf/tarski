@@ -1,14 +1,15 @@
 import tarski.benchmarks.blocksworld
 from tarski.benchmarks.counters import generate_fstrips_counters_problem
-from tarski.fstrips import UniversalEffect
+from tarski.fstrips import FSFactory
 from tarski.fstrips.manipulation import Simplify
 from tarski.fstrips.manipulation.simplify import simplify_existential_quantification
-from tarski.syntax import symref, land, lor, neg, bot, top, forall, exists
+from tarski.syntax import symref, land, lor, neg, forall, exists
 
 
 def test_simplifier():
     problem = generate_fstrips_counters_problem(ncounters=3)
     lang = problem.language
+    fsf = FSFactory(lang)
     value, max_int, counter, val_t, c1 = lang.get('value', 'max_int', 'counter', 'val', 'c1')
     x = lang.variable('x', counter)
     two, three, six = [lang.constant(c, val_t) for c in (2, 3, 6)]
@@ -38,7 +39,7 @@ def test_simplifier():
     assert str(simp.precondition) == '<(value(c),6)'
     assert str(simp.effects) == str(inc.effects)
 
-    eff = UniversalEffect(x, [value(x) << three])
+    eff = fsf.universal_effect(x, [value(x) << three])
     assert str(s.simplify_effect(eff)) == '(T -> forall (x) : ((T -> value(x) := 3)))'
 
     simp = s.simplify()
@@ -59,13 +60,13 @@ def test_simplification_of_negation():
 
     s = Simplify(problem, problem.init)
     cb1 = clear(b1)
-    assert str(s.simplify_expression(land(cb1, neg(bot)))) == 'clear(b1)'
+    assert str(s.simplify_expression(land(cb1, neg(lang.bot())))) == 'clear(b1)'
     assert str(s.simplify_expression(cb1)) == 'clear(b1)'  # No evaluation made
-    assert str(s.simplify_expression(neg(neg(cb1)))) == 'clear(b1)'  # Double negation gets removed
+    assert str(s.simplify_expression(neg(neg(cb1)))) == 'clear(b1)'  # Double egation gets removed
 
-    assert s.simplify_expression(land(neg(bot), neg(bot))) is True
-    assert s.simplify_expression(lor(neg(top), neg(bot))) is True
-    assert s.simplify_expression(lor(neg(top), neg(top))) is False
+    assert s.simplify_expression(land(neg(lang.bot()), neg(lang.bot()))) is True
+    assert s.simplify_expression(lor(neg(lang.top()), neg(lang.bot()))) is True
+    assert s.simplify_expression(lor(neg(lang.top()), neg(lang.top()))) is False
 
     act = problem.get_action('unstack')
     simp = s.simplify_action(act)
@@ -100,8 +101,8 @@ def test_simplification_of_ex_quantification():
     z = lang.variable('z', counter)
     two, three, six = [lang.constant(c, val_t) for c in (2, 3, 6)]
 
-    phi = exists(z, land(x == z, top, value(z) < six))
-    assert simplify_existential_quantification(phi, inplace=False) == land(top, value(x) < six), \
+    phi = exists(z, land(x == z, lang.top(), value(z) < six))
+    assert simplify_existential_quantification(phi, inplace=False) == land(lang.top(), value(x) < six), \
         "z has been replaced by x and removed from the quantification list, thus removing the quantifier"
 
     phi = exists(x, z, land(x == z, z == x, value(z) < six, flat=True))

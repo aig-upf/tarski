@@ -4,6 +4,7 @@
 import tarski as tsk
 import tarski.model
 from tarski import fstrips as fs
+from tarski.fstrips import FSFactory
 from tarski.syntax import land
 from tarski.theories import Theory
 
@@ -24,6 +25,8 @@ def generate_bw_loc_and_clear(num_blocks):
 def create_4blocks_task():
     bw = generate_bw_loc_and_clear(4)
     M = tarski.model.create(bw)
+
+    fsf = FSFactory(bw)
 
     loc = bw.get_function('loc')
     clear = bw.get_predicate('clear')
@@ -58,15 +61,15 @@ def create_4blocks_task():
     b = bw.variable('b', bw.Object)
     P.action('pick_up', [b],
              land(clear(b), clear(hand), loc(b) == table, b != hand, b != table),
-             [fs.FunctionalEffect(loc(b), hand),
-              fs.DelEffect(clear(b)),
-              fs.DelEffect(clear(hand))])
+             [fsf.functional_effect(loc(b), hand),
+              fsf.del_effect(clear(b)),
+              fsf.del_effect(clear(hand))])
 
     P.action('put_down', [b],
              land(loc(b) == hand, b != table, b != hand),
-             [fs.FunctionalEffect(loc(b), table),
-              fs.AddEffect(clear(b)),
-              fs.AddEffect(clear(hand))])
+             [fsf.functional_effect(loc(b), table),
+              fsf.add_effect(clear(b)),
+              fsf.add_effect(clear(hand))])
 
     src = bw.variable('src', bw.Object)
     dest = bw.variable('dest', bw.Object)
@@ -74,17 +77,17 @@ def create_4blocks_task():
     P.action('stack', [src, dest],
              land(loc(src) == hand, clear(dest), src != dest, src != table,
                   src != hand, dest != table, dest != hand),
-             [fs.FunctionalEffect(loc(src), dest),
-              fs.DelEffect(clear(dest)),
-              fs.AddEffect(clear(src)),
-              fs.AddEffect(clear(hand))])
+             [fsf.functional_effect(loc(src), dest),
+              fsf.del_effect(clear(dest)),
+              fsf.add_effect(clear(src)),
+              fsf.add_effect(clear(hand))])
 
     P.action('unstack', [src, dest],
              land(clear(hand), loc(src) == dest, clear(src), src != dest, src != table,
                   src != hand, dest != table, dest != hand),
-             [fs.FunctionalEffect(loc(src), hand),
-              fs.DelEffect(clear(src)),
-              fs.AddEffect(clear(dest)),
-              fs.DelEffect(clear(hand))])
+             [fsf.functional_effect(loc(src), hand),
+              fsf.del_effect(clear(src)),
+              fsf.add_effect(clear(dest)),
+              fsf.del_effect(clear(hand))])
 
     return P

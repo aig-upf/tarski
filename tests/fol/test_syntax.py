@@ -6,7 +6,7 @@ import pytest
 from tarski import theories, Term, Constant
 from tarski.fstrips import fstrips
 from tarski.syntax import symref, CompoundFormula, Atom, ite, AggregateCompoundTerm, CompoundTerm, lor, Tautology, \
-    Contradiction, land, top, bot
+    Contradiction, land
 from tarski.theories import Theory
 from tarski import errors as err
 from tarski import fstrips as fs

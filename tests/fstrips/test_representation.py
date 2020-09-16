@@ -5,8 +5,9 @@ from tarski.fstrips.representation import collect_effect_free_parameters, projec
     identify_cost_related_functions, compute_delete_free_relaxation, is_delete_free, is_strips_problem, \
     is_conjunction_of_positive_atoms, is_strips_effect_set, compile_away_formula_negated_literals, \
     compile_action_negated_preconditions_away, compile_negated_preconditions_away, compute_complementary_atoms
-from tarski.syntax import exists, land, neg
-from tarski.fstrips import representation as rep, AddEffect, DelEffect
+from tarski.syntax import exists, land, neg, symref
+from tarski.fstrips import representation as rep, AddEffect
+from tarski.fstrips import FSFactory
 from tarski.syntax.ops import flatten
 
 from tests.common import blocksworld
@@ -48,8 +49,8 @@ def test_literal_collection():
     clear, loc, b1, b2, b3 = lang.get('clear', 'loc', 'b1', 'b2', 'b3')
     x = lang.variable('x', lang.ns.block)
 
-    assert rep.collect_literals_from_conjunction(clear(b1)) == {(clear(b1), True)}
-    assert rep.collect_literals_from_conjunction(~clear(b1)) == {(clear(b1), False)}
+    assert rep.collect_literals_from_conjunction(clear(b1)) == {(symref(clear(b1)), True)}
+    assert rep.collect_literals_from_conjunction(~clear(b1)) == {(symref(clear(b1)), False)}
     assert len(rep.collect_literals_from_conjunction(clear(b1) & ~clear(b2))) == 2
     assert len(rep.collect_literals_from_conjunction(land(clear(b1), clear(b2), clear(b3)))) == 3
 
@@ -143,6 +144,7 @@ def test_cost_function_identification():
 
 def test_delete_free_functions():
     problem = generate_strips_blocksworld_problem()
+    fsf = FSFactory(problem.language)
     relaxed = compute_delete_free_relaxation(problem)
 
     pickup = problem.get_action('pick-up')
@@ -158,6 +160,7 @@ def test_delete_free_functions():
 
 def test_strips_analysis():
     problem = generate_strips_blocksworld_problem()
+    fsf = FSFactory(problem.language)
     assert is_strips_problem(problem)
 
     lang = problem.language
@@ -167,12 +170,12 @@ def test_strips_analysis():
     phi = clear(x) & ~ontable(x)
     assert not is_conjunction_of_positive_atoms(clear(x) & ~ontable(x))
 
-    assert is_strips_effect_set([DelEffect(ontable(x)), DelEffect(clear(x))])
-    assert is_strips_effect_set([DelEffect(ontable(x)), DelEffect(ontable(x))])
+    assert is_strips_effect_set([fsf.del_effect(ontable(x)), fsf.del_effect(clear(x))])
+    assert is_strips_effect_set([fsf.del_effect(ontable(x)), fsf.del_effect(ontable(x))])
     # Not strips, as it has an effect with conditions:
-    assert not is_strips_effect_set([DelEffect(ontable(x), clear(x)), AddEffect(ontable(x))])
+    assert not is_strips_effect_set([fsf.del_effect(ontable(x), clear(x)), fsf.add_effect(ontable(x))])
     # Not strips, as it has two contradictory effects:
-    assert not is_strips_effect_set([DelEffect(ontable(x)), AddEffect(ontable(x))])
+    assert not is_strips_effect_set([fsf.del_effect(ontable(x)), fsf.add_effect(ontable(x))])
 
     problem = generate_fstrips_counters_problem(ncounters=3)
 
@@ -210,6 +213,7 @@ def test_neg_precondition_compilation_on_formulas():
 def test_neg_precondition_compilation_on_action():
     problem = generate_strips_blocksworld_problem()
     lang = problem.language
+    fsf = FSFactory(lang)
     clear, on, ontable, handempty, holding = lang.get('clear', 'on', 'ontable', 'handempty', 'holding')
     x = lang.variable('x', 'object')
 
@@ -221,8 +225,8 @@ def test_neg_precondition_compilation_on_action():
 
     act1 = problem.action('act1', [x],
                           precondition=clear(x) & ~ontable(x) & handempty(),
-                          effects=[DelEffect(ontable(x), ~clear(x)),
-                                   AddEffect(ontable(x))])
+                          effects=[fsf.del_effect(ontable(x), ~clear(x)),
+                                   fsf.add_effect(ontable(x))])
     act1c = compile_action_negated_preconditions_away(act1, negpreds)
     assert len(negpreds) == 2  # For ontable and for clear
     assert str(act1c.precondition) == '(clear(x) and _not_ontable(x) and handempty())'
@@ -232,6 +236,7 @@ def test_neg_precondition_compilation_on_action():
 def test_neg_precondition_compilation_on_problem():
     problem = generate_strips_blocksworld_problem()
     lang = problem.language
+    fsf = FSFactory(lang)
     b1, clear, on, ontable, handempty, holding = lang.get('b1', 'clear', 'on', 'ontable', 'handempty', 'holding')
     x = lang.variable('x', 'object')
 
@@ -244,8 +249,8 @@ def test_neg_precondition_compilation_on_problem():
 
     act1 = problem.action('act1', [x],
                           precondition=clear(x) & ~ontable(x) & handempty(),
-                          effects=[DelEffect(ontable(x), ~clear(x)),
-                                   AddEffect(ontable(x))])
+                          effects=[fsf.del_effect(ontable(x), ~clear(x)),
+                                   fsf.add_effect(ontable(x))])
     compiled = compile_negated_preconditions_away(problem)
     assert str(compiled.get_action('act1').precondition) == '(clear(x) and _not_ontable(x) and handempty())'
 
@@ -253,6 +258,7 @@ def test_neg_precondition_compilation_on_problem():
 def test_neg_precondition_compilation_on_problem2():
     problem = generate_strips_blocksworld_problem()
     lang = problem.language
+    fsf = FSFactory(lang)
     b1, clear, on, ontable, handempty, holding = lang.get('b1', 'clear', 'on', 'ontable', 'handempty', 'holding')
 
     # Change the goal to include some negated preconditions, this should trigger

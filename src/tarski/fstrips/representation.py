@@ -123,10 +123,10 @@ def compute_effect_set_conflicts(effects):
         if not is_atomic_effect(eff) or not is_propositional_effect(eff):
             raise RepresentationError(f"Don't know how to compute conflicts for effect {eff}")
         pol = isinstance(eff, AddEffect)  # i.e. polarity will be true if add effect, false otherwise
-        prev = polarities.get(eff.atom, None)
+        prev = polarities.get(symref(eff.atom), None)
         if prev is not None and prev != pol:
-            conflicts.add(eff.atom)
-        polarities[eff.atom] = pol
+            conflicts.add(symref(eff.atom))
+        polarities[symref(eff.atom)] = pol
     return conflicts
 
 
@@ -220,9 +220,9 @@ def collect_literals_from_conjunction(phi: Formula) -> Optional[Set[Tuple[Atom, 
 
 def _collect_literals_from_conjunction(f, literals: Set[Tuple[Atom, bool]]):
     if isinstance(f, Atom):
-        literals.add((f, True))
+        literals.add((symref(f), True))
     elif is_neg(f) and isinstance(f.subformulas[0], Atom):
-        literals.add((f.subformulas[0], False))
+        literals.add((symref(f.subformulas[0]), False))
     elif is_and(f):
         for sub in f.subformulas:
             if not _collect_literals_from_conjunction(sub, literals):

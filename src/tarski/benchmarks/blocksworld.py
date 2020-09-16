@@ -5,7 +5,7 @@ import random
 
 import tarski as tsk
 from tarski import fstrips as fs
-from tarski.fstrips import DelEffect, AddEffect
+from tarski.fstrips import FSFactory
 from ..fstrips import create_fstrips_problem
 from ..syntax import land
 from ..theories import Theory
@@ -48,6 +48,7 @@ def generate_fstrips_bw_language(nblocks=4):
 def generate_strips_blocksworld_problem(nblocks=4, init="random", goal="random", use_inequalities=True):
     """ Generate the standard BW encoding, untyped and with 4 action schemas """
     lang = generate_strips_bw_language(nblocks=nblocks)
+    fsf = FSFactory(lang)
     problem = create_fstrips_problem(lang, domain_name=BASE_DOMAIN_NAME, problem_name='test-instance')
 
     clear, on, ontable, handempty, holding = lang.get('clear', 'on', 'ontable', 'handempty', 'holding')
@@ -79,42 +80,43 @@ def generate_strips_blocksworld_problem(nblocks=4, init="random", goal="random",
 
     problem.action('pick-up', [x],
                    precondition=clear(x) & ontable(x) & handempty(),
-                   effects=[fs.DelEffect(ontable(x)),
-                            fs.DelEffect(clear(x)),
-                            fs.DelEffect(handempty()),
-                            fs.AddEffect(holding(x))])
+                   effects=[fsf.del_effect(ontable(x)),
+                            fsf.del_effect(clear(x)),
+                            fsf.del_effect(handempty()),
+                            fsf.add_effect(holding(x))])
 
     problem.action('put-down', [x],
                    precondition=holding(x),
-                   effects=[fs.AddEffect(ontable(x)),
-                            fs.AddEffect(clear(x)),
-                            fs.AddEffect(handempty()),
-                            fs.DelEffect(holding(x))])
+                   effects=[fsf.add_effect(ontable(x)),
+                            fsf.add_effect(clear(x)),
+                            fsf.add_effect(handempty()),
+                            fsf.del_effect(holding(x))])
 
     problem.action('unstack', [x, y],
                    precondition=on(x, y) & clear(x) & handempty(),
-                   effects=[fs.DelEffect(on(x, y)),
-                            fs.AddEffect(clear(y)),
-                            fs.DelEffect(clear(x)),
-                            fs.DelEffect(handempty()),
-                            fs.AddEffect(holding(x))])
+                   effects=[fsf.del_effect(on(x, y)),
+                            fsf.add_effect(clear(y)),
+                            fsf.del_effect(clear(x)),
+                            fsf.del_effect(handempty()),
+                            fsf.add_effect(holding(x))])
 
     prec = holding(x) & clear(y)
     if use_inequalities:
         prec = prec & (x != y)
     problem.action('stack', [x, y],
                    precondition=prec,
-                   effects=[fs.AddEffect(on(x, y)),
-                            fs.DelEffect(clear(y)),
-                            fs.AddEffect(clear(x)),
-                            fs.AddEffect(handempty()),
-                            fs.DelEffect(holding(x))])
+                   effects=[fsf.add_effect(on(x, y)),
+                            fsf.del_effect(clear(y)),
+                            fsf.add_effect(clear(x)),
+                            fsf.add_effect(handempty()),
+                            fsf.del_effect(holding(x))])
 
     return problem
 
 
 def generate_fstrips_blocksworld_problem(nblocks=4, init="random", goal="random"):
     lang = generate_fstrips_bw_language(nblocks=nblocks)
+    fsf = FSFactory(lang)
     problem = create_fstrips_problem(lang, domain_name=BASE_DOMAIN_NAME, problem_name='test-instance')
 
     block, place, clear, loc, table = lang.get('block', 'place', 'clear', 'loc', 'table')
@@ -151,8 +153,8 @@ def generate_fstrips_blocksworld_problem(nblocks=4, init="random", goal="random"
                    precondition=land(x != y, loc(x) != y, clear(x), clear(y)),
                    effects=[
                        loc(x) << y,
-                       AddEffect(clear(loc(x))),
-                       DelEffect(clear(y), condition=(y != table))])
+                       fsf.add_effect(clear(loc(x))),
+                       fsf.del_effect(clear(y), condition=(y != table))])
     return problem
 
 

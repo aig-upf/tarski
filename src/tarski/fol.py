@@ -6,7 +6,7 @@ from typing import Union
 
 from . import errors as err
 from .errors import UndefinedElement
-from .syntax import Function, Constant, Variable, Sort, inclusion_closure, Predicate, Interval
+from .syntax import Function, Constant, Variable, Sort, inclusion_closure, Predicate, Interval, Tautology, Contradiction
 from .syntax.formulas import FormulaTerm
 from .syntax.algebra import Matrix
 from . import modules
@@ -258,6 +258,12 @@ class FirstOrderLanguage:
 
         if name in self._global_index:
             raise err.DuplicateDefinition(name, self._global_index[name])
+
+    def top(self):
+        return Tautology(self)
+
+    def bot(self):
+        return Contradiction(self)
 
     def predicate(self, name: str, *args):
         self._check_name_not_defined(name, self._predicates, err.DuplicatePredicateDefinition)
