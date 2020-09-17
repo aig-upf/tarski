@@ -8,7 +8,7 @@ from .common import load_tpl
 from ..fol import FirstOrderLanguage
 from ..syntax import implies, land, lor, neg, Connective, Quantifier, CompoundTerm, Interval, Atom, IfThenElse, \
     Contradiction, Tautology, CompoundFormula, forall, ite, AggregateCompoundTerm, QuantifiedFormula, Term, Function, \
-    Variable, Predicate, Constant, Formula, builtins
+    Variable, Predicate, Constant, Formula, builtins, FormulaTerm
 from ..syntax import arithmetic as tm
 from ..syntax.temporal import ltl as tt
 from ..syntax.builtins import create_atom, BuiltinPredicateSymbol as BPS, BuiltinFunctionSymbol as BFS
@@ -618,7 +618,7 @@ class Writer:
                     if len(re_st) > 0:
                         # MRJ: Random variables need parenthesis, other functions need
                         # brackets...
-                        if expr.symbol.symbol in builtins.get_random_binary_functions():
+                        if expr.symbol.symbol in builtins.get_random_binary_functions() or expr.symbol.symbol in builtins.get_random_unary_functions():
                             st_str = '({})'.format(','.join(re_st))
                         else:
                             st_str = '[{}]'.format(','.join(re_st))
@@ -653,13 +653,13 @@ class Writer:
             re_sf = [self.rewrite(st) for st in expr.subformulas]
             re_sym = symbol_map[expr.connective]
             if len(re_sf) == 1:
-                return '{}{}'.format(re_sym, re_sf)
+                return '{}{}'.format(re_sym, re_sf[0])
             return '({} {} {})'.format(re_sf[0], re_sym, re_sf[1])
         elif isinstance(expr, QuantifiedFormula):
             re_f = self.rewrite(expr.formula)
             re_vars = ['?{} : {}'.format(x.symbol, x.sort.name) for x in expr.variables]
             re_sym = symbol_map[expr.quantifier]
-            return '{}_{{{}}} ({})'.format(re_sym, ','.join(re_vars), re_f)
+            return '{}_{{{}}} [{}]'.format(re_sym, ','.join(re_vars), re_f)
         elif isinstance(expr, AggregateCompoundTerm):
             re_expr = self.rewrite(expr.subterm)
             re_vars = ['?{} : {}'.format(x.symbol, x.sort.name) for x in expr.bound_vars]
@@ -668,6 +668,10 @@ class Writer:
             elif expr.symbol == BFS.MUL:
                 re_sym = 'prod'
             return '{}_{{{}}} ({})'.format(re_sym, ','.join(re_vars), re_expr)
+        elif isinstance(expr, FormulaTerm):
+            return self.rewrite(expr.formula)
+        else:
+            raise NotImplementedError
 
     def get_fluent(self, fl, next_state=False):
         try:

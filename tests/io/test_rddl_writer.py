@@ -472,3 +472,131 @@ def test_parametrized_model_with_random_vars_and_waypoints_boolean():
     assert mr_reader.rddl_model.domain.name == 'lqg_nav_2d_multi_unit_bool_waypoints'
     mr_reader.translate_rddl_model()
     assert mr_reader.language is not None
+
+def test_rddl_integration_academic_advising_example_write():
+    lang = tarski.language('standard', [Theory.EQUALITY, Theory.ARITHMETIC, Theory.RANDOM])
+    the_task = Task(lang, 'academic_advising', 'instance_001')
+
+    the_task.requirements = [rddl.Requirements.REWARD_DET, rddl.Requirements.PRECONDITIONS]
+
+    the_task.parameters.discount = 1.0
+    the_task.parameters.horizon = 20
+    the_task.parameters.max_nondef_actions = 1
+
+    #sorts
+    course = lang.sort('course')
+
+    # variables
+    c = lang.variable('c', course)
+    c2 = lang.variable('c2', course)
+
+    # non fluents
+    PREREQ = lang.predicate('PREREQ', course, course)
+    PRIOR_PROB_PASS_NO_PREREQ = lang.function('PRIOR_PROB_PASS_NO_PREREQ', course, lang.Real)
+    PRIOR_PROB_PASS = lang.function('PRIOR_PROB_PASS', course, lang.Real)
+    PROGRAM_REQUIREMENT = lang.predicate('PROGRAM_REQUIREMENT', course)
+    COURSE_COST = lang.function('COURSE_COST', lang.Real)
+    COURSE_RETAKE_COST = lang.function('COURSE_RETAKE_COST', lang.Real)
+    PROGRAM_INCOMPLETE_PENALTY = lang.function('PROGRAM_INCOMPLETE_PENALTY', lang.Real)
+
+    # state fluents
+    passed = lang.predicate('passed', course)
+    taken = lang.predicate('taken', course)
+
+    # action fluents
+    take_course = lang.predicate('take-course', course)
+
+    one = lang.constant(1, lang.Real)
+    # cpfs
+    the_task.add_cpfs(passed(c), ite(take_course(c) & ~(exists(c2, PREREQ(c2, c))),
+                                     bernoulli(PRIOR_PROB_PASS_NO_PREREQ(c)),
+                                     passed(c)))
+                                 #    ite(take_course(c),
+                                 #        lang.constant(1, lang.Real - PRIOR_PROB_PASS
+
+    # constraints
+
+    # cost function
+    # MRJ: RDDL does not support the abs() algebraic construct
+    # R = u() * u() * 0.01
+    the_task.reward = lang.constant(1.0, lang.Real)
+
+    # fluent metadata
+    the_task.declare_state_fluent(passed(c), 'false')
+    the_task.declare_state_fluent(taken(c), 'false')
+    the_task.declare_action_fluent(take_course(c), 'false')
+    the_task.declare_non_fluent(PREREQ(c, c2), 'false')
+    the_task.declare_non_fluent(PRIOR_PROB_PASS_NO_PREREQ(c), 0.8)
+    the_task.declare_non_fluent(PRIOR_PROB_PASS(c), 0.2)
+    the_task.declare_non_fluent(PROGRAM_REQUIREMENT(c), 'false')
+    the_task.declare_non_fluent(COURSE_COST(), -1)
+    the_task.declare_non_fluent(COURSE_RETAKE_COST(), -2)
+    the_task.declare_non_fluent(PROGRAM_INCOMPLETE_PENALTY(), -5)
+
+    #constants
+    c0000 = lang.constant('c0000', course)
+    c0001 = lang.constant('c0001', course)
+    c0002 = lang.constant('c0002', course)
+    c0003 = lang.constant('c0003', course)
+    c0004 = lang.constant('c0004', course)
+    c0100 = lang.constant('c0100', course)
+    c0101 = lang.constant('c0101', course)
+    c0102 = lang.constant('c0102', course)
+    c0103 = lang.constant('c0103', course)
+    c0200 = lang.constant('c0200', course)
+    c0201 = lang.constant('c0201', course)
+    c0202 = lang.constant('c0202', course)
+    c0300 = lang.constant('c0300', course)
+    c0301 = lang.constant('c0301', course)
+    c0302 = lang.constant('c0302', course)
+
+    the_task.x0.setx(PRIOR_PROB_PASS_NO_PREREQ(c0000), 0.80)
+    the_task.x0.setx(PRIOR_PROB_PASS_NO_PREREQ(c0001), 0.55)
+    the_task.x0.setx(PRIOR_PROB_PASS_NO_PREREQ(c0002), 0.67)
+    the_task.x0.setx(PRIOR_PROB_PASS_NO_PREREQ(c0003), 0.78)
+    the_task.x0.setx(PRIOR_PROB_PASS_NO_PREREQ(c0004), 0.75)
+    the_task.x0.setx(PRIOR_PROB_PASS(c0100), 0.22)
+    the_task.x0.setx(PRIOR_PROB_PASS(c0101), 0.45)
+    the_task.x0.setx(PRIOR_PROB_PASS(c0102), 0.41)
+    the_task.x0.setx(PRIOR_PROB_PASS(c0103), 0.44)
+    the_task.x0.setx(PRIOR_PROB_PASS(c0200), 0.14)
+    the_task.x0.setx(PRIOR_PROB_PASS(c0201), 0.07)
+    the_task.x0.setx(PRIOR_PROB_PASS(c0202), 0.24)
+    the_task.x0.setx(PRIOR_PROB_PASS(c0300), 0.23)
+    the_task.x0.setx(PRIOR_PROB_PASS(c0301), 0.08)
+    the_task.x0.setx(PRIOR_PROB_PASS(c0302), 0.16)
+
+
+    the_task.x0.add(PREREQ(c0003, c0100), 'true')
+    the_task.x0.add(PREREQ(c0000, c0100), 'true')
+    the_task.x0.add(PREREQ(c0004, c0100), 'true')
+    the_task.x0.add(PREREQ(c0001, c0101), 'true')
+    the_task.x0.add(PREREQ(c0002, c0101), 'true')
+    the_task.x0.add(PREREQ(c0000, c0102), 'true')
+    the_task.x0.add(PREREQ(c0004, c0102), 'true')
+    the_task.x0.add(PREREQ(c0001, c0103), 'true')
+    the_task.x0.add(PREREQ(c0001, c0200), 'true')
+    the_task.x0.add(PREREQ(c0101, c0200), 'true')
+    the_task.x0.add(PREREQ(c0103, c0201), 'true')
+    the_task.x0.add(PREREQ(c0002, c0202), 'true')
+    the_task.x0.add(PREREQ(c0200, c0300), 'true')
+    the_task.x0.add(PREREQ(c0201, c0301), 'true')
+    the_task.x0.add(PREREQ(c0201, c0301), 'true')
+    the_task.x0.add(PREREQ(c0200, c0302), 'true')
+
+    the_task.x0.add(PROGRAM_REQUIREMENT(c0300), 'true')
+    the_task.x0.add(PROGRAM_REQUIREMENT(c0202), 'true')
+    the_task.x0.add(PROGRAM_REQUIREMENT(c0101), 'true')
+    the_task.x0.add(PROGRAM_REQUIREMENT(c0002), 'true')
+    the_task.x0.add(PROGRAM_REQUIREMENT(c0001), 'true')
+
+    the_task.x0.add(passed(c0000), 'false')
+
+    the_writer = rddl.Writer(the_task)
+    rddl_filename = os.path.join(tempfile.gettempdir(), 'academic_advising_001.rddl')
+    the_writer.write_model(rddl_filename)
+    mr_reader = rddl.Reader(rddl_filename)
+    assert mr_reader.rddl_model is not None
+    assert mr_reader.rddl_model.domain.name == 'academic_advising'
+    mr_reader.translate_rddl_model()
+    assert mr_reader.language is not None

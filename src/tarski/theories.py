@@ -137,7 +137,7 @@ def load_random_theory(lang):
         f.builtin = True
     for fun in builtins.get_random_unary_functions():
         lang.register_unary_operator_handler(fun, Term, create_casting_handler(lang, fun, create_arithmetic_term))
-        f = lang.function(fun, lang.Real, lang.Real)
+        f = lang.function(fun, lang.Real, lang.Boolean)
         f.builtin = True
 
 
