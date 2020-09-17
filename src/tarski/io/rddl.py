@@ -317,6 +317,7 @@ class Requirements(Enum):
     CONTINUOUS = "continuous"
     MULTIVALUED = "multivalued"
     REWARD_DET = "reward-deterministic"
+    PRECONDITIONS = "preconditions"
     INTERMEDIATE_NODES = "intermediate-nodes"
     PARTIALLY_OBS = "partially-observed"
     CONCURRENT = "concurrent"
@@ -438,6 +439,13 @@ class Writer:
         )
         with open(filename, 'w') as file:
             file.write(content)
+        self.reset()
+
+    def reset(self):
+        self.need_obj_decl = []
+        self.need_constraints = {}
+        self.non_fluent_signatures = set()
+        self.interm_signatures = set()
 
     def get_requirements(self):
         return ', '.join([str(r) for r in self.task.requirements])
