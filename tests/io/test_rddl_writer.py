@@ -498,6 +498,7 @@ def test_rddl_integration_academic_advising_example_write():
     COURSE_COST = lang.function('COURSE_COST', lang.Real)
     COURSE_RETAKE_COST = lang.function('COURSE_RETAKE_COST', lang.Real)
     PROGRAM_INCOMPLETE_PENALTY = lang.function('PROGRAM_INCOMPLETE_PENALTY', lang.Real)
+    COURSES_PER_SEMESTER = lang.function('COURSES_PER_SEMESTER', lang.Real)
 
     # state fluents
     passed = lang.predicate('passed', course)
@@ -510,16 +511,22 @@ def test_rddl_integration_academic_advising_example_write():
     # cpfs
     the_task.add_cpfs(passed(c), ite(take_course(c) & ~(exists(c2, PREREQ(c2, c))),
                                      bernoulli(PRIOR_PROB_PASS_NO_PREREQ(c)),
-                                     passed(c)))
-                                 #    ite(take_course(c),
-                                 #        lang.constant(1, lang.Real - PRIOR_PROB_PASS
+                                     ite(take_course(c),
+                                         bernoulli((one - PRIOR_PROB_PASS(c))
+                                                   * (sumterm(c2, (PREREQ(c2, c) & passed(c2))))
+                                                   / (one + sumterm(c2, (PREREQ(c2, c))))),
+                                         passed(c))))
 
+    the_task.add_cpfs(taken(c), taken(c) | take_course(c))
     # constraints
 
     # cost function
-    # MRJ: RDDL does not support the abs() algebraic construct
-    # R = u() * u() * 0.01
-    the_task.reward = lang.constant(1.0, lang.Real)
+    the_task.reward = ( sumterm(c, COURSE_COST() * (take_course(c) & ~taken(c)))
+                        + sumterm(c, COURSE_RETAKE_COST() * (take_course(c) & taken(c)))
+                        + (PROGRAM_INCOMPLETE_PENALTY() * ~(forall(c, PROGRAM_REQUIREMENT(c) > passed(c)))))
+
+    the_task.add_constraint(forall(c, take_course(c) > ~passed(c)), rddl.ConstraintType.ACTION)
+    the_task.add_constraint(sumterm(c, take_course(c)) <= COURSES_PER_SEMESTER(), rddl.ConstraintType.ACTION)
 
     # fluent metadata
     the_task.declare_state_fluent(passed(c), 'false')
@@ -532,6 +539,7 @@ def test_rddl_integration_academic_advising_example_write():
     the_task.declare_non_fluent(COURSE_COST(), -1)
     the_task.declare_non_fluent(COURSE_RETAKE_COST(), -2)
     the_task.declare_non_fluent(PROGRAM_INCOMPLETE_PENALTY(), -5)
+    the_task.declare_non_fluent(COURSES_PER_SEMESTER(), 1)
 
     #constants
     c0000 = lang.constant('c0000', course)
