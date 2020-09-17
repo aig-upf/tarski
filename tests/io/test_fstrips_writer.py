@@ -4,7 +4,7 @@ from typing import Optional, List
 import tarski.fstrips as fs
 from tarski.benchmarks.blocksworld import generate_fstrips_blocksworld_problem
 from tarski.benchmarks.counters import get_counters_elements, generate_fstrips_counters_problem
-from tarski.fstrips import FSFactory
+from tarski.fstrips import AddEffect, DelEffect, FunctionalEffect, UniversalEffect
 from tarski.io import FstripsWriter
 from tarski.io._fstrips.common import get_requirements_string
 from tarski.io.fstrips import print_effects, print_effect, print_objects, print_metric, print_formula, print_term
@@ -60,11 +60,10 @@ def test_formula_writing2():
 def test_effect_writing():
     problem, loc, clear, b1, table = get_bw_elements()
     block_var = problem.language.variable("b", "block")
-    fsf = FSFactory(problem.language)
 
     e1 = loc(b1) << table
-    e2 = fsf.add_effect(clear(b1))
-    e3 = fsf.del_effect(clear(b1))
+    e2 = AddEffect(clear(b1))
+    e3 = DelEffect(clear(b1))
 
     s1, s2, s3 = [print_effect(e) for e in [e1, e2, e3]]
     assert s1 == "(assign (loc b1) table)"
@@ -72,17 +71,17 @@ def test_effect_writing():
     assert s3 == "(not (clear b1))"
     assert print_effects([e1, e2, e3]) == "(and\n    {}\n    {}\n    {})".format(s1, s2, s3)
 
-    e4 = fsf.universal_effect([block_var], [fsf.add_effect(clear(block_var))])
+    e4 = UniversalEffect([block_var], [AddEffect(clear(block_var))])
     s4 = print_effect(e4)
 
     assert s4 == "(forall (?b - block) (clear ?b))"
 
-    e5 = fsf.universal_effect([block_var], [fsf.add_effect(clear(block_var)), loc(block_var) << table])
+    e5 = UniversalEffect([block_var], [AddEffect(clear(block_var)), loc(block_var) << table])
     s5 = print_effect(e5)
 
     assert s5 == "(forall (?b - block) (and\n    (clear ?b)\n    (assign (loc ?b) table)))"
 
-    e6 = fsf.universal_effect([block_var], [fsf.functional_effect(loc(block_var), table, condition=clear(block_var))])
+    e6 = UniversalEffect([block_var], [FunctionalEffect(loc(block_var), table, condition=clear(block_var))])
     s6 = print_effect(e6)
 
     assert s6 == "(forall (?b - block) (when (clear ?b) (assign (loc ?b) table)))"

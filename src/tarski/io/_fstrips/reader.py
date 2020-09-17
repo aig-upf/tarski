@@ -10,7 +10,7 @@ from antlr4.error.ErrorListener import ErrorListener
 
 from .common import parse_number, process_requirements, create_sort, process_cost_effects, LowerCasingStreamWrapper
 from ...errors import SyntacticError
-from ...fstrips import FSFactory, OptimizationMetric, OptimizationType
+from ...fstrips import DelEffect, AddEffect, FunctionalEffect, UniversalEffect, OptimizationMetric, OptimizationType
 from ...syntax import CompoundFormula, Connective, neg, Tautology, implies, exists, forall, Term, Interval
 from ...syntax.builtins import get_predicate_from_symbol, get_function_from_symbol
 from ...syntax.formulas import VariableBinding
@@ -30,7 +30,6 @@ class FStripsParser(fstripsVisitor):
         self.case_insensitive = case_insensitive
         self.current_binding = None
         self.requirements = set()
-        self.fsf = FSFactory(problem.language)
 
     def parse_string(self, string, start_rule='pddlDoc'):
         """ Parse a given string starting from a given grammar rule """
@@ -325,17 +324,17 @@ class FStripsParser(fstripsVisitor):
         return self.visit(ctx.atomic_effect())
 
     def visitAddAtomEffect(self, ctx):
-        return self.fsf.add_effect(self.visit(ctx.atomicTermFormula()))
+        return AddEffect(self.visit(ctx.atomicTermFormula()))
 
     def visitDeleteAtomEffect(self, ctx):
-        return self.fsf.del_effect(self.visit(ctx.atomicTermFormula()))
+        return DelEffect(self.visit(ctx.atomicTermFormula()))
 
     def visitAssignConstant(self, ctx):
-        return self.fsf.functional_effect(self.visit(ctx.functionTerm()), self.visit(ctx.term()))
+        return FunctionalEffect(self.visit(ctx.functionTerm()), self.visit(ctx.term()))
 
     def visitUniversallyQuantifiedEffect(self, ctx):
         variables, effect = self._visit_quantified_effect(ctx)
-        return self.fsf.universal_effect(variables, effect)
+        return UniversalEffect(variables, effect)
 
     def visitSingleConditionalEffect(self, ctx):
         effect = self.visit(ctx.atomic_effect())
@@ -440,7 +439,7 @@ class FStripsParser(fstripsVisitor):
         rhs = self.visit(ctx.term())
         operator = {'scale-up': '*', 'scale-down': '/', 'increase': '+', 'decrease': '-'}[operation]
         rhs = self.language.dispatch_operator(get_function_from_symbol(operator), Term, Term, lhs, rhs)
-        return self.fsf.functional_effect(lhs, rhs)
+        return FunctionalEffect(lhs, rhs)
 
     def visitDerivedDef(self, ctx):
         raise UnsupportedLanguageFeature("Parsing of derived predicates in Tarski not yet implemented")

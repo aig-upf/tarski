@@ -2,10 +2,9 @@
 from enum import Enum
 from typing import Union, List, Optional, Callable, Any
 
-from ..syntax import CompoundTerm, Term, Constant, symref
+from ..syntax import CompoundTerm, Term, Constant, symref, top
 from .. import theories as ths
 from .errors import InvalidEffectError
-
 
 class BaseEffect:
     """ A base class for all FSTRIPS effects, which might have an (optional) condition. """
@@ -28,7 +27,7 @@ class SingleEffect(BaseEffect):
 
 class AddEffect(SingleEffect):
     """ A standard add-effect, possibly with a condition. """
-    def __init__(self, atom, condition):
+    def __init__(self, atom, condition=top):
         super().__init__(condition)
         self.atom = atom
 
@@ -38,7 +37,7 @@ class AddEffect(SingleEffect):
 
 class DelEffect(SingleEffect):
     """ A standard delete-effect, possibly with a condition. """
-    def __init__(self, atom, condition):
+    def __init__(self, atom, condition=top):
         super().__init__(condition)
         self.atom = atom
 
@@ -47,7 +46,7 @@ class DelEffect(SingleEffect):
 
 
 class LiteralEffect(SingleEffect):
-    def __init__(self, lit, condition):
+    def __init__(self, lit, condition=top):
         super().__init__(condition)
         self.lit = lit
 
@@ -57,7 +56,7 @@ class LiteralEffect(SingleEffect):
 
 class FunctionalEffect(SingleEffect):
     """ A functional effect of the form f(t) := g(u), possibly with a condition. """
-    def __init__(self, lhs, rhs, condition):
+    def __init__(self, lhs, rhs, condition=top):
         super().__init__(condition)
         self.lhs, self.rhs = self.check_well_formed(lhs, rhs)
 
@@ -83,7 +82,7 @@ class UniversalEffect(BaseEffect):
     """ A forall-effect that represents a number of effects that results from all possible
     substitutions to the forall-effect variables. """
 
-    def __init__(self, variables, effects, condition):
+    def __init__(self, variables, effects, condition=top):
         super().__init__(condition)
         self.variables = variables
         self.effects = effects
@@ -96,7 +95,7 @@ class UniversalEffect(BaseEffect):
 
 
 class IncreaseEffect(FunctionalEffect):
-    def __init__(self, lhs, rhs, condition):
+    def __init__(self, lhs, rhs, condition=top):
         super().__init__(lhs, rhs, condition)
 
 
@@ -115,8 +114,8 @@ class OptimizationType(Enum):
 
 class ProceduralEffect(SingleEffect):
 
-    def __init__(self, input_: List[CompoundTerm], output: List[CompoundTerm], condition): #todo: [John Peterson] requiring a condition for a proceduraleffect is a bit gross, since all wer're doing is allowing a factory to inject a Tautology from the correct language. 
-        super().__init__(condition)
+    def __init__(self, input_: List[CompoundTerm], output: List[CompoundTerm]):
+        super().__init__(top)
         self.input = input_
         self.output = output
 
@@ -127,7 +126,7 @@ class ProceduralEffect(SingleEffect):
 
 class ChoiceEffect(SingleEffect):
 
-    def __init__(self, obj_type: OptimizationType, obj, variables: List[CompoundTerm], constraints):
+    def __init__(self, obj_type: OptimizationType, obj, variables: List[CompoundTerm], constraints=top):
         super().__init__(constraints)
         # MRJ: verify the effect is well formed
         self.obj = obj
@@ -150,7 +149,7 @@ class ChoiceEffect(SingleEffect):
 class VectorisedEffect(SingleEffect):
     """ Action effects that modify the denotation of a vector (tuple) of terms """
 
-    def __init__(self, lhs, rhs, condition):
+    def __init__(self, lhs, rhs, condition=top):
         super().__init__(condition)
         self.lhs = lhs
         self.rhs = rhs
@@ -187,7 +186,7 @@ class LinearEffect(SingleEffect):
             Ax + b
     """
 
-    def __init__(self, y, a, x, b, condition):
+    def __init__(self, y, a, x, b, condition=top):
         super().__init__(condition)
         self.y = y
         self.A = a
@@ -240,7 +239,7 @@ class BlackBoxEffect(SingleEffect):
         Black box functional effect
     """
 
-    def __init__(self, lhs, f, condition):
+    def __init__(self, lhs, f, condition=top):
         super().__init__(condition)
         self.lhs = lhs
         self.function = f
@@ -277,6 +276,7 @@ class OptimizationMetric:
         self.opt_expression = opt_expression
         self.opt_type = opt_type
 
+
 def language(name="Unnamed FOL Language", theories: Optional[List[Union[str, ths.Theory]]] = None):
     """ Create an FSTRIPS-oriented First-Order Language.
         This is a standard FOL with a few convenient add-ons.
@@ -284,8 +284,8 @@ def language(name="Unnamed FOL Language", theories: Optional[List[Union[str, ths
     # By default, when defining a FSTRIPS problem we use FOL with equality
     theories = ['equality'] if theories is None else theories
     lang = ths.language(name, theories)
-    lang.register_operator_handler("<<", Term, Term, lambda lhs, rhs: FunctionalEffect(lhs, rhs, lang.top()))
-    lang.register_operator_handler(">>", Term, Term, lambda lhs, rhs: FunctionalEffect(rhs, lhs, lang.top()))  # Inverted
+    lang.register_operator_handler("<<", Term, Term, FunctionalEffect)
+    lang.register_operator_handler(">>", Term, Term, lambda lhs, rhs: FunctionalEffect(rhs, lhs))  # Inverted
     return lang
 
 
@@ -309,67 +309,3 @@ def visit_effect(effect, callback: Callable[[Any], None]):
         _ = [callback(x) for x in effect.output]
     else:
         raise RuntimeError(f'Unexpected type "{type(effect)}" for expression "{effect}"')
-
-class FSFactory:
-    """ A Factory for FSTRIPS effects that require a language """
-
-    def __init__(self, lang):
-        self.language = lang
-
-    def top(self):
-        return self.language.top()
-
-    def add_effect(self, atom, condition=None):
-        if not condition:
-            condition = self.top()
-        return AddEffect(atom, condition)
-
-    def del_effect(self, atom, condition=None):
-        if not condition:
-            condition = self.top()
-        return DelEffect(atom, condition)
-
-    def literal_effect(self, lit, condition=None):
-        if not condition:
-            condition = self.top()
-        return LiteralEffect(lit, condition)
-
-    def functional_effect(self, lhs, rhs, condition=None):
-        if not condition:
-            condition = self.top()
-        return FunctionalEffect(lhs, rhs, condition)
-
-    def universal_effect(self, variables, effects, condition=None):
-        if not condition:
-            condition = self.top()
-        return UniversalEffect(variables, effects, condition)
-
-    def increase_effect(self, lhs, rhs, condition=None):
-        if not condition:
-            condition = self.top()
-        return IncreaseEffect(lhs, rhs, condition)
-
-    def procedural_effect(self, input_: List[CompoundTerm], output: List[CompoundTerm]):
-        if not condition:
-            condition = self.top()
-        return ProceduralEffect(input_, output, condition=None)
-
-    def choice_effect(self, obj_type: OptimizationType, obj, variables: List[CompoundTerm], constraints=None):
-        if not constraints:
-            constraints = self.top()
-        return ChoiceEffect(obj_type, obj, variables, constraints)
-
-    def vectorised_effect(self, lhs, rhs, condition=None):
-        if not condition:
-            condition = self.top()
-        return VectorisedEffect(lhs, rhs, condition)
-
-    def linear_effect(self, y, a, x, b, condition=None):
-        if not condition:
-            condition = self.top()
-        return LinearEffect(y, a, x, b, condition)
-
-    def blackbox_effect(self, lhs, f, condition=None):
-        if not condition:
-            condition = self.top()
-        return BlackBoxEffect(lhs, f, condition)

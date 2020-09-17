@@ -56,11 +56,11 @@ class FOLWalker:
         return self.visit_expression(expression, inplace=True)
 
     def visit_expression(self, node, inplace=True):
-        from .formulas import CompoundFormula, QuantifiedFormula, Atom, Tautology, Contradiction
+        from .formulas import CompoundFormula, QuantifiedFormula, Atom, Tautology, Contradiction, Pass
         from .terms import Constant, Variable, CompoundTerm, IfThenElse  # Import here to break circular refs
         node = node if inplace else copy.deepcopy(node)
 
-        if isinstance(node, (Variable, Constant, Contradiction, Tautology)):
+        if isinstance(node, (Variable, Constant, Contradiction, Tautology, Pass)):
             pass
 
         elif isinstance(node, (CompoundTerm, Atom)):

@@ -2,7 +2,6 @@ import pytest
 
 import tarski.benchmarks.blocksworld
 from tarski import fstrips as fs
-from tarski.fstrips import FSFactory
 from tarski.syntax import *
 from tarski.theories import Theory
 
@@ -45,9 +44,8 @@ def test_functional_effect_valid_creation():
 
 def test_increase_effect_valid_creation():
     lang = fs.language('lang', theories=[Theory.EQUALITY, Theory.ARITHMETIC])
-    fsf = FSFactory(lang)
     lang.total_cost = lang.function('total-cost', lang.Real)
-    eff = fsf.increase_effect(lang.total_cost(), 5)
+    eff = fs.IncreaseEffect(lang.total_cost(), 5)
 
     assert isinstance(eff, fs.IncreaseEffect)
     assert eff.rhs == 5
@@ -57,24 +55,22 @@ def test_choice_effect_invalid_creation():
     import tarski.fstrips.errors as err
     from tests.fstrips.hybrid.tasks import create_billiards_world
     prob = create_billiards_world()
-    fsf = FSFactory(prob.language)
     x = prob.language.get_constant('x')
     cue = prob.language.get_constant('cue')
     b = prob.language.get_constant('ball_1')
     F = prob.language.get_function('F')
     _ = prob.language.get_function('v')
     with pytest.raises(err.InvalidEffectError):
-        _ = fsf.choice_effect(fs.OptimizationType.MAXIMIZE, Variable("z", prob.language.Real), [F(cue, x, b)])
+        _ = fs.ChoiceEffect(fs.OptimizationType.MAXIMIZE, Variable("z", prob.language.Real), [F(cue, x, b)])
 
 
 def test_choice_effect_valid_creation():
     from tests.fstrips.hybrid.tasks import create_billiards_world
     prob = create_billiards_world()
-    fsf = FSFactory(prob.language)
     x = prob.language.get_constant('x')
     cue = prob.language.get_constant('cue')
     b = prob.language.get_constant('ball_1')
     F = prob.language.get_function('F')
     v = prob.language.get_function('v')
-    eff = fsf.choice_effect(fs.OptimizationType.MAXIMIZE, v(x, b), [F(cue, x, b)])
+    eff = fs.ChoiceEffect(fs.OptimizationType.MAXIMIZE, v(x, b), [F(cue, x, b)])
     assert isinstance(eff, fs.ChoiceEffect)

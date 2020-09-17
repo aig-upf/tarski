@@ -5,9 +5,8 @@ import tarski as tsk
 import tarski.model
 from tarski.theories import Theory
 from tarski import fstrips as fs
-from tarski.syntax import land
+from tarski.syntax import top, land
 from tarski.evaluators.simple import evaluate
-from tarski.fstrips import FSFactory
 
 
 def create_small_language():
@@ -76,7 +75,6 @@ def create_small_language():
 
 def create_small_task():
     upp = create_small_language()
-    fsf = FSFactory(upp)
     dummy_sheet = upp.constant('dummy-sheet', upp.sheet_t)
     sheet1 = upp.constant('sheet1', upp.sheet_t)
 
@@ -98,19 +96,19 @@ def create_small_task():
                         upp.Sheetsize(sheet, upp.letter),
                         upp.Location(sheet, upp.finisher2_entry_finisher1_exit))
 
-    effects = [fsf.del_effect(upp.Available(upp.finisher2_rsrc)),
-               fsf.del_effect(upp.Location(sheet, upp.finisher2_entry_finisher1_exit)),
-               fsf.add_effect(upp.Location(sheet, upp.some_finisher_tray)),
-               fsf.add_effect(upp.Stackedin(sheet, upp.finisher2_tray)),
-               fsf.add_effect(upp.Available(upp.finisher2_rsrc)),
-               fsf.increase_effect(upp.total_cost(), 8000)
+    effects = [fs.DelEffect(upp.Available(upp.finisher2_rsrc)),
+               fs.DelEffect(upp.Location(sheet, upp.finisher2_entry_finisher1_exit)),
+               fs.AddEffect(upp.Location(sheet, upp.some_finisher_tray)),
+               fs.AddEffect(upp.Stackedin(sheet, upp.finisher2_tray)),
+               fs.AddEffect(upp.Available(upp.finisher2_rsrc)),
+               fs.IncreaseEffect(upp.total_cost(), 8000)
                ]
 
     problem = fs.Problem()
     problem.name = "fun"
     problem.language = upp
     problem.init = M
-    problem.goal = problem.language.top()
+    problem.goal = top
     problem.action('Finisher2-Stack-Letter', [sheet, prevsheet], precondition, effects)
     problem.metric = fs.OptimizationMetric(upp.total_cost(), fs.OptimizationType.MINIMIZE)
     return problem

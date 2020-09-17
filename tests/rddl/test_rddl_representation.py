@@ -62,11 +62,6 @@ def test_equiv_mixed_type():
     b = (x > y) | (c1 & v)
     assert not a.is_syntactically_equal(b)
 
-#def test_land_fails_if_improper_numeric_type():
-#    #todo:this
-#    pass
-#
-
 def test_quantified_over_bool_functions():
     lang = tarski.language(theories=[Theory.ARITHMETIC, Theory.BOOLEAN, Theory.EQUALITY])
 

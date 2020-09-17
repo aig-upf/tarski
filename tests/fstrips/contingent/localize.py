@@ -1,6 +1,6 @@
 import tarski.model
 from tarski import fstrips as fs
-from tarski.fstrips import contingent, FSFactory
+from tarski.fstrips import contingent
 from tarski.syntax import *
 
 from tests.common.grid_navigation import generate_single_agent_language
@@ -8,7 +8,6 @@ from tests.common.grid_navigation import generate_single_agent_language
 
 def create_small_task():
     nav = generate_single_agent_language()
-    fsf = FSFactory(nav)
     M0 = tarski.model.create(nav)
     M1 = tarski.model.create(nav)
 
@@ -33,14 +32,16 @@ def create_small_task():
     P.goal = G
     P.constraints += [constraint]
 
-    P.action('move_up', [], Tautology(nav), [fsf.functional_effect(y(), y() + 1)])
-    P.action('move_down', [], Tautology(nav), [fsf.functional_effect(y(), y() - 1)])
-    P.action('move_left', [], Tautology(nav), [fsf.functional_effect(x(), x() - 1)])
-    P.action('move_right', [], Tautology(nav), [fsf.functional_effect(x(), x() + 1)])
+    lang = P.language
 
-    P.sensor('sense_wall_up', [], Tautology(nav), y() == 4)
-    P.sensor('sense_wall_down', [], Tautology(nav), y() == -4)
-    P.sensor('sense_wall_left', [], Tautology(nav), x() == -4)
-    P.sensor('sense_wall_right', [], Tautology(nav), x() == 4)
+    P.action('move_up', [], Tautology(lang), [fs.FunctionalEffect(y(), y() + 1)])
+    P.action('move_down', [], Tautology(lang), [fs.FunctionalEffect(y(), y() - 1)])
+    P.action('move_left', [], Tautology(lang), [fs.FunctionalEffect(x(), x() - 1)])
+    P.action('move_right', [], Tautology(lang), [fs.FunctionalEffect(x(), x() + 1)])
+
+    P.sensor('sense_wall_up', [], Tautology(lang), y() == 4)
+    P.sensor('sense_wall_down', [], Tautology(lang), y() == -4)
+    P.sensor('sense_wall_left', [], Tautology(lang), x() == -4)
+    P.sensor('sense_wall_right', [], Tautology(lang), x() == 4)
 
     return P

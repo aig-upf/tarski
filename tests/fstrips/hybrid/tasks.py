@@ -1,5 +1,5 @@
 from tarski import fstrips as fs
-from tarski.fstrips import hybrid, FSFactory
+from tarski.fstrips import hybrid
 from tarski.syntax import *
 from tarski.syntax.arithmetic import summation
 
@@ -15,7 +15,7 @@ def create_particles_world():
     _ = [particles.get_constant(name) for name in ['p1', 'p2', 'p3', 'p4']]
 
     p_var = Variable('p', task.language.get_sort('particle'))
-    _ = task.differential_constraint('test1', [p_var], task.language.top(), x(p_var), f(p_var) * 2.0)
+    _ = task.differential_constraint('test1', [p_var], top, x(p_var), f(p_var) * 2.0)
     cond = (x(p_var) > 0.0) & (x(p_var) < 0.5)
     _ = task.differential_constraint('test2', [p_var], cond, y(p_var), f(p_var) * 0.5)
 
@@ -25,7 +25,6 @@ def create_particles_world():
 def create_billiards_world():
     task = hybrid.Problem()
     lang = generate_billiards_instance()
-    fsf = FSFactory(lang)
     task.language = lang
     m, F, a, v, p = [lang.get_function(n) for n in ['m', 'F', 'a', 'v', 'p']]
 
@@ -34,6 +33,6 @@ def create_billiards_world():
     ftype = Variable('ftype', lang.get_sort('force'))
 
     _ = task.reaction('principle_of_superposition',
-                      [b, d], task.language.top(), fsf.functional_effect(a(d, b), summation(ftype, F(ftype, d, b)) / m(b)))
+                      [b, d], top, fs.FunctionalEffect(a(d, b), summation(ftype, F(ftype, d, b)) / m(b)))
 
     return task

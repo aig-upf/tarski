@@ -118,11 +118,11 @@ class ProblemWalker:
         return self.visit(effect)
 
     def visit_expression(self, node, inplace=True):
-        from ..syntax import CompoundFormula, QuantifiedFormula, Atom, Tautology, Contradiction, Constant, Variable,\
+        from ..syntax import CompoundFormula, QuantifiedFormula, Atom, Tautology, Pass, Contradiction, Constant, Variable,\
             CompoundTerm, IfThenElse  # Import here to break circular refs
         node = node if inplace else copy.deepcopy(node)
 
-        if isinstance(node, (Variable, Constant, Contradiction, Tautology)):
+        if isinstance(node, (Variable, Constant, Contradiction, Tautology, Pass)):
             pass
 
         elif isinstance(node, (CompoundTerm, Atom)):

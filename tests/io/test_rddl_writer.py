@@ -518,13 +518,13 @@ def test_rddl_integration_academic_advising_example_write():
                                          passed(c))))
 
     the_task.add_cpfs(taken(c), taken(c) | take_course(c))
-    # constraints
 
     # cost function
     the_task.reward = ( sumterm(c, COURSE_COST() * (take_course(c) & ~taken(c)))
                         + sumterm(c, COURSE_RETAKE_COST() * (take_course(c) & taken(c)))
                         + (PROGRAM_INCOMPLETE_PENALTY() * ~(forall(c, PROGRAM_REQUIREMENT(c) > passed(c)))))
 
+    # constraints
     the_task.add_constraint(forall(c, take_course(c) > ~passed(c)), rddl.ConstraintType.ACTION)
     the_task.add_constraint(sumterm(c, take_course(c)) <= COURSES_PER_SEMESTER(), rddl.ConstraintType.ACTION)
 

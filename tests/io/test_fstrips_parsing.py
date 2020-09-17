@@ -4,7 +4,7 @@ from tarski.errors import UndefinedSort, UndefinedPredicate
 from tarski.fstrips import AddEffect, FunctionalEffect
 from tarski.fstrips.errors import InvalidEffectError
 from tarski.io.fstrips import ParsingError, FstripsReader
-from tarski.syntax import Atom, CompoundFormula, Tautology
+from tarski.syntax import Atom, CompoundFormula, Tautology, Pass
 from tarski.syntax.util import get_symbols
 from tarski.theories import Theory
 
@@ -320,5 +320,5 @@ def test_increase_effects():
     ], r=reader(strict_with_requirements=False))  # This uses one single reader for all tests
 
     increase = output[1][0]
-    assert isinstance(increase, FunctionalEffect) and isinstance(increase.condition, Tautology)
+    assert isinstance(increase, FunctionalEffect) and isinstance(increase.condition, Pass)
     assert str(increase.rhs) == '+(total-cost(), 1)'

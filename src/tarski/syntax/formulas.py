@@ -114,6 +114,23 @@ class Formula:
     def build_formulaterm(self):
         return FormulaTerm(self)
 
+class Pass(Formula):
+    def __init__(self):
+        super().__init__()
+
+    def __str__(self):
+        return "T"
+    __repr__ = __str__
+
+    def is_syntactically_equal(self, other):
+        return self.__class__ is other.__class__
+
+    def hash(self):
+        return hash(self.__class__)
+
+
+top = Pass()
+
 class Tautology(Formula):
 
     def __init__(self, lang):

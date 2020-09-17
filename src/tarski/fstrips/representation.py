@@ -5,7 +5,7 @@ from ..errors import TarskiError
 from .problem import Problem
 from . import fstrips as fs
 from ..syntax import Formula, CompoundTerm, Atom, CompoundFormula, QuantifiedFormula, is_and, is_neg, exists, symref,\
-    VariableBinding, Constant, Tautology, land, Term
+    VariableBinding, Constant, Tautology, land, Term, Pass
 from ..syntax.ops import collect_unique_nodes, flatten, free_variables, all_variables
 from ..syntax.sorts import compute_signature_bindings
 from ..syntax.transform.substitutions import enumerate_substitutions
@@ -95,7 +95,7 @@ def transform_to_strips(what: Union[Problem, Action]):
 
 def is_atomic_effect(eff: BaseEffect):
     """ An effect is atomic if it is a single, unconditional effect. """
-    return isinstance(eff, SingleEffect) and isinstance(eff.condition, Tautology)
+    return isinstance(eff, SingleEffect) and isinstance(eff.condition, (Tautology, Pass))
 
 
 def is_propositional_effect(eff: BaseEffect):
@@ -465,7 +465,7 @@ def compile_action_negated_preconditions_away(action: Action, negpreds, inplace=
         if not isinstance(eff, SingleEffect):
             raise RepresentationError(f"Cannot compile away negated conditions for effect '{eff}'")
 
-        if not isinstance(eff.condition, Tautology):
+        if not isinstance(eff.condition, (Tautology, Pass)):
             eff.condition = compile_away_formula_negated_literals(eff.condition, negpreds, inplace=True)
 
     return action
@@ -567,7 +567,7 @@ def expand_universal_effect(effect):
     if not isinstance(effect, UniversalEffect):
         return [effect]
 
-    assert isinstance(effect.condition, Tautology)  # TODO Lift this restriction
+    assert(isinstance(effect.condition, Tautology) or isinstance(effect.condition, Pass))# TODO Lift this restriction
     expanded = []
     for subst in enumerate_substitutions(effect.variables):
         for sub in effect.effects:

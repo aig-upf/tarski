@@ -2,7 +2,6 @@
 import tarski.model
 from tarski import fstrips as fs
 from tarski.syntax import land
-from tarski.fstrips import FSFactory
 
 
 def create_sample_language():
@@ -19,7 +18,6 @@ def create_sample_language():
 
 def create_sample_problem():
     lang = create_sample_language()
-    fsf = FSFactory(lang)
     init = tarski.model.create(lang)
 
     room, ball, at_robby, free, at, gripper, carry = lang.get(
@@ -52,14 +50,14 @@ def create_sample_problem():
 
     problem.action("move", [from_, to],
                    precondition=land(from_ != to, room(from_), room(to), at_robby(from_), flat=True),
-                   effects=[fsf.add_effect(at_robby(to)), fsf.del_effect(at_robby(from_))])
+                   effects=[fs.AddEffect(at_robby(to)), fs.DelEffect(at_robby(from_))])
 
     problem.action("pick", [o, r, g],
                    precondition=land(ball(o), room(r), gripper(g), at(o, r), at_robby(r), free(g), flat=True),
-                   effects=[fsf.add_effect(carry(o, g)), fsf.del_effect(at(o, r)), fsf.del_effect(free(g))])
+                   effects=[fs.AddEffect(carry(o, g)), fs.DelEffect(at(o, r)), fs.DelEffect(free(g))])
 
     problem.action("drop", [o, r, g],
                    precondition=land(ball(o), room(r), gripper(g), carry(o, g), at_robby(r), flat=True),
-                   effects=[fsf.del_effect(carry(o, g)), fsf.add_effect(at(o, r)), fsf.add_effect(free(g))])
+                   effects=[fs.DelEffect(carry(o, g)), fs.AddEffect(at(o, r)), fs.AddEffect(free(g))])
 
     return problem
