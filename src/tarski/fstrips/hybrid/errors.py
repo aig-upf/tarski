@@ -21,5 +21,4 @@ class UndefinedDifferentialConstraint(UndefinedElement):
 class InvalidDifferentialConstraintDefinition(SyntacticError):
 
     def __init__(self, culprit, msg):
-        error_msg = "Invalid Differential Constraint\n'{}' {}".format(str(culprit), msg)
-        super().__init__(self, msg=error_msg)
+        super().__init__(msg=f"Invalid Differential Constraint\n'{culprit}' {msg}")
