@@ -186,7 +186,8 @@ class ReachabilityLPCompiler:
                 subf = f.subformulas[0]
                 if not isinstance(subf, Atom):
                     raise RuntimeError("Negation of arbitrary formulas not yet implemented")
-                processed, = self.process_formula(subf)  # Watch out the comma that unpacks the length-1 list
+                # pylint: disable=unbalanced-tuple-unpacking  # Watch out the comma that unpacks the length-1 list!
+                processed, = self.process_formula(subf)
                 return [negate_lp_atom(processed)]
 
             else:

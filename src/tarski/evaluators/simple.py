@@ -103,7 +103,7 @@ def evaluate_term(term, m: Model, sigma):
     try:
         return m.value(term.symbol, arguments)
     except KeyError:
-        raise err.UndefinedTerm(term)
+        raise err.UndefinedTerm(term) from None
 
 
 def evaluate_builtin_predicate(atom, model, sigma):

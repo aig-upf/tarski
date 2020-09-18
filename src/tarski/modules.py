@@ -9,7 +9,7 @@ to keep Tarski modular and lightweight for simple uses, but optionally heavyweig
 
 def import_sdd():
     try:
-        from pysdd import sdd
+        from pysdd import sdd  # pylint: disable=import-outside-toplevel
     except ImportError as _:
         raise ImportError('The sdd module does not seem available, could not import pysdd module. '
                           'Please try installing Tarski with the "sdd" extra, or installing pysdd by hand.') from None
@@ -18,7 +18,7 @@ def import_sdd():
 
 def import_scipy_special():
     try:
-        import scipy.special as sci
+        import scipy.special as sci  # pylint: disable=import-outside-toplevel
     except ImportError as _:
         raise ImportError('The scipy module does not seem available. '
                           'Please try installing Tarski with the "arithmetic" extra.') from None
@@ -27,7 +27,7 @@ def import_scipy_special():
 
 def import_numpy():
     try:
-        import numpy as np
+        import numpy as np  # pylint: disable=import-outside-toplevel
     except ImportError as _:
         raise ImportError('The numpy module does not seem available. '
                           'Please try installing Tarski with the "arithmetic" extra.') from None
@@ -36,7 +36,7 @@ def import_numpy():
 
 def import_pyrddl_parser():
     try:
-        from pyrddl.parser import RDDLParser
+        from pyrddl.parser import RDDLParser  # pylint: disable=import-outside-toplevel
     except ImportError as _:
         raise ImportError('The pyrddl module does not seem available. '
                           'Please try installing Tarski with the "rddl" extra.') from None

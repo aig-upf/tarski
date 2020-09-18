@@ -6,8 +6,7 @@ def impl(symbol):
     """ """
 
     if symbol in {"erf", "erfc"}:
-        from ..modules import import_scipy_special
-        sci = import_scipy_special()
+        sci = modules.import_scipy_special()
         return {
             "erf": sci.erf,
             "erfc": sci.erfc,

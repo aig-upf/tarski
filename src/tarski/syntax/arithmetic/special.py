@@ -1,3 +1,5 @@
+# pylint: disable=redefined-builtin
+
 from ..builtins import BuiltinFunctionSymbol as BFS
 
 

@@ -66,8 +66,8 @@ class ProblemWalker:
         return node
 
     def run(self, expression, inplace=True):
-        from . import Action, BaseEffect, Problem  # Import here to break circular refs
-        from ..syntax import Formula, Term
+        from . import Action, BaseEffect, Problem  # pylint: disable=import-outside-toplevel  # Avoiding circular references
+        from ..syntax import Formula, Term  # pylint: disable=import-outside-toplevel  # Avoiding circular references
         # Simply dispatch according to type
         expression = expression if inplace else copy.deepcopy(expression)
         if isinstance(expression, (Formula, Term)):
@@ -78,6 +78,7 @@ class ProblemWalker:
             return self.visit_effect(expression, inplace=True)
         elif isinstance(expression, Problem):
             return self.visit_problem(expression, inplace=True)
+        raise RuntimeError(f"Unknown expression type '{expression}'")
 
     def visit_problem(self, problem, inplace=False):
         problem = problem if inplace else copy.deepcopy(problem)
@@ -99,7 +100,7 @@ class ProblemWalker:
         return node
 
     def visit_effect(self, effect, inplace=True):
-        from . import AddEffect, DelEffect, UniversalEffect, FunctionalEffect  # Import here to break circular refs
+        from . import AddEffect, DelEffect, UniversalEffect, FunctionalEffect  # pylint: disable=import-outside-toplevel
         effect = effect if inplace else copy.deepcopy(effect)
 
         if isinstance(effect, (AddEffect, DelEffect)):
@@ -121,7 +122,7 @@ class ProblemWalker:
 
     def visit_expression(self, node, inplace=True):
         from ..syntax import CompoundFormula, QuantifiedFormula, Atom, Tautology, Contradiction, Constant, Variable,\
-            CompoundTerm, IfThenElse  # Import here to break circular refs
+            CompoundTerm, IfThenElse  # pylint: disable=import-outside-toplevel  # Avoiding circular references
         node = node if inplace else copy.deepcopy(node)
 
         if isinstance(node, (Variable, Constant, Contradiction, Tautology)):

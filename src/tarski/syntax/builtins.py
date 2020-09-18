@@ -58,7 +58,7 @@ def is_builtin_predicate(predicate):
 
 
 def create_atom(lang, symbol: BuiltinPredicateSymbol, lhs, rhs):
-    from .formulas import Atom
+    from .formulas import Atom  # pylint: disable=import-outside-toplevel  # Avoiding circular references
     predicate = lang.get_predicate(symbol)
     return Atom(predicate, [lhs, rhs])
 
@@ -67,7 +67,7 @@ def negate_builtin_atom(atom):
     """ Given an atom based on a built-in predicate, return an equivalent atom with the negation absorbed.
     If the atom is not based on a built-in predicate, return the atom unchanged.
     """
-    from .formulas import Atom
+    from .formulas import Atom  # pylint: disable=import-outside-toplevel  # Avoiding circular references
     if isinstance(atom, Atom) and atom.predicate.builtin:
         pred = atom.predicate
         return create_atom(pred.language, pred.symbol.complement(), *atom.subterms)

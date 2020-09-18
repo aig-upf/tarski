@@ -105,7 +105,7 @@ def create_fstrips_problem(language, problem_name=None, domain_name=None, evalua
     problem.language = language
 
     if evaluator is None:
-        from tarski.evaluators.simple import evaluate as evaluator
+        from tarski.evaluators.simple import evaluate as evaluator  # pylint: disable=import-outside-toplevel
 
     problem.init = model.create(language, evaluator)
     return problem

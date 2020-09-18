@@ -17,5 +17,3 @@
 #         # each constant of a certain type other than the root Object type gets mapped into an additional static atom
 #         # in the initial state of the problem
 #         x = 2
-
-

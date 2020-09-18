@@ -11,7 +11,7 @@ def enumerate_groundings(symbols):
     for st in symbols:
         if isinstance(st, Constant):
             continue
-        elif isinstance(st, Variable):
+        if isinstance(st, Variable):
             if st.sort.builtin:
                 # TODO This restriction could be lifted?
                 raise UnableToGroundError(st, "Cannot ground variables of built-in sorts")

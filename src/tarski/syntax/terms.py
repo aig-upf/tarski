@@ -185,7 +185,7 @@ class CompoundTerm(Term):
             except AttributeError:
                 s_k = s.cast(subterms[k])
                 if s_k is None:
-                    raise err.SortMismatch(self.symbol, subterms[k], s)
+                    raise err.SortMismatch(self.symbol, subterms[k], s) from None
                 processed_st.append(s_k)
         self.subterms = tuple(processed_st)
 

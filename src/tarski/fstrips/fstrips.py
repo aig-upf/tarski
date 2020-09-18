@@ -2,7 +2,7 @@
 from enum import Enum
 from typing import Union, List, Optional, Callable, Any
 
-from ..syntax import CompoundTerm, Term, Constant, symref, top
+from ..syntax import CompoundTerm, Term, symref, top
 from .. import theories as ths
 from .errors import InvalidEffectError
 
@@ -96,8 +96,7 @@ class UniversalEffect(BaseEffect):
 
 
 class IncreaseEffect(FunctionalEffect):
-    def __init__(self, lhs, rhs, condition=top):
-        super().__init__(lhs, rhs, condition)
+    pass
 
 
 class OptimizationType(Enum):

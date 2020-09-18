@@ -57,7 +57,7 @@ class PlainOperator(GroundOperator):
         # self.validate(self)
 
 
-class AdditiveActionCost(object):
+class AdditiveActionCost:
     def __init__(self, addend):
         self.addend = addend
 

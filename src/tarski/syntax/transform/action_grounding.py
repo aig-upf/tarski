@@ -12,9 +12,9 @@ def ground_schema_into_plain_operator(action: Action, substitution):
     for param in action.parameters:
         c = substitution.get(symref(param))
         if c is None:
-            raise RuntimeError(f'Can only ground action schemas when the substitution contains all action parameters')
+            raise RuntimeError('Can only ground action schemas when the substitution contains all action parameters')
         if not isinstance(c, Constant):
-            raise RuntimeError(f'Can only ground action schemas with constant terms')
+            raise RuntimeError('Can only ground action schemas with constant terms')
 
     paramlist = ', '.join(substitution[symref(p)].name for p in action.parameters)
     name = f'{action.name}({paramlist})'
@@ -36,9 +36,9 @@ def ground_schema(action: Action, grounding):
     for param in action.parameters:
         c = subst.get(symref(param))
         if c is None:
-            raise RuntimeError(f'Can only ground action schemas when the substitution contains all action parameters')
+            raise RuntimeError('Can only ground action schemas when the substitution contains all action parameters')
         if not isinstance(c, Constant):
-            raise RuntimeError(f'Can only ground action schemas with constant terms')
+            raise RuntimeError('Can only ground action schemas with constant terms')
 
     paramlist = ', '.join(subst[symref(p)].name for p in action.parameters)
     name = f'{action.name}({paramlist})'

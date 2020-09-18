@@ -49,8 +49,8 @@ class Simplify:
         if remove_unused_symbols and not inplace:
             # ATM there are problems generating a full clone of the language+problem,
             # since language.deepcopy is disabled
-            raise RuntimeError(f'Full problem simplification with remove_unused_symbols=True '
-                               f'can at the moment only be performed in place (set inplace=True)')
+            raise RuntimeError('Full problem simplification with remove_unused_symbols=True '
+                               'can at the moment only be performed in place (set inplace=True)')
 
         problem = self.problem if inplace else copy.deepcopy(self.problem)
 
@@ -173,7 +173,8 @@ class Simplify:
 
         if isinstance(effect, UniversalEffect):
             # Go recursively to the universally quantified effects, filter those that are inapplicable
-            effect.effects = list(filter(None.__ne__, (self.simplify_effect(eff, inplace=True) for eff in effect.effects)))
+            effect.effects = list(filter(None.__ne__,
+                                         (self.simplify_effect(eff, inplace=True) for eff in effect.effects)))
             return effect
 
         raise RuntimeError(f'Effect "{effect}" of type "{type(effect)}" cannot be analysed')
@@ -212,7 +213,7 @@ class ExistentialQuantificationSimplifier(FOLWalker):
             go_on, conjuncts = _attempt_single_ex_var_substitution(exvars, conjuncts)
 
         substituted = land(*(c for i, c in enumerate(conjuncts)), flat=True)
-        
+
         if exvars:
             return exists(*(v.expr for v in exvars), substituted)
         return substituted

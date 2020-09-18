@@ -1,7 +1,6 @@
 from typing import Union
 
 from . import errors as err
-from .errors import UndefinedElement
 from .syntax import Function, Constant, CompoundTerm, symref
 from .syntax.predicate import Predicate
 
@@ -34,7 +33,7 @@ def _check_assignment(fun, point, value=None):
         processed.append(element)
 
     if value is None:
-        return tuple(processed)
+        return tuple(processed), None
 
     assert len(processed) > 0
     return tuple(processed[:-1]), processed[-1]
@@ -72,7 +71,7 @@ class Model:
 
     def add(self, predicate, *args):
         """ """
-        from .syntax import Atom
+        from .syntax import Atom  # pylint: disable=import-outside-toplevel  # Avoiding circular references
         if isinstance(predicate, Atom):
             args = predicate.subterms
             predicate = predicate.predicate
@@ -81,7 +80,7 @@ class Model:
             raise err.SemanticError("Model.add() can only set the value of predicate symbols")
         if predicate.builtin:
             raise err.SemanticError(f"Model.add() attempted to redefine builtin symbol '{predicate}'")
-        point = _check_assignment(predicate, args)
+        point, _ = _check_assignment(predicate, args)
         definition = self.predicate_extensions.setdefault(predicate.signature, set())
         definition.add(wrap_tuple(point))
 
@@ -103,7 +102,7 @@ class Model:
         This list *unwraps* the TermReference's used internally in this class back into plain Tarski terms, so that
         you can rely on the returned extensions being made up of Constants, Variables, etc., not TermReferences
         """
-        from .syntax.util import get_symbols
+        from .syntax.util import get_symbols  # pylint: disable=import-outside-toplevel  # Avoiding circular references
         exts = {k: [unwrap_tuple(tup) for tup in ext] for k, ext in self.predicate_extensions.items()}
         exts.update((k, [unwrap_tuple(point) + (value, ) for point, value in ext.data.items()])
                     for k, ext in self.function_extensions.items())
