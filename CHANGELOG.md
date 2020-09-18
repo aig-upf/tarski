@@ -12,6 +12,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 
+## [0.6.0]- 2020-09-18
+### Changed
+  - Switched license to the Apache Software Licence 2.0 (#92)
+
+### Added
+### Removed
+### Deprecated
+### Fixed
+  - Minor bugfixes and improvements.
+  - Better compliance with pylint warnings and errors.  
+
+
 ## [0.5.1] - 2020-04-17
 ### Fixed
   - Fixed some silly releasing mistakes... through a new release :-)
