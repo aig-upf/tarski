@@ -26,4 +26,4 @@ reachability analysis, grounding of first-order representations and problem refo
 Alternatively, they can be run through `tox`, for which several testing environments [are defined](tox.ini).
 
 ## License
-Tarski is licensed under the [GNU General Public License, version 3](LICENSE).
+Tarski is licensed under the [Apache-2.0 License](LICENSE).
