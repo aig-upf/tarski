@@ -61,6 +61,25 @@ confidence=
 # no Warning level messages displayed, use"--disable=all --enable=classes
 # --disable=W"
 disable=print-statement,
+############
+# TODO: Might want to re-enable these progressively
+############
+        invalid-name,
+        no-member,
+        missing-docstring,
+        empty-docstring,
+        not-callable,
+        no-self-use,
+        too-many-arguments,
+        too-many-instance-attributes,
+        too-many-public-methods,
+        too-many-return-statements,
+        too-many-branches,
+        too-many-statements,
+        too-many-locals,
+############
+
+        logging-fstring-interpolation,
         parameter-unpacking,
         unpacking-in-except,
         old-raise-syntax,
@@ -146,13 +165,6 @@ disable=print-statement,
         logging-format-interpolation,
         no-else-return,
         too-few-public-methods,
-
-        # TODO: Enable these progressively
-        invalid-name,
-        no-member,
-        missing-docstring,
-        empty-docstring,
-        not-callable
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

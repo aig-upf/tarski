@@ -5,13 +5,13 @@
 
 Docs: <https://packaging.python.org/tutorials/packaging-projects/>
 
-1. Make sure you are on the master branch and on the right commit.
 1. Update the `CHANGELOG.md` file.
 1. Update the version number in `src/tarski/version.py`
-1. Commit and tag the release.
+1. Commit.
+1. Go to the `master` branch and merge the `devel` branch.
+1. Tag the release.
     ```bash
         export TARSKI_RELEASE="v0.2.0"
-        git commit -am "Preparing for release ${TARSKI_RELEASE}"
         git tag -a ${TARSKI_RELEASE} -m "Tarski release ${TARSKI_RELEASE}"
     ```
         

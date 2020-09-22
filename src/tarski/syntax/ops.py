@@ -4,8 +4,8 @@ from .walker import FOLWalker
 from .. import modules
 from .sorts import children, compute_direct_sort_map, Interval
 from .visitors import CollectFreeVariables
-from .terms import Term, Constant, Variable, CompoundTerm, IfThenElse
-from .formulas import Formula, CompoundFormula, Connective, QuantifiedFormula, Atom, Tautology, Contradiction, FormulaTerm
+from .terms import Term, Constant, Variable
+from .formulas import CompoundFormula, Connective, Formula
 from .symrefs import symref
 
 
@@ -82,7 +82,7 @@ def _flatten(formula, parent_connective):
     with the given connective have been flattened themselves.
     """
     if not isinstance(formula, CompoundFormula) or formula.connective != parent_connective:
-        return formula,  # (returns a tuple)
+        return (formula,)  # (returns a tuple)
     return tuple(itertools.chain.from_iterable(_flatten(sub, parent_connective) for sub in formula.subformulas))
 
 

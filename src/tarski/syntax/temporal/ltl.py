@@ -8,7 +8,7 @@ class TemporalConnective(Enum):
     X, F, G, U, R = range(5)
 
     def __str__(self):
-        return self.name
+        return str(self.name)
 
 
 class TemporalCompoundFormula(CompoundFormula):

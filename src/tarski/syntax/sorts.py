@@ -47,12 +47,12 @@ class Sort:
         except AttributeError:
             if x in self._domain:
                 return x
-            raise ValueError(f"Cast: Symbol '{x}' does not belong to domain {self}")
+            raise ValueError(f"Cast: Symbol '{x}' does not belong to domain {self}") from None
         return None
 
     def to_constant(self, x):
         """ Cast the given element to a constant of this sort. """
-        from . import Constant, Variable
+        from . import Constant, Variable  # pylint: disable=import-outside-toplevel  # Avoiding circular references
         if isinstance(x, (Constant, Variable)) and x.sort == self:
             return x
         if x not in self._domain:
@@ -116,7 +116,7 @@ class Interval(Sort):
 
     def to_constant(self, x):
         """ Cast the given element to a constant of this sort. """
-        from . import Constant, Variable
+        from . import Constant, Variable  # pylint: disable=import-outside-toplevel  # Avoiding circular references
         if isinstance(x, (Constant, Variable)) and x.sort == self:
             return x
         return Constant(self.cast(x), self)
@@ -145,8 +145,8 @@ class Interval(Sort):
         while p is not None:
             try:
                 z = p.cast(x)
-            except ValueError:
-                raise err.LanguageError()
+            except ValueError as e:
+                raise err.LanguageError() from e
             if z is not None and x != z:
                 return None
             p = parent(p)
@@ -158,7 +158,7 @@ class Interval(Sort):
         if self.upper_bound - self.lower_bound > 2: #allows special case for 0,1 for booleans:
             if self.builtin or self.upper_bound - self.lower_bound > 9999:  # Yes, very hacky
                 raise err.TarskiError(f'Cannot iterate over interval with range [{self.lower_bound}, {self.upper_bound}]')
-        from . import Constant
+        from . import Constant  # pylint: disable=import-outside-toplevel  # Avoiding circular references
         return (Constant(x, self) for x in range(self.lower_bound, self.upper_bound+1))
 
 
@@ -251,7 +251,7 @@ def compute_direct_sort_map(lang):
 
 
 def get_closest_builtin_sort(s: Sort):
-    for s in inclusion_closure(s):
-        if s.builtin:
-            break
-    return s
+    for par in inclusion_closure(s):
+        if par.builtin:
+            return par
+    return None

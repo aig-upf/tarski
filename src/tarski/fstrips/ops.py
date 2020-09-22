@@ -2,15 +2,15 @@ import operator
 from functools import reduce
 from typing import Set, Union
 
-from .walker import ProblemWalker
-from ..syntax import Predicate, Function, CompoundTerm, Atom
-from .problem import Problem
-from . import fstrips as fs
-
 # At the moment we're using the "multipledispatch" package to implement single-argument dispatching.
 # Whenever we move to support Python 3.8+, we could directly use
 #     https://docs.python.org/3/library/functools.html#functools.singledispatchmethod
 from multipledispatch import dispatch
+
+from .walker import ProblemWalker
+from ..syntax import Predicate, Function, CompoundTerm, Atom
+from .problem import Problem
+from . import fstrips as fs
 
 
 def collect_all_symbols(problem: Problem, include_builtin=False) -> Set[Union[Predicate, Function]]:
@@ -70,29 +70,29 @@ class AffectedSymbolWalker(ProblemWalker):
         return self.default_handler(node)
 
     @dispatch(fs.AddEffect)
-    def visit(self, effect):  # pylint: disable-msg=E0102
-        self.symbols.add(effect.atom.symbol)
-        return effect
+    def visit(self, node):  # pylint: disable-msg=E0102
+        self.symbols.add(node.atom.symbol)
+        return node
 
     @dispatch(fs.DelEffect)
-    def visit(self, effect):  # pylint: disable-msg=E0102
-        self.symbols.add(effect.atom.symbol)
-        return effect
+    def visit(self, node):  # pylint: disable-msg=E0102
+        self.symbols.add(node.atom.symbol)
+        return node
 
     @dispatch(fs.FunctionalEffect)
-    def visit(self, effect):  # pylint: disable-msg=E0102
-        self.symbols.add(effect.lhs.symbol)
-        return effect
+    def visit(self, node):  # pylint: disable-msg=E0102
+        self.symbols.add(node.lhs.symbol)
+        return node
 
     @dispatch(fs.ChoiceEffect)
-    def visit(self, effect):  # pylint: disable-msg=E0102
-        self.symbols.add(effect.obj.symbol)
-        return effect
+    def visit(self, node):  # pylint: disable-msg=E0102
+        self.symbols.add(node.obj.symbol)
+        return node
 
     @dispatch(fs.LinearEffect)
-    def visit(self, effect):  # pylint: disable-msg=E0102
-        self.symbols.update(lhs.symbol for lhs in effect.y[:, 0])
-        return effect
+    def visit(self, node):  # pylint: disable-msg=E0102
+        self.symbols.update(lhs.symbol for lhs in node.y[:, 0])
+        return node
 
 
 def compute_number_potential_groundings(signature):

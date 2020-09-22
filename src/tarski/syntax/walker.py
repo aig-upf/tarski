@@ -22,6 +22,7 @@ class WalkerAction(Enum):
     Supress = "supress"
 
     def __str__(self):
+        # pylint: disable-msg=E0307  # pylint gives false positive here, since self.value is already a string
         return self.value
 
 
@@ -56,8 +57,9 @@ class FOLWalker:
         return self.visit_expression(expression, inplace=True)
 
     def visit_expression(self, node, inplace=True):
+        # pylint: disable=import-outside-toplevel  # Avoiding circular references
         from .formulas import CompoundFormula, QuantifiedFormula, Atom, Tautology, Contradiction, Pass
-        from .terms import Constant, Variable, CompoundTerm, IfThenElse  # Import here to break circular refs
+        from .terms import Constant, Variable, CompoundTerm, IfThenElse    # pylint: disable=import-outside-toplevel
         node = node if inplace else copy.deepcopy(node)
 
         if isinstance(node, (Variable, Constant, Contradiction, Tautology, Pass)):

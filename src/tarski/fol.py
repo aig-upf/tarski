@@ -362,14 +362,14 @@ class FirstOrderLanguage:
         try:
             return self._operators[(operator, t)](term)
         except KeyError:
-            raise err.LanguageError("Operator '{}' not defined on domain ({})".format(operator, t))
+            raise err.LanguageError(f"Operator '{operator}' not defined on domain ({t})") from None
 
     def dispatch_operator(self, operator, t1, t2, lhs, rhs):
         # assert isinstance(lhs, t1)
         # assert isinstance(rhs, t2)
         op = self._operators.get((operator, t1, t2), None)
         if op is None:
-            raise err.LanguageError("Operator '{}' not defined on domain ({}, {})".format(operator, t1, t2))
+            raise err.LanguageError(f"Operator '{operator}' not defined on domain ({t1}, {t2})")
 
         return op(lhs, rhs)
 

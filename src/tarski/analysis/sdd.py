@@ -7,6 +7,8 @@ import time
 from collections import defaultdict
 from functools import reduce
 from pathlib import Path
+import subprocess
+import string
 
 from ..utils.command import stdout_redirector
 from ..utils import resources
@@ -25,7 +27,6 @@ sdd = import_sdd()
 
 class UnsupportedFormalism(RuntimeError):
     """ The maximum size of the SDD data structure has been surpassed """
-    pass
 
 
 def scout_actions(task, data):
@@ -122,9 +123,10 @@ def create_grounding_constraints(selects, statics, init, atoms, reachable_vars=N
             if atom.predicate in statics:
                 if init[head]:  # Case (2): p is static and holds in init
                     continue
-                else:  # Case (3): p is static and doesn't hold in init
-                    assert body
-                    constraints += body if len(body) == 1 else [lor(*body)]
+
+                # Case (3): p is static and doesn't hold in init
+                assert body
+                constraints += body if len(body) == 1 else [lor(*body)]
             else:  # Case (1): p is a fluent
                 svar = StateVariableLite.from_atom(head)
                 if reachable_vars is None or svar in reachable_vars:
@@ -239,7 +241,7 @@ def preprocess_parameter_domains(action, statics, domains, init, reachable_vars)
     # atom p
     parameter_roles = defaultdict(list)
     eq_atoms, standard_constraints = set(), list()
-    for i, (atom, polarity) in enumerate(constraints, start=0):
+    for _, (atom, polarity) in enumerate(constraints, start=0):
         predicate = atom.predicate
 
         if predicate.symbol in builtins.get_equality_predicates():
@@ -256,7 +258,7 @@ def preprocess_parameter_domains(action, statics, domains, init, reachable_vars)
     # Prune away any domain value that is not arc-consistent, i.e. such that there is some precondition atom for which
     # that value cannot be extended into a full assignment that fulfills the constraint
     for parameter in action.parameters:
-        nbefore = len(domains[parameter.symbol])  # Just for debugging purposes
+        # nbefore = len(domains[parameter.symbol])  # Just for debugging purposes
         for atom, position in parameter_roles[parameter.symbol]:
             if atom.predicate not in statics and not using_reachability_info:
                 # If we are not using reachability info, we cannot prune any domain value for fluents
@@ -322,7 +324,7 @@ def compile_action_schema(problem, statics, action, data, max_size,
                           conjoin_with_init=False, var_ordering=None, reachable_vars=None,
                           sdd_incr_minimization_time=None):
     print(f'Processing action "{action.ident()}"')
-    with resources.timing(f"\tGenerating theory"):
+    with resources.timing("\tGenerating theory"):
         data['instance'] += [problem.name]
 
         # Set up a metalanguage for the encoding of the SDD applicability theory
@@ -425,7 +427,7 @@ def compile_action_schema(problem, statics, action, data, max_size,
             try:
                 for i, model in enumerate(app.models(), start=1):
                     binding = compute_binding(model, selects, symbols)
-                    print(f'\tModel #{i} maps to applicable ground action {compute_ground_action_name(act_str, binding)}')
+                    print(f'\tModel #{i} maps to appl. ground act {compute_ground_action_name(act_str, binding)}')
             except ValueError:
                 print(f'\tNo more models found for action {act_str}')
 
@@ -433,7 +435,7 @@ def compile_action_schema(problem, statics, action, data, max_size,
             s0_literal_ids = {varid(node.literal): truth_value(node.literal) for node in pysdd_s0}
             for i, model in enumerate(models(precondition_sdd, s0_literal_ids), start=1):
                 binding = compute_binding(model, selects, symbols)
-                print(f'\t[Fixed] Model #{i} maps to applicable ground action {compute_ground_action_name(act_str, binding)}')
+                print(f'\t[Fixed] Model #{i} maps to appl. ground act {compute_ground_action_name(act_str, binding)}')
 
     else:
         as0 = None
@@ -558,7 +560,8 @@ def process_problem(problem, max_size=20000000,
     for action in actions:
         manager, node, symbols, theory = compile_action_schema(
             problem, statics, action, data, max_size, conjoin_with_init=conjoin_with_init,
-            var_ordering=var_ordering, reachable_vars=reachable_vars, sdd_incr_minimization_time=sdd_incr_minimization_time)
+            var_ordering=var_ordering, reachable_vars=reachable_vars,
+            sdd_incr_minimization_time=sdd_incr_minimization_time)
 
         print(f"\tSDD has {node.size()} nodes")
         if sdd_minimization_time is not None and sdd_minimization_time > 0:
@@ -574,8 +577,6 @@ def process_problem(problem, max_size=20000000,
 
 
 def print_sdd(action, directory, manager, node, symbols, theory):
-    import subprocess
-    import string
     if not Path(directory).is_dir():
         raise Exception(f"Directory '{directory}' does not exist")
 
@@ -672,7 +673,7 @@ def join_models(model1, model2):
 
 def truth_value(literal):
     assert literal != 0
-    return not (literal < 0)
+    return not literal < 0
 
 
 def varid(literal):

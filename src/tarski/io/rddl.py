@@ -191,7 +191,7 @@ def translate_expression(lang, rddl_expr):
             return k
 
     # print(rddl_expr, expr_type, type(expr_sym))
-    assert False
+    raise RuntimeError(f"Unknown expression type '{expr_type}'")
 
 
 class Parameters:
@@ -451,7 +451,7 @@ class Writer:
         return ', '.join([str(r) for r in self.task.requirements])
 
     def get_types(self):
-        from ..syntax.sorts import parent
+        from ..syntax.sorts import parent  # pylint: disable=import-outside-toplevel  # Avoiding circular references
         type_decl_list = []
         for S in self.task.L.sorts:
             if S.builtin or S.name == 'object':
@@ -670,10 +670,10 @@ class Writer:
             return '{}_{{{}}} ({})'.format(re_sym, ','.join(re_vars), re_expr)
         elif isinstance(expr, FormulaTerm):
             return self.rewrite(expr.formula)
-        else:
-            raise NotImplementedError
+        raise RuntimeError(f"Unknown expression type for '{expr}'")
 
-    def get_fluent(self, fl, next_state=False):
+    @staticmethod
+    def get_fluent(fl, next_state=False):
         try:
             head = fl.symbol.signature[0]
         except AttributeError:

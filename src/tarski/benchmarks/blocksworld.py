@@ -22,9 +22,9 @@ def generate_strips_bw_language(nblocks=4):
 
     lang.predicate('handempty')
     lang.predicate('on', object_t, object_t)
-    [lang.predicate(p, object_t) for p in "ontable clear holding".split()]
+    _ = [lang.predicate(p, object_t) for p in "ontable clear holding".split()]
 
-    [lang.constant('b{}'.format(k), object_t) for k in range(1, nblocks+1)]
+    _ = [lang.constant('b{}'.format(k), object_t) for k in range(1, nblocks+1)]
     return lang
 
 
@@ -41,11 +41,11 @@ def generate_fstrips_bw_language(nblocks=4):
 
     # Table and blocks
     lang.constant('table', place)
-    [lang.constant('b{}'.format(k), block) for k in range(1, nblocks+1)]
+    _ = [lang.constant('b{}'.format(k), block) for k in range(1, nblocks+1)]
     return lang
 
 
-def generate_strips_blocksworld_problem(nblocks=4, init="random", goal="random", use_inequalities=True):
+def generate_strips_blocksworld_problem(nblocks=4, use_inequalities=True):
     """ Generate the standard BW encoding, untyped and with 4 action schemas """
     lang = generate_strips_bw_language(nblocks=nblocks)
     problem = create_fstrips_problem(lang, domain_name=BASE_DOMAIN_NAME, problem_name='test-instance')
@@ -179,4 +179,3 @@ def compute_clear_from_pattern(lang, locations):
     clearplaces = {x.name for x in lang.constants() if x.name not in unclear}
     clearplaces.add('table')  # Table is always clear!
     return clearplaces
-
