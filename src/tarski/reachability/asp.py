@@ -156,7 +156,7 @@ class ReachabilityLPCompiler:
         """ Process a given formula and return the corresponding LP rule body, along with declaring in the given LP
         any number of extra rules necessary to ensure equivalence of the body with the truth value of the formula.
         """
-        if isinstance(f, Tautology) or isinstance(f, Pass):
+        if isinstance(f, (Tautology, Pass)):
             return []
 
         elif isinstance(f, Atom):

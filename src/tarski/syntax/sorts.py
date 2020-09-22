@@ -155,9 +155,8 @@ class Interval(Sort):
         return dict(name=self.name, domain=[self.lower_bound, self.upper_bound])
 
     def domain(self):
-        if self.upper_bound - self.lower_bound > 2: #allows special case for 0,1 for booleans:
-            if self.builtin or self.upper_bound - self.lower_bound > 9999:  # Yes, very hacky
-                raise err.TarskiError(f'Cannot iterate over interval with range [{self.lower_bound}, {self.upper_bound}]')
+        if self.upper_bound - self.lower_bound > 9999:  # Yes, very hacky
+            raise err.TarskiError(f'Cannot iterate over interval with range [{self.lower_bound}, {self.upper_bound}]')
         from . import Constant  # pylint: disable=import-outside-toplevel  # Avoiding circular references
         return (Constant(x, self) for x in range(self.lower_bound, self.upper_bound+1))
 

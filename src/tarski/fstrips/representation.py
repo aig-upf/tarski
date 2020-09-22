@@ -567,7 +567,7 @@ def expand_universal_effect(effect):
     if not isinstance(effect, UniversalEffect):
         return [effect]
 
-    assert(isinstance(effect.condition, Tautology) or isinstance(effect.condition, Pass))# TODO Lift this restriction
+    assert isinstance(effect.condition, (Tautology, Pass)) # TODO Lift this restriction
     expanded = []
     for subst in enumerate_substitutions(effect.variables):
         for sub in effect.effects:

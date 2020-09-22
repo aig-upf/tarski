@@ -36,11 +36,13 @@ def language(name='L', theories: Optional[List[Union[str, Theory]]] = None):
      """
     theories = theories or []
     lang = FirstOrderLanguage(name)
-    load_theory(lang, Theory.BOOLEAN) #todo: [John Peterson] would like to either do this differently, or eliminate the boolean theory alltogether
+
+    #todo: [John Peterson] would like to either do this differently, or
+    #eliminate the boolean theory alltogether
+    load_theory(lang, Theory.BOOLEAN)
     for t in theories:
-        if t != "boolean" and t != Theory.BOOLEAN:
-            _ = load_theory(lang,t)
-            
+        if t not in ("boolean", Theory.BOOLEAN):
+            load_theory(lang,t)
     return lang
 
 

@@ -4,7 +4,6 @@ from enum import Enum
 from typing import List
 
 from .. import errors as err
-from .builtins import BuiltinPredicateSymbol
 from .builtins import BuiltinPredicateSymbol, BuiltinFunctionSymbol
 from .terms import Variable, Term
 from .util import termlists_are_equal, termlist_hash
@@ -45,9 +44,6 @@ class Formula:
 
     def __invert__(self):
         return neg(self)
-
-    def __gt__(self, rhs):
-        return implies(self, rhs)
 
     def __eq__(self, rhs):
         return self.language.dispatch_operator(BuiltinPredicateSymbol.EQ, Term, Term, self, rhs)
@@ -103,7 +99,7 @@ class Formula:
     __hash__ = None  # type: ignore
 
     def hash(self):
-         raise NotImplementedError()  # To be subclassed
+        raise NotImplementedError()  # To be subclassed
 
     def is_syntactically_equal(self, other):
         """ Return true if this formula and other are strictly syntactically equivalent.
@@ -115,8 +111,6 @@ class Formula:
         return FormulaTerm(self)
 
 class Pass(Formula):
-    def __init__(self):
-        super().__init__()
 
     def __str__(self):
         return "T"
@@ -217,7 +211,7 @@ class QuantifiedFormula(Formula):
         self.formula = formula
         self._check_well_formed()
         self.language = formula.language
-        
+
     def _check_well_formed(self):
         if len(self.variables) == 0:
             raise err.LanguageError("Quantified formula with no variable")
@@ -256,7 +250,10 @@ def land(*args, flat=False):
     """ Create an and-formula with the given subformulas. If binary is true, the and-formula will be shaped as a binary
      tree (e.g. (...((p1 and p2) and p3) and ...))), otherwise it will have a flat structure. This is an implementation
      detail, but might be relevant performance-wise when dealing with large structures """
-    #todo: [John Peterson] --- this had originally allowed not giving it arguments (which returned a Tautology) --- not possible without a language, so we're making do here by removing it (see lor for equiv with Contradiction)
+    #todo: [John Peterson] --- this had originally allowed not giving
+    #it arguments (which returned a Tautology) --- not possible
+    #without a language, so we're making do here by removing it (see
+    #lor for equiv with Contradiction)
     if not args:
         return top
     return _create_compound(args, Connective.And, flat)
@@ -470,7 +467,7 @@ class FormulaTerm(Term):
         self.symbol = formula_symbol_extractor(formula)
         self.formula = formula
         self._sort = formula.language.Boolean
-        
+
     @property
     def language(self):
         return self.formula.language
@@ -485,7 +482,10 @@ class FormulaTerm(Term):
     __repr__ = __str__
 
     def hash(self):
-        return hash(self.formula) #[John Peterson] todo: should this actually work this way? I'm not sure if we want these to hash the same as the underlying formula
+        #[John Peterson] todo: should this actually work this way? I'm
+        #not sure if we want these to hash the same as the underlying
+        #formula
+        return hash(self.formula)
 
     def is_syntactically_equal(self, other):
         return self.formula.is_syntactically_equal(other.formula)
@@ -511,4 +511,4 @@ def formula_arity_extractor(f):
             arity = 2
     else:
         raise NotImplementedError() #unknown formula type
-    return arity 
+    return arity

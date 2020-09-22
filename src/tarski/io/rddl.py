@@ -618,7 +618,9 @@ class Writer:
                     if len(re_st) > 0:
                         # MRJ: Random variables need parenthesis, other functions need
                         # brackets...
-                        if expr.symbol.symbol in builtins.get_random_binary_functions() or expr.symbol.symbol in builtins.get_random_unary_functions():
+                        relevant_functions = builtins.get_random_binary_functions()
+                        relevant_functions += builtins.get_random_unary_functions()
+                        if expr.symbol.symbol in relevant_functions:
                             st_str = '({})'.format(','.join(re_st))
                         else:
                             st_str = '[{}]'.format(','.join(re_st))

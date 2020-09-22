@@ -7,8 +7,8 @@ from ..ops import collect_all_symbols, compute_number_potential_groundings
 from ...evaluators.simple import evaluate
 from ...grounding.ops import approximate_symbol_fluency
 from ...syntax.terms import Constant, Variable, CompoundTerm
-from ...syntax.formulas import CompoundFormula, QuantifiedFormula, Atom, Pass, Tautology, Contradiction, Connective, is_neg, \
-    Quantifier, unwrap_conjunction_or_atom, is_eq_atom, land, exists
+from ...syntax.formulas import CompoundFormula, QuantifiedFormula, Atom, Pass, Tautology,\
+    Contradiction, Connective, is_neg, Quantifier, unwrap_conjunction_or_atom, is_eq_atom, land, exists
 from ...syntax.transform.substitutions import substitute_expression
 from ...syntax.util import get_symbols
 from ...syntax.walker import FOLWalker

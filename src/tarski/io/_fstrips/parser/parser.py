@@ -398,58 +398,58 @@ class fstripsParser ( Parser ):
 
     sharedContextCache = PredictionContextCache()
 
-    literalNames = [ "<INVALID>", "'('", "'define'", "')'", "'domain'", 
-                     "':requirements'", "':types'", "'-'", "'either'", "':functions'", 
-                     "':constants'", "':predicates'", "':parameters'", "':constraint'", 
-                     "':condition'", "':event'", "'#t'", "':derived'", "'assign'", 
-                     "'*'", "'+'", "'/'", "'^'", "'max'", "'min'", "'sin'", 
-                     "'cos'", "'sqrt'", "'tan'", "'acos'", "'asin'", "'atan'", 
-                     "'exp'", "'abs'", "'>'", "'<'", "'='", "'>='", "'<='", 
-                     "'problem'", "':domain'", "':objects'", "':bounds'", 
-                     "'['", "'..'", "']'", "':goal'", "':constraints'", 
-                     "'preference'", "':metric'", "'minimize'", "'maximize'", 
-                     "'(total-time)'", "'is-violated'", "':terminal'", "':stage'", 
-                     "'at-end'", "'always'", "'sometime'", "'within'", "'at-most-once'", 
-                     "'sometime-after'", "'sometime-before'", "'always-within'", 
-                     "'hold-during'", "'hold-after'", "<INVALID>", "<INVALID>", 
-                     "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                     "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                     "<INVALID>", "'scale-up'", "'scale-down'", "'int'", 
+    literalNames = [ "<INVALID>", "'('", "'define'", "')'", "'domain'",
+                     "':requirements'", "':types'", "'-'", "'either'", "':functions'",
+                     "':constants'", "':predicates'", "':parameters'", "':constraint'",
+                     "':condition'", "':event'", "'#t'", "':derived'", "'assign'",
+                     "'*'", "'+'", "'/'", "'^'", "'max'", "'min'", "'sin'",
+                     "'cos'", "'sqrt'", "'tan'", "'acos'", "'asin'", "'atan'",
+                     "'exp'", "'abs'", "'>'", "'<'", "'='", "'>='", "'<='",
+                     "'problem'", "':domain'", "':objects'", "':bounds'",
+                     "'['", "'..'", "']'", "':goal'", "':constraints'",
+                     "'preference'", "':metric'", "'minimize'", "'maximize'",
+                     "'(total-time)'", "'is-violated'", "':terminal'", "':stage'",
+                     "'at-end'", "'always'", "'sometime'", "'within'", "'at-most-once'",
+                     "'sometime-after'", "'sometime-before'", "'always-within'",
+                     "'hold-during'", "'hold-after'", "<INVALID>", "<INVALID>",
+                     "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>",
+                     "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>",
+                     "<INVALID>", "'scale-up'", "'scale-down'", "'int'",
                      "'float'", "'object'", "'number'" ]
 
-    symbolicNames = [ "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "<INVALID>", "<INVALID>", "REQUIRE_KEY", "K_AND", 
-                      "K_NOT", "K_OR", "K_IMPLY", "K_EXISTS", "K_FORALL", 
-                      "K_WHEN", "K_ACTION", "K_INCREASE", "K_DECREASE", 
-                      "K_SCALEUP", "K_SCALEDOWN", "INT_T", "FLOAT_T", "OBJECT_T", 
-                      "NUMBER_T", "NAME", "EXTNAME", "VARIABLE", "NUMBER", 
-                      "LINE_COMMENT", "WHITESPACE", "K_INIT", "K_PRECONDITION", 
-                      "K_EFFECT", "DOMAIN", "DOMAIN_NAME", "REQUIREMENTS", 
-                      "TYPES", "EITHER_TYPE", "CONSTANTS", "FUNCTIONS", 
-                      "FREE_FUNCTIONS", "PREDICATES", "ACTION", "CONSTRAINT", 
-                      "EVENT", "GLOBAL_CONSTRAINT", "DURATIVE_ACTION", "PROBLEM", 
-                      "PROBLEM_NAME", "PROBLEM_DOMAIN", "OBJECTS", "INIT", 
-                      "FUNC_HEAD", "PRECONDITION", "EFFECT", "AND_GD", "OR_GD", 
-                      "NOT_GD", "IMPLY_GD", "EXISTS_GD", "FORALL_GD", "COMPARISON_GD", 
-                      "AND_EFFECT", "FORALL_EFFECT", "WHEN_EFFECT", "ASSIGN_EFFECT", 
-                      "NOT_EFFECT", "PRED_HEAD", "GOAL", "BINARY_OP", "EQUALITY_CON", 
-                      "MULTI_OP", "MINUS_OP", "UNARY_MINUS", "INIT_EQ", 
-                      "INIT_AT", "NOT_PRED_INIT", "PRED_INST", "PROBLEM_CONSTRAINT", 
+    symbolicNames = [ "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>",
+                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>",
+                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>",
+                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>",
+                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>",
+                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>",
+                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>",
+                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>",
+                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>",
+                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>",
+                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>",
+                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>",
+                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>",
+                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>",
+                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>",
+                      "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>",
+                      "<INVALID>", "<INVALID>", "REQUIRE_KEY", "K_AND",
+                      "K_NOT", "K_OR", "K_IMPLY", "K_EXISTS", "K_FORALL",
+                      "K_WHEN", "K_ACTION", "K_INCREASE", "K_DECREASE",
+                      "K_SCALEUP", "K_SCALEDOWN", "INT_T", "FLOAT_T", "OBJECT_T",
+                      "NUMBER_T", "NAME", "EXTNAME", "VARIABLE", "NUMBER",
+                      "LINE_COMMENT", "WHITESPACE", "K_INIT", "K_PRECONDITION",
+                      "K_EFFECT", "DOMAIN", "DOMAIN_NAME", "REQUIREMENTS",
+                      "TYPES", "EITHER_TYPE", "CONSTANTS", "FUNCTIONS",
+                      "FREE_FUNCTIONS", "PREDICATES", "ACTION", "CONSTRAINT",
+                      "EVENT", "GLOBAL_CONSTRAINT", "DURATIVE_ACTION", "PROBLEM",
+                      "PROBLEM_NAME", "PROBLEM_DOMAIN", "OBJECTS", "INIT",
+                      "FUNC_HEAD", "PRECONDITION", "EFFECT", "AND_GD", "OR_GD",
+                      "NOT_GD", "IMPLY_GD", "EXISTS_GD", "FORALL_GD", "COMPARISON_GD",
+                      "AND_EFFECT", "FORALL_EFFECT", "WHEN_EFFECT", "ASSIGN_EFFECT",
+                      "NOT_EFFECT", "PRED_HEAD", "GOAL", "BINARY_OP", "EQUALITY_CON",
+                      "MULTI_OP", "MINUS_OP", "UNARY_MINUS", "INIT_EQ",
+                      "INIT_AT", "NOT_PRED_INIT", "PRED_INST", "PROBLEM_CONSTRAINT",
                       "PROBLEM_METRIC" ]
 
     RULE_pddlDoc = 0
@@ -519,24 +519,24 @@ class fstripsParser ( Parser ):
     RULE_stageCost = 64
     RULE_conGD = 65
 
-    ruleNames =  [ "pddlDoc", "domain", "domainName", "requireDef", "declaration_of_types", 
-                   "numericBuiltinType", "builtinType", "possibly_typed_name_list", 
-                   "name_list_with_type", "possibly_typed_type_list", "possibly_typed_variable_list", 
-                   "variable_list_with_type", "typename", "primitive_type", 
-                   "function_definition_block", "single_function_definition", 
-                   "typed_function_definition", "untyped_function_definition", 
-                   "logical_symbol_name", "constant_declaration", "predicate_definition_block", 
-                   "single_predicate_definition", "predicate", "function_name", 
-                   "structureDef", "actionDef", "constraintDef", "eventDef", 
-                   "actionName", "constraintSymbol", "eventSymbol", "actionDefBody", 
-                   "precondition", "goalDesc", "atomicTermFormula", "term", 
-                   "functionTerm", "derivedDef", "effect", "single_effect", 
-                   "atomic_effect", "builtin_binary_function", "builtin_unary_function", 
-                   "builtin_binary_predicate", "assignOp", "problem", "problemMeta", 
-                   "problemDecl", "problemDomain", "object_declaration", 
-                   "boundsDecl", "typeBoundsDefinition", "init", "init_element", 
-                   "flat_term", "flat_atom", "constant_name", "goal", "probConstraints", 
-                   "prefConGD", "metricSpec", "optimization", "metricFExp", 
+    ruleNames =  [ "pddlDoc", "domain", "domainName", "requireDef", "declaration_of_types",
+                   "numericBuiltinType", "builtinType", "possibly_typed_name_list",
+                   "name_list_with_type", "possibly_typed_type_list", "possibly_typed_variable_list",
+                   "variable_list_with_type", "typename", "primitive_type",
+                   "function_definition_block", "single_function_definition",
+                   "typed_function_definition", "untyped_function_definition",
+                   "logical_symbol_name", "constant_declaration", "predicate_definition_block",
+                   "single_predicate_definition", "predicate", "function_name",
+                   "structureDef", "actionDef", "constraintDef", "eventDef",
+                   "actionName", "constraintSymbol", "eventSymbol", "actionDefBody",
+                   "precondition", "goalDesc", "atomicTermFormula", "term",
+                   "functionTerm", "derivedDef", "effect", "single_effect",
+                   "atomic_effect", "builtin_binary_function", "builtin_unary_function",
+                   "builtin_binary_predicate", "assignOp", "problem", "problemMeta",
+                   "problemDecl", "problemDomain", "object_declaration",
+                   "boundsDecl", "typeBoundsDefinition", "init", "init_element",
+                   "flat_term", "flat_atom", "constant_name", "goal", "probConstraints",
+                   "prefConGD", "metricSpec", "optimization", "metricFExp",
                    "terminalCost", "stageCost", "conGD" ]
 
     EOF = Token.EOF
@@ -1056,7 +1056,7 @@ class fstripsParser ( Parser ):
         def getRuleIndex(self):
             return fstripsParser.RULE_numericBuiltinType
 
-     
+
         def copyFrom(self, ctx:ParserRuleContext):
             super().copyFrom(ctx)
 
@@ -1182,7 +1182,7 @@ class fstripsParser ( Parser ):
         def getRuleIndex(self):
             return fstripsParser.RULE_builtinType
 
-     
+
         def copyFrom(self, ctx:ParserRuleContext):
             super().copyFrom(ctx)
 
@@ -1279,7 +1279,7 @@ class fstripsParser ( Parser ):
         def getRuleIndex(self):
             return fstripsParser.RULE_possibly_typed_name_list
 
-     
+
         def copyFrom(self, ctx:ParserRuleContext):
             super().copyFrom(ctx)
 
@@ -1373,7 +1373,7 @@ class fstripsParser ( Parser ):
             elif la_ == 2:
                 localctx = fstripsParser.ComplexNameListContext(self, localctx)
                 self.enterOuterAlt(localctx, 2)
-                self.state = 198 
+                self.state = 198
                 self._errHandler.sync(self)
                 _alt = 1
                 while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
@@ -1383,7 +1383,7 @@ class fstripsParser ( Parser ):
 
                     else:
                         raise NoViableAltException(self)
-                    self.state = 200 
+                    self.state = 200
                     self._errHandler.sync(self)
                     _alt = self._interp.adaptivePredict(self._input,11,self._ctx)
 
@@ -1451,13 +1451,13 @@ class fstripsParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 211 
+            self.state = 211
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while True:
                 self.state = 210
                 self.match(fstripsParser.NAME)
-                self.state = 213 
+                self.state = 213
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if not (_la==fstripsParser.NAME):
@@ -1485,7 +1485,7 @@ class fstripsParser ( Parser ):
         def getRuleIndex(self):
             return fstripsParser.RULE_possibly_typed_type_list
 
-     
+
         def copyFrom(self, ctx:ParserRuleContext):
             super().copyFrom(ctx)
 
@@ -1594,7 +1594,7 @@ class fstripsParser ( Parser ):
             elif la_ == 2:
                 localctx = fstripsParser.TypedTypenameListContext(self, localctx)
                 self.enterOuterAlt(localctx, 2)
-                self.state = 225 
+                self.state = 225
                 self._errHandler.sync(self)
                 _alt = 1
                 while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
@@ -1604,7 +1604,7 @@ class fstripsParser ( Parser ):
 
                     else:
                         raise NoViableAltException(self)
-                    self.state = 227 
+                    self.state = 227
                     self._errHandler.sync(self)
                     _alt = self._interp.adaptivePredict(self._input,16,self._ctx)
 
@@ -1644,7 +1644,7 @@ class fstripsParser ( Parser ):
         def getRuleIndex(self):
             return fstripsParser.RULE_possibly_typed_variable_list
 
-     
+
         def copyFrom(self, ctx:ParserRuleContext):
             super().copyFrom(ctx)
 
@@ -1738,7 +1738,7 @@ class fstripsParser ( Parser ):
             elif la_ == 2:
                 localctx = fstripsParser.TypedVariableListContext(self, localctx)
                 self.enterOuterAlt(localctx, 2)
-                self.state = 244 
+                self.state = 244
                 self._errHandler.sync(self)
                 _alt = 1
                 while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
@@ -1748,7 +1748,7 @@ class fstripsParser ( Parser ):
 
                     else:
                         raise NoViableAltException(self)
-                    self.state = 246 
+                    self.state = 246
                     self._errHandler.sync(self)
                     _alt = self._interp.adaptivePredict(self._input,20,self._ctx)
 
@@ -1816,13 +1816,13 @@ class fstripsParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 257 
+            self.state = 257
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while True:
                 self.state = 256
                 self.match(fstripsParser.VARIABLE)
-                self.state = 259 
+                self.state = 259
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if not (_la==fstripsParser.VARIABLE):
@@ -1850,7 +1850,7 @@ class fstripsParser ( Parser ):
         def getRuleIndex(self):
             return fstripsParser.RULE_typename
 
-     
+
         def copyFrom(self, ctx:ParserRuleContext):
             super().copyFrom(ctx)
 
@@ -1926,13 +1926,13 @@ class fstripsParser ( Parser ):
                 self.match(fstripsParser.T__0)
                 self.state = 265
                 self.match(fstripsParser.T__7)
-                self.state = 267 
+                self.state = 267
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 while True:
                     self.state = 266
                     self.primitive_type()
-                    self.state = 269 
+                    self.state = 269
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
                     if not (((((_la - 79)) & ~0x3f) == 0 and ((1 << (_la - 79)) & ((1 << (fstripsParser.INT_T - 79)) | (1 << (fstripsParser.FLOAT_T - 79)) | (1 << (fstripsParser.OBJECT_T - 79)) | (1 << (fstripsParser.NUMBER_T - 79)) | (1 << (fstripsParser.NAME - 79)))) != 0)):
@@ -3106,7 +3106,7 @@ class fstripsParser ( Parser ):
         def getRuleIndex(self):
             return fstripsParser.RULE_precondition
 
-     
+
         def copyFrom(self, ctx:ParserRuleContext):
             super().copyFrom(ctx)
 
@@ -3203,7 +3203,7 @@ class fstripsParser ( Parser ):
         def getRuleIndex(self):
             return fstripsParser.RULE_goalDesc
 
-     
+
         def copyFrom(self, ctx:ParserRuleContext):
             super().copyFrom(ctx)
 
@@ -3669,7 +3669,7 @@ class fstripsParser ( Parser ):
         def getRuleIndex(self):
             return fstripsParser.RULE_term
 
-     
+
         def copyFrom(self, ctx:ParserRuleContext):
             super().copyFrom(ctx)
 
@@ -3854,7 +3854,7 @@ class fstripsParser ( Parser ):
         def getRuleIndex(self):
             return fstripsParser.RULE_functionTerm
 
-     
+
         def copyFrom(self, ctx:ParserRuleContext):
             super().copyFrom(ctx)
 
@@ -4095,7 +4095,7 @@ class fstripsParser ( Parser ):
         def getRuleIndex(self):
             return fstripsParser.RULE_effect
 
-     
+
         def copyFrom(self, ctx:ParserRuleContext):
             super().copyFrom(ctx)
 
@@ -4213,7 +4213,7 @@ class fstripsParser ( Parser ):
         def getRuleIndex(self):
             return fstripsParser.RULE_single_effect
 
-     
+
         def copyFrom(self, ctx:ParserRuleContext):
             super().copyFrom(ctx)
 
@@ -4438,7 +4438,7 @@ class fstripsParser ( Parser ):
         def getRuleIndex(self):
             return fstripsParser.RULE_atomic_effect
 
-     
+
         def copyFrom(self, ctx:ParserRuleContext):
             super().copyFrom(ctx)
 
@@ -5213,13 +5213,13 @@ class fstripsParser ( Parser ):
             self.match(fstripsParser.T__0)
             self.state = 600
             self.match(fstripsParser.T__41)
-            self.state = 602 
+            self.state = 602
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while True:
                 self.state = 601
                 self.typeBoundsDefinition()
-                self.state = 604 
+                self.state = 604
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if not (_la==fstripsParser.T__0):
@@ -5385,7 +5385,7 @@ class fstripsParser ( Parser ):
         def getRuleIndex(self):
             return fstripsParser.RULE_init_element
 
-     
+
         def copyFrom(self, ctx:ParserRuleContext):
             super().copyFrom(ctx)
 
@@ -5670,7 +5670,7 @@ class fstripsParser ( Parser ):
         def getRuleIndex(self):
             return fstripsParser.RULE_constant_name
 
-     
+
         def copyFrom(self, ctx:ParserRuleContext):
             super().copyFrom(ctx)
 
@@ -5870,7 +5870,7 @@ class fstripsParser ( Parser ):
         def getRuleIndex(self):
             return fstripsParser.RULE_prefConGD
 
-     
+
         def copyFrom(self, ctx:ParserRuleContext):
             super().copyFrom(ctx)
 
@@ -6065,7 +6065,7 @@ class fstripsParser ( Parser ):
             elif la_ == 4:
                 localctx = fstripsParser.PlainConstraintListContext(self, localctx)
                 self.enterOuterAlt(localctx, 4)
-                self.state = 703 
+                self.state = 703
                 self._errHandler.sync(self)
                 _alt = 1
                 while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
@@ -6075,7 +6075,7 @@ class fstripsParser ( Parser ):
 
                     else:
                         raise NoViableAltException(self)
-                    self.state = 705 
+                    self.state = 705
                     self._errHandler.sync(self)
                     _alt = self._interp.adaptivePredict(self._input,56,self._ctx)
 
@@ -6100,7 +6100,7 @@ class fstripsParser ( Parser ):
         def getRuleIndex(self):
             return fstripsParser.RULE_metricSpec
 
-     
+
         def copyFrom(self, ctx:ParserRuleContext):
             super().copyFrom(ctx)
 
@@ -6219,7 +6219,7 @@ class fstripsParser ( Parser ):
         def getRuleIndex(self):
             return fstripsParser.RULE_metricFExp
 
-     
+
         def copyFrom(self, ctx:ParserRuleContext):
             super().copyFrom(ctx)
 
@@ -6501,7 +6501,7 @@ class fstripsParser ( Parser ):
         def getRuleIndex(self):
             return fstripsParser.RULE_conGD
 
-     
+
         def copyFrom(self, ctx:ParserRuleContext):
             super().copyFrom(ctx)
 
@@ -6879,13 +6879,13 @@ class fstripsParser ( Parser ):
                 self.match(fstripsParser.T__0)
                 self.state = 742
                 self.match(fstripsParser.K_AND)
-                self.state = 744 
+                self.state = 744
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 while True:
                     self.state = 743
                     self.conGD()
-                    self.state = 746 
+                    self.state = 746
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
                     if not (_la==fstripsParser.T__0):
@@ -7075,8 +7075,3 @@ class fstripsParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
-
-
-
-
-

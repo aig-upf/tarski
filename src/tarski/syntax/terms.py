@@ -5,7 +5,6 @@ from .util import termlists_are_equal, termlist_hash
 from .sorts import Sort, parent, Interval
 from .. import errors as err
 from .builtins import BuiltinPredicateSymbol, BuiltinFunctionSymbol
-#from .formulas import Formula, FormulaTerm
 
 
 class Term:
@@ -265,10 +264,10 @@ class IfThenElse(Term):
         self.symbol = subterms[0].language.get('ite')
         self.condition = condition
        #if either of the subterms are boolean Formulae, wrap them as Terms
-        if not isinstance(subterms[0], Term): #todo: [John Peterson] It's gross that we can't directly compare against Formula (because of circular import concerns). This needs to be fixed eventually (likely with the full Formula/Term refactor)
+        if not isinstance(subterms[0], Term):
             subterms = (subterms[0].build_formulaterm(), subterms[1])
         if not isinstance(subterms[1], Term):
-            subterms = (subterms[0], subterms[1].build_formulaterm())#todo:[John Peterson] I'm not sure if I like this build_formulaterm name. Consider renaming.
+            subterms = (subterms[0], subterms[1].build_formulaterm())
 
         # Our implementation of ite requires both branches to have equal sort
         if subterms[0].sort != subterms[1].sort:
