@@ -19,7 +19,7 @@ def test_bool_arithmetic_compoundterm():
 def test_bool_constants():
     lang = tarski.language(theories=[Theory.ARITHMETIC])
     true = lang.constant(1, lang.Boolean)
-    assert isinstance(true, Constant), "Boolean constants should be declarable"
+    assert isinstance(true, Constant), "Boolean constants should be declareable"
 
 def test_complex_mixed_type_formula():
     lang = tarski.language(theories=[Theory.ARITHMETIC, Theory.EQUALITY])
@@ -29,7 +29,7 @@ def test_complex_mixed_type_formula():
     assert isinstance(f, CompoundTerm) , "should construct a correct CompoundTerm with mixed Bool and Int"
     z = lang.predicate("z")
     g = ((x() == y()) & z())
-    assert isinstance(g, CompoundFormula), "should construct a compoundformula when allowed"
+    assert isinstance(g, CompoundFormula), "should construct a CompoundFormula when allowed"
 
     a = lang.predicate("a")
     b = lang.predicate("b")
@@ -124,3 +124,22 @@ def test_sum_operates_over_predicates():
     visible = lang.predicate('visible', box_t)
     s = (sumterm(v, visible(v)) >= lang.constant(3, lang.Integer))
     assert isinstance(s, Formula), "after summing and making a logical comparison, we should have a formula"
+
+
+def test_nested_quantification_in_ite():
+    lang = tarski.language(theories=[Theory.ARITHMETIC, Theory.EQUALITY])
+
+    a_sort = lang.sort('a_sort')
+    v = lang.variable('v', a_sort)
+    vp = lang.variable('vp', a_sort)
+    p1 = lang.predicate('predicate1', a_sort)
+    p2 = lang.predicate('predicate2', a_sort)
+    p3 = lang.predicate('predicate3')
+    weight = lang.function('weight', lang.Real)
+    nested = ite(p1(v) & ~(exists(vp, p2(vp))),
+                 weight(),
+                 1 - (weight() * p3()))
+    assert isinstance(nested, Term)
+    assert isinstance(nested.condition, Formula)
+    assert nested.subterms[0].sort == lang.Real
+    assert nested.subterms[1].sort == lang.Real

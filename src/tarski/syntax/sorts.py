@@ -232,7 +232,6 @@ def attach_arithmetic_sorts(lang):
     if not lang.has_sort("Boolean"):
         _ = lang.attach_sort(build_the_bools(lang), nat_t)
     else:
-        #todo: [John Peterson] this is a little hacky and breaks some separation between sorts.py and fol.py since we're manually updating the parent
         lang.change_parent(lang.get_sort("Boolean"), nat_t)
 
 def compute_signature_bindings(signature):
