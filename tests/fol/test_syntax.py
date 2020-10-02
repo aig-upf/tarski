@@ -352,7 +352,6 @@ def test_syntax_shorthands():
     assert land(bot & top) == bot & top, "A land(·) of a single element returns that single element"
 
 
-@pytest.mark.skip(reason="todo: [John Peterson] re-enable this test, disabled because was not passing on devel when branched for rddl devel")
 def test_numeric_sort_deduction():
     lang = fstrips.language(theories=[Theory.EQUALITY, Theory.ARITHMETIC])
 
