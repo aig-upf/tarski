@@ -22,12 +22,15 @@ def test_acyclicity_detection():
     assert check_hypergraph_acyclicity({('X', 'Y'), ('Y', 'Z'), ('Z', 'X')}) is False
 
     # Now compute acyclicity over a few domain schemas
+    # 1. Pipesworld-notankage using the IPC split formulation
     assert compute_acyclicity("pipesworld-notankage:p01-net1-b6-g2.pddl") ==\
            {'PUSH-START': False, 'PUSH-END': True, 'POP-START': False,
             'POP-END': True, 'PUSH-UNITARYPIPE': False, 'POP-UNITARYPIPE': False}
 
+    # 2. Genome edit distance using the IPC version
     assert all(x is True for x in compute_acyclicity("ged-opt14-strips:d-1-2.pddl").values())
 
+    # 3. Gripper
     assert compute_acyclicity("gripper:prob01.pddl") == {'move': True, 'pick': True, 'drop': True}
 
 
