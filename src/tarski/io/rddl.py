@@ -416,7 +416,30 @@ class Writer:
         self.non_fluent_signatures = set()
         self.interm_signatures = set()
 
-    def write_model(self, filename):
+    def rddl_2018_format(self):
+        tpl = load_tpl("rddl_model_2018.tpl")
+        domain_content = tpl.format(
+            domain_name=self.task.domain_name,
+            req_list=self.get_requirements(),
+            type_list=self.get_types(),
+            pvar_list=self.get_pvars(),
+            cpfs_list=self.get_cpfs(),
+            reward_expr=self.get_reward(),
+            action_precondition_list=self.get_preconditions(),
+            state_invariant_list=self.get_state_invariants(),
+            domain_non_fluents='{}_non_fluents'.format(self.task.instance_name),
+            object_list=self.get_objects(),
+            non_fluent_expr=self.get_non_fluent_init(),
+            instance_name=self.task.instance_name,
+            init_state_fluent_expr=self.get_state_fluent_init(),
+            non_fluents_ref='{}_non_fluents'.format(self.task.instance_name),
+            max_nondef_actions=self.get_max_nondef_actions(),
+            horizon=self.get_horizon(),
+            discount=self.get_discount()
+        )
+        return domain_content
+
+    def rddl_pre_2018_format(self):
         tpl = load_tpl("rddl_model.tpl")
         content = tpl.format(
             domain_name=self.task.domain_name,
@@ -437,7 +460,15 @@ class Writer:
             horizon=self.get_horizon(),
             discount=self.get_discount()
         )
+        return content
+
+
+    def write_model(self, filename, format_2018_style=False):
         with open(filename, 'w') as file:
+            if format_2018_style:
+                content = self.rddl_2018_format()
+            else:
+                content = self.rddl_pre_2018_format()
             file.write(content)
         self.reset()
 
@@ -669,7 +700,7 @@ class Writer:
                 re_sym = 'sum'
             elif expr.symbol == BFS.MUL:
                 re_sym = 'prod'
-            return '{}_{{{}}} ({})'.format(re_sym, ','.join(re_vars), re_expr)
+            return '{}_{{{}}} [{}]'.format(re_sym, ','.join(re_vars), re_expr)
         elif isinstance(expr, FormulaTerm):
             return self.rewrite(expr.formula)
         raise RuntimeError(f"Unknown expression type for '{expr}'")
