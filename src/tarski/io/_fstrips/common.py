@@ -58,7 +58,7 @@ def get_requirements_string(problem):
     # Let's check now whether the problem has any predicate or function symbol *other than "total-cost"* which
     # has some arithmetic parameter or result. If so, we add the ":numeric-fluents" requirement.
     for symbol in get_symbols(problem.language, type_='all', include_builtin=False):
-        if any(isinstance(s, Interval) for s in symbol.sort) and symbol.name != 'total-cost':
+         if any((isinstance(s, Interval) and s.name != 'Boolean') for s in symbol.sort) and symbol.name != 'total-cost':
             requirements.add(":numeric-fluents")
 
     return requirements
