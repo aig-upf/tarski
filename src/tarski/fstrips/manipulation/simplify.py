@@ -7,8 +7,8 @@ from ..ops import collect_all_symbols, compute_number_potential_groundings
 from ...evaluators.simple import evaluate
 from ...grounding.ops import approximate_symbol_fluency
 from ...syntax.terms import Constant, Variable, CompoundTerm
-from ...syntax.formulas import CompoundFormula, QuantifiedFormula, Atom, Tautology, Contradiction, Connective, is_neg, \
-    Quantifier, unwrap_conjunction_or_atom, is_eq_atom, land, exists
+from ...syntax.formulas import CompoundFormula, QuantifiedFormula, Atom, Pass, Tautology,\
+    Contradiction, Connective, is_neg, Quantifier, unwrap_conjunction_or_atom, is_eq_atom, land, exists
 from ...syntax.transform.substitutions import substitute_expression
 from ...syntax.util import get_symbols
 from ...syntax.walker import FOLWalker
@@ -16,10 +16,10 @@ from ...syntax.ops import flatten
 from ...syntax import symref
 
 
-def bool_to_expr(val):
+def bool_to_expr(val, lang):
     if not isinstance(val, bool):
         return val
-    return Tautology() if val else Contradiction()
+    return Tautology(lang) if val else Contradiction(lang)
 
 
 class Simplify:
@@ -83,7 +83,7 @@ class Simplify:
     def simplify_action(self, action, inplace=False):
         simple = action if inplace else copy.deepcopy(action)
         simple.precondition = self.simplify_expression(simple.precondition, inplace=True)
-        if simple.precondition in (False, Contradiction):
+        if simple.precondition is False or isinstance(simple.precondition, Contradiction):
             return None
 
         # Filter out those effects that are None, e.g. because they are not applicable:
@@ -105,6 +105,9 @@ class Simplify:
             return False
 
         if isinstance(node, Tautology):
+            return True
+
+        if isinstance(node, Pass):
             return True
 
         if isinstance(node, (CompoundTerm, Atom)):
@@ -157,14 +160,14 @@ class Simplify:
         effect = effect if inplace else copy.deepcopy(effect)
 
         if isinstance(effect, (AddEffect, DelEffect)):
-            effect.condition = bool_to_expr(self.simplify_expression(effect.condition))
+            effect.condition = bool_to_expr(self.simplify_expression(effect.condition), self.problem.language)
             if isinstance(effect.condition, Contradiction):
                 return None
             effect.atom = self.simplify_expression(effect.atom)
             return effect
 
         if isinstance(effect, FunctionalEffect):
-            effect.condition = bool_to_expr(self.simplify_expression(effect.condition))
+            effect.condition = bool_to_expr(self.simplify_expression(effect.condition), self.problem.language)
             if isinstance(effect.condition, Contradiction):
                 return None
             effect.lhs = self.simplify_expression(effect.lhs)

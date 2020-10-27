@@ -3,7 +3,7 @@ from enum import Enum
 from typing import Union, List, Optional
 
 from tarski.errors import DuplicateTheoryDefinition
-from .syntax.sorts import attach_arithmetic_sorts, build_the_bools
+from .syntax.sorts import attach_arithmetic_sorts, attach_the_non_arithmetic_bools
 from .fol import FirstOrderLanguage
 from .syntax import builtins, Term
 from .syntax.factory import create_atom, create_arithmetic_term
@@ -36,7 +36,13 @@ def language(name='L', theories: Optional[List[Union[str, Theory]]] = None):
      """
     theories = theories or []
     lang = FirstOrderLanguage(name)
-    _ = [load_theory(lang, t) for t in theories]
+
+    #todo: [John Peterson] would like to either do this differently, or
+    #eliminate the boolean theory alltogether
+    load_theory(lang, Theory.BOOLEAN)
+    for t in theories:
+        if t not in ("boolean", Theory.BOOLEAN):
+            load_theory(lang,t)
     return lang
 
 
@@ -72,7 +78,12 @@ def has_theory(lang, theory: Union[Theory, str]):
 
 
 def load_bool_theory(lang):
-    build_the_bools(lang)
+    if not lang.has_sort("Boolean"):
+        attach_the_non_arithmetic_bools(lang)
+        for pred in builtins.get_boolean_predicates():
+            lang.register_operator_handler(pred, Term, Term, create_casting_handler(lang, pred, create_atom))
+            p = lang.predicate(pred, lang.Boolean, lang.Boolean)
+            p.builtin = True
 
 
 def load_equality_theory(lang):
@@ -129,7 +140,7 @@ def load_random_theory(lang):
         f.builtin = True
     for fun in builtins.get_random_unary_functions():
         lang.register_unary_operator_handler(fun, Term, create_casting_handler(lang, fun, create_arithmetic_term))
-        f = lang.function(fun, lang.Real, lang.Real)
+        f = lang.function(fun, lang.Real, lang.Boolean)
         f.builtin = True
 
 

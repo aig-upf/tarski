@@ -2,7 +2,7 @@ from ...errors import TarskiError
 from ...fstrips import FunctionalEffect
 from ...fstrips.action import AdditiveActionCost, generate_zero_action_cost
 from ...fstrips.representation import is_typed_problem
-from ...syntax import Interval, CompoundTerm, Tautology, BuiltinFunctionSymbol
+from ...syntax import Interval, CompoundTerm, Tautology, BuiltinFunctionSymbol, Pass
 from ... import theories
 from ...syntax.util import get_symbols
 from ...theories import Theory
@@ -58,7 +58,7 @@ def get_requirements_string(problem):
     # Let's check now whether the problem has any predicate or function symbol *other than "total-cost"* which
     # has some arithmetic parameter or result. If so, we add the ":numeric-fluents" requirement.
     for symbol in get_symbols(problem.language, type_='all', include_builtin=False):
-        if any(isinstance(s, Interval) for s in symbol.sort) and symbol.name != 'total-cost':
+         if any((isinstance(s, Interval) and s.name != 'Boolean') for s in symbol.sort) and symbol.name != 'total-cost':
             requirements.add(":numeric-fluents")
 
     return requirements
@@ -113,7 +113,7 @@ def process_cost_effects(effects):
 def process_cost_effect(eff):
     """ Check if the given effect is a cost effect. If it is, return the additive cost; if it is not, return None. """
     if isinstance(eff, FunctionalEffect) and isinstance(eff.lhs, CompoundTerm) and eff.lhs.symbol.name == "total-cost":
-        if not isinstance(eff.condition, Tautology):
+        if not isinstance(eff.condition, Pass):
             raise TarskiError(f'Don\'t know how to process conditional cost effects such as {eff}')
         if not isinstance(eff.rhs, CompoundTerm) or eff.rhs.symbol.name != BuiltinFunctionSymbol.ADD:
             raise TarskiError(f'Don\'t know how to process non-additive cost effects such as {eff}')

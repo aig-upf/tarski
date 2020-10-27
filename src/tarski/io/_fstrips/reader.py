@@ -197,7 +197,7 @@ class FStripsParser(fstripsVisitor):
         return prec, effs
 
     def visitTrivialPrecondition(self, ctx):
-        return Tautology()
+        return Tautology(self.problem.language)
 
     def visitRegularPrecondition(self, ctx):
         return self.visit(ctx.goalDesc())
@@ -256,7 +256,7 @@ class FStripsParser(fstripsVisitor):
         # The PDDL spec allows for and AND with zero or a single conjunct (e.g. (and p), which Tarski does (rightly) not
         # We thus treat those cases specially.
         if len(conjuncts) == 0:
-            return Tautology()
+            return Tautology(self.problem.language)
         elif len(conjuncts) == 1:
             return conjuncts[0]
         return CompoundFormula(Connective.And, conjuncts)

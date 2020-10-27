@@ -109,13 +109,13 @@ class Term:
         return self.language.dispatch_operator('divmod', Term, Term, self, rhs)
 
     def __and__(self, rhs):
-        return self.language.dispatch_operator('&', Term, Term, self, rhs)
+        return self.language.dispatch_operator(BuiltinPredicateSymbol.AND, Term, Term, self, rhs)
 
     def __xor__(self, rhs):
         return self.language.dispatch_operator('^', Term, Term, self, rhs)
 
     def __or__(self, rhs):
-        return self.language.dispatch_operator('|', Term, Term, self, rhs)
+        return self.language.dispatch_operator(BuiltinPredicateSymbol.OR, Term, Term, self, rhs)
 
     def is_syntactically_equal(self, other):
         """ Return true if this term and other are strictly syntactically equivalent.
@@ -222,6 +222,8 @@ class AggregateCompoundTerm(Term):
     def __init__(self, operator, bound_vars, subterm: Term):
         self.symbol = operator
         self.bound_vars = bound_vars
+        if not isinstance(subterm, Term):
+            subterm = subterm.build_formulaterm()
         self.subterm = subterm  # TODO: type checking?
 
     @property
@@ -261,6 +263,12 @@ class IfThenElse(Term):
 
         self.symbol = subterms[0].language.get('ite')
         self.condition = condition
+       #if either of the subterms are boolean Formulae, wrap them as Terms
+        if not isinstance(subterms[0], Term):
+            subterms = (subterms[0].build_formulaterm(), subterms[1])
+        if not isinstance(subterms[1], Term):
+            subterms = (subterms[0], subterms[1].build_formulaterm())
+
         # Our implementation of ite requires both branches to have equal sort
         if subterms[0].sort != subterms[1].sort:
             if parent(subterms[0].sort) == subterms[1].sort:
@@ -290,7 +298,7 @@ class IfThenElse(Term):
     __repr__ = __str__
 
     def hash(self):
-        return hash(('ite', self.condition, termlist_hash(self.subterms)))
+        return hash(('ite', self.condition.hash(), termlist_hash(self.subterms)))
 
     def is_syntactically_equal(self, other):
         return self.__class__ is other.__class__ and \
@@ -301,7 +309,6 @@ class IfThenElse(Term):
 
 def ite(c, t1: Term, t2: Term):
     return IfThenElse(c, (t1, t2))
-
 
 class Constant(Term):
     def __init__(self, name, sort: Sort):

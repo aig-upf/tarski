@@ -32,14 +32,16 @@ def create_small_task():
     P.goal = G
     P.constraints += [constraint]
 
-    P.action('move_up', [], Tautology(), [fs.FunctionalEffect(y(), y() + 1)])
-    P.action('move_down', [], Tautology(), [fs.FunctionalEffect(y(), y() - 1)])
-    P.action('move_left', [], Tautology(), [fs.FunctionalEffect(x(), x() - 1)])
-    P.action('move_right', [], Tautology(), [fs.FunctionalEffect(x(), x() + 1)])
+    lang = P.language
 
-    P.sensor('sense_wall_up', [], Tautology(), y() == 4)
-    P.sensor('sense_wall_down', [], Tautology(), y() == -4)
-    P.sensor('sense_wall_left', [], Tautology(), x() == -4)
-    P.sensor('sense_wall_right', [], Tautology(), x() == 4)
+    P.action('move_up', [], Tautology(lang), [fs.FunctionalEffect(y(), y() + 1)])
+    P.action('move_down', [], Tautology(lang), [fs.FunctionalEffect(y(), y() - 1)])
+    P.action('move_left', [], Tautology(lang), [fs.FunctionalEffect(x(), x() - 1)])
+    P.action('move_right', [], Tautology(lang), [fs.FunctionalEffect(x(), x() + 1)])
+
+    P.sensor('sense_wall_up', [], Tautology(lang), y() == 4)
+    P.sensor('sense_wall_down', [], Tautology(lang), y() == -4)
+    P.sensor('sense_wall_left', [], Tautology(lang), x() == -4)
+    P.sensor('sense_wall_right', [], Tautology(lang), x() == 4)
 
     return P

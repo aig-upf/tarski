@@ -7,7 +7,7 @@ from ..fstrips.action import AdditiveActionCost
 from ..syntax.transform import remove_quantifiers, QuantifierEliminationMode
 from ..syntax.builtins import symbol_complements
 from ..syntax.ops import free_variables
-from ..syntax import Formula, Atom, CompoundFormula, Connective, Term, Variable, Constant, Tautology, \
+from ..syntax import Formula, Atom, CompoundFormula, Connective, Term, Variable, Constant, Tautology, Pass, \
     BuiltinPredicateSymbol, QuantifiedFormula, Quantifier, CompoundTerm
 from ..syntax.sorts import parent, Interval
 from ..fstrips import Problem, SingleEffect, AddEffect, DelEffect, FunctionalEffect
@@ -156,7 +156,7 @@ class ReachabilityLPCompiler:
         """ Process a given formula and return the corresponding LP rule body, along with declaring in the given LP
         any number of extra rules necessary to ensure equivalence of the body with the truth value of the formula.
         """
-        if isinstance(f, Tautology):
+        if isinstance(f, (Tautology, Pass)):
             return []
 
         elif isinstance(f, Atom):

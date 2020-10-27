@@ -1,7 +1,7 @@
 from enum import Enum
 
 # A table with the negated counterparts of builtin predicates.
-symbol_complements = {"=": "!=", "!=": "=", "<": ">=", "<=": ">", ">": "<=", ">=": "<"}
+symbol_complements = {"=": "!=", "!=": "=", "<": ">=", "<=": ">", ">": "<=", ">=": "<", "&": "|", "|":"&"}
 
 
 class BuiltinPredicateSymbol(Enum):
@@ -11,6 +11,8 @@ class BuiltinPredicateSymbol(Enum):
     LE = "<="
     GT = ">"
     GE = ">="
+    AND = "&"
+    OR = "|"
 
     def __str__(self):
         return self.value.lower()
@@ -77,6 +79,9 @@ def negate_builtin_atom(atom):
 def is_builtin_function(fun):
     return isinstance(fun.symbol, BuiltinFunctionSymbol)
 
+def get_boolean_predicates():
+    return [BuiltinPredicateSymbol.AND, BuiltinPredicateSymbol.OR]
+
 
 def get_equality_predicates():
     return [BuiltinPredicateSymbol.EQ, BuiltinPredicateSymbol.NE]
@@ -111,8 +116,8 @@ def get_random_binary_functions():
 
 
 def get_random_unary_functions():
-    # BFS = BuiltinFunctionSymbol
-    return []
+    BFS = BuiltinFunctionSymbol
+    return [BFS.BERNOULLI]
 
 
 def get_predicate_from_symbol(symbol: str):

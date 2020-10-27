@@ -5,7 +5,7 @@ from .. import modules
 from .sorts import children, compute_direct_sort_map, Interval
 from .visitors import CollectFreeVariables
 from .terms import Term, Constant, Variable
-from .formulas import CompoundFormula, Connective
+from .formulas import CompoundFormula, Connective, Formula
 from .symrefs import symref
 
 
@@ -14,6 +14,12 @@ def cast_to_closest_common_numeric_ancestor(lang, lhs, rhs):
     applied to a 3 and Constant(2, Int), it should return Constant(3, Int), Constant(2, Int).
     Non-arithmetic objects should be left unchanged.
     """
+
+    if isinstance(lhs, Formula):
+        lhs = lang.generate_formula_term(lhs)
+    if isinstance(rhs, Formula):
+        rhs = lang.generate_formula_term(rhs)
+
     if isinstance(lhs, Term) and isinstance(rhs, Term):
         return lhs, rhs
 

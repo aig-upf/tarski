@@ -3,7 +3,7 @@ from tarski.benchmarks.counters import generate_fstrips_counters_problem
 from tarski.fstrips import UniversalEffect
 from tarski.fstrips.manipulation import Simplify
 from tarski.fstrips.manipulation.simplify import simplify_existential_quantification
-from tarski.syntax import symref, land, lor, neg, bot, top, forall, exists
+from tarski.syntax import symref, land, lor, neg, forall, exists, Tautology, Contradiction
 
 
 def test_simplifier():
@@ -57,6 +57,9 @@ def test_simplification_of_negation():
     lang = problem.language
     b1, clear, on, ontable, handempty, holding = lang.get('b1', 'clear', 'on', 'ontable', 'handempty', 'holding')
 
+    top = Tautology(problem.language)
+    bot = Contradiction(problem.language)
+
     s = Simplify(problem, problem.init)
     cb1 = clear(b1)
     assert str(s.simplify_expression(land(cb1, neg(bot)))) == 'clear(b1)'
@@ -99,6 +102,8 @@ def test_simplification_of_ex_quantification():
     x = lang.variable('x', counter)
     z = lang.variable('z', counter)
     two, three, six = [lang.constant(c, val_t) for c in (2, 3, 6)]
+
+    top = Tautology(problem.language)
 
     phi = exists(z, land(x == z, top, value(z) < six))
     assert simplify_existential_quantification(phi, inplace=False) == land(top, value(x) < six), \

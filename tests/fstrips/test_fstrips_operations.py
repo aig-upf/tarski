@@ -19,7 +19,7 @@ def test_symbol_classification_in_gripper():
     assert (len(fluent), len(static)) == (4, 3)
 
     fluent, static = approximate_symbol_fluency(prob, include_builtin=True)
-    assert (len(fluent), len(static)) == (4, 5)  # Same as before plus "=" and "!="
+    assert (len(fluent), len(static)) == (4, 7)  # Same as before plus "=" and "!="
 
 
 def test_symbol_classification_with_nested_effect_heads():

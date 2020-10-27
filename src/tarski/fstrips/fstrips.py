@@ -6,7 +6,6 @@ from ..syntax import CompoundTerm, Term, symref, top
 from .. import theories as ths
 from .errors import InvalidEffectError
 
-
 class BaseEffect:
     """ A base class for all FSTRIPS effects, which might have an (optional) condition. """
     def __init__(self, condition):

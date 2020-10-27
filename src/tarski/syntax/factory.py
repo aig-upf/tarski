@@ -34,6 +34,7 @@ def create_arithmetic_term(symbol: BuiltinFunctionSymbol, lhs, rhs):
     # if lang.has_function(overload):
     #     fun = lang.get_function(overload)
     # else:
+
     fun = lang.get_function(symbol)
     return fun(lhs, rhs)
 

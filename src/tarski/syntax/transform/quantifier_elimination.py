@@ -7,7 +7,7 @@ from enum import Enum
 
 from ... import errors as err
 from .substitutions import create_substitution, substitute_expression
-from ..formulas import land, lor, Quantifier, QuantifiedFormula, Atom, Tautology, Contradiction, CompoundFormula
+from ..formulas import land, lor, Quantifier, QuantifiedFormula, Atom, Tautology, Contradiction, CompoundFormula, Pass
 from .errors import TransformationError
 
 
@@ -37,7 +37,7 @@ class QuantifierElimination:
         return self.mode in (QuantifierEliminationMode.All, QuantifierEliminationMode.Exists)
 
     def _convert(self, phi):
-        if isinstance(phi, (Atom, Tautology, Contradiction)):
+        if isinstance(phi, (Atom, Tautology, Contradiction, Pass)):
             return phi  # Already quantifier-free
 
         if isinstance(phi, CompoundFormula):

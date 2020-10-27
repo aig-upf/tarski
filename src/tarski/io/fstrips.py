@@ -6,7 +6,7 @@ from ..fstrips.action import AdditiveActionCost
 from ..theories import load_theory, Theory
 from .common import load_tpl
 from ..model import ExtensionalFunctionDefinition
-from ..syntax import Tautology, Contradiction, Atom, CompoundTerm, CompoundFormula, QuantifiedFormula, \
+from ..syntax import Pass, Tautology, Contradiction, Atom, CompoundTerm, CompoundFormula, QuantifiedFormula, \
     Term, Variable, Constant, Formula, symref, BuiltinPredicateSymbol
 from ..syntax.sorts import parent, Interval, ancestors
 
@@ -308,6 +308,8 @@ def print_formula(formula, indentation=0):
     assert isinstance(formula, Formula)
     if isinstance(formula, Tautology):
         return "(and )"
+    if isinstance(formula, Pass):
+        return "(and )"
     elif isinstance(formula, Contradiction):
         return "(= 0 1)"  # PDDL HACK =)
     elif isinstance(formula, Atom):
@@ -354,7 +356,7 @@ def print_unconditional_effect(eff, indentation=0):
 
 
 def print_effect(eff, indentation=0):
-    conditional = not isinstance(eff.condition, Tautology)
+    conditional = not isinstance(eff.condition, (Tautology, Pass))
 
     if conditional:
         return indent(

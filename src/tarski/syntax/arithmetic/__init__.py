@@ -4,7 +4,8 @@ import itertools
 import copy
 
 from ..transform.substitutions import substitute_expression
-from ...syntax import Term, AggregateCompoundTerm, CompoundTerm, Constant, Variable, IfThenElse, create_substitution
+from ...syntax import Term, AggregateCompoundTerm, CompoundTerm, Constant, \
+    Variable, IfThenElse, create_substitution, Formula
 from ...syntax.algebra import Matrix
 from ... import errors as err
 from ... grounding.naive import instantiation
@@ -22,7 +23,7 @@ def sumterm(*args):
         if not isinstance(x, Variable):
             raise err.SyntacticError(msg='sum(x0,...,xn,expr) require each\
             argument xi to be an instance of Variable')
-    if not isinstance(expr, Term):
+    if not isinstance(expr, (Term, Formula)):
         raise err.SyntacticError(msg='sum(x0,x1,...,xn,expr) requires last \
         argument "expr" to be an instance of Term, got "{}"'.format(expr))
     return AggregateCompoundTerm(BuiltinFunctionSymbol.ADD, variables, expr)

@@ -5,7 +5,7 @@ from tarski.fstrips.representation import collect_effect_free_parameters, projec
     identify_cost_related_functions, compute_delete_free_relaxation, is_delete_free, is_strips_problem, \
     is_conjunction_of_positive_atoms, is_strips_effect_set, compile_away_formula_negated_literals, \
     compile_action_negated_preconditions_away, compile_negated_preconditions_away, compute_complementary_atoms
-from tarski.syntax import exists, land, neg
+from tarski.syntax import exists, land, neg, symref
 from tarski.fstrips import representation as rep, AddEffect, DelEffect
 from tarski.syntax.ops import flatten
 
@@ -48,8 +48,8 @@ def test_literal_collection():
     clear, loc, b1, b2, b3 = lang.get('clear', 'loc', 'b1', 'b2', 'b3')
     x = lang.variable('x', lang.ns.block)
 
-    assert rep.collect_literals_from_conjunction(clear(b1)) == {(clear(b1), True)}
-    assert rep.collect_literals_from_conjunction(~clear(b1)) == {(clear(b1), False)}
+    assert rep.collect_literals_from_conjunction(clear(b1)) == {(symref(clear(b1)), True)}
+    assert rep.collect_literals_from_conjunction(~clear(b1)) == {(symref(clear(b1)), False)}
     assert len(rep.collect_literals_from_conjunction(clear(b1) & ~clear(b2))) == 2
     assert len(rep.collect_literals_from_conjunction(land(clear(b1), clear(b2), clear(b3)))) == 3
 

@@ -1041,5 +1041,3 @@ class fstripsListener(ParseTreeListener):
     # Exit a parse tree produced by fstripsParser#AlternativeAlwaysConstraint.
     def exitAlternativeAlwaysConstraint(self, ctx:fstripsParser.AlternativeAlwaysConstraintContext):
         pass
-
-

@@ -8,7 +8,7 @@ from ..fstrips.representation import is_conjunction_of_literals, has_state_varia
     collect_effect_free_parameters
 from ..grounding.common import StateVariableLite
 from ..syntax import QuantifiedFormula, Quantifier, Contradiction, CompoundFormula, Atom, CompoundTerm, \
-    is_neg, symref, Constant, Variable, Tautology, top
+    is_neg, symref, Constant, Variable, Tautology
 from ..syntax.ops import collect_unique_nodes, flatten
 from ..syntax.transform import to_prenex_negation_normal_form
 
@@ -127,7 +127,7 @@ class CSPCompiler:
         if precondition is False:
             return None
         if precondition is True:
-            precondition = top
+            precondition = self.lang.top()
 
         csp = CSPInformation()
         csp.parameter_index = [self.variable(p, csp, "param") for p in action.parameters]
