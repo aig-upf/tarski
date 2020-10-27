@@ -70,7 +70,11 @@ def silentremove(filename):
 
 
 libc = ctypes.CDLL(None)
-c_stdout = ctypes.c_void_p.in_dll(libc, 'stdout')
+if sys.platform == "darwin":
+    stdout_name = '__stdoutp'
+else:
+    stdout_name = 'stdout'
+c_stdout = ctypes.c_void_p.in_dll(libc, stdout_name)
 
 
 @contextmanager
