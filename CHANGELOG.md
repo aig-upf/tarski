@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 ### Deprecated
 ### Fixed
+ - Fixed a bug in `check_hypergraph_acyclicity` reported by @abcorrea.
 
 
 ## [0.6.0]- 2020-09-18
