@@ -373,8 +373,8 @@ def test_predicate_without_equality():
     model = Model(lang)
     model.evaluator = evaluate
 
-    model.set(f, o1, 1)
-    model.set(f, o2, 2)
+    model.setx(f(o1), 1)
+    model.setx(f(o2), 2)
     for x in range(0, 5):
         for y in range(x, 5):
             model.add(leq, x, y)
@@ -398,7 +398,7 @@ def test_model_list_extensions():
     assert extensions[p.signature] == set()
     assert len(extensions[f.signature]) == 0
 
-    model.set(f, o1, o2)
+    model.setx(f(o1), o2)
     model.add(p, o1, o2)
 
     extensions = model.list_all_extensions()
@@ -428,7 +428,7 @@ def test_model_as_atoms():
     model = Model(lang)
     model.evaluator = evaluate
 
-    model.set(f, o1, o2)
+    model.setx(f(o1), o2)
     model.add(p, o1, o2)
 
     atoms = model.as_atoms()

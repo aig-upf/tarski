@@ -57,7 +57,7 @@ class Model:
         # TODO Improve the performance of this
         return hash(str(self))
 
-    def setx(self, term: CompoundTerm, value: Constant):
+    def setx(self, term: CompoundTerm, value: Union[Constant, int, float]):
         """ Set the value of the interpretation on the given term to be equal to `value`. """
         if not isinstance(term.symbol, Function):
             raise err.SemanticError("Model.set() can only set the value of function symbols")
