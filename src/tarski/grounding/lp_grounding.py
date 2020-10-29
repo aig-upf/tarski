@@ -85,3 +85,14 @@ class LPGroundingStrategy:
 def compute_action_groundings(problem, include_variable_inequalities=False):
     grounding = LPGroundingStrategy(problem, True, include_variable_inequalities)
     return grounding.ground_actions()
+
+
+def ground_problem_schemas_into_plain_operators(problem, include_variable_inequalities=False):
+    from ..syntax.transform.action_grounding import ground_schema_into_plain_operator_from_grounding
+    action_groundings = compute_action_groundings(problem, include_variable_inequalities)
+    operators = []
+    for action_name, groundings in action_groundings.items():
+        action = problem.get_action(action_name)
+        for grounding in groundings:
+            operators.append(ground_schema_into_plain_operator_from_grounding(action, grounding))
+    return operators

@@ -5,6 +5,7 @@ from ..evaluators.simple import evaluate
 
 
 def is_applicable(model, operator):
+    """ Check whether a given (ground) operator is applicable in the given model (state). """
     return evaluate(operator.precondition, model)
 
 

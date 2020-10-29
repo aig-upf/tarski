@@ -1,3 +1,4 @@
+import warnings
 from typing import Union
 
 from . import errors as err
@@ -48,6 +49,14 @@ class Model:
         self.function_extensions = dict()
         self.predicate_extensions = dict()
 
+    def __eq__(self, other):
+        # TODO Improve the performance of this
+        return str(self) == str(other)
+
+    def __hash__(self):
+        # TODO Improve the performance of this
+        return hash(str(self))
+
     def setx(self, term: CompoundTerm, value: Constant):
         """ Set the value of the interpretation on the given term to be equal to `value`. """
         if not isinstance(term.symbol, Function):
@@ -66,7 +75,7 @@ class Model:
 
     def set(self, fun, *args):
         """ Set the value of fun(args[:-1]) to be args[-1] for the current interpretation """
-        # TODO: Deprecate in favor of Model.setx()
+        warnings.warn('Use Model.setx() instead.', DeprecationWarning)
         self.setx(fun(*args[:-1]), args[-1])
 
     def add(self, predicate, *args):
@@ -155,9 +164,7 @@ class Model:
             return self.evaluator(arg, self)
 
     def __str__(self):
-        npreds = len(self.predicate_extensions)
-        nfuns = len(self.function_extensions)
-        return f'Model(num_predicates="{npreds}", num_functions="{nfuns}")'
+        return f'Model[{", ".join(sorted(map(str, self.as_atoms())))}]'
     __repr__ = __str__
 
     def remove_symbol(self, symbol: Union[Function, Predicate]):
