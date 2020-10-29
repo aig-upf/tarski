@@ -2,7 +2,7 @@
  Tests for the CSP analysis module
 """
 from tarski.analysis.csp import compute_schema_constraint_hypergraph, check_hypergraph_acyclicity
-from tests.io.common import collect_strips_benchmarks, reader
+from tests.io.common import parse_benchmark_instance
 
 
 def test_acyclicity_detection():
@@ -35,7 +35,6 @@ def test_acyclicity_detection():
 
 
 def compute_acyclicity(instance):
-    instance_file, domain_file = collect_strips_benchmarks([instance])[0]
-    problem = reader(case_insensitive=True).read_problem(domain_file, instance_file)
+    problem = parse_benchmark_instance(instance, reader_options=dict(case_insensitive=True))
     hgraphs = {a.name: compute_schema_constraint_hypergraph(a) for a in problem.actions.values()}
     return {name: check_hypergraph_acyclicity(h) for name, h in hgraphs.items()}

@@ -1,7 +1,7 @@
 from tarski.fstrips.representation import is_unit_cost_problem, is_unit_cost_action, is_zero_cost_action, \
     is_constant_cost_action
 from tests.common.benchmarks import get_lenient_benchmarks
-from .common import reader, collect_strips_benchmarks, collect_fstrips_benchmarks
+from .common import reader, collect_strips_benchmarks, collect_fstrips_benchmarks, parse_benchmark_instance
 
 # Let's make sure we can correctly parse all benchmarks from the IPC competitions in 2008, 2011, 2014, 2018.
 # We have chosen optimal track benchmarks, which one would expect to be the smallest between optimal / satisficing
@@ -78,8 +78,7 @@ def test_pddl_instances(instance_file, domain_file):
 
 
 def test_action_cost_parsing():
-    instance_file, domain_file = collect_strips_benchmarks(["spider-opt18-strips:p01.pddl"])[0]
-    problem = reader().read_problem(domain_file, instance_file)
+    problem = parse_benchmark_instance("spider-opt18-strips:p01.pddl")
 
     # spider is not unit-cost, since it has some actions with explicit additive cost 1,
     # and some other actions where no cost is specified, hence 0 is assumed
@@ -88,9 +87,7 @@ def test_action_cost_parsing():
     assert is_unit_cost_action(problem.get_action('start-dealing'))
     assert is_zero_cost_action(problem.get_action('deal-card'))
 
-    instance_file, domain_file = collect_strips_benchmarks(["transport-opt11-strips:p01.pddl"])[0]
-    problem = reader().read_problem(domain_file, instance_file)
-
+    problem = parse_benchmark_instance("transport-opt11-strips:p01.pddl")
     assert not is_unit_cost_problem(problem)
 
     drive = problem.get_action('drive')

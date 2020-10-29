@@ -2,7 +2,7 @@
 from tarski.reachability.asp import create_reachability_lp, LogicProgram, ReachabilityLPCompiler, LPAtom
 from tarski.syntax import exists
 from tarski import fstrips as fs
-from tests.io.common import collect_strips_benchmarks, reader
+from tests.io.common import parse_benchmark_instance
 
 from ..common.gripper import create_sample_problem
 
@@ -52,8 +52,7 @@ def test_lp_on_gripper():
 
 
 def test_lp_on_caldera():
-    instance_file, domain_file = collect_strips_benchmarks(["caldera-sat18-adl:p01.pddl"])[0]
-    problem = reader().read_problem(domain_file, instance_file)
+    problem = parse_benchmark_instance("caldera-sat18-adl:p01.pddl")
     lp, tr = create_reachability_lp(problem, ground_actions=True)
 
 

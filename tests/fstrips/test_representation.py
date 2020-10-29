@@ -8,11 +8,9 @@ from tarski.fstrips.representation import collect_effect_free_parameters, projec
 from tarski.syntax import exists, land, neg
 from tarski.fstrips import representation as rep, AddEffect, DelEffect
 from tarski.syntax.ops import flatten
-
-from tests.common import blocksworld
 from tarski.benchmarks.blocksworld import generate_fstrips_bw_language, generate_fstrips_blocksworld_problem, \
     generate_strips_blocksworld_problem
-from tests.io.common import collect_strips_benchmarks, reader
+from tests.io.common import parse_benchmark_instance
 
 
 def test_basic_representation_queries():
@@ -80,8 +78,7 @@ def test_free_variables_in_schema_manipulations():
 
 
 def test_effect_free_variables_in_organic_synthesis():
-    instance_file, domain_file = collect_strips_benchmarks(["organic-synthesis-opt18-strips:p01.pddl"])[0]
-    problem = reader().read_problem(domain_file, instance_file)
+    problem = parse_benchmark_instance("organic-synthesis-opt18-strips:p01.pddl")
     free = collect_effect_free_parameters(problem.get_action('additionofrohacrossgemdisubstitutedalkene'))
     names = sorted(x.expr.symbol for x in free)
     assert names == ['?h_3', '?h_4', '?r0_7', '?r1_8', '?r2_9']
@@ -100,8 +97,7 @@ def test_effect_free_variables_in_organic_synthesis():
 
 
 def test_effect_free_variables_in_caldera():
-    instance_file, domain_file = collect_strips_benchmarks(["caldera-opt18-adl:p01.pddl"])[0]
-    problem = reader().read_problem(domain_file, instance_file)
+    problem = parse_benchmark_instance("caldera-opt18-adl:p01.pddl")
 
     act = problem.get_action('get_domain')
     free = collect_effect_free_parameters(act)
@@ -135,8 +131,7 @@ def test_cost_function_identification():
     functions = identify_cost_related_functions(problem)
     assert functions == set()
 
-    instance_file, domain_file = collect_strips_benchmarks(["agricola-opt18-strips:p01.pddl"])[0]
-    problem = reader().read_problem(domain_file, instance_file)
+    problem = parse_benchmark_instance("agricola-opt18-strips:p01.pddl")
     functions = identify_cost_related_functions(problem)
     assert functions == {"group_worker_cost"}
 
