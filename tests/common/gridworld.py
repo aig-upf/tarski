@@ -19,8 +19,8 @@ def generate_small_gridworld():
                    # effects=[fs.FunctionalEffect(ypos(), ypos() + 1)])
                    effects=[ypos() << ypos() + 1])
 
-    problem.init.setx(xpos(), 1)
-    problem.init.setx(ypos(), 10)
+    problem.init.set(xpos(), 1)
+    problem.init.set(ypos(), 10)
 
     problem.goal = land(xpos() == 2, ypos() == 3)
 

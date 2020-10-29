@@ -32,7 +32,7 @@ def apply_effect(model, effect):
         model.remove(effect.atom.predicate, *effect.atom.subterms)
 
     elif isinstance(effect, FunctionalEffect):
-        model.setx(effect.lhs, evaluate(effect.rhs, model))
+        model.set(effect.lhs, evaluate(effect.rhs, model))
 
     else:
         raise RuntimeError(f'Don\'t know how to apply effect "{effect}"')

@@ -31,12 +31,12 @@ def create_4blocks_task():
     table = bw.get_constant('table')
     hand = bw.get_constant('hand')
 
-    M.setx(loc(b1), b2)  # loc(b1) := b2
-    M.setx(loc(b2), b3)  # loc(b2) := b3
-    M.setx(loc(b3), table)  # loc(b3) := table
-    M.setx(loc(b4), table)  # loc(b4) := table
-    M.setx(loc(table), table)
-    M.setx(loc(hand), hand)
+    M.set(loc(b1), b2)  # loc(b1) := b2
+    M.set(loc(b2), b3)  # loc(b2) := b3
+    M.set(loc(b3), table)  # loc(b3) := table
+    M.set(loc(b4), table)  # loc(b4) := table
+    M.set(loc(table), table)
+    M.set(loc(hand), hand)
 
     M.add(clear, b1)  # clear(b1)
     M.add(clear, b4)  # clear(b4)

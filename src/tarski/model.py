@@ -57,8 +57,14 @@ class Model:
         # TODO Improve the performance of this
         return hash(str(self))
 
-    def setx(self, term: CompoundTerm, value: Union[Constant, int, float]):
+    def set(self, term: CompoundTerm, value: Union[Constant, int, float], *args):
         """ Set the value of the interpretation on the given term to be equal to `value`. """
+        if not isinstance(term, CompoundTerm):
+            warnings.warn('Usage of Model.set(function, *arguments) is deprecated. Use'
+                          'Model.set(term, value) instead', DeprecationWarning)
+            allargs = [value] + args
+            self.set(term(*allargs[:-1]), allargs[-1])
+
         if not isinstance(term.symbol, Function):
             raise err.SemanticError("Model.set() can only set the value of function symbols")
         if term.symbol.builtin:
@@ -72,11 +78,6 @@ class Model:
             raise err.SemanticError("Cannot define extension of intensional definition")
 
         definition.set(point, value)
-
-    def set(self, fun, *args):
-        """ Set the value of fun(args[:-1]) to be args[-1] for the current interpretation """
-        warnings.warn('Use Model.setx() instead.', DeprecationWarning)
-        self.setx(fun(*args[:-1]), args[-1])
 
     def add(self, predicate, *args):
         """ """
