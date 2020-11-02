@@ -49,12 +49,12 @@ def test_simple_rddl_model():
     the_task.reward = Q + R
 
     # definitions
-    the_task.x0.setx(x(), 0.0)
-    the_task.x0.setx(v(), 0.0)
-    the_task.x0.setx(u(), 0.0)
-    the_task.x0.setx(t(), 0.0)
-    the_task.x0.setx(dt(), 0.5)
-    the_task.x0.setx(gx(), 20.0)
+    the_task.x0.set(x(), 0.0)
+    the_task.x0.set(v(), 0.0)
+    the_task.x0.set(u(), 0.0)
+    the_task.x0.set(t(), 0.0)
+    the_task.x0.set(dt(), 0.5)
+    the_task.x0.set(gx(), 20.0)
 
     # fluent metadata
     the_task.declare_state_fluent(x(), 0.0)
@@ -115,14 +115,14 @@ def test_rddl_model_with_random_vars():
     the_task.reward = Q + R
 
     # definitions
-    the_task.x0.setx(x(), 0.0)
-    the_task.x0.setx(v(), 0.0)
-    the_task.x0.setx(u(), 0.0)
-    the_task.x0.setx(t(), 0.0)
-    the_task.x0.setx(dt(), 0.5)
-    the_task.x0.setx(gx(), 20.0)
-    the_task.x0.setx(mu_w(), 0.0)
-    the_task.x0.setx(sigma_w(), 0.05)
+    the_task.x0.set(x(), 0.0)
+    the_task.x0.set(v(), 0.0)
+    the_task.x0.set(u(), 0.0)
+    the_task.x0.set(t(), 0.0)
+    the_task.x0.set(dt(), 0.5)
+    the_task.x0.set(gx(), 20.0)
+    the_task.x0.set(mu_w(), 0.0)
+    the_task.x0.set(sigma_w(), 0.05)
 
     # fluent metadata
     the_task.declare_state_fluent(x(), 0.0)
@@ -202,18 +202,18 @@ def test_parametrized_model_with_random_vars():
     the_task.reward = Q + R
 
     # definitions
-    the_task.x0.setx(x(v001), 0.0)
-    the_task.x0.setx(y(v001), 0.0)
-    the_task.x0.setx(vx(v001), 0.0)
-    the_task.x0.setx(vy(v001), 0.0)
-    the_task.x0.setx(ux(v001), 0.0)
-    the_task.x0.setx(uy(v001), 0.0)
-    the_task.x0.setx(t(), 0.0)
-    the_task.x0.setx(dt(), 0.5)
-    the_task.x0.setx(gx(), 20.0)
-    the_task.x0.setx(gy(), 20.0)
-    the_task.x0.setx(mu_w(), 0.0)
-    the_task.x0.setx(sigma_w(), 0.05)
+    the_task.x0.set(x(v001), 0.0)
+    the_task.x0.set(y(v001), 0.0)
+    the_task.x0.set(vx(v001), 0.0)
+    the_task.x0.set(vy(v001), 0.0)
+    the_task.x0.set(ux(v001), 0.0)
+    the_task.x0.set(uy(v001), 0.0)
+    the_task.x0.set(t(), 0.0)
+    the_task.x0.set(dt(), 0.5)
+    the_task.x0.set(gx(), 20.0)
+    the_task.x0.set(gy(), 20.0)
+    the_task.x0.set(mu_w(), 0.0)
+    the_task.x0.set(sigma_w(), 0.05)
 
     # fluent metadata
     the_task.declare_state_fluent(x(v), 0.0)
@@ -307,30 +307,30 @@ def test_parametrized_model_with_random_vars_and_waypoints():
     the_task.reward = WV - R
 
     # definitions
-    the_task.x0.setx(x(v001), 0.0)
-    the_task.x0.setx(y(v001), 0.0)
-    the_task.x0.setx(vx(v001), 0.0)
-    the_task.x0.setx(vy(v001), 0.0)
-    the_task.x0.setx(ux(v001), 0.0)
-    the_task.x0.setx(uy(v001), 0.0)
+    the_task.x0.set(x(v001), 0.0)
+    the_task.x0.set(y(v001), 0.0)
+    the_task.x0.set(vx(v001), 0.0)
+    the_task.x0.set(vy(v001), 0.0)
+    the_task.x0.set(ux(v001), 0.0)
+    the_task.x0.set(uy(v001), 0.0)
 
-    the_task.x0.setx(wx(p1), 1.0)
-    the_task.x0.setx(wy(p1), -1.0)
-    the_task.x0.setx(wv(p1), 0.0)
+    the_task.x0.set(wx(p1), 1.0)
+    the_task.x0.set(wy(p1), -1.0)
+    the_task.x0.set(wv(p1), 0.0)
 
-    the_task.x0.setx(wx(p2), 1.0)
-    the_task.x0.setx(wy(p2), 1.0)
-    the_task.x0.setx(wv(p2), 0.0)
+    the_task.x0.set(wx(p2), 1.0)
+    the_task.x0.set(wy(p2), 1.0)
+    the_task.x0.set(wv(p2), 0.0)
 
-    the_task.x0.setx(wx(p3), 2.0)
-    the_task.x0.setx(wy(p3), 1.0)
-    the_task.x0.setx(wv(p3), 0.0)
+    the_task.x0.set(wx(p3), 2.0)
+    the_task.x0.set(wy(p3), 1.0)
+    the_task.x0.set(wv(p3), 0.0)
 
-    the_task.x0.setx(t(), 0.0)
-    the_task.x0.setx(dt(), 0.5)
-    the_task.x0.setx(mu_w(), 0.0)
-    the_task.x0.setx(sigma_w(), 0.05)
-    the_task.x0.setx(wr(), 2.0)
+    the_task.x0.set(t(), 0.0)
+    the_task.x0.set(dt(), 0.5)
+    the_task.x0.set(mu_w(), 0.0)
+    the_task.x0.set(sigma_w(), 0.05)
+    the_task.x0.set(wr(), 2.0)
 
     # fluent metadata
     the_task.declare_state_fluent(x(v), 0.0)
@@ -426,27 +426,27 @@ def test_parametrized_model_with_random_vars_and_waypoints_boolean():
     the_task.reward = WV - R
 
     # definitions
-    the_task.x0.setx(x(v001), 0.0)
-    the_task.x0.setx(y(v001), 0.0)
-    the_task.x0.setx(vx(v001), 0.0)
-    the_task.x0.setx(vy(v001), 0.0)
-    the_task.x0.setx(ux(v001), 0.0)
-    the_task.x0.setx(uy(v001), 0.0)
+    the_task.x0.set(x(v001), 0.0)
+    the_task.x0.set(y(v001), 0.0)
+    the_task.x0.set(vx(v001), 0.0)
+    the_task.x0.set(vy(v001), 0.0)
+    the_task.x0.set(ux(v001), 0.0)
+    the_task.x0.set(uy(v001), 0.0)
 
-    the_task.x0.setx(wx(p1), 1.0)
-    the_task.x0.setx(wy(p1), -1.0)
+    the_task.x0.set(wx(p1), 1.0)
+    the_task.x0.set(wy(p1), -1.0)
 
-    the_task.x0.setx(wx(p2), 1.0)
-    the_task.x0.setx(wy(p2), 1.0)
+    the_task.x0.set(wx(p2), 1.0)
+    the_task.x0.set(wy(p2), 1.0)
 
-    the_task.x0.setx(wx(p3), 2.0)
-    the_task.x0.setx(wy(p3), 1.0)
+    the_task.x0.set(wx(p3), 2.0)
+    the_task.x0.set(wy(p3), 1.0)
 
-    the_task.x0.setx(t(), 0.0)
-    the_task.x0.setx(dt(), 0.5)
-    the_task.x0.setx(mu_w(), 0.0)
-    the_task.x0.setx(sigma_w(), 0.05)
-    the_task.x0.setx(wr(), 2.0)
+    the_task.x0.set(t(), 0.0)
+    the_task.x0.set(dt(), 0.5)
+    the_task.x0.set(mu_w(), 0.0)
+    the_task.x0.set(sigma_w(), 0.05)
+    the_task.x0.set(wr(), 2.0)
 
     # fluent metadata
     the_task.declare_state_fluent(x(v), 0.0)

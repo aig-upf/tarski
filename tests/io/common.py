@@ -62,3 +62,14 @@ def collect_fstrips_benchmarks(instances):
         return []
 
     return add_domains_from("FSBENCHMARKS", instances, benchmark_prefix='benchmarks')
+
+
+def parse_benchmark_instance(instance_key, source="strips", reader_options=None):
+    """ Parse and generate a Tarski problem object from the standard DOWNWARD BENCHMARKS repository of IPC
+    PDDL instances (source="strips"), or from the standard FSBENCHMARKS Functional STRIPS instances (source="fstrips").
+    The instance key represents domain name and instance name, colon separated, e.g. "gripper:prob01.pddl".
+    """
+    reader_options = {} if reader_options is None else reader_options
+    collector = collect_fstrips_benchmarks if source == 'fstrips' else collect_strips_benchmarks
+    instance_file, domain_file = collector([instance_key])[0]
+    return reader(**reader_options).read_problem(domain_file, instance_file)

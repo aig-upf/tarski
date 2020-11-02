@@ -1,3 +1,3 @@
 
-from .model import SearchModel, ForwardSearchModel
+from .model import SearchModel, GroundForwardSearchModel
 from .blind import BreadthFirstSearch

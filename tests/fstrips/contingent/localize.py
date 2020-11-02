@@ -14,11 +14,11 @@ def create_small_task():
     x = nav.get_function('x')
     y = nav.get_function('y')
 
-    M0.setx(x(), 0)
-    M0.setx(y(), 0)
+    M0.set(x(), 0)
+    M0.set(y(), 0)
 
-    M1.setx(x(), 2)
-    M1.setx(y(), -2)
+    M1.set(x(), 2)
+    M1.set(y(), -2)
 
     constraint = (-4 <= x()) & (x() <= 4) & (-4 <= y()) & (y() <= 4)
 

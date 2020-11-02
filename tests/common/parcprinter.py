@@ -85,7 +85,7 @@ def create_small_task():
     M.add(upp.Prevsheet, sheet1, dummy_sheet)
     M.add(upp.Sheetsize, sheet1, upp.letter)
     M.add(upp.Location, sheet1, upp.some_feeder_tray)
-    M.setx(upp.total_cost(), 0)
+    M.set(upp.total_cost(), 0)
 
     sheet = upp.variable('sheet', upp.sheet_t)
     prevsheet = upp.variable('prevsheet', upp.sheet_t)

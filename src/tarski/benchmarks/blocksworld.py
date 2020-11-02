@@ -129,7 +129,7 @@ def generate_fstrips_blocksworld_problem(nblocks=4, init="random", goal="random"
         clearplaces = compute_clear_from_pattern(lang, locations)
 
     for x, y in locations:
-        problem.init.setx(loc(lang.get(x)), lang.get(y))
+        problem.init.set(loc(lang.get(x)), lang.get(y))
     for x in clearplaces:
         problem.init.add(clear, lang.get(x))
 

@@ -272,13 +272,13 @@ class Reader:
         for fluent, value in self.rddl_model.instance.init_state:
             expr = translate_expression(self.language, ('pvar_expr', fluent))
             if isinstance(expr, Term):
-                self.x0.setx(expr, value)
+                self.x0.set(expr, value)
             if isinstance(expr, Atom) and value is True:
                 self.x0.add(expr.predicate, *expr.subterms)
         for fluent, value in self.rddl_model.non_fluents.init_non_fluent:
             expr = translate_expression(self.language, ('pvar_expr', fluent))
             if isinstance(expr, Term):
-                self.x0.setx(expr, value)
+                self.x0.set(expr, value)
             if isinstance(expr, Atom) and value is True:
                 self.x0.add(expr.predicate, *expr.subterms)
 

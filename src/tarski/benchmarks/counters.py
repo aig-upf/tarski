@@ -52,9 +52,9 @@ def generate_fstrips_counters_problem(ncounters=3, upper_bound=None):
         effects=[value(c) << value(c) - 1]
     )
 
-    problem.init.set(max_int, upper_bound)
+    problem.init.set(max_int(), upper_bound)
     for c in counters:
-        problem.init.set(value, c, 0)
+        problem.init.set(value(c), 0)
 
     return problem
 

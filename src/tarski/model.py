@@ -1,3 +1,4 @@
+import warnings
 from typing import Union
 
 from . import errors as err
@@ -48,8 +49,22 @@ class Model:
         self.function_extensions = dict()
         self.predicate_extensions = dict()
 
-    def setx(self, term: CompoundTerm, value: Constant):
+    def __eq__(self, other):
+        # TODO Improve the performance of this
+        return str(self) == str(other)
+
+    def __hash__(self):
+        # TODO Improve the performance of this
+        return hash(str(self))
+
+    def set(self, term: CompoundTerm, value: Union[Constant, int, float], *args):
         """ Set the value of the interpretation on the given term to be equal to `value`. """
+        if not isinstance(term, CompoundTerm):
+            warnings.warn('Usage of Model.set(function, *arguments) is deprecated. Use'
+                          'Model.set(term, value) instead', DeprecationWarning)
+            allargs = [value] + args
+            self.set(term(*allargs[:-1]), allargs[-1])
+
         if not isinstance(term.symbol, Function):
             raise err.SemanticError("Model.set() can only set the value of function symbols")
         if term.symbol.builtin:
@@ -63,11 +78,6 @@ class Model:
             raise err.SemanticError("Cannot define extension of intensional definition")
 
         definition.set(point, value)
-
-    def set(self, fun, *args):
-        """ Set the value of fun(args[:-1]) to be args[-1] for the current interpretation """
-        # TODO: Deprecate in favor of Model.setx()
-        self.setx(fun(*args[:-1]), args[-1])
 
     def add(self, predicate, *args):
         """ """
@@ -155,9 +165,7 @@ class Model:
             return self.evaluator(arg, self)
 
     def __str__(self):
-        npreds = len(self.predicate_extensions)
-        nfuns = len(self.function_extensions)
-        return f'Model(num_predicates="{npreds}", num_functions="{nfuns}")'
+        return f'Model[{", ".join(sorted(map(str, self.as_atoms())))}]'
     __repr__ = __str__
 
     def remove_symbol(self, symbol: Union[Function, Predicate]):

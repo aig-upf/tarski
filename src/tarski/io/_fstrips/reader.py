@@ -367,7 +367,7 @@ class FStripsParser(fstripsVisitor):
         assert len(fun.domain) == len(subterms)
         value = self.visit(ctx.constant_name())
         subterms = tuple(s.to_constant(x) for s, x in zip(fun.domain, subterms))
-        self.init.setx(fun(*subterms), value)
+        self.init.set(fun(*subterms), value)
 
     def visitFlat_atom(self, ctx):
         predicate = self.language.get_predicate(ctx.predicate().getText().lower())

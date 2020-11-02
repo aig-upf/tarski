@@ -31,7 +31,7 @@ def test_numeric_function_set():
     p1 = lang.get_constant('p1')
     x = lang.get_function('x')
     model = tarski.model.create(lang)
-    model.setx(x(p1), 1.0)
+    model.set(x(p1), 1.0)
 
 
 def test_numeric_builtin_addition():
@@ -40,7 +40,7 @@ def test_numeric_builtin_addition():
     x = lang.get_function('x')
     model = tarski.model.create(lang)
     model.evaluator = evaluate
-    model.setx(x(p1), 1.0)
+    model.set(x(p1), 1.0)
 
     expr = model[x(p1) + 1.0]
 
@@ -58,7 +58,7 @@ def test_numeric_builtin_addition_int():
     bowl_1 = lang.constant('bowl_1', particle)
     model = tarski.model.create(lang)
     model.evaluator = evaluate
-    model.setx(eggs(bowl_1), 1)
+    model.set(eggs(bowl_1), 1)
     expr = model[eggs(bowl_1) + 1]
 
     assert isinstance(expr, Constant)
@@ -73,8 +73,8 @@ def test_numeric_rel_formula_evaluation():
     x = lang.get_function('x')
     model = tarski.model.create(lang)
     model.evaluator = evaluate
-    model.setx(x(p1), 1.0)
-    model.setx(x(p2), 2.0)
+    model.set(x(p1), 1.0)
+    model.set(x(p2), 2.0)
 
     assert model[x(p1) < x(p2)] is True
 
@@ -84,7 +84,7 @@ def test_blocksworld_set():
     model = Model(lang)
     loc = lang.get_function('loc')
     b1, table = (lang.get_constant(s) for s in ('b1', 'table'))
-    model.setx(loc(b1), table)
+    model.set(loc(b1), table)
 
     assert evaluate(loc(b1), model) == table
 
@@ -95,7 +95,7 @@ def test_blocksworld_set_via_square_brackets():
     model.evaluator = evaluate
     loc = lang.get_function('loc')
     b1, table = (lang.get_constant(s) for s in ('b1', 'table'))
-    model.setx(loc(b1), table)
+    model.set(loc(b1), table)
 
     assert model[loc(b1)] == table
 
@@ -373,8 +373,8 @@ def test_predicate_without_equality():
     model = Model(lang)
     model.evaluator = evaluate
 
-    model.set(f, o1, 1)
-    model.set(f, o2, 2)
+    model.set(f(o1), 1)
+    model.set(f(o2), 2)
     for x in range(0, 5):
         for y in range(x, 5):
             model.add(leq, x, y)
@@ -398,7 +398,7 @@ def test_model_list_extensions():
     assert extensions[p.signature] == set()
     assert len(extensions[f.signature]) == 0
 
-    model.set(f, o1, o2)
+    model.set(f(o1), o2)
     model.add(p, o1, o2)
 
     extensions = model.list_all_extensions()
@@ -428,7 +428,7 @@ def test_model_as_atoms():
     model = Model(lang)
     model.evaluator = evaluate
 
-    model.set(f, o1, o2)
+    model.set(f(o1), o2)
     model.add(p, o1, o2)
 
     atoms = model.as_atoms()
@@ -451,8 +451,8 @@ def test_predicate_without_equality_reals():
     model = Model(lang)
     model.evaluator = evaluate
 
-    model.setx(w(o1), 1.0)
-    model.setx(w(o2), 2.0)
+    model.set(w(o1), 1.0)
+    model.set(w(o2), 2.0)
     for x in numpy.arange(0.0, 5.0):
         for y in numpy.arange(x, 5.0):
             model.add(leq, x, y)
@@ -479,8 +479,8 @@ def test_ite():
     model = Model(lang)
     model.evaluator = evaluate
 
-    model.setx(x(), 1)
-    model.setx(y(), 2)
+    model.set(x(), 1)
+    model.set(y(), 2)
 
     assert model[tau].symbol == 5
 
@@ -506,8 +506,8 @@ def test_matrix_evaluation_case_2():
     x0 = Model(lang)
     x0.evaluator = evaluate
 
-    x0.setx(x(), 1.0)
-    x0.setx(y(), 2.0)
-    x0.setx(z(), 3.0)
+    x0.set(x(), 1.0)
+    x0.set(y(), 2.0)
+    x0.set(z(), 3.0)
     # print(x0[I @ v][2, 0])
     assert x0[I @ v][2, 0].is_syntactically_equal(lang.constant(3.0, lang.Real))

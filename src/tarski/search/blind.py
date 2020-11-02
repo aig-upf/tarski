@@ -1,64 +1,51 @@
 import logging
 from collections import deque
 
-from .model import ForwardSearchModel
+from .model import GroundForwardSearchModel
 
 
 class BreadthFirstSearch:
-    """ Apply Breadth-First search to a FSTRIPS problem """
-    def __init__(self, model: ForwardSearchModel, max_expansions=-1):
+    """ Full expansion of a problem through Breadth-First search.
+    Note that ATM we return no plan.
+    """
+    def __init__(self, model: GroundForwardSearchModel, max_expansions=-1):
         self.model = model
         self.max_expansions = max_expansions
 
     def run(self):
         return self.search(self.model.init())
 
-    def search(self, s0):
+    def search(self, root):
         # create obj to track state space
         space = SearchSpace()
+        stats = SearchStats()
 
-        iteration = 0
-        num_goals_found = 0
+        openlist = deque()  # fifo-queue storing the nodes which are next to explore
+        openlist.append(make_root_node(root))
+        closed = {root}
 
-        open_ = deque()  # fifo-queue storing the nodes which are next to explore
-        closed = set()
-
-        open_.append(make_root_node(s0))
-
-        node_id = 0
-        while open_:
-            iteration += 1
+        while openlist:
+            stats.iterations += 1
             # logging.debug("brfs: Iteration {}, #unexplored={}".format(iteration, len(open_)))
 
-            node = open_.popleft()
-            is_goal = self.model.is_goal(node.state)
+            node = openlist.popleft()
+            if self.model.is_goal(node.state):
+                stats.num_goals += 1
+                logging.info(f"Goal found after {stats.nexpansions} expansions. {stats.num_goals} goal states found.")
 
-            space.expand(node)
-
-            # we manage the closed list here to allow the parents update
-            if node.state in closed:
-                continue
-
-            closed.add(node.state)
-
-            node_id += 1
-
-            # exploring the node or if it is a goal node extracting the plan
-            if is_goal:
-                num_goals_found += 1
-                logging.info("Goal found after {} expansions. Number of goal states found: {}".format(
-                    node_id, num_goals_found))
-
-            if 0 <= self.max_expansions <= node_id:
-                logging.info("Max. expansions reached. # expanded: {}, # goals: {}".format(node_id, num_goals_found))
-                return space
+            if 0 <= self.max_expansions <= stats.nexpansions:
+                logging.info(f"Max. expansions reached. # expanded: {stats.nexpansions}, # goals: {stats.num_goals}.")
+                return space, stats
 
             for operator, successor_state in self.model.successors(node.state):
-                open_.append(make_child_node(node, operator, successor_state))
+                if successor_state not in closed:
+                    openlist.append(make_child_node(node, operator, successor_state))
+                    closed.add(successor_state)
+            stats.nexpansions += 1
 
-        logging.info("Search space exhausted. # expanded: {}, # goals: {}".format(node_id, num_goals_found))
+        logging.info(f"Search space exhausted. # expanded: {stats.nexpansions}, # goals: {stats.num_goals}.")
         space.complete = True
-        return space
+        return space, stats
 
 
 class SearchNode:
@@ -74,9 +61,16 @@ class SearchSpace:
         self.nodes = set()
         self.last_node_id = 0
         self.complete = False  # Whether the state space contains all states reachable from the initial state
+    #
+    # def expand(self, node: SearchNode):
+    #     self.nodes.add(node)
 
-    def expand(self, node: SearchNode):
-        self.nodes.add(node)
+
+class SearchStats:
+    def __init__(self):
+        self.iterations = 0
+        self.num_goals = 0
+        self.nexpansions = 0
 
 
 def make_root_node(state):
