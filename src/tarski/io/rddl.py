@@ -211,9 +211,12 @@ class Reader:
         that specify a RDDL task
     """
 
-    def __init__(self, filename):
+    def __init__(self, domain_filename, inst_filename = None):
         self.language = None
-        self.rddl_model = self._load_rddl_model(filename)
+        if inst_filename is None:
+            self.rddl_model = self._load_rddl_model(domain_filename)
+        else:
+            self.rddl_model = self._load_rddl_model_ippc(domain_filename, inst_filename)
         self.parameters = Parameters()
         self.x0 = None
 
@@ -225,6 +228,22 @@ class Reader:
         parser.build()
         # parse RDDL
         return parser.parse(rddl)
+
+    @staticmethod
+    def _load_rddl_model_ippc(dom_filename, inst_filename):
+        with open(dom_filename, 'r') as input_file:
+            dom_text = input_file.read()
+        with open(inst_filename, 'r') as input_file:
+            inst_text = input_file.read()
+        full_text = '\n\n'.join([dom_text, inst_text])
+        # MRJ: for debug purposes
+        #for k, l in enumerate(full_text.split('\n')):
+        #    print(k, l)
+        parser = modules.import_pyrddl_parser()()
+        parser.debugging = True
+        parser.build()
+        # parse RDDL
+        return parser.parse(full_text)
 
     def _translate_types(self):
         for typename, parent_type in self.rddl_model.domain.types:
@@ -262,9 +281,11 @@ class Reader:
         # 3. acquire instance parameters
         self.parameters.horizon = self.rddl_model.instance.horizon
         self.parameters.discount = self.rddl_model.instance.discount
-        if self.rddl_model.instance.max_nondef_actions != 'pos-inf':
-            self.parameters.max_actions = self.rddl_model.instance.max_nondef_actions
-
+        try:
+            if self.rddl_model.instance.max_nondef_actions != 'pos-inf':
+                self.parameters.max_actions = self.rddl_model.instance.max_nondef_actions
+        except AttributeError:
+            pass
         # 4. recover initial state, interpretation of fluents
         self.x0 = Model(self.language)
         self.x0.evaluator = evaluate
