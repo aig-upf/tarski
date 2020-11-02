@@ -7,7 +7,7 @@ from .. import modules
 from .common import load_tpl
 from ..fol import FirstOrderLanguage
 from ..syntax import implies, land, lor, neg, Connective, Quantifier, CompoundTerm, Interval, Atom, IfThenElse, \
-    Contradiction, Tautology, CompoundFormula, forall, ite, AggregateCompoundTerm, QuantifiedFormula, Term, Function, \
+    Contradiction, Tautology, CompoundFormula, forall, exists, ite, AggregateCompoundTerm, QuantifiedFormula, Term, Function, \
     Variable, Predicate, Constant, Formula, builtins, FormulaTerm
 from ..syntax import arithmetic as tm
 from ..syntax.temporal import ltl as tt
@@ -25,6 +25,7 @@ class TranslationError(Exception):
 logic_rddl_to_tarski = {
     '=>': implies,
     '^': land,
+    '&': land,
     '|': lor,
     '~': neg}
 
@@ -149,9 +150,15 @@ def translate_expression(lang, rddl_expr):
                 prod_expr = ite(prod_expr, Constant(1, lang.Integer), Constant(0, lang.Integer))
             return tm.product(var, prod_expr)
         elif expr_sym == 'forall':
-            var = translate_expression(lang, rddl_expr.args[0])
-            forall_expr = translate_expression(lang, rddl_expr.args[1])
-            return forall(var, forall_expr)
+            vars = [translate_expression(lang, a) for a in rddl_expr.args[:-1]]
+            #var = translate_expression(lang, rddl_expr.args[0])
+            forall_expr = translate_expression(lang, rddl_expr.args[-1])
+            return forall(*(vars + [forall_expr]))
+        elif expr_sym == 'exists':
+            vars = [translate_expression(lang, a) for a in rddl_expr.args[:-1]]
+            #var = translate_expression(lang, rddl_expr.args[0])
+            exists_expr = translate_expression(lang, rddl_expr.args[-1])
+            return exists(*(vars + [exists_expr]))
     elif expr_type == 'arithmetic':
         op = arithmetic_rddl_to_tarski[expr_sym]
         targs = [lang] + [translate_expression(lang, arg) for arg in rddl_expr.args]
