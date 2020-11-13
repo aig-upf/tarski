@@ -714,7 +714,7 @@ class Writer:
             re_sf = [self.rewrite(st) for st in expr.subformulas]
             re_sym = symbol_map[expr.connective]
             if len(re_sf) == 1:
-                return '{}{}'.format(re_sym, re_sf[0])
+                return '{}({})'.format(re_sym, re_sf[0])
             return '({} {} {})'.format(re_sf[0], re_sym, re_sf[1])
         elif isinstance(expr, QuantifiedFormula):
             re_f = self.rewrite(expr.formula)
