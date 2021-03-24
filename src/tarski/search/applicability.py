@@ -1,7 +1,9 @@
 import copy
 
-from tarski.fstrips import AddEffect, DelEffect, FunctionalEffect
+from ..fstrips import AddEffect, DelEffect, FunctionalEffect, UniversalEffect
 from ..evaluators.simple import evaluate
+from ..fstrips.representation import substitute_expression
+from ..syntax.transform.substitutions import enumerate_substitutions
 
 
 def is_applicable(model, operator):
@@ -33,6 +35,11 @@ def apply_effect(model, effect):
 
     elif isinstance(effect, FunctionalEffect):
         model.set(effect.lhs, evaluate(effect.rhs, model))
+
+    elif isinstance(effect, UniversalEffect):
+        for subst in enumerate_substitutions(effect.variables):
+            for eff in effect.effects:
+                apply_effect(model, substitute_expression(eff, subst))
 
     else:
         raise RuntimeError(f'Don\'t know how to apply effect "{effect}"')

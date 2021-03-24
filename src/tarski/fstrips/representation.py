@@ -559,6 +559,13 @@ def substitute_expression(expression, substitution, inplace=False):
         expression.lhs = fol_substitute_expression(expression.lhs, substitution, inplace=True)
         expression.rhs = fol_substitute_expression(expression.rhs, substitution, inplace=True)
 
+    elif isinstance(expression, fs.UniversalEffect):
+        expression.variables = [v for v in expression.variables if symref(v) not in substitution]
+        expression.condition = fol_substitute_expression(expression.condition, substitution, inplace=True)
+        expression.effects = [substitute_expression(eff, substitution, inplace=True) for eff in expression.effects]
+    else:
+        raise RepresentationError(f'Unexpected effect type: "{expression}"')
+
     return expression
 
 
