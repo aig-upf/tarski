@@ -2,6 +2,7 @@ import copy
 
 from .applicability import is_applicable, apply_effect
 from ..evaluators.simple import evaluate
+from ..fstrips import DelEffect
 
 
 class SearchModel:
@@ -24,7 +25,10 @@ def progress(state, operator):
     Note that this method does not check that the operator is applicable.
     """
     sprime = copy.deepcopy(state)
-    for eff in operator.effects:
+
+    # Let's push to the beginning the delete effect, to ensure add-after-delete semantics
+    effects = sorted(operator.effects, key=lambda e: 0 if isinstance(e, DelEffect) else 1)
+    for eff in effects:
         apply_effect(sprime, eff)
     return sprime
 
