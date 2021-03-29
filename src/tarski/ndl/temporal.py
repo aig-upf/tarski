@@ -51,6 +51,53 @@ class ResourceLevel:
                     self.r.sort, self.n.sort))
 
 
+class SetLiteralEffect(object):
+    """
+    Set literal truth value
+    """
+
+    def __init__(self, lit, value):
+        self.l = lit
+        self.value = value
+
+class AssignValueEffect(object):
+    """
+    Sets equality constraint
+    """
+
+    def __init__(self, atom, value):
+        self.atom = atom
+        self.value = value
+
+class UniversalEffect(object):
+    """
+    Forall effect
+    """
+
+    def __init__(self, variable, effect):
+        self.var = variable
+        self.eff = effect
+
+class ConditionalEffect(object):
+    """
+    If Then Else effect
+    """
+
+    def __init__(self, cond, then_eff, else_eff):
+        self.condition = cond
+        self.then_eff = then_eff
+        self.else_eff = else_eff
+
+class UnionExpression(object):
+    """
+    A union set expression
+    """
+
+    def __init__(self, lhs, rhs):
+        self.lhs = lhs
+        self.rhs = rhs
+
+
 def is_literal(l):
     if not isinstance(l, Atom):
         if isinstance(l, CompoundFormula):
