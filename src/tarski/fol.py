@@ -160,12 +160,12 @@ class FirstOrderLanguage:
         sort = self._retrieve_sort(sort)
         return Variable(name, sort)
 
-    def set_parent(self, sort: Sort, parent: Sort):
+    def set_parent(self, sort: Sort, parent: Sort, overwrite=False):
         if parent.language is not self:
             raise err.LanguageError("Tried to set as parent a sort from a different language")
 
         p = self.immediate_parent.get(sort, None)
-        if p is not None:
+        if not overwrite and p is not None:
             raise err.LanguageError(f'Tried to set parent of sort "{sort}", which has already parent {p}')
 
         self.immediate_parent[sort] = parent
