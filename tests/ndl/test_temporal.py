@@ -6,6 +6,7 @@ from tarski.evaluators.simple import evaluate
 from tarski.syntax import forall, equiv, neg, land, exists
 from tarski.theories import Theory
 from tarski.ndl import temporal
+from tarski.ndl.temporal import TimedEffect
 
 def test_resource_lock_creation():
 
@@ -77,15 +78,17 @@ def test_action_creation():
 
     act = temporal.Action(
         name='observe_poi',
+        parameters = [],
         precondition=position(rov1, p0),
-        requirements=[req_1, req_2],
-        effects=[(21.0, observed(p0))]
+        requirements=[TimedEffect(0.0, req_1), TimedEffect(0.0, req_2)],
+        timed_effects=[TimedEffect(21.0, observed(p0))],
+        untimed_effects=[]
     )
 
     assert len(act.locks) == 1
     assert len(act.levels) == 1
-    assert len(act.effects) == 1
 
+@pytest.mark.skip(reason="Instance class and interface still work in progress")
 def test_instance_creation():
 
     L = tsk.language("mylang", theories=[Theory.EQUALITY, Theory.ARITHMETIC])
@@ -135,16 +138,27 @@ def test_instance_creation():
 
     a1 = temporal.Action(
         name='localize_t0',
+        parameters=[],
         precondition=position(rov1, p0),
-        requirements=[req_2, req_3],
-        effects=[(15.0, estimated_range(t0)), (20.0, estimated_bearing(t0))]
+        requirements=[
+            TimedEffect(0.0, req_2),
+            TimedEffect(0.0, req_3)],
+        timed_effects=[
+            TimedEffect(15.0, estimated_range(t0)),
+            TimedEffect(20.0, estimated_bearing(t0))],
+        untimed_effects=[]
     )
 
     a2 = temporal.Action(
         name='observed_t0',
+        parameters=[],
         precondition=land(position(rov1, p0), estimated_range(t0), estimated_bearing(t0)),
-        requirements=[req_1, req_2],
-        effects=[(21.0, observed(t0))]
+        requirements=[
+            TimedEffect(0.0, req_1),
+            TimedEffect(0.0, req_2)],
+        timed_effects=[
+            TimedEffect(21.0, observed(t0))],
+        untimed_effects=[]
     )
 
     initial = Model(L)
