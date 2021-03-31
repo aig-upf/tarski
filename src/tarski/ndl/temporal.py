@@ -8,7 +8,7 @@
     Proceedings of the 26th Int'l Joint Conference on Artificial Intelligence (IJCAI)
     2017
 """
-from ..syntax import Atom, CompoundTerm, CompoundFormula, Constant, symref, Connective
+from ..syntax import Atom, CompoundTerm, CompoundFormula, Constant, symref, Connective, Tautology
 from ..model import Model
 
 
@@ -153,11 +153,14 @@ class Action:
 
     def __init__(self, **kwargs):
         self.name = kwargs['name']
+        self.parameters = kwargs['parameters']
         # precondition
         prec = kwargs['precondition']
-        if not isinstance(prec, CompoundFormula) and not isinstance(prec, Atom):
+        if not isinstance(prec, CompoundFormula) \
+                and not isinstance(prec, Atom)\
+                and not isinstance(prec, Tautology):
             raise NDLSyntaxError(
-                "NDL Syntactic Error: precondition of action must be a compound formula (given: {})".format(prec))
+                "NDL Syntactic Error: precondition of action must be a compound formula, atom or tautology (given: {})".format(prec))
         self.precondition = prec
         # resource requirements
         self.locks = []
@@ -173,7 +176,7 @@ class Action:
         self.untimed_effects = []
         self.timed_effects = []
         for eff in kwargs['timed_effects']:
-            if not isinstance(TimedEffect):
+            if not isinstance(eff, TimedEffect):
                 raise NDLSyntaxError("NDL Syntax error: eff '{}' must be timed".format(eff))
             self.timed_effects += [eff]
         for l in kwargs['untimed_effects']:
