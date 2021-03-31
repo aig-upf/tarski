@@ -33,6 +33,8 @@ class ResourceLock:
         if not isinstance(self.r, CompoundTerm):
             raise NDLSyntaxError("NDL Syntactic Error: resource lock needs to be a term (given: {})".format(self.r))
 
+    def __str__(self):
+        return "LOCK {} AFTER {} FOR {}".format(self.r, self.ts, self.td)
 
 class ResourceLevel:
 
@@ -50,6 +52,9 @@ class ResourceLevel:
                 "NDL Type Mismatch: resource and level have different sorts (resource is: {}, level is: {}".format(
                     self.r.sort, self.n.sort))
 
+    def __str__(self):
+        return "LOCK {} AFTER {} FOR {}".format(self.r, self.ts, self.td)
+
 
 class SetLiteralEffect(object):
     """
@@ -60,6 +65,9 @@ class SetLiteralEffect(object):
         self.l = lit
         self.value = value
 
+    def __str__(self):
+        return "SET({}, {})".format(self.l, self.value)
+
 class AssignValueEffect(object):
     """
     Sets equality constraint
@@ -68,6 +76,9 @@ class AssignValueEffect(object):
     def __init__(self, atom, value):
         self.atom = atom
         self.value = value
+
+    def __str__(self):
+        return "ASSIGN({}, {})".format(self.atom, self.value)
 
 class UniversalEffect(object):
     """
@@ -78,6 +89,9 @@ class UniversalEffect(object):
         self.var = variable
         self.eff = effect
 
+    def __str__(self):
+        return "FORALL({}, {})".format(self.var, self.effect)
+
 class ConditionalEffect(object):
     """
     If Then Else effect
@@ -87,6 +101,22 @@ class ConditionalEffect(object):
         self.condition = cond
         self.then_eff = then_eff
         self.else_eff = else_eff
+
+    def __str__(self):
+        return "IF ({}) \nTHEN {}\n ELSE {}".format(self.condition, self.then_eff, self.else_eff)
+
+class TimedEffect(object):
+    """
+    (t, eff) time-delayed effect
+    """
+
+    def __init__(self, delay, eff):
+        self.delay = delay
+        self.eff = eff
+
+    def __str__(self):
+        return "AFTER {} APPLY {}".format(self.delay, self.eff)
+
 
 class UnionExpression(object):
     """
@@ -133,20 +163,21 @@ class Action:
         self.locks = []
         self.levels = []
         for req in kwargs['requirements']:
-            if isinstance(req, ResourceLock):
+            if isinstance(req.eff, ResourceLock):
                 self.locks += [req]
-            elif isinstance(req, ResourceLevel):
+            elif isinstance(req.eff, ResourceLevel):
                 self.levels += [req]
             else:
                 raise NDLSyntaxError("NDL syntax error: '{}' is not a resource lock or level request".format(req))
         # effects
-        self.effects = []
-        for t, l in kwargs['effects']:
-            if not isinstance(t, float):
-                raise NDLSyntaxError("NDL Syntax error: timepoint '{}' must be rational".format(t))
-            if not is_literal(l):
-                raise NDLSyntaxError("NDL Syntax error: effect '{}' must be a literal".format(l))
-            self.effects += [(t, l)]
+        self.untimed_effects = []
+        self.timed_effects = []
+        for eff in kwargs['timed_effects']:
+            if not isinstance(TimedEffect):
+                raise NDLSyntaxError("NDL Syntax error: eff '{}' must be timed".format(eff))
+            self.timed_effects += [eff]
+        for l in kwargs['untimed_effects']:
+            self.untimed_effects += [(t, l)]
 
 
 class Instance:
