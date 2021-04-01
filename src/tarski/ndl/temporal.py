@@ -183,32 +183,32 @@ class Action:
             self.untimed_effects += [(t, l)]
 
 
-class Instance:
-
-    def __init__(self, **kwargs):
-        self.language = kwargs['L']
-        self.X = []
-        for x in kwargs['X']:
-            if not isinstance(x, Atom):
-                raise NDLSyntaxError("NDL Syntax Error: State variables must be boolean terms, found: {}".format(x))
-            self.X += [x]
-        init = kwargs['I']
-        if not isinstance(init, Model):
-            raise UnsupportedFeature("NDL Unsupported feature: initial state must be instance of tarski.Model")
-        if init.evaluator is None:
-            raise SemanticError("NDL Semantic Error: initial state evaluator was not specified")
-        self.I = init
-        goal = kwargs['G']
-        if not isinstance(goal, CompoundFormula) and not isinstance(goal, Atom):
-            raise NDLSyntaxError("NDL Syntax Error: Goal needs to be a compound formula or an atom")
-        self.G = goal
-        self.A = []
-        self.R = set()
-        for act in kwargs['A']:
-            if isinstance(act, Action):
-                self.A += [act]
-                # collect resources
-                for lock in act.locks:
-                    self.R.add(symref(lock.r))
-                for level in act.levels:
-                    self.R.add(symref(level.r))
+# class Instance:
+#
+#     def __init__(self, **kwargs):
+#         self.language = kwargs['L']
+#         self.X = []
+#         for x in kwargs['X']:
+#             if not isinstance(x, Atom):
+#                 raise NDLSyntaxError("NDL Syntax Error: State variables must be boolean terms, found: {}".format(x))
+#             self.X += [x]
+#         init = kwargs['I']
+#         if not isinstance(init, Model):
+#             raise UnsupportedFeature("NDL Unsupported feature: initial state must be instance of tarski.Model")
+#         if init.evaluator is None:
+#             raise SemanticError("NDL Semantic Error: initial state evaluator was not specified")
+#         self.I = init
+#         goal = kwargs['G']
+#         if not isinstance(goal, CompoundFormula) and not isinstance(goal, Atom):
+#             raise NDLSyntaxError("NDL Syntax Error: Goal needs to be a compound formula or an atom")
+#         self.G = goal
+#         self.A = []
+#         self.R = set()
+#         for act in kwargs['A']:
+#             if isinstance(act, Action):
+#                 self.A += [act]
+#                 # collect resources
+#                 for lock in act.locks:
+#                     self.R.add(symref(lock.r))
+#                 for level in act.levels:
+#                     self.R.add(symref(level.r))
