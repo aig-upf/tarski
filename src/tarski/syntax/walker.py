@@ -66,18 +66,18 @@ class FOLWalker:
             pass
 
         elif isinstance(node, (CompoundTerm, Atom)):
-            node.subterms = self.accept(self.visit_expression(sub, inplace=True) for sub in node.subterms)
+            node.subterms = self.accept(self.visit_expression(sub, inplace=inplace) for sub in node.subterms)
 
         elif isinstance(node, CompoundFormula):
-            node.subformulas = self.accept(self.visit_expression(sub, inplace=True) for sub in node.subformulas)
+            node.subformulas = self.accept(self.visit_expression(sub, inplace=inplace) for sub in node.subformulas)
 
         elif isinstance(node, IfThenElse):
-            node.condition = self.visit_expression(node.condition, inplace=True)
-            node.subterms = self.accept(self.visit_expression(sub, inplace=True) for sub in node.subterms)
+            node.condition = self.visit_expression(node.condition, inplace=inplace)
+            node.subterms = self.accept(self.visit_expression(sub, inplace=inplace) for sub in node.subterms)
 
         elif isinstance(node, QuantifiedFormula):
-            node.formula = self.visit_expression(node.formula, inplace=True)
-            node.variables = self.accept(self.visit_expression(eff, inplace=True) for eff in node.variables)
+            node.formula = self.visit_expression(node.formula, inplace=inplace)
+            node.variables = self.accept(self.visit_expression(eff, inplace=inplace) for eff in node.variables)
         else:
             raise RuntimeError(f'Unexpected expression "{node}" of type "{type(node)}"')
 
