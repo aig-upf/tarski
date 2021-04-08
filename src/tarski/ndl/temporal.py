@@ -154,6 +154,7 @@ class Action:
     def __init__(self, **kwargs):
         self.name = kwargs['name']
         self.parameters = kwargs['parameters']
+        self.max_eff_time = 0.0
         # precondition
         prec = kwargs['precondition']
         if not isinstance(prec, CompoundFormula) \
@@ -168,8 +169,10 @@ class Action:
         for req in kwargs['requirements']:
             if isinstance(req.eff, ResourceLock):
                 self.locks += [req]
+                self.max_eff_time = max(self.max_eff_time, req.eff.td)
             elif isinstance(req.eff, ResourceLevel):
                 self.levels += [req]
+                self.max_eff_time = max(self.max_eff_time, req.eff.td)
             else:
                 raise NDLSyntaxError("NDL syntax error: '{}' is not a resource lock or level request".format(req))
         # effects
@@ -179,6 +182,7 @@ class Action:
             if not isinstance(eff, TimedEffect):
                 raise NDLSyntaxError("NDL Syntax error: eff '{}' must be timed".format(eff))
             self.timed_effects += [eff]
+            self.max_eff_time = max(self.max_eff_time, eff.delay)
         for l in kwargs['untimed_effects']:
             self.untimed_effects += [(t, l)]
 
