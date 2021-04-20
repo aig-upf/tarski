@@ -29,7 +29,7 @@ class Sort:
         return hash(self.name)
 
     def __eq__(self, other):
-        return self.name == other.name and self.language == other.language
+        return self.name == other.name
 
     def contains(self, x):
         """ Return true iff the current sort contains a constant with the given value  """
