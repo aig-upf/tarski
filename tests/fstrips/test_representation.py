@@ -5,7 +5,7 @@ from tarski.fstrips.representation import collect_effect_free_parameters, projec
     identify_cost_related_functions, compute_delete_free_relaxation, is_delete_free, is_strips_problem, \
     is_conjunction_of_positive_atoms, is_strips_effect_set, compile_away_formula_negated_literals, \
     compile_action_negated_preconditions_away, compile_negated_preconditions_away, compute_complementary_atoms
-from tarski.syntax import exists, land, neg
+from tarski.syntax import exists, land, neg, symref, substitute_expression
 from tarski.fstrips import representation as rep, AddEffect, DelEffect
 from tarski.syntax.ops import flatten
 from tarski.benchmarks.blocksworld import generate_fstrips_bw_language, generate_fstrips_blocksworld_problem, \
@@ -280,3 +280,22 @@ def test_compute_complementary_atoms():
     assert list(compute_complementary_atoms(problem.init, testpred)) == []
 
     # assert len(list(compute_complementary_atoms(problem.init, lang.get('clear')))) == 2
+
+
+def test_simple_expression_substitutions():
+    lang = tarski.benchmarks.blocksworld.generate_strips_bw_language(nblocks=2)
+    clear, b1, b2 = [lang.get(name) for name in ('clear', 'b1', 'b2')]
+    x, y = lang.variable('x', 'object'), lang.variable('y', 'object')
+
+    formula = clear(x)
+    replaced = substitute_expression(formula, substitution={symref(x): b1}, inplace=False)
+    replaced2 = substitute_expression(formula, substitution={symref(x): b2}, inplace=False)
+
+    assert not formula.is_syntactically_equal(replaced)
+    assert str(formula) == "clear(x)" and str(replaced) == "clear(b1)" and str(replaced2) == "clear(b2)"
+
+    # Now let's do the same but inplace
+    replaced = substitute_expression(formula, substitution={symref(x): b1}, inplace=True)
+
+    assert formula.is_syntactically_equal(replaced)
+    assert str(formula) == str(replaced) == "clear(b1)"
