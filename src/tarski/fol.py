@@ -43,6 +43,22 @@ class FirstOrderLanguage:
         memo[id(self)] = self
         return self
 
+    def __hash__(self):
+        return hash((self.__class__, self.name,
+                     self._sorts.keys(),
+                     self._functions.keys(),
+                     self._predicates.keys(),
+                     self._constants.keys(),
+                     self.theories))
+
+    def __eq__(self, other):
+        return (self.__class__ is other.__class__ and self.name == other.name and
+                self._sorts.keys() == other._sorts.keys() and
+                self._functions.keys() == other._functions.keys() and
+                self._predicates.keys() == other._predicates.keys() and
+                self._constants.keys() == other._constants.keys() and
+                self.theories == other.theories)
+
     def deepcopy(self):
         """ Use this method instead of copy.deepcopy() if you need a true deep-copy of the language """
         memo = dict()

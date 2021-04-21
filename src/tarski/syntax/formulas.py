@@ -128,7 +128,7 @@ class CompoundFormula(Formula):
         # it would be good to check if there is a better way of flattening
         # than this
         for phi in self.subformulas:
-            element_hashes += [hash(phi)]
+            element_hashes.append(hash(phi))
         return hash(tuple(element_hashes))
 
 

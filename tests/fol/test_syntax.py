@@ -3,7 +3,9 @@ import copy
 from collections import defaultdict
 
 import pytest
+
 from tarski import theories, Term, Constant
+from tarski.benchmarks.blocksworld import generate_strips_bw_language
 from tarski.fstrips import fstrips
 from tarski.syntax import symref, CompoundFormula, Atom, ite, AggregateCompoundTerm, CompoundTerm, lor, Tautology, \
     Contradiction, land, top, bot
@@ -367,3 +369,11 @@ def test_numeric_sort_deduction():
     # assert plus1.sort == lang.Integer
 
 
+def test_language_equality():
+    lang1 = generate_strips_bw_language(nblocks=2)
+    lang2 = generate_strips_bw_language(nblocks=2)
+
+    assert lang1 == lang2
+
+    lang1.constant('c', 'object')
+    assert lang1 != lang2
