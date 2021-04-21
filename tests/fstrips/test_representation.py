@@ -5,7 +5,7 @@ from tarski.fstrips.representation import collect_effect_free_parameters, projec
     identify_cost_related_functions, compute_delete_free_relaxation, is_delete_free, is_strips_problem, \
     is_conjunction_of_positive_atoms, is_strips_effect_set, compile_away_formula_negated_literals, \
     compile_action_negated_preconditions_away, compile_negated_preconditions_away, compute_complementary_atoms
-from tarski.syntax import exists, land, neg, symref, substitute_expression
+from tarski.syntax import exists, land, neg, symref, substitute_expression, forall
 from tarski.fstrips import representation as rep, AddEffect, DelEffect
 from tarski.syntax.ops import flatten
 from tarski.benchmarks.blocksworld import generate_fstrips_bw_language, generate_fstrips_blocksworld_problem, \
@@ -299,3 +299,8 @@ def test_simple_expression_substitutions():
 
     assert formula.is_syntactically_equal(replaced)
     assert str(formula) == str(replaced) == "clear(b1)"
+
+    formula = forall(x, clear(x) & clear(y))
+    replaced = substitute_expression(formula, substitution={symref(x): b1, symref(y): b2}, inplace=False)
+    assert str(formula) == "forall x : ((clear(x) and clear(y)))" and \
+           str(replaced) == "forall b1 : ((clear(b1) and clear(b2)))"
