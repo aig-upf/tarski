@@ -24,6 +24,8 @@ def progress(state, operator):
     """ Returns the progression of the given state along the effects of the given operator.
     Note that this method does not check that the operator is applicable.
     """
+    # TODO This is unnecessarily expensive, but a simple copy wouldn't work either.
+    #      If/when we transition towards a C++-backed model implementation, this should be improved.
     sprime = copy.deepcopy(state)
 
     # Let's push to the beginning the delete effect, to ensure add-after-delete semantics
