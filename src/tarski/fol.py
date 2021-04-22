@@ -44,19 +44,17 @@ class FirstOrderLanguage:
         return self
 
     def __hash__(self):
-        return hash((self.__class__, self.name,
+        return hash((self.__class__,
+                     self.name,
+                     self.vocabulary(),
                      self._sorts.keys(),
-                     self._functions.keys(),
-                     self._predicates.keys(),
-                     self._constants.keys(),
                      self.theories))
 
     def __eq__(self, other):
-        return (self.__class__ is other.__class__ and self.name == other.name and
+        return (self.__class__ is other.__class__ and
+                self.name == other.name and
+                self.vocabulary() == other.vocabulary() and
                 self._sorts.keys() == other._sorts.keys() and
-                self._functions.keys() == other._functions.keys() and
-                self._predicates.keys() == other._predicates.keys() and
-                self._constants.keys() == other._constants.keys() and
                 self.theories == other.theories)
 
     def deepcopy(self):
@@ -67,6 +65,13 @@ class FirstOrderLanguage:
         for k, v in self.__dict__.items():
             setattr(newone, k, copy.deepcopy(v, memo))
         return newone
+
+    def vocabulary(self):
+        """ Return the vocabulary corresponding to this language. This is a triple with the signatures of, resp.,
+        predicates, functions and constants of the language. """
+        return (tuple(p.signature for p in self._predicates.values() if not p.builtin),
+                tuple(f.signature for f in self._functions.values() if not f.builtin),
+                tuple(c.signature for c in self._constants.values()))
 
     @property
     def sorts(self):

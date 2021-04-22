@@ -46,6 +46,7 @@ class Model:
     def __init__(self, language, evaluator=None):
         self.evaluator = evaluator
         self.language = language
+        # self.vocabulary = language.vocabulary()
         self.function_extensions = dict()
         self.predicate_extensions = dict()
 
@@ -56,6 +57,25 @@ class Model:
     def __hash__(self):
         # TODO Improve the performance of this
         return hash(str(self))
+
+    # def __eq__(self, other):
+    #     return self.__class__ is other.__class__ and self._data() == other._data()
+    #
+    # def __hash__(self):
+    #     return hash(self._data())
+
+    # def _data(self):
+    #     preds, funcs, _ = self.vocabulary
+    #     components = (preds, funcs)
+    #     for p in preds:
+    #         extension = self.predicate_extensions.get(p, set())
+    #         components += tuple(frozenset(unwrap_to_name(x) for x in extension))
+    #
+    #     for f in funcs:
+    #         extension = self.function_extensions.get(f, ExtensionalFunctionDefinition())
+    #         components += tuple(frozenset(unwrap_to_name(point) + (str(value.expr), )
+    #                                       for point, value in extension.data.items()))
+    #     return components
 
     def set(self, term: CompoundTerm, value: Union[Constant, int, float], *args):
         """ Set the value of the interpretation on the given term to be equal to `value`. """
@@ -211,6 +231,10 @@ def wrap_tuple(tup):
 def unwrap_tuple(tup):
     """ Create a tuple of Tarski terms from a tuple of Term references"""
     return tuple(ref.expr for ref in tup)
+
+
+def unwrap_to_name(tup):
+    return tuple(ref.expr.name for ref in tup)
 
 
 class ModelWithoutEvaluatorError(err.SemanticError):

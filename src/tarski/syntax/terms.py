@@ -326,6 +326,10 @@ class Constant(Term):
     def sort(self):
         return self._sort
 
+    @property
+    def signature(self):
+        return str(self.name), self.sort.name
+
     def __str__(self):
         return str(self.name)
 
@@ -333,7 +337,7 @@ class Constant(Term):
         return '{} ({})'.format(self.name, self.sort.name)
 
     def hash(self):
-        return hash((self.name, self.sort))
+        return hash(self.signature)
 
     def is_syntactically_equal(self, other):
         return self.__class__ is other.__class__ and self.name == other.name and self.sort == other.sort
