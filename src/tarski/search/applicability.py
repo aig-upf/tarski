@@ -31,7 +31,7 @@ def apply_effect(model, effect):
         model.add(effect.atom.predicate, *effect.atom.subterms)
 
     elif isinstance(effect, DelEffect):
-        model.remove(effect.atom.predicate, *effect.atom.subterms)
+        model.discard(effect.atom.predicate, *effect.atom.subterms)
 
     elif isinstance(effect, FunctionalEffect):
         model.set(effect.lhs, evaluate(effect.rhs, model))

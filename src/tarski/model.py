@@ -115,7 +115,16 @@ class Model:
         definition.add(wrap_tuple(point))
 
     def remove(self, predicate: Predicate, *args):
+        """ Remove a given point from the extension of a predicate.
+        Raises exception if the extension does not contain the point. """
         self.predicate_extensions[predicate.signature].remove(wrap_tuple(args))
+
+    def discard(self, predicate: Predicate, *args):
+        """ Remove a given point from the extension of a predicate.
+        Does not raise any exception if the extension does not contain the point. """
+        ext = self.predicate_extensions.get(predicate.signature)
+        if ext is not None:
+            ext.discard(wrap_tuple(args))
 
     def value(self, fun: Function, point):
         """ Return the value of the given function on the given point in the current model """
