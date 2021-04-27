@@ -43,19 +43,26 @@ class FirstOrderLanguage:
         memo[id(self)] = self
         return self
 
-    def __hash__(self):
-        return hash((self.__class__,
-                     self.name,
-                     self.vocabulary(),
-                     self._sorts.keys(),
-                     self.theories))
-
-    def __eq__(self, other):
-        return (self.__class__ is other.__class__ and
-                self.name == other.name and
-                self.vocabulary() == other.vocabulary() and
-                self._sorts.keys() == other._sorts.keys() and
-                self.theories == other.theories)
+    # NOTE: At the moment it's not clear what kind of FOL language object comparison we want.
+    # Ideally we'd want to make sure that the language contains exactly the same vocabulary,
+    # including the same objects/constants, the same sorts, etc. But this is too expensive to
+    # compare on the fly. To alleviate this, we could "freeze" the language objects and compute and store a hash
+    # But so far it's not clear it's worth the effort, as we don't have an obvious use case where this would be
+    # necessary.
+    #
+    # def __hash__(self):
+    #     return hash((self.__class__,
+    #                  self.name,
+    #                  self.vocabulary(),
+    #                  self._sorts.keys(),
+    #                  self.theories))
+    #
+    # def __eq__(self, other):
+    #     return (self.__class__ is other.__class__ and
+    #             self.name == other.name and
+    #             self.vocabulary() == other.vocabulary() and
+    #             self._sorts.keys() == other._sorts.keys() and
+    #             self.theories == other.theories)
 
     def deepcopy(self):
         """ Use this method instead of copy.deepcopy() if you need a true deep-copy of the language """

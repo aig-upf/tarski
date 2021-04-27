@@ -373,7 +373,13 @@ def test_language_equality():
     lang1 = generate_strips_bw_language(nblocks=2)
     lang2 = generate_strips_bw_language(nblocks=2)
 
-    assert lang1 == lang2
-
-    lang1.constant('c', 'object')
-    assert lang1 != lang2
+    # At the moment it's not clear what kind of FOL language object comparison we want.
+    # Ideally we'd want to make sure that the language contains exactly the same vocabulary,
+    # including the same objects/constants, the same sorts, etc. But this is too expensive to
+    # compare on the fly. To alleviate this, we could "freeze" the language objects and compute and store a hash
+    # But so far it's not clear it's worth the effort, as we don't have an obvious use case where this would be
+    # necessary.
+    # assert lang1 == lang2
+    #
+    # lang1.constant('c', 'object')
+    # assert lang1 != lang2
