@@ -184,7 +184,7 @@ class Action:
             self.timed_effects += [eff]
             self.max_eff_time = max(self.max_eff_time, eff.delay)
         for l in kwargs['untimed_effects']:
-            self.untimed_effects += [(t, l)]
+            self.untimed_effects += [(0, l)]
 
 
 # class Instance:
