@@ -47,7 +47,7 @@ notebooks/.ipynb_checkpoints/
 # Packaging files
 .tox
 *.egg-info/
-dist/
+# dist/
 
 # helper scripts
 alltests.bat
