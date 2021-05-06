@@ -6,14 +6,14 @@ import contextlib
 import os
 import sys
 import time
-import psutil
+import pypsutil
 
 
 class Timer:
     def __init__(self):
         self.start_time = time.time()
         self.start_clock = self._clock()
-        self.start_mem = psutil.Process().memory_info().rss
+        self.start_mem = pypsutil.Process().memory_info().rss
 
     @staticmethod
     def _clock():
@@ -21,7 +21,7 @@ class Timer:
         return times[0] + times[1]
 
     def __str__(self):
-        current = psutil.Process().memory_info().rss
+        current = pypsutil.Process().memory_info().rss
         current_in_mb = current / (1024*1024)
         rss_in_mb = (current - self.start_mem) / (1024*1024)
         return "[%.2fs CPU, %.2fs wall-clock, diff: %.2fMB, curr:  %.2fMB]" % (
