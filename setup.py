@@ -51,7 +51,7 @@ def main():
 
         python_requires='>=3.6',  # supported Python ranges
         install_requires=[
-            'psutil',
+            'pypsutil',
             'multipledispatch',
 
             # Antlr pinned to a specific version to avoid messages "ANTLR runtime and generated code versions disagree"
