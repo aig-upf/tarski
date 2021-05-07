@@ -39,12 +39,20 @@ class CNFTransformation:
             if phi.connective == Connective.Not:
                 return phi  # already CNF
             elif phi.connective == Connective.And:
-                lhs, rhs = self._convert(phi.subformulas[0]), self._convert(phi.subformulas[1])
-                return CompoundFormula(Connective.And, (lhs, rhs))
+                psi0, psi1 = self._convert(phi.subformulas[0]), self._convert(phi.subformulas[1])
+                result = CompoundFormula(Connective.And, (psi0, psi1))
+                for k in range(2, len(phi.subformulas)):
+                    psi_k = self._convert(phi.subformulas[k])
+                    result = CompoundFormula(Connective.And, (result, psi_k))
+                return result
             else:
                 assert phi.connective == Connective.Or
-                lhs, rhs = self._convert(phi.subformulas[0]), self._convert(phi.subformulas[1])
-                return self.distribute(lhs, rhs)
+                psi0, psi1 = self._convert(phi.subformulas[0]), self._convert(phi.subformulas[1])
+                result = self.distribute(psi0, psi1)
+                for k in range(2, len(phi.subformulas)):
+                    psi_k = self._convert(phi.subformulas[k])
+                    result = self.distribute(result, psi_k)
+                return result
 
         return phi
 
@@ -73,8 +81,12 @@ class CNFTransformation:
 
     def convert(self):
         self.cnf = self._convert(self.blueprint)
-        self.collect_clauses(self.cnf)
         return self.cnf
+
+    def convert_to_clause_list(self):
+        self.cnf = self._convert(self.blueprint)
+        self.collect_clauses(self.cnf)
+        return self.clauses
 
     @staticmethod
     def rewrite(lang, phi, do_copy=True):
@@ -86,3 +98,9 @@ class CNFTransformation:
 def to_conjunctive_normal_form(lang, phi, do_copy=True):
     trans = CNFTransformation(lang, phi, do_copy)
     return trans.convert()
+
+
+def to_conjunctive_normal_form_clauses(lang, phi, do_copy=True):
+    trans = CNFTransformation(lang, phi, do_copy)
+    return trans.convert_to_clause_list()
+
