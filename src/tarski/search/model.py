@@ -1,8 +1,6 @@
-import copy
 
-from .applicability import is_applicable, apply_effect
+from .operations import is_applicable, progress
 from ..evaluators.simple import evaluate
-from ..fstrips import DelEffect
 
 
 class SearchModel:
@@ -18,21 +16,6 @@ class SearchModel:
 
     def is_goal(self, state):
         raise NotImplementedError()
-
-
-def progress(state, operator):
-    """ Returns the progression of the given state along the effects of the given operator.
-    Note that this method does not check that the operator is applicable.
-    """
-    # TODO This is unnecessarily expensive, but a simple copy wouldn't work either.
-    #      If/when we transition towards a C++-backed model implementation, this should be improved.
-    sprime = copy.deepcopy(state)
-
-    # Let's push to the beginning the delete effect, to ensure add-after-delete semantics
-    effects = sorted(operator.effects, key=lambda e: 0 if isinstance(e, DelEffect) else 1)
-    for eff in effects:
-        apply_effect(sprime, eff)
-    return sprime
 
 
 class GroundForwardSearchModel:

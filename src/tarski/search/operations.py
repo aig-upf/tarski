@@ -11,13 +11,6 @@ def is_applicable(model, operator):
     return evaluate(operator.precondition, model)
 
 
-def apply(model, operator):
-    result = copy.deepcopy(model)
-    for eff in operator.effects:
-        apply_effect(result, eff)
-    return result
-
-
 def is_effect_applicable(model, effect):
     return evaluate(effect.condition, model)
 
@@ -43,3 +36,18 @@ def apply_effect(model, effect):
 
     else:
         raise RuntimeError(f'Don\'t know how to apply effect "{effect}"')
+
+
+def progress(state, operator):
+    """ Returns the progression of the given state along the effects of the given operator.
+    Note that this method does not check that the operator is applicable.
+    """
+    # TODO This is unnecessarily expensive, but a simple copy wouldn't work either.
+    #      If/when we transition towards a C++-backed model implementation, this should be improved.
+    sprime = copy.deepcopy(state)
+
+    # Let's push to the beginning the delete effect, to ensure add-after-delete semantics
+    effects = sorted(operator.effects, key=lambda e: 0 if isinstance(e, DelEffect) else 1)
+    for eff in effects:
+        apply_effect(sprime, eff)
+    return sprime
