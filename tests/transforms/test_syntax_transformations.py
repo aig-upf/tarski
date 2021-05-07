@@ -6,6 +6,7 @@ from tarski.syntax import *
 from tests.common import tarskiworld
 
 from tarski.syntax.transform.nnf import NNFTransformation
+from tarski.syntax.transform.cnf import to_conjunctive_normal_form_clauses
 from tarski.syntax.transform.prenex import to_prenex_negation_normal_form
 from tarski.syntax.transform import CNFTransformation, QuantifierElimination, remove_quantifiers, \
     QuantifierEliminationMode
@@ -198,12 +199,8 @@ def test_cnf_conversion_complex():
     s2 = land(lang.Cube(x), exists(y, land(lang.Tet(y), lang.LeftOf(x, y))))
     phi = forall(x, implies(s2, s1))
     result = remove_quantifiers(lang, phi, QuantifierEliminationMode.All)
-    transf = CNFTransformation.rewrite(lang, result)
-    # print(transf.cnf)
-    # print('\n'.join([','.join([str(l) for l in c]) for c in transf.clauses]))
-    assert len(transf.clauses) == 30
+    assert len(to_conjunctive_normal_form_clauses(lang, result)) == 30
 
     # Now remove the quantifiers after tranforming to PNNF
     result = remove_quantifiers(lang, to_prenex_negation_normal_form(lang, phi), QuantifierEliminationMode.All)
-    transf = CNFTransformation.rewrite(lang, result)
-    assert len(transf.clauses) == 126
+    assert len(to_conjunctive_normal_form_clauses(lang, result)) == 126
