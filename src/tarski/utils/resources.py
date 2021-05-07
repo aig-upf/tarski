@@ -6,14 +6,14 @@ import contextlib
 import os
 import sys
 import time
-import pypsutil
+import resource
 
 
 class Timer:
     def __init__(self):
         self.start_time = time.time()
         self.start_clock = self._clock()
-        self.start_mem = pypsutil.Process().memory_info().rss
+        self.start_mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 
     @staticmethod
     def _clock():
@@ -21,13 +21,12 @@ class Timer:
         return times[0] + times[1]
 
     def __str__(self):
-        current = pypsutil.Process().memory_info().rss
+        current = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
         current_in_mb = current / (1024*1024)
         rss_in_mb = (current - self.start_mem) / (1024*1024)
         return "[%.2fs CPU, %.2fs wall-clock, diff: %.2fMB, curr:  %.2fMB]" % (
             self._clock() - self.start_clock,
             time.time() - self.start_time, rss_in_mb, current_in_mb)
-
 
 @contextlib.contextmanager
 def timing(text, newline=False):
