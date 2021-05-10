@@ -34,6 +34,13 @@ def test_forward_search_model():
     successors = set(succ for op, succ in model.successors(s0))
     assert s1 in successors
 
+    # Let's test add-after-delete semantics are correctly enforced. The move(x, y) action in Gripper doesn't
+    # test that x != y. When x=y, it adds and deletes the same atom `at-robby(x)`; in which case the model
+    # will only be correct if the add is performed after the delete.
+    nullmove = ground_schema_into_plain_operator_from_grounding(move, ('rooma', 'rooma'))
+    s1 = progress(s0, nullmove)
+    assert s1 == s0
+
 
 def test_basic_search():
     problem = generate_strips_blocksworld_problem(nblocks=2)
