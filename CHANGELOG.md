@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 ### Deprecated
-    - Model.set() is now deprecated
+  - Model.set() is now deprecated
 
 ### Fixed
  - Fixed a bug in `check_hypergraph_acyclicity` reported by @abcorrea.
