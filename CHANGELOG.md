@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added some basic forward search capabilities.
 
 ### Removed
+  - Removed support for `PySDD` and `sdd` extra, which was largely unused, and
+    hard to integrate into the CI testing.
+
 ### Deprecated
   - Model.set() is now deprecated
 
