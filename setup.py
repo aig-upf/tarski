@@ -51,7 +51,10 @@ def main():
 
         python_requires='>=3.6',  # supported Python ranges
         install_requires=[
-            'psutil',
+            # psutil not supported on Windows, we haven't tested in other platforms, but since it's not essential
+            # to the functioning of Tarski, better be conservative here and install only on Linux.
+            'psutil; platform_system=="Linux"',
+
             'multipledispatch',
 
             # Antlr pinned to a specific version to avoid messages "ANTLR runtime and generated code versions disagree"
