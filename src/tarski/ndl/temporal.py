@@ -155,6 +155,7 @@ class Action:
         self.name = kwargs['name']
         self.parameters = kwargs['parameters']
         self.max_eff_time = 0.0
+        self.effect_times = {}
         # precondition
         prec = kwargs['precondition']
         if not isinstance(prec, CompoundFormula) \
@@ -183,8 +184,13 @@ class Action:
                 raise NDLSyntaxError("NDL Syntax error: eff '{}' must be timed".format(eff))
             self.timed_effects += [eff]
             self.max_eff_time = max(self.max_eff_time, eff.delay)
+            self.effect_times[symref(eff.eff.atom == eff.eff.value)] = eff.delay
         for l in kwargs['untimed_effects']:
             self.untimed_effects += [(0, l)]
+
+    def get_effect_time(self, l):
+        return self.effect_times[l]
+
 
 
 # class Instance:
