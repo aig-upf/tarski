@@ -38,7 +38,7 @@ def main():
 
             'Topic :: Scientific/Engineering :: Artificial Intelligence',
 
-            'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+            "License :: OSI Approved :: Apache Software License",
 
             'Programming Language :: Python :: 3',
             'Programming Language :: Python :: 3.6',
