@@ -12,7 +12,7 @@ def get_mem_usage():
     """ Return the memory usage as reported by psutil, or None, if the platform
     does not support psutil, or """
     try:
-        import psutil
+        import psutil  # pylint: disable=import-outside-toplevel
     except ImportError:
         return None
     return psutil.Process().memory_info().rss

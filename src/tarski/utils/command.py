@@ -33,10 +33,10 @@ def read_file(filename):
 def execute(command, **kwargs):
     stdout, stderr = kwargs.get("stdout", None), kwargs.get("stderr", None)
     if isinstance(stdout, str):
-        stdout = open(stdout, 'w')
+        stdout = open(stdout, 'w')  # pylint: disable=consider-using-with
 
     if isinstance(stderr, str):
-        stderr = open(stderr, 'w')
+        stderr = open(stderr, 'w')  # pylint: disable=consider-using-with
 
     cwd = kwargs["cwd"] if "cwd" in kwargs else os.getcwd()
 
@@ -99,7 +99,7 @@ def stdout_redirector(stream):
     tfile = None
     try:
         # Create a temporary file and redirect stdout to it
-        tfile = tempfile.TemporaryFile(mode='w+b')
+        tfile = tempfile.TemporaryFile(mode='w+b')  # pylint: disable=consider-using-with
         _redirect_stdout(tfile.fileno())
         # Yield to caller, then redirect stdout back to the saved fd
         yield

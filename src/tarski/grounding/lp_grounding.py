@@ -88,6 +88,7 @@ def compute_action_groundings(problem, include_variable_inequalities=False):
 
 
 def ground_problem_schemas_into_plain_operators(problem, include_variable_inequalities=False):
+    # pylint: disable=import-outside-toplevel
     from ..syntax.transform.action_grounding import ground_schema_into_plain_operator_from_grounding
     action_groundings = compute_action_groundings(problem, include_variable_inequalities)
     operators = []

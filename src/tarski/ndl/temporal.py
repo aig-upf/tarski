@@ -56,7 +56,7 @@ class ResourceLevel:
         return "LOCK {} AFTER {} FOR {}".format(self.r, self.ts, self.td)
 
 
-class SetLiteralEffect(object):
+class SetLiteralEffect:
     """
     Set literal truth value
     """
@@ -68,7 +68,8 @@ class SetLiteralEffect(object):
     def __str__(self):
         return "SET({}, {})".format(self.l, self.value)
 
-class AssignValueEffect(object):
+
+class AssignValueEffect:
     """
     Sets equality constraint
     """
@@ -80,7 +81,8 @@ class AssignValueEffect(object):
     def __str__(self):
         return "ASSIGN({}, {})".format(self.atom, self.value)
 
-class UniversalEffect(object):
+
+class UniversalEffect:
     """
     Forall effect
     """
@@ -92,7 +94,8 @@ class UniversalEffect(object):
     def __str__(self):
         return "FORALL({}, {})".format(self.var, self.effect)
 
-class ConditionalEffect(object):
+
+class ConditionalEffect:
     """
     If Then Else effect
     """
@@ -105,7 +108,8 @@ class ConditionalEffect(object):
     def __str__(self):
         return "IF ({}) \nTHEN {}\n ELSE {}".format(self.condition, self.then_eff, self.else_eff)
 
-class TimedEffect(object):
+
+class TimedEffect:
     """
     (t, eff) time-delayed effect
     """
@@ -118,7 +122,7 @@ class TimedEffect(object):
         return "AFTER {} APPLY {}".format(self.delay, self.eff)
 
 
-class UnionExpression(object):
+class UnionExpression:
     """
     A union set expression
     """
@@ -161,8 +165,8 @@ class Action:
         if not isinstance(prec, CompoundFormula) \
                 and not isinstance(prec, Atom)\
                 and not isinstance(prec, Tautology):
-            raise NDLSyntaxError(
-                "NDL Syntactic Error: precondition of action must be a compound formula, atom or tautology (given: {})".format(prec))
+            raise NDLSyntaxError("NDL Syntactic Error: precondition of action must be a compound formula,"
+                                 " atom or tautology (given: {})".format(prec))
         self.precondition = prec
         # resource requirements
         self.locks = []
