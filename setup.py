@@ -67,7 +67,7 @@ def main():
             'docs': ['sphinx>=2.1.2', 'recommonmark', 'nbsphinx', 'sphinx_rtd_theme', 'ipykernel', 'ipython'],
             'arithmetic': ['scipy', 'numpy'],
             'rddl': [
-                "pyrddl@git+git://github.com/thiagopbueno/pyrddl.git@9ccab6a#egg=tarski",
+                "pyrddl @ https://github.com/thiagopbueno/pyrddl/archive/9ccab6a.zip#sha1=a584f90381bf7d48b85976807b9bc6c0cb2761ba"
             ],
         },
 
