@@ -66,7 +66,9 @@ def main():
             'test': ['pytest', 'tox', 'pytest-cov', 'mypy'],
             'docs': ['sphinx>=2.1.2', 'recommonmark', 'nbsphinx', 'sphinx_rtd_theme', 'ipykernel', 'ipython'],
             'arithmetic': ['scipy', 'numpy'],
-            'rddl': ['pyrddl'],
+            'rddl': [
+                "pyrddl@git+git://github.com/thiagopbueno/pyrddl.git@9ccab6a#egg=tarski",
+            ],
         },
 
         # This will include non-code files specified in the manifest, see e.g.
