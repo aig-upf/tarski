@@ -7,7 +7,7 @@ Docs: <https://packaging.python.org/tutorials/packaging-projects/>
 
 1. Update the `CHANGELOG.md` file.
 1. Update the version number in `src/tarski/version.py`
-1. Commit.
+1. Commit. Use message like "Preparing for release 0.6.0".
 1. Go to the `master` branch and merge the `devel` branch.
 1. Tag the release.
     ```bash

@@ -5,9 +5,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
-
 ### Added
-  - Added some basic forward search capabilities.
+### Removed
+### Deprecated
+### Fixed
+
+## [0.7.0]
+### Added
+  - Added some basic forward search capabilities (#101).
+  - Import psutil module conditionally, to offer better support for non-Linux 
+    platforms where it is not available (see discussion in #99). 
 
 ### Removed
   - Removed support for `PySDD` and `sdd` extra, which was largely unused, and
