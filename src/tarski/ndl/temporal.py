@@ -184,7 +184,13 @@ class Action:
                 raise NDLSyntaxError("NDL Syntax error: eff '{}' must be timed".format(eff))
             self.timed_effects += [eff]
             self.max_eff_time = max(self.max_eff_time, eff.delay)
-            self.effect_times[symref(eff.eff.atom == eff.eff.value)] = eff.delay
+            wrapped_effect = eff.eff
+            if isinstance(wrapped_effect, AssignValueEffect):
+                self.effect_times[symref(wrapped_effect.atom == eff.eff.value)] = eff.delay
+            elif isinstance(wrapped_effect, SetLiteralEffect):
+                self.effect_times[(symref(wrapped_effect.l), wrapped_effect.value)] = eff.delay
+            else:
+                raise NotImplementedError("Effects of type {} cannot be handled yet".format(type(wrapped_effect)))
         for l in kwargs['untimed_effects']:
             self.untimed_effects += [(0, l)]
 
