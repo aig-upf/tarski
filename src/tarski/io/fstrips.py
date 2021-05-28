@@ -61,6 +61,14 @@ class FstripsReader:
     def parse_instance(self, filename):
         self.parse_file(filename, 'problem')
         return self.problem
+    
+    def parse_domain_string(self, domain):
+        self.parse_string(domain, 'domain')
+        uniformize_costs(self.problem)
+
+    def parse_instance_string(self, instance):
+        self.parse_string(instance, 'problem')
+        return self.problem
 
     def parse_string(self, string, start_rule):
         logging.debug('Parsing custom string from grammar rule "{}"'.format(start_rule))
