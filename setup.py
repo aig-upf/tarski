@@ -64,9 +64,30 @@ def main():
         ],
 
         extras_require={
-            'test': ['pytest', 'tox', 'pytest-cov', 'mypy'],
-            'docs': ['sphinx>=2.1.2', 'recommonmark', 'nbsphinx', 'sphinx_rtd_theme', 'ipykernel', 'ipython'],
-            'arithmetic': ['scipy', 'numpy'],
+            'test': [
+                'pytest',
+                'tox',
+                'pytest-cov',
+                'mypy'
+            ],
+            'docs': [
+                # We pin the Jinja2 version here as there seems to be some incompatibility between later Jinja3 releases
+                # and nbsphinx. Hopefully we can bump this up in the future.
+                'jinja2==2.11.3',
+                # We also pin the docutils version due to incompatibilities with nbsphinx,
+                # see https://github.com/sphinx-doc/sphinx/issues/9001
+                'docutils<0.17',
+                'sphinx==3.5.4',
+                'nbsphinx==0.8.5',
+                'recommonmark==0.7.1',
+                'sphinx_rtd_theme==0.5.2',
+                'ipykernel==5.5.5',
+                'ipython==7.24.0'
+            ],
+            'arithmetic': [
+                'scipy',
+                'numpy'
+            ],
             'rddl': [
                 "pyrddl @ https://github.com/thiagopbueno/pyrddl/archive/9ccab6a.zip#sha1=a584f90381bf7d48b85976807b9bc6c0cb2761ba"
             ],
