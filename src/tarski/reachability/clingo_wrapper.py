@@ -59,3 +59,21 @@ def parse_model(filename, symbol_mapping):
                 raise RuntimeError('Unexpected line "{}" in Clingo solution file'.format(line))
 
     return model
+
+def parse_model_string(string, symbol_mapping):
+    tr = symbol_mapping
+    model = defaultdict(set)
+    for line in string.split('\n'):
+        data = line.rstrip(' \n.').rstrip(')')
+        components = data.split('(')
+        if len(components) == 1:
+            symbol = tr.back(components[0])
+            model[symbol].add(())
+        elif len(components) == 2:
+            symbol, arguments = components
+            model[tr.back(symbol)].add(tuple(tr.back(s) for s in arguments.split(',')))
+        else:
+            # No nested terms expected, so there should be at most 2 components
+            raise RuntimeError('Unexpected line "{}" in Clingo solution file'.format(line))
+        
+    return model
