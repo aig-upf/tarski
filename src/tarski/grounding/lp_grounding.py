@@ -66,7 +66,7 @@ class LPGroundingStrategy:
         if self.model is None:
             lp, tr = create_reachability_lp(self.problem, self.do_ground_actions, self.include_variable_inequalities)
             model_filename, theory_filename = run_clingo(lp)
-            self.model = parse_model(model_filename, tr)
+            self.model = parse_model(filename=model_filename, symbol_mapping=tr)
 
             # Remove the input and output files for Gringo
             silentremove(model_filename)
