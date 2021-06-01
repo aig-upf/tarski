@@ -155,6 +155,9 @@ class OutOfMemoryError(TarskiError):
 class OutOfTimeError(TarskiError):
     pass
 
+class ArgumentError(TarskiError):
+    pass
+
 
 # class WrongTermUsageError(TarskiError):
 #     def __init__(self):
