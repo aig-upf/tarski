@@ -42,7 +42,8 @@ def run_clingo(lp):
 
 def parse_model(*, filename=None, content=None, symbol_mapping):
     if filename and not content:
-        return _parse_model((l for l in filename), symbol_mapping)
+        with open(filename, "r") as f:
+            return _parse_model((l for l in f), symbol_mapping)
     elif content and not filename:
         return _parse_model((l for l in content.splitlines()), symbol_mapping)
     else:
