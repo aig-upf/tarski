@@ -4,7 +4,7 @@ import shutil
 import tempfile
 from collections import defaultdict
 
-from ..errors import CommandNotFoundError, ExternalCommandError, OutOfMemoryError, OutOfTimeError
+from ..errors import CommandNotFoundError, ExternalCommandError, OutOfMemoryError, OutOfTimeError, ArgumentError
 from ..utils import command as cmd
 
 
@@ -40,22 +40,29 @@ def run_clingo(lp):
 
     raise ExternalCommandError(f"Unknown Gringo error. Gringo exited with code {retcode}. Full error log: {errlog}")
 
+def parse_model(*, filename=None, content=None, symbol_mapping):
+    if filename and not content:
+        with open(filename, "r") as f:
+            return _parse_model(f, symbol_mapping)
+    elif content and not filename:
+        return _parse_model(content.splitlines(), symbol_mapping)
+    else:
+        raise ArgumentError(f"Cannot have both filename and content as arguments.")
 
-def parse_model(filename, symbol_mapping):
+def _parse_model(lines, symbol_mapping):
     tr = symbol_mapping
     model = defaultdict(set)
-    with open(filename, "r") as f:
-        for line in f:
-            data = line.rstrip(' \n.').rstrip(')')
-            components = data.split('(')
-            if len(components) == 1:
-                symbol = tr.back(components[0])
-                model[symbol].add(())
-            elif len(components) == 2:
-                symbol, arguments = components
-                model[tr.back(symbol)].add(tuple(tr.back(s) for s in arguments.split(',')))
-            else:
-                # No nested terms expected, so there should be at most 2 components
-                raise RuntimeError('Unexpected line "{}" in Clingo solution file'.format(line))
-
+    for line in lines:
+        data = line.rstrip(' \n.').rstrip(')')
+        components = data.split('(')
+        if len(components) == 1:
+            symbol = tr.back(components[0])
+            model[symbol].add(())
+        elif len(components) == 2:
+            symbol, arguments = components
+            model[tr.back(symbol)].add(tuple(tr.back(s) for s in arguments.split(',')))
+        else:
+            # No nested terms expected, so there should be at most 2 components
+            raise RuntimeError('Unexpected line "{}" in Clingo solution file'.format(line))
+    
     return model
