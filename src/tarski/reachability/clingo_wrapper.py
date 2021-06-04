@@ -43,9 +43,9 @@ def run_clingo(lp):
 def parse_model(*, filename=None, content=None, symbol_mapping):
     if filename and not content:
         with open(filename, "r") as f:
-            return _parse_model((l for l in f), symbol_mapping)
+            return _parse_model(f, symbol_mapping)
     elif content and not filename:
-        return _parse_model((l for l in content.splitlines()), symbol_mapping)
+        return _parse_model(content.splitlines(), symbol_mapping)
     else:
         raise ArgumentError(f"Cannot have both filename and content as arguments.")
 
