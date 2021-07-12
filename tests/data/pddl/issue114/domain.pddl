@@ -1,24 +1,60 @@
-; There are mechanics who on any day may work at one
-; of several cities where the airplane maintenance
-; company has facilities. There are airplanes each of
-; which has to be maintained during the given time period.
-; The airplanes are guaranteed to visit some of the cities
-; on given days. The problem is to schedule the presence
-; of the mechanics so that each plane will get maintenance.
-
-(define (domain maintenance-scheduling-domain)
- (:requirements :adl :typing :conditional-effects)
- (:types plane day airport)
- (:predicates  (done ?p - plane)
-  (today ?d - day)
-  (at ?p - plane ?d - day ?c - airport)
-  (next ?d - day ?d2 - day) )
-
- (:action workat
-  :parameters (?day - day ?airport - airport)
-  :precondition (today ?day)
-  :effect (and
-     (not (today ?day))
-     (forall (?plane - plane) (when (at ?plane ?day ?airport) (done ?plane)))))
+;; Enrico Scala (enricos83@gmail.com) and Miquel Ramirez (miquel.ramirez@gmail.com)
+(define (domain sailing)
+     (:types
+          boat -object
+          person -object
+     )
+     (:predicates
+          (saved ?t -person)
+     )
+     (:functions
+          (x ?b -boat)
+          (y ?b -boat)
+          (d ?t -person)
+     )
+     (:action go_north_east
+          :parameters (?b -boat)
+          :precondition ()
+          :effect (and(increase (x ?b) 1.5) (increase (y ?b) 1.5))
+     )
+     (:action go_north_west
+          :parameters (?b -boat)
+          :precondition ()
+          :effect (and(decrease (x ?b) 1.5) (increase (y ?b) 1.5))
+     )
+     (:action go_est
+          :parameters (?b -boat)
+          :precondition ()
+          :effect (and(increase (x ?b) 3))
+     )
+     (:action go_west
+          :parameters (?b -boat)
+          :precondition ()
+          :effect (and(decrease (x ?b) 3))
+     )
+     (:action go_south_west
+          :parameters(?b -boat)
+          :precondition ()
+          :effect (and(increase (x ?b) 2) (decrease (y ?b) 2))
+     )
+     (:action go_south_east
+          :parameters(?b -boat)
+          :precondition ()
+          :effect (and(decrease (x ?b) 2) (decrease (y ?b) 2))
+     )
+     (:action go_south
+          :parameters(?b -boat)
+          :precondition ()
+          :effect (and (decrease (y ?b) 2))
+     )
+     (:action save_person
+          :parameters(?b -boat ?t -person)
+          :precondition ( and (>= (+ (x ?b) (y ?b)) (d ?t))
+               (>= (- (y ?b) (x ?b)) (d ?t))
+               (<= (+ (x ?b) (y ?b)) (+ (d ?t) 25))
+               (<= (- (y ?b) (x ?b)) (+ (d ?t) 25))
+          )
+          :effect (and(saved ?t))
+     )
 
 )
