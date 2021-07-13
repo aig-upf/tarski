@@ -247,10 +247,11 @@ class FstripsWriter:
                 continue  # Don't declare builtin elements
             tname = tarski_to_pddl_type(t)
             p = parent(t)
-            if p:
-                res.append("{} - {}".format(tname, tarski_to_pddl_type(p)))
-            else:
-                res.append(tname)
+            if p is not None:
+                tname = f"{tname} - {tarski_to_pddl_type(p)}"
+            res.append(tname)
+        # We always add the object type on the last line
+        res.append("object")
         return ("\n" + _TAB * 2).join(res)
 
     def get_functions(self):
