@@ -66,7 +66,6 @@ def get_requirements_string(problem):
 
 def create_number_type(lang):
     """ Creates a sort corresponding to the PDDL "number" """
-    # For the moment being, we assume that PDDL "number"s are unbound integers
     parent = lang.get_sort("Real")
     lower = parent.lower_bound
     upper = parent.upper_bound
