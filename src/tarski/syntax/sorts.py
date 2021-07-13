@@ -191,7 +191,7 @@ def children(s: Sort) -> Set[Sort]:
 
 def int_encode_fn(x):
     if isinstance(x, float) and not x.is_integer():
-        raise ValueError()  # We don't want 1.2 to get encoded as an int
+        raise ValueError(x)  # We don't want 1.2 to get encoded as an int
     return int(x)
 
 
