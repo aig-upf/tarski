@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 ### Deprecated
 ### Fixed
+ - Fixed issue with printing of types in untyped domains (#113)
+
 
 ## [0.7.0]
 ### Added
