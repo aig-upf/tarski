@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 ### Fixed
  - Fixed issue with printing of types in untyped domains (#113)
+ - Use real instead of integer numbers by default when parsing with strict_with_requirements=False (#114)
 
 
 ## [0.7.0]
