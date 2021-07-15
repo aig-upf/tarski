@@ -1,7 +1,5 @@
 from ..syntax.ops import flatten
 
-from ..syntax.formulas import Atom, Connective
-
 class Action:
     """ A (possibly lifted) planning action """
 
@@ -59,9 +57,7 @@ class PlainOperator(GroundOperator):
 
     def check_strips(self):
         """Confirms if this operator is a STRIPS operator"""
-        return isinstance(self.precondition, Atom) or \
-            isinstance(self.precondition, Connective.And) and \
-            all([isinstance(p, Atom) for p in self.precondition.subformulas])
+
 
 
 class AdditiveActionCost:
