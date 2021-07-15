@@ -1,5 +1,6 @@
 from ..syntax.ops import flatten
 
+
 class Action:
     """ A (possibly lifted) planning action """
 
@@ -54,10 +55,6 @@ class PlainOperator(GroundOperator):
         self.precondition = flatten(precondition)
         self.effects = effects
         # self.validate(self)
-
-    def check_strips(self):
-        """Confirms if this operator is a STRIPS operator"""
-
 
 
 class AdditiveActionCost:
