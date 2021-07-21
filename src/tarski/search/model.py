@@ -35,14 +35,20 @@ class GroundForwardSearchModel:
             self.fluents = self.compute_fluents()
             self.compute_match_tree()
 
+    def _extract_atoms(self, formula):
+        if isinstance(formula, Atom):
+            return [formula]
+        else:
+            return formula.subformulas
+
     def compute_fluents(self):
         """Compute all of the ground fluents (mentioned in any action, init, goal)"""
         fluents = set()
         for op in self.operators:
-            fluents |= set(op.precondition.subformulas)
+            fluents |= set(self._extract_atoms(op.precondition))
             fluents |= set([e.atom for e in op.effects])
 
-        fluents |= set(self.problem.goal.subformulas)
+        fluents |= set(self._extract_atoms(self.problem.goal))
         fluents |= set(self.problem.init.as_atoms())
 
         return fluents
@@ -69,7 +75,7 @@ class GroundForwardSearchModel:
         def _score_and_split(ops, fluent):
             split = {True: [], False: []}
             for op in ops:
-                split[fluent in op.precondition.subformulas].append(op)
+                split[fluent in self._extract_atoms(op.precondition)].append(op)
             tie_break = {True: 0, False: 0.5}
             assert len(split[True]) + len(split[False]) == len(ops)
             return (abs(len(split[True]) - len(split[False])) + tie_break[len(split[True]) > 0], split)
@@ -105,7 +111,7 @@ class GroundForwardSearchModel:
             # Find the ops that are already applicable given the decisions
             not_applicable = set()
             for op in ops:
-                if all([f in decisions for f in op.precondition.subformulas]):
+                if all([f in decisions for f in self._extract_atoms(op.precondition)]):
                     node['applicable'].add(op)
                 else:
                     not_applicable.add(op)
