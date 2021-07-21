@@ -30,6 +30,7 @@ class GroundForwardSearchModel:
         self.problem = problem
         self.operators = operators
         self.is_strips = self.check_strips()
+        self._match_tree = None
 
         if self.is_strips:
             self.fluents = self.compute_fluents()
