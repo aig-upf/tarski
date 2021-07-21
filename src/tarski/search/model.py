@@ -42,6 +42,14 @@ class GroundForwardSearchModel:
         else:
             return formula.subformulas
 
+    def _ignore_cost_metric(self, state):
+        def _is_cost(f):
+            return isinstance(f, tuple) and \
+                'symbol' in dir(f[0]) and \
+                'symbol' in dir(f[0].symbol) and \
+                f[0].symbol.symbol == 'total-cost'
+        return [f for f in state.as_atoms() if not _is_cost(f)]
+
     def compute_fluents(self):
         """Compute all of the ground fluents (mentioned in any action, init, goal)"""
         fluents = set()
@@ -50,7 +58,7 @@ class GroundForwardSearchModel:
             fluents |= set([e.atom for e in op.effects])
 
         fluents |= set(self._extract_atoms(self.problem.goal))
-        fluents |= set(self.problem.init.as_atoms())
+        fluents |= set(self._ignore_cost_metric(self.problem.init))
 
         return fluents
 
@@ -72,11 +80,17 @@ class GroundForwardSearchModel:
     def compute_match_tree(self):
         """ Compute the match tree for this search model """
 
+        self._id_to_fluent = {idx: f for idx, f in enumerate(self.fluents)}
+        self._fluent_to_id = {f: idx for idx, f in self._id_to_fluent.items()}
+        self._op_to_pre = {}
+        for op in self.operators:
+            self._op_to_pre[op] = {self._fluent_to_id[atom] for atom in self._extract_atoms(op.precondition)}
+
         # Computes the score of the fluent and partitions the operators accordingly
         def _score_and_split(ops, fluent):
             split = {True: [], False: []}
             for op in ops:
-                split[fluent in self._extract_atoms(op.precondition)].append(op)
+                split[fluent in self._op_to_pre[op]].append(op)
             tie_break = {True: 0, False: 0.5}
             assert len(split[True]) + len(split[False]) == len(ops)
             return (abs(len(split[True]) - len(split[False])) + tie_break[len(split[True]) > 0], split)
@@ -86,7 +100,7 @@ class GroundForwardSearchModel:
             best_fluent = None
             best_score = 999999
             best_split = None
-            for f in self.fluents:
+            for f in self._id_to_fluent.keys():
                 if f not in decisions:
                     score, split = _score_and_split(ops, f)
                     if score < best_score:
@@ -112,7 +126,7 @@ class GroundForwardSearchModel:
             # Find the ops that are already applicable given the decisions
             not_applicable = set()
             for op in ops:
-                if all([f in decisions for f in self._extract_atoms(op.precondition)]):
+                if all([f in decisions for f in self._op_to_pre[op]]):
                     node['applicable'].add(op)
                 else:
                     not_applicable.add(op)
@@ -142,7 +156,7 @@ class GroundForwardSearchModel:
             _compute_match_tree(node['dontcare'], state, applicable)
 
         applicable = set()
-        _compute_match_tree(self._match_tree, set(state.as_atoms()), applicable)
+        _compute_match_tree(self._match_tree, {self._fluent_to_id[f] for f in self._ignore_cost_metric(state)}, applicable)
         return applicable
 
     def init(self):
