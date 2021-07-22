@@ -12,7 +12,7 @@ from tarski.rddl import Task
 
 
 def test_simple_rddl_model():
-    lang = tarski.language('lqr_nav_1d', [Theory.EQUALITY, Theory.ARITHMETIC, Theory.SPECIAL])
+    lang = tarski.language('lqr_nav_1d', [Theory.BOOLEAN, Theory.EQUALITY, Theory.ARITHMETIC, Theory.SPECIAL])
     the_task = Task(lang, 'lqr_nav_1d', 'instance_001')
 
     the_task.requirements = [rddl.Requirements.CONTINUOUS, rddl.Requirements.REWARD_DET]
@@ -75,7 +75,7 @@ def test_simple_rddl_model():
 
 
 def test_rddl_model_with_random_vars():
-    lang = tarski.language('lqg_nav_1d', [Theory.EQUALITY, Theory.ARITHMETIC, Theory.SPECIAL, Theory.RANDOM])
+    lang = tarski.language('lqg_nav_1d', [Theory.BOOLEAN, Theory.EQUALITY, Theory.ARITHMETIC, Theory.SPECIAL, Theory.RANDOM])
     the_task = Task(lang, 'lqg_nav_1d', 'instance_001')
 
     the_task.requirements = [rddl.Requirements.CONTINUOUS, rddl.Requirements.REWARD_DET]
@@ -405,7 +405,7 @@ def test_parametrized_model_with_random_vars_and_waypoints_boolean():
     # cpfs
     the_task.add_cpfs(t(), t() + dt())
     dist_vec_norm = ((x(v) - wx(wpt)) * (x(v) - wx(wpt))) + ((y(v) - wy(wpt)) * (y(v) - wy(wpt)))
-    the_task.add_cpfs(wv(wpt), (wv(wpt) | (sqrt(dist_vec_norm) <= wr())))
+    the_task.add_cpfs(wv(wpt), ((wv(wpt) == lang.constant(1, lang.Boolean)) | (sqrt(dist_vec_norm) <= wr())))
     the_task.add_cpfs(vx(v), vx(v) + dt() * ux(v) + normal(mu_w(), sigma_w()))
     the_task.add_cpfs(vy(v), vy(v) + dt() * uy(v) + normal(mu_w(), sigma_w()))
     the_task.add_cpfs(x(v), x(v) + dt() * vx(v))
@@ -509,25 +509,28 @@ def test_rddl_integration_with_boolean_patterns_academic_advising_example_write(
     take_course = lang.function('take-course', course, lang.Boolean)
 
     one = lang.constant(1, lang.Real)
+    true = lang.constant(1, lang.Boolean)
+    false = lang.constant(0, lang.Boolean)
+
     # cpfs
-    the_task.add_cpfs(passed(c), ite((take_course(c) == 1) & ~(sum(c2, PREREQ(c2, c)) > 0),
+    the_task.add_cpfs(passed(c), ite((take_course(c) == 1) & ~(sumterm(c2, PREREQ(c2, c)) > 0),
                                      bernoulli(PRIOR_PROB_PASS_NO_PREREQ(c)),
                                      ite((take_course(c) == 1),
                                          bernoulli(PRIOR_PROB_PASS(c) +
                                          ((one - PRIOR_PROB_PASS(c))
-                                                   * (sumterm(c2, (PREREQ(c2, c) & passed(c2))))
+                                                   * (sumterm(c2, (ite((PREREQ(c2, c) == 1) & (passed(c2) == 1), true, false))))
                                                    / (one + sumterm(c2, (PREREQ(c2, c)))))),
                                          passed(c))))
 
     the_task.add_cpfs(taken(c), (taken(c) == 1) | (take_course(c) == 1))
 
     # cost function
-    the_task.reward = ( sumterm(c, COURSE_COST() * (ite((take_course(c) == 1) & (taken(c) == 0), one, zero)))
-                        + sumterm(c, COURSE_RETAKE_COST() * (ite((take_course(c) == 1) & (taken(c) == 1)))
-                        + (PROGRAM_INCOMPLETE_PENALTY() * ite(~(forall(c, (PROGRAM_REQUIREMENT(c) == 1) > (passed(c) == 1)), 1, 0)))))
+    the_task.reward = ( sumterm(c, COURSE_COST() * (ite((take_course(c) == 1) & (taken(c) == 0), true, false)))
+                        + sumterm(c, COURSE_RETAKE_COST() * (ite((take_course(c) == 1) & (taken(c) == 1), true, false))
+                        + (PROGRAM_INCOMPLETE_PENALTY() * ite(~(forall(c, (PROGRAM_REQUIREMENT(c) == 1) > (passed(c) == 1))), true, false))))
 
     # constraints
-    the_task.add_constraint(forall(c, ((take_course(c) == 1) > (passed(c) == 0)), rddl.ConstraintType.ACTION))
+    the_task.add_constraint(forall(c, ((take_course(c) == 1) > (passed(c) == 0))), rddl.ConstraintType.ACTION)
     the_task.add_constraint(sumterm(c, take_course(c)) <= COURSES_PER_SEMESTER(), rddl.ConstraintType.ACTION)
 
     # fluent metadata

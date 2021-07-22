@@ -6,7 +6,7 @@ import tarski.errors as err
 from tarski.benchmarks.counters import generate_fstrips_counters_problem
 from tarski.syntax import symref
 from tarski.syntax.ops import compute_sort_id_assignment
-from tarski.syntax.sorts import parent, ancestors, compute_signature_bindings, compute_direct_sort_map
+from tarski.syntax.sorts import parent, ancestors, compute_signature_bindings, compute_direct_sort_map, Interval
 from tarski.theories import Theory
 
 
@@ -207,12 +207,15 @@ def test_boolean_sort_no_arithmetic_theory():
     lang = tarski.language(theories=[Theory.BOOLEAN, Theory.EQUALITY])
     assert lang.Boolean in lang.sorts, 'the Boolean sort should be attached'
     assert lang.Object in lang.sorts, 'the object sort should be the only other sort'
-    assert len(lang.sorts) == 2, 'the Boolean and Object sorts should be the only sorts'
+    assert lang.Integer in lang.sorts
+    assert lang.Real in lang.sorts
+    assert lang.Natural in lang.sorts
+    assert len(lang.sorts) == 5, 'the Boolean and Object sorts should be attached, in addition to numeric sorts (implicitly)'
 
     assert isinstance(lang.Boolean, Interval), 'the Boolean sort is an interval'
     assert lang.Boolean.cardinality() == 2, 'Boolean sort is of cardinality 2'
     assert lang.Boolean.builtin == True
-    assert parent(lang.Boolean) == lang.Object, 'since there are no numeric sorts, the Boolean sort has parent Object'
+    assert parent(lang.Boolean) == lang.Natural, 'Boolean sort always has the naturals as parent'
 
 def test_boolean_sort_with_arithmetic_theory():
     lang = tarski.language(theories=[Theory.BOOLEAN, Theory.EQUALITY, Theory.ARITHMETIC])

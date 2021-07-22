@@ -7,7 +7,7 @@ from .. import modules
 from .common import load_tpl
 from ..fol import FirstOrderLanguage
 from ..syntax import implies, land, lor, neg, Connective, Quantifier, CompoundTerm, Interval, Atom, IfThenElse, \
-    Contradiction, Tautology, CompoundFormula, forall, ite, AggregateCompoundTerm, QuantifiedFormula, Term, Function, \
+    Contradiction, Tautology, CompoundFormula, forall, exists, ite, AggregateCompoundTerm, QuantifiedFormula, Term, Function, \
     Variable, Predicate, Constant, Formula, builtins
 from ..syntax import arithmetic as tm
 from ..syntax.temporal import ltl as tt
@@ -25,6 +25,7 @@ class TranslationError(Exception):
 logic_rddl_to_tarski = {
     '=>': implies,
     '^': land,
+    '&': land,
     '|': lor,
     '~': neg}
 
@@ -149,9 +150,15 @@ def translate_expression(lang, rddl_expr):
                 prod_expr = ite(prod_expr, Constant(1, lang.Integer), Constant(0, lang.Integer))
             return tm.product(var, prod_expr)
         elif expr_sym == 'forall':
-            var = translate_expression(lang, rddl_expr.args[0])
-            forall_expr = translate_expression(lang, rddl_expr.args[1])
-            return forall(var, forall_expr)
+            vars = [translate_expression(lang, a) for a in rddl_expr.args[:-1]]
+            #var = translate_expression(lang, rddl_expr.args[0])
+            forall_expr = translate_expression(lang, rddl_expr.args[-1])
+            return forall(*(vars + [forall_expr]))
+        elif expr_sym == 'exists':
+            vars = [translate_expression(lang, a) for a in rddl_expr.args[:-1]]
+            #var = translate_expression(lang, rddl_expr.args[0])
+            exists_expr = translate_expression(lang, rddl_expr.args[-1])
+            return exists(*(vars + [exists_expr]))
     elif expr_type == 'arithmetic':
         op = arithmetic_rddl_to_tarski[expr_sym]
         targs = [lang] + [translate_expression(lang, arg) for arg in rddl_expr.args]
@@ -211,9 +218,12 @@ class Reader:
         that specify a RDDL task
     """
 
-    def __init__(self, filename):
+    def __init__(self, domain_filename, inst_filename = None):
         self.language = None
-        self.rddl_model = self._load_rddl_model(filename)
+        if inst_filename is None:
+            self.rddl_model = self._load_rddl_model(domain_filename)
+        else:
+            self.rddl_model = self._load_rddl_model_ippc(domain_filename, inst_filename)
         self.parameters = Parameters()
         self.x0 = None
 
@@ -225,6 +235,22 @@ class Reader:
         parser.build()
         # parse RDDL
         return parser.parse(rddl)
+
+    @staticmethod
+    def _load_rddl_model_ippc(dom_filename, inst_filename):
+        with open(dom_filename, 'r') as input_file:
+            dom_text = input_file.read()
+        with open(inst_filename, 'r') as input_file:
+            inst_text = input_file.read()
+        full_text = '\n\n'.join([dom_text, inst_text])
+        # MRJ: for debug purposes
+        #for k, l in enumerate(full_text.split('\n')):
+        #    print(k, l)
+        parser = modules.import_pyrddl_parser()()
+        parser.debugging = True
+        parser.build()
+        # parse RDDL
+        return parser.parse(full_text)
 
     def _translate_types(self):
         for typename, parent_type in self.rddl_model.domain.types:
@@ -262,9 +288,11 @@ class Reader:
         # 3. acquire instance parameters
         self.parameters.horizon = self.rddl_model.instance.horizon
         self.parameters.discount = self.rddl_model.instance.discount
-        if self.rddl_model.instance.max_nondef_actions != 'pos-inf':
-            self.parameters.max_actions = self.rddl_model.instance.max_nondef_actions
-
+        try:
+            if self.rddl_model.instance.max_nondef_actions != 'pos-inf':
+                self.parameters.max_actions = self.rddl_model.instance.max_nondef_actions
+        except AttributeError:
+            pass
         # 4. recover initial state, interpretation of fluents
         self.x0 = Model(self.language)
         self.x0.evaluator = evaluate
@@ -317,6 +345,7 @@ class Requirements(Enum):
     CONTINUOUS = "continuous"
     MULTIVALUED = "multivalued"
     REWARD_DET = "reward-deterministic"
+    PRECONDITIONS = "preconditions"
     INTERMEDIATE_NODES = "intermediate-nodes"
     PARTIALLY_OBS = "partially-observed"
     CONCURRENT = "concurrent"
@@ -415,7 +444,30 @@ class Writer:
         self.non_fluent_signatures = set()
         self.interm_signatures = set()
 
-    def write_model(self, filename):
+    def rddl_2018_format(self):
+        tpl = load_tpl("rddl_model_2018.tpl")
+        domain_content = tpl.format(
+            domain_name=self.task.domain_name,
+            req_list=self.get_requirements(),
+            type_list=self.get_types(),
+            pvar_list=self.get_pvars(),
+            cpfs_list=self.get_cpfs(),
+            reward_expr=self.get_reward(),
+            action_precondition_list=self.get_preconditions(),
+            state_invariant_list=self.get_state_invariants(),
+            domain_non_fluents='{}_non_fluents'.format(self.task.instance_name),
+            object_list=self.get_objects(),
+            non_fluent_expr=self.get_non_fluent_init(),
+            instance_name=self.task.instance_name,
+            init_state_fluent_expr=self.get_state_fluent_init(),
+            non_fluents_ref='{}_non_fluents'.format(self.task.instance_name),
+            max_nondef_actions=self.get_max_nondef_actions(),
+            horizon=self.get_horizon(),
+            discount=self.get_discount()
+        )
+        return domain_content
+
+    def rddl_pre_2018_format(self):
         tpl = load_tpl("rddl_model.tpl")
         content = tpl.format(
             domain_name=self.task.domain_name,
@@ -436,8 +488,23 @@ class Writer:
             horizon=self.get_horizon(),
             discount=self.get_discount()
         )
+        return content
+
+
+    def write_model(self, filename, format_2018_style=False):
         with open(filename, 'w') as file:
+            if format_2018_style:
+                content = self.rddl_2018_format()
+            else:
+                content = self.rddl_pre_2018_format()
             file.write(content)
+        self.reset()
+
+    def reset(self):
+        self.need_obj_decl = []
+        self.need_constraints = {}
+        self.non_fluent_signatures = set()
+        self.interm_signatures = set()
 
     def get_requirements(self):
         return ', '.join([str(r) for r in self.task.requirements])
@@ -610,7 +677,9 @@ class Writer:
                     if len(re_st) > 0:
                         # MRJ: Random variables need parenthesis, other functions need
                         # brackets...
-                        if expr.symbol.symbol in builtins.get_random_binary_functions():
+                        relevant_functions = builtins.get_random_binary_functions()
+                        relevant_functions += builtins.get_random_unary_functions()
+                        if expr.symbol.symbol in relevant_functions:
                             st_str = '({})'.format(','.join(re_st))
                         else:
                             st_str = '[{}]'.format(','.join(re_st))
@@ -645,13 +714,13 @@ class Writer:
             re_sf = [self.rewrite(st) for st in expr.subformulas]
             re_sym = symbol_map[expr.connective]
             if len(re_sf) == 1:
-                return '{}{}'.format(re_sym, re_sf)
+                return '{}({})'.format(re_sym, re_sf[0])
             return '({} {} {})'.format(re_sf[0], re_sym, re_sf[1])
         elif isinstance(expr, QuantifiedFormula):
             re_f = self.rewrite(expr.formula)
             re_vars = ['?{} : {}'.format(x.symbol, x.sort.name) for x in expr.variables]
             re_sym = symbol_map[expr.quantifier]
-            return '{}_{{{}}} ({})'.format(re_sym, ','.join(re_vars), re_f)
+            return '{}_{{{}}} [{}]'.format(re_sym, ','.join(re_vars), re_f)
         elif isinstance(expr, AggregateCompoundTerm):
             re_expr = self.rewrite(expr.subterm)
             re_vars = ['?{} : {}'.format(x.symbol, x.sort.name) for x in expr.bound_vars]
@@ -659,7 +728,7 @@ class Writer:
                 re_sym = 'sum'
             elif expr.symbol == BFS.MUL:
                 re_sym = 'prod'
-            return '{}_{{{}}} ({})'.format(re_sym, ','.join(re_vars), re_expr)
+            return '{}_{{{}}} [{}]'.format(re_sym, ','.join(re_vars), re_expr)
         raise RuntimeError(f"Unknown expression type for '{expr}'")
 
     @staticmethod

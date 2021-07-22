@@ -29,7 +29,7 @@ class Sort:
         return hash(self.name)
 
     def __eq__(self, other):
-        return self.name == other.name
+        return self.name == other.name and self.language == other.language
 
     def contains(self, x):
         """ Return true iff the current sort contains a constant with the given value  """
@@ -155,7 +155,7 @@ class Interval(Sort):
         return dict(name=self.name, domain=[self.lower_bound, self.upper_bound])
 
     def domain(self):
-        if self.builtin or self.upper_bound - self.lower_bound > 9999:  # Yes, very hacky
+        if self.upper_bound - self.lower_bound > 9999:  # Yes, very hacky
             raise err.TarskiError(f'Cannot iterate over interval with range [{self.lower_bound}, {self.upper_bound}]')
         from . import Constant  # pylint: disable=import-outside-toplevel  # Avoiding circular references
         return (Constant(x, self) for x in range(self.lower_bound, self.upper_bound+1))
@@ -191,23 +191,12 @@ def children(s: Sort) -> Set[Sort]:
 
 def int_encode_fn(x):
     if isinstance(x, float) and not x.is_integer():
-        raise ValueError(x)  # We don't want 1.2 to get encoded as an int
+        raise ValueError()  # We don't want 1.2 to get encoded as an int
     return int(x)
 
 
 def float_encode_fn(x):
     return float(x)
-
-
-def build_the_bools(lang):
-    bools = lang.sort('Boolean')
-    # TODO: we really should be setting builtin to True, but at the moment this is undesirable, as in many places in
-    #       the code we seem to assume that "builtin" sorts are kind of "numeric" sorts, which leads us to try to do
-    #       things with the new Bool sort that cannot be done, e.g. to cast string object "True" to a value, etc.
-    # bools.builtin = True
-    lang.constant('True', bools)
-    lang.constant('False', bools)
-    return bools
 
 
 def build_the_naturals(lang):
@@ -227,12 +216,20 @@ def build_the_reals(lang):
     reals.builtin = True
     return reals
 
+def build_the_bools(lang):
+    bools = Interval('Boolean', lang, int_encode_fn, 0, 1, builtin=True)
+    bools.builtin = True
+    return bools
+
+def attach_the_non_arithmetic_bools(lang):
+    _ = lang.attach_sort(build_the_bools(lang), lang.ns.object)
 
 def attach_arithmetic_sorts(lang):
     real_t = lang.attach_sort(build_the_reals(lang), lang.ns.object)
     int_t = lang.attach_sort(build_the_integers(lang), real_t)
-    _ = lang.attach_sort(build_the_naturals(lang), int_t)
-
+    nat_t = lang.attach_sort(build_the_naturals(lang), int_t)
+    if not lang.has_sort("Boolean"):
+        _ = lang.attach_sort(build_the_bools(lang), nat_t)
 
 def compute_signature_bindings(signature):
     """ Return an exhaustive list of all possible bindings compatible with the given signature, i.e.
