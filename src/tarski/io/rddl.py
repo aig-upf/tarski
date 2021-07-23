@@ -17,6 +17,11 @@ from ..evaluators.simple import evaluate
 from ..errors import LanguageError
 from ..theories import Theory, language
 
+def is_boolean_constant_equal_to_true(expr):
+    if isinstance(expr, Constant):
+        if Theory.BOOLEAN in expr.language.theories:
+            return expr.sort == expr.language.Boolean and expr.is_syntactically_equal(expr.language.constant(1, expr.language.Boolean))
+    return False
 
 class TranslationError(Exception):
     pass
@@ -311,8 +316,8 @@ class Reader:
                 self.x0.add(expr.predicate, *expr.subterms)
 
 
-built_in_type_map = {'object': 'Object', 'real': 'Real', 'int': 'Integer'}
-reverse_built_in_type_map = {'Object': 'object', 'Real': 'real', 'Integer': 'int'}
+built_in_type_map = {'object': 'Object', 'real': 'Real', 'int': 'Integer', 'bool' : 'Boolean'}
+reverse_built_in_type_map = {'Object': 'object', 'Real': 'real', 'Integer': 'int', 'Boolean': 'bool'}
 
 
 def translate_builtin_type(lang: FirstOrderLanguage, name):
@@ -444,6 +449,9 @@ class Writer:
         self.non_fluent_signatures = set()
         self.interm_signatures = set()
 
+        self.bool_t = self.task.L.constant(1, self.task.L.Boolean)
+        self.bool_f = self.task.L.constant(0, self.task.L.Boolean)
+
     def rddl_2018_format(self):
         tpl = load_tpl("rddl_model_2018.tpl")
         domain_content = tpl.format(
@@ -489,7 +497,6 @@ class Writer:
             discount=self.get_discount()
         )
         return content
-
 
     def write_model(self, filename, format_2018_style=False):
         with open(filename, 'w') as file:
@@ -547,12 +554,22 @@ class Writer:
             return '{}'.format(head)
         return '{}({})'.format(head, ','.join(domain))
 
+    def get_valstring(self, fluent, value):
+        if self.get_type(fluent) == 'bool':
+            if value == 0:
+                return "false"
+            elif value == 1:
+                return "true"
+            else:
+                assert(False)
+        return str(value)
+
     def get_pvars(self):
         pvar_decl_list = []
         # state fluents
         for fl, v in self.task.state_fluents:
             rsig = self.get_signature(fl)
-            pvar_decl_list += ['\t{} : {{state-fluent, {}, default = {}}};'.format(rsig, self.get_type(fl), str(v))]
+            pvar_decl_list += ['\t{} : {{state-fluent, {}, default = {}}};'.format(rsig, self.get_type(fl), self.get_valstring(fl, v))]
         for fl, level in self.task.interm_fluents:
             rsig = self.get_signature(fl)
             try:
@@ -562,14 +579,14 @@ class Writer:
             pvar_decl_list += ['\t{} : {{interm-fluent, {}, level = {}}};'.format(rsig, self.get_type(fl), str(level))]
         for fl, v in self.task.action_fluents:
             rsig = self.get_signature(fl)
-            pvar_decl_list += ['\t{} : {{action-fluent, {}, default = {}}};'.format(rsig, self.get_type(fl), str(v))]
+            pvar_decl_list += ['\t{} : {{action-fluent, {}, default = {}}};'.format(rsig, self.get_type(fl), self.get_valstring(fl,v))]
         for fl, v in self.task.non_fluents:
             rsig = self.get_signature(fl)
             try:
                 self.non_fluent_signatures.add(fl.symbol.signature)
             except AttributeError:
                 self.non_fluent_signatures.add(fl.predicate.signature)
-            pvar_decl_list += ['\t{} : {{non-fluent, {}, default = {}}};'.format(rsig, self.get_type(fl), str(v))]
+            pvar_decl_list += ['\t{} : {{non-fluent, {}, default = {}}};'.format(rsig, self.get_type(fl), self.get_valstring(fl,v))]
         return '\n'.join(pvar_decl_list)
 
     def get_cpfs(self):
@@ -619,6 +636,11 @@ class Writer:
                     term_str = signature[0]
                 else:
                     term_str = str(self.task.L.get(signature[0])(*subterms))
+                if signature[-1] == "Boolean":
+                    if value.is_syntactically_equal(self.bool_f):
+                        value = "false"
+                    elif value.is_syntactically_equal(self.bool_t):
+                        value = "true"
                 non_fluent_init_list += ['\t{} = {};'.format(term_str, value)]
         for signature, defs in self.task.x0.predicate_extensions.items():
             if signature not in self.non_fluent_signatures:
@@ -648,6 +670,11 @@ class Writer:
                     term_str = signature[0]
                 else:
                     term_str = str(self.task.L.get(signature[0])(*subterms))
+                if signature[-1] == "Boolean":
+                    if value.is_syntactically_equal(self.bool_f):
+                        value = "false"
+                    elif value.is_syntactically_equal(self.bool_t):
+                        value = "true"
                 init_list += ['\t{} = {};'.format(term_str, value)]
         for signature, defs in self.task.x0.predicate_extensions.items():
             if signature in self.non_fluent_signatures \
@@ -689,7 +716,14 @@ class Writer:
             return '{}{}'.format(expr.symbol.signature[0], st_str)
         elif isinstance(expr, Atom):
             re_st = [self.rewrite(st) for st in expr.subterms]
+            st = expr.subterms
             if expr.predicate.builtin:
+                #check to see if we have a equality atom wrapping a Boolean codomain function to a literal 1 constant
+                if expr.predicate.symbol == BPS.EQ:
+                    if is_boolean_constant_equal_to_true(st[0]) and isinstance(st[1], CompoundTerm) and st[1].codomain == st[1].language.Boolean:
+                        return re_st[1]
+                    elif is_boolean_constant_equal_to_true(st[1]) and isinstance(st[0], CompoundTerm) and st[0].sort == st[0].language.Boolean:
+                            return re_st[0]
                 if expr.predicate.symbol in symbol_map.keys():
                     return '({} {} {})'.format(re_st[0], symbol_map[expr.predicate.symbol], re_st[1])
             st_str = ''
@@ -702,10 +736,21 @@ class Writer:
         elif isinstance(expr, Constant):
             return str(expr)
         elif isinstance(expr, IfThenElse):
-            cond = self.rewrite(expr.condition)
-            expr1 = self.rewrite(expr.subterms[0])
-            expr2 = self.rewrite(expr.subterms[1])
-            return 'if ({}) then ({}) else ({})'.format(cond, expr1, expr2)
+            #check to see if it is a conversion to a boolean type
+            isconversion = True 
+            lang = expr.subterms[0].language
+            for index, val in [(0, 1),(1, 0)]:
+                st = expr.subterms[index]
+                if not (isinstance(st, Constant) and st.sort == lang.Boolean and st.is_syntactically_equal(lang.constant(val, lang.Boolean))):
+                    isconversion = False
+                    break
+            if isconversion:
+                return self.rewrite(expr.condition)
+            else:
+                cond = self.rewrite(expr.condition)
+                expr1 = self.rewrite(expr.subterms[0])
+                expr2 = self.rewrite(expr.subterms[1])
+                return 'if ({}) then ({}) else ({})'.format(cond, expr1, expr2)
         elif isinstance(expr, Tautology):
             return 'true'
         elif isinstance(expr, Contradiction):
@@ -720,7 +765,7 @@ class Writer:
             re_f = self.rewrite(expr.formula)
             re_vars = ['?{} : {}'.format(x.symbol, x.sort.name) for x in expr.variables]
             re_sym = symbol_map[expr.quantifier]
-            return '{}_{{{}}} [{}]'.format(re_sym, ','.join(re_vars), re_f)
+            return '({}_{{{}}} [{}])'.format(re_sym, ','.join(re_vars), re_f)
         elif isinstance(expr, AggregateCompoundTerm):
             re_expr = self.rewrite(expr.subterm)
             re_vars = ['?{} : {}'.format(x.symbol, x.sort.name) for x in expr.bound_vars]
@@ -728,7 +773,7 @@ class Writer:
                 re_sym = 'sum'
             elif expr.symbol == BFS.MUL:
                 re_sym = 'prod'
-            return '{}_{{{}}} [{}]'.format(re_sym, ','.join(re_vars), re_expr)
+            return '({}_{{{}}} [{}])'.format(re_sym, ','.join(re_vars), re_expr)
         raise RuntimeError(f"Unknown expression type for '{expr}'")
 
     @staticmethod

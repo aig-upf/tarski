@@ -476,7 +476,7 @@ def test_parametrized_model_with_random_vars_and_waypoints_boolean():
 
 def test_rddl_integration_with_boolean_patterns_academic_advising_example_write():
     lang = tarski.language('standard', [Theory.BOOLEAN, Theory.EQUALITY, Theory.ARITHMETIC, Theory.RANDOM])
-    the_task = Task(lang, 'academic_advising', 'instance_001')
+    the_task = Task(lang, 'academic_advising', 'academic_advising_001')
 
     the_task.requirements = [rddl.Requirements.REWARD_DET, rddl.Requirements.PRECONDITIONS]
 
@@ -513,7 +513,7 @@ def test_rddl_integration_with_boolean_patterns_academic_advising_example_write(
     false = lang.constant(0, lang.Boolean)
 
     # cpfs
-    the_task.add_cpfs(passed(c), ite((take_course(c) == 1) & ~(sumterm(c2, PREREQ(c2, c)) > 0),
+    the_task.add_cpfs(passed(c), ite((take_course(c) == 1) & ~(exists(c2, PREREQ(c2, c) == 1)),
                                      bernoulli(PRIOR_PROB_PASS_NO_PREREQ(c)),
                                      ite((take_course(c) == 1),
                                          bernoulli(PRIOR_PROB_PASS(c) +
@@ -525,12 +525,12 @@ def test_rddl_integration_with_boolean_patterns_academic_advising_example_write(
     the_task.add_cpfs(taken(c), (taken(c) == 1) | (take_course(c) == 1))
 
     # cost function
-    the_task.reward = ( sumterm(c, COURSE_COST() * (ite((take_course(c) == 1) & (taken(c) == 0), true, false)))
-                        + sumterm(c, COURSE_RETAKE_COST() * (ite((take_course(c) == 1) & (taken(c) == 1), true, false))
-                        + (PROGRAM_INCOMPLETE_PENALTY() * ite(~(forall(c, (PROGRAM_REQUIREMENT(c) == 1) > (passed(c) == 1))), true, false))))
+    the_task.reward = ( sumterm(c, COURSE_COST() * (ite((take_course(c) == 1) & ~(taken(c) == 1), true, false)))
+                        + sumterm(c, COURSE_RETAKE_COST() * (ite((take_course(c) == 1) & (taken(c) == 1), true, false)))
+                        + (PROGRAM_INCOMPLETE_PENALTY() * ite(~(forall(c, (PROGRAM_REQUIREMENT(c) == 1) > (passed(c) == 1))), true, false)))
 
     # constraints
-    the_task.add_constraint(forall(c, ((take_course(c) == 1) > (passed(c) == 0))), rddl.ConstraintType.ACTION)
+    the_task.add_constraint(forall(c, ((take_course(c) == 1) > ~(passed(c) == 1))), rddl.ConstraintType.ACTION)
     the_task.add_constraint(sumterm(c, take_course(c)) <= COURSES_PER_SEMESTER(), rddl.ConstraintType.ACTION)
 
     # fluent metadata
@@ -601,7 +601,7 @@ def test_rddl_integration_with_boolean_patterns_academic_advising_example_write(
     the_task.x0.set(PROGRAM_REQUIREMENT(c0202), 1)
     the_task.x0.set(PROGRAM_REQUIREMENT(c0101), 1)
     the_task.x0.set(PROGRAM_REQUIREMENT(c0002), 1)
-    the_task.x0.set(PROGRAM_REQUIREMENT(c0001), 1)
+    the_task.x0.set(PROGRAM_REQUIREMENT(c0001), 0)
 
     the_task.x0.set(passed(c0000), 0)
 
