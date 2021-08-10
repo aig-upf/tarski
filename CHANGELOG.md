@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 ### Added
+ - Temporal planning model:
+   - Added concept of post-condition (i.e. `at end` conditions) `Action` class
+   - Added concept of duration to `Action` class
+   - Added concept of grounding constraints to `Action` class
+ - Naive grounding features:
+   - Added method to exhaustively ground terms with subterms that are constants. For instance, the term `foo(x, a)`
+   where `x` is a variable and `a` is a constant can be now grounded taking into account that the second argument of
+   `foo` is already fixed to `a`.
+
 ### Removed
 ### Deprecated
 ### Fixed
@@ -14,10 +23,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `FirstOrderLanguage.is_subtype`: it is now checked if there is a path connecting two types in the type hierarchy. If
     that is the case, this fact is recorded in the dictionary `indirect_ancestor_sorts`. Whenever a change is made 
     in the type hierarchy (e.g. adding a new sort or changing the parent of a sort), the cache is invalidated.
- - Temporal planning model:
-   - Added concept of post-condition (i.e. `at end` conditions) `Action` class
-   - Added concept of duration to `Action` class
-   - Added concept of grounding constraints to `Action` class
  
     
 ## [0.7.0]
