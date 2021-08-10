@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Temporal planning model:
    - Added concept of post-condition (i.e. `at end` conditions) `Action` class
    - Added concept of duration to `Action` class
+   - Added concept of grounding constraints to `Action` class
  
     
 ## [0.7.0]

@@ -160,6 +160,7 @@ class Action:
         self.parameters = kwargs['parameters']
         self.max_eff_time = 0.0
         self.duration = kwargs.get('duration', None)
+        self.grounding_constraints = kwargs.get('grounding_constraints', [])
         self.effect_times = {}
         # precondition
         prec = kwargs['precondition']
