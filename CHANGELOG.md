@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
  - Fixed issue with printing of types in untyped domains (#113)
  - Use real instead of integer numbers by default when parsing with strict_with_requirements=False (#114)
+ - `FirstOrderLanguage.is_subtype`: it is now checked if there is a path connecting two types in the type hierarchy. If
+    that is the case, this fact is recorded in the dictionary `indirect_ancestor_sorts`. Whenever a change is made 
+    in the type hierarchy (e.g. adding a new sort or changing the parent of a sort), the cache is invalidated.
+    
 
 
 ## [0.7.0]

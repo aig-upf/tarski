@@ -23,6 +23,7 @@ class FirstOrderLanguage:
 
         # ancestor_sorts[t] is a set containing all supertypes of sort 't', but NOT 't'
         self.ancestor_sorts = defaultdict(set)
+        self.indirect_ancestor_sorts = defaultdict(set)
 
         self._functions = {}
         self._predicates = {}
@@ -99,6 +100,7 @@ class FirstOrderLanguage:
         self._global_index['object'] = sort
         self.immediate_parent[sort] = None
         self.ancestor_sorts[sort] = set()
+        self.indirect_ancestor_sorts[sort] = set()
 
     @property
     def Object(self):
@@ -198,6 +200,9 @@ class FirstOrderLanguage:
 
         self.immediate_parent[sort] = parent
         self.ancestor_sorts[sort].update(inclusion_closure(parent))
+        for s in self.indirect_ancestor_sorts:
+            self.indirect_ancestor_sorts[s] = set()
+        self.indirect_ancestor_sorts[sort] = set()
 
     def _retrieve_sort(self, obj: Union[Sort, str]) -> Sort:
         return self._retrieve_object(obj, Sort)
@@ -344,7 +349,27 @@ class FirstOrderLanguage:
     def is_subtype(self, t, st):
         t = self._retrieve_sort(t)
         st = self._retrieve_sort(st)
-        return t == st or self.is_strict_subtype(t, st)
+        return t == st or self.is_strict_subtype(t, st) or self.connected_in_type_hierarchy(t, st)
+
+    def connected_in_type_hierarchy(self, t_0, t_goal):
+        """
+        Checks if there is a path in the type hierarchy between t_0 and t_goal
+        :param t_0:
+        :param t_goal:
+        :return:
+        """
+        if t_goal in self.indirect_ancestor_sorts[t_0]:
+            return True
+        OPEN = [t for t in self.ancestor_sorts[t_0]]
+        while len(OPEN) != 0:
+            t = OPEN.pop()
+            if t == t_goal:
+                self.indirect_ancestor_sorts[t_0].add(t_goal)
+                return True
+            for t2 in self.ancestor_sorts[t]:
+                if t2 not in OPEN:
+                    OPEN += [t2]
+        return False
 
     def is_strict_subtype(self, t, st):
         t = self._retrieve_sort(t)
