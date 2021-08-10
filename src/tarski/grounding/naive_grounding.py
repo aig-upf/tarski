@@ -2,6 +2,7 @@
  Classes and methods related to the naive grounding strategy of planning problems.
 """
 import itertools
+from typing import List
 
 from ..grounding.ops import approximate_symbol_fluency
 from ..syntax import Constant, Variable, CompoundTerm, Atom, create_substitution, termlists_are_equal, termlist_hash
@@ -153,5 +154,25 @@ def ground_symbols_exhaustively(symbols):
 
         for binding in itertools.product(*domains):
             variables.add(StateVariableLite(symbol, binding))
+
+    return variables
+
+
+def ground_partially_grounded_terms_exhaustively(terms: List[CompoundTerm]) -> SymbolIndex:
+    """
+    Creates an index with all possible groundings for the given terms, taking into account arguments which have
+    been set to a constant
+    :param terms:
+    :return:
+    """
+    variables = SymbolIndex()
+
+    for term in terms:
+        domains = [s.domain() for s in term.symbol.domain]
+        for i in range(len(domains)):
+            if isinstance(term.subterms[i], Constant):
+                domains[i] = [term.subterms[i]]
+        for binding in itertools.product(*domains):
+            variables.add(StateVariableLite(term.symbol, binding))
 
     return variables
