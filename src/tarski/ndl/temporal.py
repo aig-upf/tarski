@@ -159,6 +159,7 @@ class Action:
         self.name = kwargs['name']
         self.parameters = kwargs['parameters']
         self.max_eff_time = 0.0
+        self.duration = kwargs.get('duration', None)
         self.effect_times = {}
         # precondition
         prec = kwargs['precondition']
@@ -168,6 +169,15 @@ class Action:
             raise NDLSyntaxError("NDL Syntactic Error: precondition of action must be a compound formula,"
                                  " atom or tautology (given: {})".format(prec))
         self.precondition = prec
+        # post-condition
+        post = kwargs.get('postcondition', None)
+        if post is not None:
+            if not isinstance(post, CompoundFormula) \
+                    and not isinstance(post, Atom)\
+                    and not isinstance(post, Tautology):
+                raise NDLSyntaxError("NDL Syntactic Error: post-condition of action must be a compound formula,"
+                                     " atom or tautology (given: {})".format(prec))
+        self.postcondition = post
         # resource requirements
         self.locks = []
         self.levels = []

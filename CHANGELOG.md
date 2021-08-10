@@ -14,9 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `FirstOrderLanguage.is_subtype`: it is now checked if there is a path connecting two types in the type hierarchy. If
     that is the case, this fact is recorded in the dictionary `indirect_ancestor_sorts`. Whenever a change is made 
     in the type hierarchy (e.g. adding a new sort or changing the parent of a sort), the cache is invalidated.
+ - Temporal planning model:
+   - Added concept of post-condition (i.e. `at end` conditions) `Action` class
+   - Added concept of duration to `Action` class
+ 
     
-
-
 ## [0.7.0]
 ### Added
   - Added some basic forward search capabilities (#101).
