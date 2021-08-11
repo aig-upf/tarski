@@ -55,6 +55,7 @@ class DuplicateDefinition(SyntacticError):
 class UndefinedElement(SyntacticError):
     def __init__(self, name, msg=None):
         super().__init__(f'Undefined element "{name}" (error msg: {msg})')
+        self.name = name
 
 
 class UnexpectedElementType(SyntacticError):

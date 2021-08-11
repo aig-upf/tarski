@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    - Added method to exhaustively ground terms with subterms that are constants. For instance, the term `foo(x, a)`
    where `x` is a variable and `a` is a constant can be now grounded taking into account that the second argument of
    `foo` is already fixed to `a`.
+ - Error reporting and handling:
+   - `UndefinedTerm`: added name of term as an argument. This enables processing exception data, for instance,
+   to initialise such terms to some value like `infty` or force the failure to ground some structural element in
+   a domain, such as an action.
 
 ### Removed
 ### Deprecated
