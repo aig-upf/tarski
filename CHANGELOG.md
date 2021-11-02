@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 ### Deprecated
 ### Fixed
+ - Fixed issue with parsing Fast Downward's SAS instance data, due to whitespace not being ignored as it should (#121)
  - Fixed issue with printing of types in untyped domains (#113)
  - Use real instead of integer numbers by default when parsing with strict_with_requirements=False (#114)
  - `FirstOrderLanguage.is_subtype`: it is now checked if there is a path connecting two types in the type hierarchy. If
