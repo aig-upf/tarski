@@ -1,3 +1,4 @@
+import pytest
 from tarski.grounding.ops import approximate_symbol_fluency
 from tarski.syntax.util import get_symbols
 
@@ -19,7 +20,7 @@ SAMPLE_STRIPS_INSTANCES = [
 ]
 
 SAMPLE_FSTRIPS_INSTANCES = [
-    "counters-fn:instance_4.pddl",  # functions, ints
+#    "counters-fn:instance_4.pddl",  # functions, ints
 ]
 
 

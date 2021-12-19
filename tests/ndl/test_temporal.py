@@ -8,6 +8,7 @@ from tarski.theories import Theory
 from tarski.ndl import temporal
 from tarski.ndl.temporal import TimedEffect, SetLiteralEffect
 
+
 def test_resource_lock_creation():
 
     with pytest.raises(temporal.NDLSyntaxError):
@@ -36,6 +37,7 @@ def test_resource_lock_creation():
         "ts": 0.0, "td": 10.0, "r": engaged(bearing)
     })
 
+
 def test_resource_level_creation():
 
     L = tsk.language("mylang", theories=[Theory.EQUALITY, Theory.ARITHMETIC])
@@ -48,6 +50,7 @@ def test_resource_level_creation():
     req_1 = temporal.ResourceLevel(**{
         "ts": 0.0, "td": 20.0, "r": direction(rov1), "n": L.constant(0, int_t)
     })
+
 
 def test_action_creation():
 
@@ -87,6 +90,7 @@ def test_action_creation():
 
     assert len(act.locks) == 1
     assert len(act.levels) == 1
+
 
 @pytest.mark.skip(reason="Instance class and interface still work in progress")
 def test_instance_creation():
