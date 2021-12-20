@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 ### Deprecated
+ - Disabled references to Functional STRIPS `counters` instances in tests
 ### Fixed
  - Fixed issue with parsing Fast Downward's SAS instance data, due to whitespace not being ignored as it should (#121)
  - Fixed issue with printing of types in untyped domains (#113)
