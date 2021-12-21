@@ -5,8 +5,46 @@
         - No difference is made between causal laws describing change of values or their persistence
         - Representation of action costs is not baked into the class
 """
-import typing
-from tarski.syntax import Term
+from typing import Union
+from tarski.syntax import Term, symref
+from tarski.sas.variable import Variable
+
+
+class InvalidEffectDefinition(Exception):
+    pass
+
+
+def wrap_term(t: Union[Term, None]):
+    if t is None:
+        return t
+    return symref(t)
+
+
+class Effect(object):
+
+    def __init__(self, **kwargs):
+        self._var = kwargs['var']
+        self._pre = wrap_term(kwargs['pre'])
+        self._post = wrap_term(kwargs['post'])
+        self.tuple = (self.var.id, self.var.index(self._pre), self.var.index(self._post))
+
+    @property
+    def var(self):
+        return self._var
+
+    @property
+    def pre(self):
+        return self._pre
+
+    @property
+    def post(self):
+        return self._post
+
+    def __eq__(self, other):
+        return self.var.id == other.var.id and self.pre == other.pre and self.post == other.post
+
+    def __hash__(self):
+        return hash(self.tuple)
 
 
 class Action(object):
@@ -14,6 +52,9 @@ class Action(object):
     def __init__(self, **kwargs):
         self._name = kwargs.get('name', None)
         self._effects = kwargs.get('effects', [])
+        for eff in self._effects:
+            if not isinstance(eff, Effect):
+                raise RuntimeError("Action effect has invalid type: got: {} expected: Effect".format(type(eff)))
 
     @property
     def name(self):

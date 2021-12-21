@@ -2,9 +2,54 @@ import pytest
 import tarski as tsk
 from tarski.theories import Theory
 from tarski.syntax import land, symref
-from tarski.sas import Action, Variable, TemporalAction
+from tarski.sas import Effect, Action, Variable, TemporalAction
 from itertools import combinations, permutations
 
+
+@pytest.mark.sas
+def test_variable_interface():
+    """
+        Creates manually a SAS+ instance without domain constraints/axioms, following the example
+        Fast-Downward translator output described here:
+            - https://www.fast-downward.org/TranslatorOutputFormat4
+    """
+    L = tsk.language("mylang", theories=[Theory.BOOLEAN, Theory.EQUALITY, Theory.ARITHMETIC])
+
+    # Types
+    ball_t = L.sort('ball', L.Object)
+    gripper_t = L.sort('gripper', L.Object)
+    room_t = L.sort('room', L.Object)
+
+    # Constant objects
+    none = L.constant("none", L.Object)
+    the_balls = [L.constant('ball{}'.format(i), ball_t) for i in range(5)]
+    grippers = [L.constant(gripper_name, gripper_t) for gripper_name in ('left', 'right')]
+    the_rooms = [L.constant('room{}'.format(i), room_t) for i in ('a', 'b')]
+
+    # predicates
+    carry = L.function('carry', ball_t, gripper_t, L.Integer)
+    free = L.function('free', gripper_t, L.Integer)
+    at_ball = L.function('at_ball', ball_t, room_t, L.Integer)
+    at_robot = L.function('at_robot', room_t, L.Integer)
+
+    var0 = Variable(id=0,
+                    symbol=L.function('var0', L.Integer),
+                    domain=[carry(the_balls[0], grippers[1]),
+                            carry(the_balls[1], grippers[1]),
+                            carry(the_balls[2], grippers[1]),
+                            free(grippers[1]),
+                            carry(the_balls[3], grippers[1])])
+
+    assert var0.index(symref(free(grippers[1]))) == 3
+
+    var3 = Variable(id=3,
+                    symbol=L.function('var3', L.Integer),
+                    domain=[at_ball(the_balls[2], the_rooms[0]),
+                            at_ball(the_balls[2], the_rooms[1])],
+                    needs_closure=True)
+
+    assert var3.index(symref(at_ball(the_balls[2], the_rooms[1]))) == 1
+    assert var3.index(None) == -1
 
 @pytest.mark.sas
 def test_gripper():
@@ -82,8 +127,8 @@ def test_gripper():
     # Sample action encoding
     act = Action(name=pick_ball(the_balls[0], grippers[0], the_rooms[0]),
                  effects=[
-                     (var1.symbol, var1.domain[1], var1.domain[3]),
-                     (var4.symbol, var4.domain[0], var4.domain[2])
+                     Effect(var=var1, pre=free(grippers[0]), post=carry(the_balls[0], grippers[0])),
+                     Effect(var=var4, pre=at_ball(the_balls[0], the_rooms[0]), post=None)
                  ])
 
 
@@ -132,19 +177,19 @@ def test_temporal_action():
 
             evt0 = Action(name=swap_evt0(qstates[qs1], qstates[qs2], qbits[qb1], qbits[qb2]),
                           effects=[
-                              (X[qs1], X[qs1].domain[X[qs1].index(symref(at(qs1, qb1)))], X[qs1].domain[-1]),
-                              (X[qs2], X[qs2].domain[X[qs2].index(symref(at(qs2, qb2)))], X[qs2].domain[-1])
+                              Effect(var=X[qs1], pre=at(qstates[qs1], qbits[qb1]), post=None),
+                              Effect(var=X[qs2], pre=at(qstates[qs2], qbits[qb2]), post=None)
                           ])
             evt1 = Action(name=swap_evt1(qstates[qs1], qstates[qs2], qbits[qb1], qbits[qb2]),
                           effects=[
-                              (X[qs1], X[qs1].domain[-1], X[qs1].domain[X[qs1].index(symref(at(qs1, qb2)))]),
-                              (X[qs2], X[qs2].domain[-1], X[qs2].domain[X[qs2].index(symref(at(qs2, qb1)))])
+                              Effect(var=X[qs1], pre=None, post=at(qstates[qs1], qbits[qb2])),
+                              Effect(var=X[qs2], pre=None, post=at(qstates[qs2], qbits[qb1]))
                           ])
             swap_action = TemporalAction(name=swap_act(qstates[qs1], qstates[qs2], qbits[qb1], qbits[qb2]),
                                         events=[(0.0, evt0), (3.0, evt1)])
             swap_actions += [swap_action]
 
-    assert len(swap_actions) == 20
+    assert len(swap_actions) == 1568
 
 
 
