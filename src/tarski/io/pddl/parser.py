@@ -1285,14 +1285,16 @@ class PDDLparser(object):
 
     def p_metric_spec(self, p):
         '''metric_spec  : LPAREN rwMETRIC optimization metric_f_exp RPAREN'''
-        print("Warning: metric specifications are being ignored at the moment")
-        pass
+        self.instance.process_objective_definition(dict(mode=p[3], definition=p[4]))
 
     def p_optimization(self, p):
         '''
         optimization    : rwMINIMIZE
                         | rwMAXIMIZE'''
-        p[0] = p[1]
+        if p[1] == self.lexer.symbols.rwMINIMIZE:
+            p[0] = ObjectiveMode.MINIMIZE
+            return
+        p[0] = ObjectiveMode.MAXIMIZE
 
     def p_metric_f_exp(self, p):
         '''
@@ -1303,8 +1305,16 @@ class PDDLparser(object):
                         | LPAREN ID list_of_name RPAREN
                         | ID
                         | LPAREN rwTOTAL_TIME RPAREN
+                        | LPAREN rwTOTAL_COST RPAREN
                         | LPAREN rwIS_VIOLATED pref_name RPAREN'''
-        pass
+        if p[2] == self.lexer.symbols.rwTOTAL_TIME:
+            p[0] = dict(type=ObjectiveType.TOTAL_TIME, expr=None)
+            return
+        if p[2] == self.lexer.symbols.rwTOTAL_COST:
+            p[0] = dict(type=ObjectiveType.TOTAL_COST, expr=None)
+            return
+        print("Warning: implementation of `metric` section still work in progress, objective is ignored")
+        p[0] = dict(type=ObjectiveType.UNSPECIFIED, expr=None)
 
     def p_list_of_metric_f_exp(self, p):
         '''

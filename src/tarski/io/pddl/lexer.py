@@ -119,6 +119,7 @@ class LexSymbols(object):
         self.rwMAXIMIZE = 'maximize'
         self.rwDT = '#t'
         self.rwTOTAL_TIME = 'total-time'
+        self.rwTOTAL_COST = 'total-cost'
         self.rwIS_VIOLATED = 'is-violated'
         self.rwALL = 'all'
 

@@ -9,6 +9,7 @@
 
 from collections import namedtuple, OrderedDict
 from typing import Tuple
+from enum import Enum
 
 import tarski as tsk
 from tarski.io.pddl.errors import UnsupportedFeature
@@ -19,11 +20,32 @@ from tarski.syntax.formulas import lor, Quantifier, QuantifiedFormula
 from tarski.syntax.sorts import Interval, int_encode_fn
 from tarski.syntax import symref
 
+
 AssignmentEffectData = namedtuple('AssignmentEffectData', ['lhs', 'rhs'])
 EventData = namedtuple('EventData', ['pre', 'post'])
 ActionData = namedtuple('ActionData', ['name', 'parameters', 'pre', 'post'])
 DurativeActionData = namedtuple('DurativeActionData', ['name', 'parameters', 'at_start', 'at_end', 'overall', 'duration'])
 DerivedPredicateData = namedtuple('DerivedPredicateData', ['head', 'parameters', 'body'])
+ObjectiveData = namedtuple('Objectivedata', ['mode', 'type', 'expr'])
+
+
+class ObjectiveMode(Enum):
+    """
+    Enumeration with mode of optimization
+    """
+    MINIMIZE = 0
+    MAXIMIZE = 1
+
+
+class ObjectiveType(Enum):
+    """
+    Enumeration of all possible types of objectives
+    """
+    UNSPECIFIED = 0
+    TOTAL_COST = 1
+    TOTAL_TIME = 2
+    FLUENT_EXPR = 3
+    VIOLATED_PREFS = 4
 
 
 class InstanceModel(object):
@@ -49,8 +71,9 @@ class InstanceModel(object):
         self._durative = []
         self._derived = []
 
-        self._init = None
-        self._goal = None
+        self.init = None
+        self.goal = None
+        self._objective = ObjectiveData(mode=ObjectiveMode.MINIMIZE, type=ObjectiveType.UNSPECIFIED, expr=None)
 
         self.L = tsk.language('pddl-theory', theories=[Theory.EQUALITY, Theory.ARITHMETIC])
 
@@ -127,6 +150,14 @@ class InstanceModel(object):
         :return:
         """
         return self._derived
+
+    @property
+    def objective(self):
+        """
+        Objective function
+        :return:
+        """
+        return self._objective
 
     def process_supertype_definition(self, supertype, subtypes, lineno):
         """
@@ -328,3 +359,15 @@ class InstanceModel(object):
         self._derived += [DerivedPredicateData(head=head,
                                                parameters=[e['term'] for e in parameters],
                                                body=body)]
+
+    def process_objective_definition(self, objective_data):
+        """
+        Processes the objective definition
+        :param objective_data:
+        :return:
+        """
+        self._objective = ObjectiveData(mode=objective_data['mode'],
+                                        type=objective_data['definition']['type'],
+                                        expr=objective_data['definition']['expr'])
+        if self.debug:
+            print("Objective: mode: {} type: {} expr: {}".format(self.objective.mode, self.objective.type, self.objective.expr))
