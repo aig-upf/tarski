@@ -18,6 +18,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    - `UndefinedTerm`: added name of term as an argument. This enables processing exception data, for instance,
    to initialise such terms to some value like `infty` or force the failure to ground some structural element in
    a domain, such as an action.
+ - PDDL parsing (WIP):
+   - Current implementation using `ply` package, version 3.11. Eventually will be refactored for `sly`. Plan is 
+   eventually to parse correctly and generate instance structural elements for PDDL 3.1.
+   - Supported features:
+     - Instantaneous actions
+     - Durative actions
+     - Derived predicates
+     - Object fluents
+     - Metrics associated with IPC formulations of temporal planning
+   - Partial support:
+     - Conditional effects
+     - Quantified conditions in preconditions, conditional effects and derived predicates
+     - Arithmetic expressions and effects
+ - New formula visitor: `CollectEqualityAtoms`
+   - What it says on the tin: collects equality atoms that appear as subformulas of a given formula
+ - New `pip` dependency: `ply`
 
 ### Removed
 ### Deprecated

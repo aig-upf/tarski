@@ -91,6 +91,9 @@ def main():
             'rddl': [
                 "pyrddl @ https://github.com/thiagopbueno/pyrddl/archive/9ccab6a.zip#sha1=a584f90381bf7d48b85976807b9bc6c0cb2761ba"
             ],
+            'parsegen': [
+                'ply==3.11'
+            ]
         },
 
         # This will include non-code files specified in the manifest, see e.g.
