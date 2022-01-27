@@ -57,9 +57,17 @@ def main(opt: Namespace):
     # predicates, etc.)
     instance_data = parser.instance
 
+    # constants are grouped per type
+    total_constants = 0
+    print("Objects (constant symbols) found in the instance:")
+    for typename, constant_list in instance_data.constants.items():
+        print("Type:", typename, "# constants:", len(constant_list))
+        total_constants += len(constant_list)
+    print("Total constants (objects) in instance:", total_constants)
+
     print("instance data:")
     print("# types:", len(instance_data.types))
-    print("# constants:", len(instance_data.constants))
+    print("# constants:", total_constants)
     print("# predicates:", len(instance_data.predicates))
     print("# functions:", len(instance_data.functions))
     print("# instantaneous actions:", len(instance_data.actions))
