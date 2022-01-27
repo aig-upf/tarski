@@ -33,9 +33,9 @@ def main(opt: Namespace):
     print("Domain file:", opt.domain_file)
     print("Problem file:", opt.problem_file)
 
-    # The very first step is to obtain a `PDDLParser` instance, which we set to debug mode to illustrate
-    # the internals of the parsing process.
-    parser = PDDLparser(debug=True)
+    # The very first step is to obtain a `PDDLParser` instance. Turn the argument to `True` if you want to
+    # see a trace of the work done by the parser
+    parser = PDDLparser(debug=False)
 
     # Setting up the parser is a two-step process, as it is required to invoke the `build()` method to
     # set internal data structures and other parameters (such a log file to store error messages etc.).
@@ -52,6 +52,25 @@ def main(opt: Namespace):
     # We note that domain and problem sections of a PDDL specification can be combined into one
     # single file/stream, or directly from a memory buffer, as it best suits. Whatever the modality,
     # the domain file needs to be parsed first always.
+
+    # once parsed correctly, we can then access the structural elements of the instance (e.g. types,
+    # predicates, etc.)
+    instance_data = parser.instance
+
+    print("instance data:")
+    print("# types:", len(instance_data.types))
+    print("# constants:", len(instance_data.constants))
+    print("# predicates:", len(instance_data.predicates))
+    print("# functions:", len(instance_data.functions))
+    print("# instantaneous actions:", len(instance_data.actions))
+    print("# durative actions:", len(instance_data.durative))
+    print("# derived predicates:", len(instance_data.derived))
+
+    # In this example, we use the instance data to "fill in" an instance of the class `Problem` of
+    # the `fstrips` module, which can then be grounded with the provided grounding algorithms (see
+    # modules `tarski.grounding.lp_grounding` and `tarski.grounding.naive_grounding`.
+
+    # TBC
 
 
 

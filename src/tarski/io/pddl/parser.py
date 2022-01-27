@@ -648,7 +648,8 @@ class PDDLparser(object):
         elif p[2] == self.lexer.symbols.rwIMPLY:
             p[0] = lor(neg(p[3]), p[4])
         elif p[2] == self.lexer.symbols.rwEXISTS:
-            print('existential quantifier, scope tokens: {} formula: {}'.format(p[3], p[4]))
+            if self.debug:
+                print('existential quantifier, scope tokens: {} formula: {}'.format(p[3], p[4]))
             vars = p[3]
             phi = p[4]
             p[0] = QuantifiedFormula(Quantifier.Exists, [entry['term'] for entry in vars], phi)
@@ -783,7 +784,6 @@ class PDDLparser(object):
                 # check if variable in scope
                 try:
                     var_ref = self.var_dict[p[1]]
-                    print(var_ref, type(var_ref))
                     p[0] = var_ref
                     return
                 except KeyError as e:
@@ -1237,7 +1237,8 @@ class PDDLparser(object):
                 msg = "Error parsing derived predicate, head predicate '{}' type mismatch, check definition in (:predicates ...)".format(symbol)
                 raise SemanticError(self.lexer.lineno(), msg)
         dpred_body = p[4]
-        print("Body: {} type: {}".format(dpred_body, type(dpred_body)))
+        if self.debug:
+            print("Body: {} type: {}".format(dpred_body, type(dpred_body)))
         self.instance.process_derived_predicate_skeleton(head_pred, var_list, dpred_body)
         # clear up scope
         for entry in var_list:
