@@ -257,7 +257,8 @@ class PDDLlex(object):
     def is_identifier(self, v):
         return self.regexp['ID'].match(v) is not None
 
-    def is_variable(self, v):
+    def is_variable(self, v: str):
+        #print("is variable:", v, type(v))
         return self.regexp['VAR'].match(v) is not None
 
     def __call__(self):

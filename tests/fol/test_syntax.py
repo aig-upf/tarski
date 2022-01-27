@@ -383,3 +383,15 @@ def test_language_equality():
     #
     # lang1.constant('c', 'object')
     # assert lang1 != lang2
+
+
+def test_equality_and_terms_behaviour():
+    lang = fstrips.language(theories=[Theory.EQUALITY, Theory.ARITHMETIC])
+
+    f = lang.function('foo', lang.Object, lang.Object)
+    x = lang.variable('?x', lang.Object)
+    o = lang.constant('o', lang.Object)
+
+    phi = f(o) == x
+
+    assert isinstance(phi, Atom)

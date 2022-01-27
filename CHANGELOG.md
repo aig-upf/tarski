@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    - Supported features:
      - Instantaneous actions
      - Durative actions
+       - Care has been taken so the parser allows the keyword `at` to be used as a predicate/function/type identifier
      - Derived predicates
      - Object fluents
      - Metrics associated with IPC formulations of temporal planning
@@ -45,6 +46,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - `FirstOrderLanguage.is_subtype`: it is now checked if there is a path connecting two types in the type hierarchy. If
     that is the case, this fact is recorded in the dictionary `indirect_ancestor_sorts`. Whenever a change is made 
     in the type hierarchy (e.g. adding a new sort or changing the parent of a sort), the cache is invalidated.
+ - Fixed issue with equality predicates trying to coerce the right hand side to a constant when the left hand side is
+    a term
  
     
 ## [0.7.0]

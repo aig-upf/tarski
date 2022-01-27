@@ -4,7 +4,7 @@ from .walker import FOLWalker
 from .. import modules
 from .sorts import children, compute_direct_sort_map, Interval
 from .visitors import CollectFreeVariables
-from .terms import Term, Constant, Variable
+from .terms import Term, Constant, Variable, CompoundTerm
 from .formulas import CompoundFormula, Connective
 from .symrefs import symref
 
@@ -21,7 +21,8 @@ def cast_to_closest_common_numeric_ancestor(lang, lhs, rhs):
     if isinstance(lhs, Term):
         if isinstance(rhs, np.ndarray):  # lhs is scalar, rhs is matrix
             return lhs.language.matrix([[lhs]], lhs.sort), rhs
-
+        if isinstance(rhs, Variable) or isinstance(rhs, CompoundTerm):
+            return lhs, rhs
         return lhs, Constant(lhs.sort.cast(rhs), lhs.sort)
 
     if isinstance(lhs, np.ndarray):  # lhs is matrix

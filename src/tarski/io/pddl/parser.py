@@ -11,6 +11,7 @@ import logging
 
 from ply import yacc
 
+from tarski.syntax import CompoundTerm, Term
 from tarski.io.pddl import Features, supported_features
 from tarski.io.pddl.lexer import PDDLlex
 from tarski.io.pddl.instance import *
@@ -71,7 +72,8 @@ class PDDLparser(object):
 
     def p_begin(self, p):
         '''begin    : domain
-                    | domain problem'''
+                    | domain problem
+                    | problem'''
         pass
 
     def p_domain(self, p):
@@ -398,6 +400,41 @@ class PDDLparser(object):
             return
         p[0] = [('var', p[1]), ('type', p[3])] + p[4]
 
+    def p_quantifier_scope(self, p):
+        '''
+        quantifier_scope : LPAREN VAR quantifier_scope
+                        | LPAREN VAR MINUS type quantifier_scope
+                        | VAR MINUS type quantifier_scope
+                        | VAR quantifier_scope
+                        | RPAREN'''
+        # production: quantifier_scope -> RPAREN
+        if p[1] == ')':
+            p[0] = []
+            return
+
+        if p[1] == '(':
+            # all variables captured
+            if len(p) == 4:
+                var_token_list = [('var', p[2])] + p[3]
+            else:
+                var_token_list = [('var', p[2]), ('type', p[4])] + p[5]
+
+            var_list = self.normalize_typed_variable_list(var_token_list)
+            # register all variables into scope
+            for entry in var_list:
+                self.var_dict[entry['var']] = entry['term']
+            p[0] = var_list
+            return
+
+        # production: quantifier_scope -> VAR quantifier_scope
+        if len(p) == 3:
+            p[0] = [('var', p[1])] + p[2]
+            return
+
+        # production: quantifier_scope -> VAR MINUS type quantifier_scope
+        p[0] = [('var', p[1]), ('type', p[3])] + p[4]
+
+
     def p_functions_def(self, p):
         '''
         functions_def   : LPAREN rwFUNCTIONS function_typed_list RPAREN
@@ -437,12 +474,18 @@ class PDDLparser(object):
 
     def p_atomic_function_skeleton(self, p):
         '''
-        atomic_function_skeleton    : LPAREN ID list_of_typed_variables RPAREN'''
+        atomic_function_skeleton    : LPAREN function list_of_typed_variables RPAREN'''
         p[0] = {
             'type': 'atomic_function_skeleton',
             'name': p[2],
             'domain': self.normalize_typed_variable_list(p[3])
         }
+
+    def p_function(self, p):
+        '''
+        function    : ID
+                    | rwAT'''
+        p[0] = p[1]
 
     def p_domain_constraints_def(self, p):
         '''domain_constraints_def   : LPAREN rwCONSTRAINTS con_GD RPAREN'''
@@ -589,8 +632,8 @@ class PDDLparser(object):
             | LPAREN rwOR list_of_GD RPAREN
             | LPAREN rwNOT GD RPAREN
             | LPAREN rwIMPLY GD GD RPAREN
-            | LPAREN rwEXISTS LPAREN list_of_typed_variables RPAREN GD RPAREN
-            | LPAREN rwFORALL LPAREN list_of_typed_variables RPAREN GD RPAREN
+            | LPAREN rwEXISTS quantifier_scope GD RPAREN
+            | LPAREN rwFORALL quantifier_scope GD RPAREN
             | f_comp'''
         if len(p) == 2:
             # processes literal of atom or arithmetic atom
@@ -605,13 +648,20 @@ class PDDLparser(object):
         elif p[2] == self.lexer.symbols.rwIMPLY:
             p[0] = lor(neg(p[3]), p[4])
         elif p[2] == self.lexer.symbols.rwEXISTS:
-            vars = p[4]
-            phi = p[6]
-            p[0] = QuantifiedFormula(Quantifier.Exists, vars, phi)
+            print('existential quantifier, scope tokens: {} formula: {}'.format(p[3], p[4]))
+            vars = p[3]
+            phi = p[4]
+            p[0] = QuantifiedFormula(Quantifier.Exists, [entry['term'] for entry in vars], phi)
+            # clear vars from scope
+            for entry in vars:
+                del self.var_dict[entry['var']]
         elif p[2] == self.lexer.symbols.rwFORALL:
-            vars = p[4]
-            phi = p[6]
-            p[0] = QuantifiedFormula(Quantifier.Forall, vars, phi)
+            vars = p[3]
+            phi = p[4]
+            p[0] = QuantifiedFormula(Quantifier.Forall,  [entry['term'] for entry in vars], phi)
+            # clear vars from scope
+            for entry in vars:
+                del self.var_dict[entry['var']]
         else:
             assert False
 
@@ -665,7 +715,7 @@ class PDDLparser(object):
         '''
         term    : ID
                 | VAR
-                | LPAREN ID list_of_term RPAREN'''
+                | LPAREN function list_of_term RPAREN'''
 
         if len(p) > 2:
             try:
@@ -692,7 +742,7 @@ class PDDLparser(object):
                 raise SemanticError(self.lexer.lineno(), msg)
 
     def p_function_term(self, p):
-        '''function_term   : LPAREN ID list_of_term RPAREN'''
+        '''function_term   : LPAREN function list_of_term RPAREN'''
         try:
             func_name = self.instance.get(p[2])
             sub_terms = p[3]
@@ -714,6 +764,7 @@ class PDDLparser(object):
         '''
         f_exp   : NAT
                 | REAL
+                | VAR
                 | LPAREN binary_op f_exp f_exp RPAREN
                 | LPAREN multi_op f_exp f_exp list_of_expression RPAREN
                 | LPAREN MINUS f_exp RPAREN
@@ -722,9 +773,36 @@ class PDDLparser(object):
             if isinstance(p[1], int):
                 p[0] = self.instance.int_const(p[1])
                 return
-            if isinstance(p[1], float):
+            elif isinstance(p[1], float):
                 p[0] = self.instance.real_const(p[1])
                 return
+            elif isinstance(p[1], CompoundTerm):
+                p[0] = p[1]
+                return
+            elif self.lexer.is_variable(p[1]):
+                # check if variable in scope
+                try:
+                    var_ref = self.var_dict[p[1]]
+                    print(var_ref, type(var_ref))
+                    p[0] = var_ref
+                    return
+                except KeyError as e:
+                    msg = "Error parsing expression, variable '{}' is not declared in the current scope".format(
+                        p[1])
+                    raise SemanticError(self.lexer.lineno(), msg)
+            elif self.lexer.is_identifier(p[1]):
+                # check if it is a constant
+                try:
+                    constant_ref = self.instance.get(p[1])
+                    p[0] = constant_ref
+                    return
+                except tsk.LanguageError as e:
+                    msg = "Error parsing expression, constant '{}' is not declared".format(p[1])
+                    raise SemanticError(self.lexer.lineno(), msg)
+            else:
+                # raise error
+                msg = "Error parsing expression: '{}' is not a constant or variable symbol"
+                raise SemanticError(self.lexer.lineno(), msg)
             p[0] = p[1]
             return
         if len(p) == 5:
@@ -748,7 +826,7 @@ class PDDLparser(object):
 
     def p_f_head(self, p):
         '''
-        f_head  : LPAREN ID list_of_term RPAREN
+        f_head  : LPAREN function list_of_term RPAREN
                 | ID'''
         if len(p) == 2:
             try:
@@ -791,6 +869,7 @@ class PDDLparser(object):
         elif p[2] == '>=':
             p[0] = p[3] >= p[4]
         elif p[2] == '=':
+            #print('equality: =({}/{}, {}/{})'.format(p[3], type(p[3]), p[4], type(p[4])))
             p[0] = p[3] == p[4]
         else:
             assert False
@@ -857,10 +936,12 @@ class PDDLparser(object):
             p[0] = AssignmentEffectData(lhs=atomic_formula['lhs'], rhs=0)
             return
         if p[2] == self.lexer.symbols.rwASSIGN:
+            if isinstance(p[4], Term):
+                p[0] = AssignmentEffectData(lhs=p[3], rhs=p[4])
+                return
             if p[4] == self.lexer.symbols.rwUNDEFINED:
                 msg = "Error parsing action effect: 'undefined' special constant is not supported at the moment"
                 raise UnsupportedFeature(self.lexer.lineno(), msg)
-            p[0] = AssignmentEffectData(lhs=p[3], rhs=p[4])
             return
         msg = "Error parsing action effect: special assignment operators are not supported at the moment"
         raise UnsupportedFeature(self.lexer.lineno(), msg)
@@ -1206,7 +1287,7 @@ class PDDLparser(object):
     def p_init_el(self, p):
         '''
         init_el : literal_of_name
-                | LPAREN rwAT REAL literal_of_name
+                | LPAREN rwAT REAL literal_of_name RPAREN
                 | LPAREN EQUA term REAL RPAREN
                 | LPAREN EQUA term NAT RPAREN
                 | LPAREN EQUA term ID RPAREN'''
