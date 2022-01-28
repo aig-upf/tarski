@@ -11,6 +11,7 @@ from .walker import ProblemWalker
 from ..syntax import Predicate, Function, CompoundTerm, Atom
 from .problem import Problem
 from . import fstrips as fs
+from .derived import Derived
 
 
 def collect_all_symbols(problem: Problem, include_builtin=False) -> Set[Union[Predicate, Function]]:
@@ -92,6 +93,11 @@ class AffectedSymbolWalker(ProblemWalker):
     @dispatch(fs.LinearEffect)
     def visit(self, node):  # pylint: disable-msg=E0102
         self.symbols.update(lhs.symbol for lhs in node.y[:, 0])
+        return node
+
+    @dispatch(Derived)
+    def visit(self, node):  # pylint: disable-msg=E0102
+        self.symbols.update(node.predicate)
         return node
 
 
