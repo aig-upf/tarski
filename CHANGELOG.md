@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 ### Added
+### Removed
+### Deprecated
+### Fixed
+
+
+## [0.7.1] 2022-03-??
+### Changed
+ - Added support for `clingo`'s `Pypi` distribution. This means it is no longer necessary to install manually
+    `cligo`/`gringo`. Some `tarski` internal interfaces were changed, please review these changes if you have
+    codes coupled to the ASP-based grounding components (#123).
+### Added
  - Temporal planning model:
    - Added concept of post-condition (i.e. `at end` conditions) `Action` class
    - Added concept of duration to `Action` class
@@ -35,7 +46,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - New formula visitor: `CollectEqualityAtoms`
    - What it says on the tin: collects equality atoms that appear as subformulas of a given formula
  - New `pip` dependency: `ply`
-
 ### Removed
 ### Deprecated
  - Disabled references to Functional STRIPS `counters` instances in tests
