@@ -61,6 +61,9 @@ def main():
             # Antlr pinned to a specific version to avoid messages "ANTLR runtime and generated code versions disagree"
             # messages. If we want to bump this up, we'll need to regenerate the grammar files with the new version.
             'antlr4-python3-runtime==4.7.2',
+
+            # Clingo (gringo) bindings to the clingo solver
+            'clingo>=5.5.1',
         ],
 
         extras_require={
