@@ -17,7 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     `cligo`/`gringo`. Some `tarski` internal interfaces were changed, please review these changes if you have
     codes coupled to the ASP-based grounding components (#123).
  - `gringo` now is an `extra` requirement of the package `tarski`. In order to install `tarski` with the `clingo`
-    support, issue the command `$ pip install tarski[gringo]`
+    support, issue the command `$ pip install tarski[gringo]`. 
+ - ASP-based grounding components will try to fall back to "manually installed" `clingo`/`gringo` distributions,
+    using the same heuristic procedure we were using in `0.7.0`
 ### Added
  - Temporal planning model:
    - Added concept of post-condition (i.e. `at end` conditions) `Action` class
