@@ -8,8 +8,31 @@ from collections import defaultdict
 
 from ..errors import CommandNotFoundError, ExternalCommandError, OutOfMemoryError, OutOfTimeError, ArgumentError
 from ..utils import command as cmd
+from importlib.util import find_spec
+
+
+def get_gringo_command():
+    """Assemble the command to run gringo
+
+    :return: A list depicting the command with arguments
+    :rtype: list of String / None(if command could not be assembled)
+    """
+    command = None
+    if find_spec("clingo"):
+        command = [sys.executable, os.path.join(Path(__file__).parent.absolute(), "gringo.py")]
+        logging.debug("Using the clingo pypi bindings to emulate gringo binary")
+    else: 
+        gringo = shutil.which("gringo")
+        command = [gringo] if gringo else None
+        logging.debug('Using gringo binary found in "{}"'.format(gringo))
+
+    return command
 
 def run_clingo(lp):
+    gringo_command = get_gringo_command()
+    if gringo_command is None:
+        raise CommandNotFoundError("gringo")
+          
     with tempfile.NamedTemporaryFile(mode='w+t', delete=False) as f:
         _ = [print(str(r), file=f) for r in lp.rules]
         _ = [print(str(r), file=f) for r in lp.directives]
@@ -20,7 +43,7 @@ def run_clingo(lp):
         with tempfile.NamedTemporaryFile(mode='w+t', delete=False) as stderr:
             # Option "-t" enforces an easier-to-parse textual output. Warnings could also be supressed with
             # option "-Wno-atom-undefined"
-            retcode = cmd.execute([sys.executable, os.path.join(Path(__file__).parent.absolute(), "gringo.py"), "--text", theory_filename], stdout=f, stderr=stderr)
+            retcode = cmd.execute(gringo_command+["--text", theory_filename], stdout=f, stderr=stderr)
             model_filename = f.name
             
             if retcode == 0:
@@ -35,7 +58,7 @@ def run_clingo(lp):
     if retcode == -24:  # i.e. SIGXCPU
         raise OutOfTimeError(f"Gringo ran out of time. Full error log: {errlog}")
 
-    # raise ExternalCommandError(f"Unknown Gringo error. Gringo exited with code {retcode}. Full error log: {errlog}")
+    raise ExternalCommandError(f"Unknown Gringo error. Gringo exited with code {retcode}. Full error log: {errlog}")
 
 def parse_model(*, filename=None, content=None, symbol_mapping):
     if filename and not content:
