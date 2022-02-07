@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Added support for `clingo`'s `Pypi` distribution. This means it is no longer necessary to install manually
     `cligo`/`gringo`. Some `tarski` internal interfaces were changed, please review these changes if you have
     codes coupled to the ASP-based grounding components (#123).
+ - `gringo` now is an `extra` requirement of the package `tarski`. In order to install `tarski` with the `clingo`
+    support, issue the command `$ pip install tarski[gringo]`
 ### Added
  - Temporal planning model:
    - Added concept of post-condition (i.e. `at end` conditions) `Action` class
