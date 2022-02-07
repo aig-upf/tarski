@@ -7,7 +7,7 @@ A wrapper to emulate the default clingo app behavior
 """
 class WrapperClingo(Application):
     def __init__(self, name):
-        self.app_name = name
+        self.program_name = name
 
     def main(self, ctl, files):
         """
