@@ -62,8 +62,7 @@ def main():
             # messages. If we want to bump this up, we'll need to regenerate the grammar files with the new version.
             'antlr4-python3-runtime==4.7.2',
 
-            # Clingo (gringo) bindings to the clingo solver
-            'clingo>=5.5.1',
+
         ],
 
         extras_require={
@@ -96,6 +95,10 @@ def main():
             ],
             'parsegen': [
                 'ply==3.11'
+            ],
+            'gringo': [
+                # Clingo (gringo) bindings to the clingo solver
+                'clingo>=5.5.1'
             ]
         },
 
