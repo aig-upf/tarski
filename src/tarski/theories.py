@@ -57,7 +57,7 @@ def load_theory(lang, theory: Union[Theory, str]):
         raise err.UnknownTheory(theory)
 
     theories_requiring_arithmetic_sorts = {
-        Theory.ARITHMETIC, Theory.SPECIAL, Theory.RANDOM
+        Theory.ARITHMETIC, Theory.SPECIAL, Theory.RANDOM, Theory.BOOLEAN
     }
     if th in theories_requiring_arithmetic_sorts and not lang.has_sort('Integer'):
         attach_arithmetic_sorts(lang)
@@ -129,7 +129,7 @@ def load_random_theory(lang):
         f.builtin = True
     for fun in builtins.get_random_unary_functions():
         lang.register_unary_operator_handler(fun, Term, create_casting_handler(lang, fun, create_arithmetic_term))
-        f = lang.function(fun, lang.Real, lang.Real)
+        f = lang.function(fun, lang.Real, lang.Boolean)
         f.builtin = True
 
 

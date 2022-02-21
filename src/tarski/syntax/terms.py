@@ -110,7 +110,7 @@ class Term:
 
     def __and__(self, rhs):
         return self.language.dispatch_operator('&', Term, Term, self, rhs)
-
+    
     def __xor__(self, rhs):
         return self.language.dispatch_operator('^', Term, Term, self, rhs)
 

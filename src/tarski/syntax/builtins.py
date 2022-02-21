@@ -111,9 +111,8 @@ def get_random_binary_functions():
 
 
 def get_random_unary_functions():
-    # BFS = BuiltinFunctionSymbol
-    return []
-
+    BFS = BuiltinFunctionSymbol
+    return [BFS.BERNOULLI]
 
 def get_predicate_from_symbol(symbol: str):
     return BuiltinPredicateSymbol(symbol)

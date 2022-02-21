@@ -14,6 +14,14 @@ def normal(mu, sigma):
             return np.random.normal(mu, sigma)
     return normal_func(mu, sigma)
 
+def bernoulli(p):
+    try:
+        bernoulli_func = p.language.get_function(bfs.BERNOULLI)
+    except AttributeError:
+        np = modules.import_numpy()
+        return np.random.random(p)
+    return bernoulli_func(p)
+
 
 def gamma(shape, scale):
     try:

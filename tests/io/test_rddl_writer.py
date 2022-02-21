@@ -12,7 +12,7 @@ from tarski.rddl import Task
 
 
 def test_simple_rddl_model():
-    lang = tarski.language('lqr_nav_1d', [Theory.EQUALITY, Theory.ARITHMETIC, Theory.SPECIAL])
+    lang = tarski.language('lqr_nav_1d', [Theory.BOOLEAN, Theory.EQUALITY, Theory.ARITHMETIC, Theory.SPECIAL])
     the_task = Task(lang, 'lqr_nav_1d', 'instance_001')
 
     the_task.requirements = [rddl.Requirements.CONTINUOUS, rddl.Requirements.REWARD_DET]
@@ -75,7 +75,7 @@ def test_simple_rddl_model():
 
 
 def test_rddl_model_with_random_vars():
-    lang = tarski.language('lqg_nav_1d', [Theory.EQUALITY, Theory.ARITHMETIC, Theory.SPECIAL, Theory.RANDOM])
+    lang = tarski.language('lqg_nav_1d', [Theory.BOOLEAN, Theory.EQUALITY, Theory.ARITHMETIC, Theory.SPECIAL, Theory.RANDOM])
     the_task = Task(lang, 'lqg_nav_1d', 'instance_001')
 
     the_task.requirements = [rddl.Requirements.CONTINUOUS, rddl.Requirements.REWARD_DET]
@@ -383,7 +383,7 @@ def test_parametrized_model_with_random_vars_and_waypoints_boolean():
     uy = lang.function('uy', vehicle, lang.Real)
     t = lang.function('t', lang.Real)
 
-    wv = lang.predicate('visited', waypoint)
+    wv = lang.function('visited', waypoint, lang.Boolean)
 
     # objects
     v001 = lang.constant('v001', vehicle)
@@ -405,7 +405,7 @@ def test_parametrized_model_with_random_vars_and_waypoints_boolean():
     # cpfs
     the_task.add_cpfs(t(), t() + dt())
     dist_vec_norm = ((x(v) - wx(wpt)) * (x(v) - wx(wpt))) + ((y(v) - wy(wpt)) * (y(v) - wy(wpt)))
-    the_task.add_cpfs(wv(wpt), (wv(wpt) | (sqrt(dist_vec_norm) <= wr())))
+    the_task.add_cpfs(wv(wpt), ((wv(wpt) == lang.constant(1, lang.Boolean)) | (sqrt(dist_vec_norm) <= wr())))
     the_task.add_cpfs(vx(v), vx(v) + dt() * ux(v) + normal(mu_w(), sigma_w()))
     the_task.add_cpfs(vy(v), vy(v) + dt() * uy(v) + normal(mu_w(), sigma_w()))
     the_task.add_cpfs(x(v), x(v) + dt() * vx(v))
@@ -470,5 +470,146 @@ def test_parametrized_model_with_random_vars_and_waypoints_boolean():
     mr_reader = rddl.Reader(rddl_filename)
     assert mr_reader.rddl_model is not None
     assert mr_reader.rddl_model.domain.name == 'lqg_nav_2d_multi_unit_bool_waypoints'
+    mr_reader.translate_rddl_model()
+    assert mr_reader.language is not None
+
+
+def test_rddl_integration_with_boolean_patterns_academic_advising_example_write():
+    lang = tarski.language('standard', [Theory.BOOLEAN, Theory.EQUALITY, Theory.ARITHMETIC, Theory.RANDOM])
+    the_task = Task(lang, 'academic_advising', 'academic_advising_001')
+
+    the_task.requirements = [rddl.Requirements.REWARD_DET, rddl.Requirements.PRECONDITIONS]
+
+    the_task.parameters.discount = 1.0
+    the_task.parameters.horizon = 20
+    the_task.parameters.max_nondef_actions = 1
+
+    #sorts
+    course = lang.sort('course')
+
+    # variables
+    c = lang.variable('c', course)
+    c2 = lang.variable('c2', course)
+
+    # non fluents
+    PREREQ = lang.function('PREREQ', course, course, lang.Boolean)
+    PRIOR_PROB_PASS_NO_PREREQ = lang.function('PRIOR_PROB_PASS_NO_PREREQ', course, lang.Real)
+    PRIOR_PROB_PASS = lang.function('PRIOR_PROB_PASS', course, lang.Real)
+    PROGRAM_REQUIREMENT = lang.function('PROGRAM_REQUIREMENT', course, lang.Boolean)
+    COURSE_COST = lang.function('COURSE_COST', lang.Real)
+    COURSE_RETAKE_COST = lang.function('COURSE_RETAKE_COST', lang.Real)
+    PROGRAM_INCOMPLETE_PENALTY = lang.function('PROGRAM_INCOMPLETE_PENALTY', lang.Real)
+    COURSES_PER_SEMESTER = lang.function('COURSES_PER_SEMESTER', lang.Real)
+
+    # state fluents
+    passed = lang.function('passed', course, lang.Boolean)
+    taken = lang.function('taken', course, lang.Boolean)
+
+    # action fluents
+    take_course = lang.function('take-course', course, lang.Boolean)
+
+    one = lang.constant(1, lang.Real)
+    true = lang.constant(1, lang.Boolean)
+    false = lang.constant(0, lang.Boolean)
+
+    # cpfs
+    the_task.add_cpfs(passed(c), ite((take_course(c) == 1) & ~(exists(c2, PREREQ(c2, c) == 1)),
+                                     bernoulli(PRIOR_PROB_PASS_NO_PREREQ(c)),
+                                     ite((take_course(c) == 1),
+                                         bernoulli(PRIOR_PROB_PASS(c) +
+                                         ((one - PRIOR_PROB_PASS(c))
+                                                   * (sumterm(c2, (ite((PREREQ(c2, c) == 1) & (passed(c2) == 1), true, false))))
+                                                   / (one + sumterm(c2, (PREREQ(c2, c)))))),
+                                         passed(c))))
+
+    the_task.add_cpfs(taken(c), (taken(c) == 1) | (take_course(c) == 1))
+
+    # cost function
+    the_task.reward = ( sumterm(c, COURSE_COST() * (ite((take_course(c) == 1) & ~(taken(c) == 1), true, false)))
+                        + sumterm(c, COURSE_RETAKE_COST() * (ite((take_course(c) == 1) & (taken(c) == 1), true, false)))
+                        + (PROGRAM_INCOMPLETE_PENALTY() * ite(~(forall(c, (PROGRAM_REQUIREMENT(c) == 1) > (passed(c) == 1))), true, false)))
+
+    # constraints
+    the_task.add_constraint(forall(c, ((take_course(c) == 1) > ~(passed(c) == 1))), rddl.ConstraintType.ACTION)
+    the_task.add_constraint(sumterm(c, take_course(c)) <= COURSES_PER_SEMESTER(), rddl.ConstraintType.ACTION)
+
+    # fluent metadata
+    the_task.declare_state_fluent(passed(c), 0)
+    the_task.declare_state_fluent(taken(c), 0)
+    the_task.declare_action_fluent(take_course(c), 0)
+    the_task.declare_non_fluent(PREREQ(c, c2), 0)
+    the_task.declare_non_fluent(PRIOR_PROB_PASS_NO_PREREQ(c), 0.8)
+    the_task.declare_non_fluent(PRIOR_PROB_PASS(c), 0.2)
+    the_task.declare_non_fluent(PROGRAM_REQUIREMENT(c), 0)
+    the_task.declare_non_fluent(COURSE_COST(), -1)
+    the_task.declare_non_fluent(COURSE_RETAKE_COST(), -2)
+    the_task.declare_non_fluent(PROGRAM_INCOMPLETE_PENALTY(), -5)
+    the_task.declare_non_fluent(COURSES_PER_SEMESTER(), 1)
+
+    #constants
+    c0000 = lang.constant('c0000', course)
+    c0001 = lang.constant('c0001', course)
+    c0002 = lang.constant('c0002', course)
+    c0003 = lang.constant('c0003', course)
+    c0004 = lang.constant('c0004', course)
+    c0100 = lang.constant('c0100', course)
+    c0101 = lang.constant('c0101', course)
+    c0102 = lang.constant('c0102', course)
+    c0103 = lang.constant('c0103', course)
+    c0200 = lang.constant('c0200', course)
+    c0201 = lang.constant('c0201', course)
+    c0202 = lang.constant('c0202', course)
+    c0300 = lang.constant('c0300', course)
+    c0301 = lang.constant('c0301', course)
+    c0302 = lang.constant('c0302', course)
+
+    the_task.x0.set(PRIOR_PROB_PASS_NO_PREREQ(c0000), 0.80)
+    the_task.x0.set(PRIOR_PROB_PASS_NO_PREREQ(c0001), 0.55)
+    the_task.x0.set(PRIOR_PROB_PASS_NO_PREREQ(c0002), 0.67)
+    the_task.x0.set(PRIOR_PROB_PASS_NO_PREREQ(c0003), 0.78)
+    the_task.x0.set(PRIOR_PROB_PASS_NO_PREREQ(c0004), 0.75)
+    the_task.x0.set(PRIOR_PROB_PASS(c0100), 0.22)
+    the_task.x0.set(PRIOR_PROB_PASS(c0101), 0.45)
+    the_task.x0.set(PRIOR_PROB_PASS(c0102), 0.41)
+    the_task.x0.set(PRIOR_PROB_PASS(c0103), 0.44)
+    the_task.x0.set(PRIOR_PROB_PASS(c0200), 0.14)
+    the_task.x0.set(PRIOR_PROB_PASS(c0201), 0.07)
+    the_task.x0.set(PRIOR_PROB_PASS(c0202), 0.24)
+    the_task.x0.set(PRIOR_PROB_PASS(c0300), 0.23)
+    the_task.x0.set(PRIOR_PROB_PASS(c0301), 0.08)
+    the_task.x0.set(PRIOR_PROB_PASS(c0302), 0.16)
+
+
+    the_task.x0.set(PREREQ(c0003, c0100), 1)
+    the_task.x0.set(PREREQ(c0000, c0100), 1)
+    the_task.x0.set(PREREQ(c0004, c0100), 1)
+    the_task.x0.set(PREREQ(c0001, c0101), 1)
+    the_task.x0.set(PREREQ(c0002, c0101), 1)
+    the_task.x0.set(PREREQ(c0000, c0102), 1)
+    the_task.x0.set(PREREQ(c0004, c0102), 1)
+    the_task.x0.set(PREREQ(c0001, c0103), 1)
+    the_task.x0.set(PREREQ(c0001, c0200), 1)
+    the_task.x0.set(PREREQ(c0101, c0200), 1)
+    the_task.x0.set(PREREQ(c0103, c0201), 1)
+    the_task.x0.set(PREREQ(c0002, c0202), 1)
+    the_task.x0.set(PREREQ(c0200, c0300), 1)
+    the_task.x0.set(PREREQ(c0201, c0301), 1)
+    the_task.x0.set(PREREQ(c0201, c0301), 1)
+    the_task.x0.set(PREREQ(c0200, c0302), 1)
+
+    the_task.x0.set(PROGRAM_REQUIREMENT(c0300), 1)
+    the_task.x0.set(PROGRAM_REQUIREMENT(c0202), 1)
+    the_task.x0.set(PROGRAM_REQUIREMENT(c0101), 1)
+    the_task.x0.set(PROGRAM_REQUIREMENT(c0002), 1)
+    the_task.x0.set(PROGRAM_REQUIREMENT(c0001), 0)
+
+    the_task.x0.set(passed(c0000), 0)
+
+    the_writer = rddl.Writer(the_task)
+    rddl_filename = os.path.join(tempfile.gettempdir(), 'academic_advising_001.rddl')
+    the_writer.write_model(rddl_filename)
+    mr_reader = rddl.Reader(rddl_filename)
+    assert mr_reader.rddl_model is not None
+    assert mr_reader.rddl_model.domain.name == 'academic_advising'
     mr_reader.translate_rddl_model()
     assert mr_reader.language is not None
