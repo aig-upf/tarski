@@ -69,12 +69,28 @@ def silentremove(filename):
             raise  # re-raise exception if a different error occured
 
 
-libc = ctypes.CDLL(None)
-if sys.platform == "darwin":
-    stdout_name = '__stdoutp'
+if sys.platform == "win32":
+    if sys.version_info < (3, 5):
+        libc = ctypes.CDLL(ctypes.util.find_library('c'))
+    else:
+        libc = ctypes.CDLL('api-ms-win-crt-stdio-l1-1-0')
+
+    class _FILE(ctypes.Structure):
+        """ Structure is an abstract class """
+
+    iob_func = libc.__acrt_iob_func
+    iob_func.restype = ctypes.POINTER(_FILE)
+    iob_func.argtypes = []
+
+    array = iob_func()
+    c_stdout = ctypes.addressof(array[1])
 else:
-    stdout_name = 'stdout'
-c_stdout = ctypes.c_void_p.in_dll(libc, stdout_name)
+    libc = ctypes.CDLL(None)
+    if sys.platform == "darwin":
+        stdout_name = '__stdoutp'
+    else:
+        stdout_name = 'stdout'
+    c_stdout = ctypes.c_void_p.in_dll(libc, stdout_name)
 
 
 @contextmanager
