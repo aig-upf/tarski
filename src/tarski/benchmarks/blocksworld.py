@@ -166,7 +166,7 @@ def generate_random_bw_pattern(lang):
     random.shuffle(blocks)
     pattern = []
     for b in blocks:
-        target, = random.sample(clearplaces, 1)  # A bit of a hack - cannot random.choice from set
+        target, = random.choice(list(clearplaces))  # Converting to a list is a bit inefficient, but will work here.
         pattern.append((b, target))
         if target != table:
             clearplaces.remove(target)  # target is no longer clear!

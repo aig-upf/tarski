@@ -87,7 +87,8 @@ class Simplify:
             return None
 
         # Filter out those effects that are None, e.g. because they are not applicable:
-        simple.effects = list(filter(None.__ne__, (self.simplify_effect(eff, inplace=True) for eff in simple.effects)))
+        simple.effects = [x for x in (self.simplify_effect(eff, inplace=True) for eff in simple.effects)
+                          if x is not None]
 
         if not simple.effects:  # If not effects remain, the action is useless
             return None
@@ -173,8 +174,8 @@ class Simplify:
 
         if isinstance(effect, UniversalEffect):
             # Go recursively to the universally quantified effects, filter those that are inapplicable
-            effect.effects = list(filter(None.__ne__,
-                                         (self.simplify_effect(eff, inplace=True) for eff in effect.effects)))
+            effect.effects = [x for x in (self.simplify_effect(eff, inplace=True) for eff in effect.effects)
+                              if x is not None]
             return effect
 
         raise RuntimeError(f'Effect "{effect}" of type "{type(effect)}" cannot be analysed')
