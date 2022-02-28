@@ -1,0 +1,43 @@
+name: Unit tests and style checks
+
+on:
+  pull_request:
+
+jobs:
+  unit_tests:
+    runs-on: ubuntu-latest
+
+    strategy:
+      # In general, we aim at testing on the currently active Python releases, see https://www.python.org/downloads/.
+      matrix:
+        python-version: [3.7, 3.8, 3.9, 3.10]
+
+
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # Install Gringo for the general unit tests and also for the documentation
+      - name: Install Gringo
+        if: matrix.python-version == '3.10'
+        run: |
+          sudo apt-get install -y --no-install-recommends gringo
+          gringo --version
+
+      - name: Install dependencies
+        # Install all dependencies, then get some benchmarks that we'll use to run the tests.
+        run: |
+          sudo apt-get install -y --no-install-recommends gringo curl
+          python -m pip install --upgrade tox pip setuptools wheel
+          gringo --version
+          tox --version
+          ./scripts/get-benchmarks
+
+      - name: Run tests
+        run: |
+          tox -v
