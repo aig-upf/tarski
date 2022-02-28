@@ -40,4 +40,4 @@ jobs:
 
       - name: Run tests
         run: |
-          tox -v
+          tox -v -e pytest
