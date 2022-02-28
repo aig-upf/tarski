@@ -67,7 +67,7 @@ def main():
 
         extras_require={
             'test': [
-                'pytest',
+                'pytest=~7.0.1',
                 'tox',
                 'pytest-cov',
                 'mypy'
