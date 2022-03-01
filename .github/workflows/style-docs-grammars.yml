@@ -1,4 +1,4 @@
-name: Unit tests
+name: Style checks, documentation building, grammars
 
 on:
   pull_request:
@@ -12,9 +12,9 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
-      # We run unit tests on all currently active Python releases, see https://www.python.org/downloads/.
+      # We run style tests only on the latest active Python releases, see https://www.python.org/downloads/.
       matrix:
-        python-version: ['3.7', '3.8', '3.9', '3.10']
+        python-version: ['3.10']
 
 
     steps:
@@ -34,15 +34,19 @@ jobs:
           gringo --version
 
       - name: Install dependencies
-        # Install all dependencies, then get some benchmarks that we'll use to run the tests.
-        # Curl below is necessary to download the benchmarks
+        # Install all dependencies
+        # Pandoc below is installed as an APT package as recommended in the installation instructions.
         run: |
-          sudo apt-get install -y --no-install-recommends gringo curl
+          sudo apt-get install -y --no-install-recommends gringo pandoc
           python -m pip install --upgrade tox pip setuptools wheel
           gringo --version
           tox --version
-          ./scripts/get-benchmarks
 
-      - name: Run tests
-        run: |
-          tox -v -e pytest
+      - name: Run pylint
+        run: tox -v -e pytest
+
+      - name: Test documentation bulding
+        run: tox -v -e docs
+
+      - name: Test ANTLR grammars
+        run: tox -v -e docs
