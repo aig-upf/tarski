@@ -73,18 +73,14 @@ def main():
                 'mypy'
             ],
             'docs': [
-                # We pin the Jinja2 version here as there seems to be some incompatibility between later Jinja3 releases
-                # and nbsphinx. Hopefully we can bump this up in the future.
-                'jinja2==2.11.3',
-                # We also pin the docutils version due to incompatibilities with nbsphinx,
-                # see https://github.com/sphinx-doc/sphinx/issues/9001
-                'docutils<0.17',
-                'sphinx==3.5.4',
-                'nbsphinx==0.8.5',
+                'jinja2==3.0.3',
+                'docutils==0.18.1',
+                'sphinx==4.4.0',
+                'nbsphinx==0.8.8',
                 'recommonmark==0.7.1',
-                'sphinx_rtd_theme==0.5.2',
-                'ipykernel==5.5.5',
-                'ipython==7.24.0'
+                'sphinx_rtd_theme==1.0.0',
+                'ipykernel==6.9.1',
+                'ipython==8.1.0'
             ],
             'arithmetic': [
                 'scipy',
