@@ -8,7 +8,7 @@ env:
   FSBENCHMARKS: "/tmp/fs-benchmarks"
 
 jobs:
-  unit_tests:
+  setup:
     runs-on: ubuntu-latest
 
     strategy:
@@ -42,11 +42,20 @@ jobs:
           gringo --version
           tox --version
 
-      - name: Run pylint
-        run: tox -v -e pytest
+  pylint_runner:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      -   run: tox -v -e pytest
 
-      - name: Test documentation bulding
-        run: tox -v -e docs
+  docs_runner:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      -   run: tox -v -e docs
 
-      - name: Test ANTLR grammars
-        run: tox -v -e docs
+  antlr_grammar_runner:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      -   run: tox -v -e antlrgrammars
