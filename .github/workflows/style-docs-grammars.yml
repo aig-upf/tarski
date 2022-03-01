@@ -49,4 +49,4 @@ jobs:
         run: tox -v -e docs
 
       - name: Test ANTLR grammars
-        run: tox -v -e docs
+        run: tox -v -e antlrgrammars
