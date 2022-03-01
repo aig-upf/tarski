@@ -74,7 +74,7 @@ def main():
             ],
             'docs': [
                 'jinja2==3.0.3',
-                'docutils==0.18.1',
+                'docutils<0.18',
                 'sphinx==4.4.0',
                 'nbsphinx==0.8.8',
                 'recommonmark==0.7.1',
