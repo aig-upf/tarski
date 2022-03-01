@@ -206,7 +206,7 @@ class FstripsWriter:
         return content
 
     def write_domain(self, filename, constant_objects):
-        with open(filename, 'w') as file:
+        with open(filename, 'w', encoding='utf8') as file:
             file.write(self.print_domain(constant_objects))
 
     def print_instance(self, constant_objects: Optional[List[Constant]] = None):
@@ -237,7 +237,7 @@ class FstripsWriter:
         return content
 
     def write_instance(self, filename, constant_objects):
-        with open(filename, 'w') as file:
+        with open(filename, 'w', encoding='utf8') as file:
             file.write(self.print_instance(constant_objects))
 
     def get_types(self):

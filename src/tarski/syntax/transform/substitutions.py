@@ -2,7 +2,7 @@
 import itertools
 from typing import List
 
-from multipledispatch import dispatch
+from multipledispatch import dispatch  # type: ignore
 
 from ..symrefs import symref
 from ..terms import Variable

@@ -95,6 +95,9 @@ def main():
             'gringo': [
                 # Clingo (gringo) bindings to the clingo solver
                 'clingo>=5.5.1'
+            ],
+            'stubs': [
+                'types-psutil',
             ]
         },
 

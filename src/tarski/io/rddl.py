@@ -219,7 +219,7 @@ class Reader:
 
     @staticmethod
     def _load_rddl_model(filename):
-        with open(filename, 'r') as input_file:
+        with open(filename, 'r', encoding='utf8') as input_file:
             rddl = input_file.read()
         parser = modules.import_pyrddl_parser()()
         parser.build()
@@ -436,7 +436,7 @@ class Writer:
             horizon=self.get_horizon(),
             discount=self.get_discount()
         )
-        with open(filename, 'w') as file:
+        with open(filename, 'w', encoding='utf8') as file:
             file.write(content)
 
     def get_requirements(self):

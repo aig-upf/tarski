@@ -47,8 +47,8 @@ class Model:
         self.evaluator = evaluator
         self.language = language
         # self.vocabulary = language.vocabulary()
-        self.function_extensions = dict()
-        self.predicate_extensions = dict()
+        self.function_extensions = {}
+        self.predicate_extensions = {}
 
     def __eq__(self, other):
         # TODO Improve the performance of this
@@ -215,7 +215,7 @@ def create(lang, evaluator=None):
 
 class ExtensionalFunctionDefinition:
     def __init__(self):
-        self.data = dict()
+        self.data = {}
 
     def set(self, point, value):
         assert isinstance(point, tuple)

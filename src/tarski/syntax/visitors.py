@@ -1,6 +1,5 @@
 
-from tarski.syntax import symref, CompoundFormula, QuantifiedFormula, Atom, CompoundTerm, Variable,\
-    CompoundFormula, Connective, Atom, Tautology, symref
+from tarski.syntax import symref, QuantifiedFormula, CompoundTerm, Variable, CompoundFormula, Atom
 from tarski.syntax.formulas import is_eq_atom
 
 

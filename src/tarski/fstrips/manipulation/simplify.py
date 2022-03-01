@@ -1,6 +1,6 @@
 import copy
 
-from multipledispatch import dispatch
+from multipledispatch import dispatch  # type: ignore
 
 from ..fstrips import AddEffect, DelEffect, UniversalEffect, FunctionalEffect
 from ..ops import collect_all_symbols, compute_number_potential_groundings

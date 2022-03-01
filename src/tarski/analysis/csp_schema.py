@@ -34,8 +34,8 @@ def get_type_prefix(t):
 
 class CSPInformation:
     def __init__(self):
-        self.name_to_vardata = dict()
-        self.vardata = list()
+        self.name_to_vardata = {}
+        self.vardata = []
         self.constraints = []
         self.effect_relevant_variables = set()
         self.parameter_index = []
@@ -221,7 +221,7 @@ class CSPCompiler:
         # sanitized = action.name.lower()
         sanitized = action.name
 
-        with open(os.path.join(path, f'{sanitized}.csp'), 'w') as f:
+        with open(os.path.join(path, f'{sanitized}.csp'), 'w', encoding='utf8') as f:
             print('variables', file=f)
             print(len(csp.vardata), file=f)
             for name, type_, cspvartype, range_ in csp.vardata:

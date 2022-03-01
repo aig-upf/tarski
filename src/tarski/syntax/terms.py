@@ -17,7 +17,7 @@ class Term:
         >>> from tarski.fstrips import language
         >>> from tarski.syntax import symref
         >>> lang = language("test")
-        >>> counter = dict()
+        >>> counter = {}
         >>> c = lang.constant('c', 'object')
         >>> counter[c] = 2  # ERROR: will not work correctly
         >>> counter[symref(c)] = 2  # This is the correct way of doing it

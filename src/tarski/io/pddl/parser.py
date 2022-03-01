@@ -9,16 +9,16 @@
 
 import logging
 
-from ply import yacc
+from ply import yacc  # type: ignore
 
-from tarski.syntax import CompoundTerm, Term
+from tarski.syntax import CompoundTerm, Term, land, lor, neg, QuantifiedFormula, Quantifier
 from tarski.io.pddl import Features, supported_features
 from tarski.io.pddl.lexer import PDDLlex
 from tarski.io.pddl.instance import *
 from tarski.io.pddl.errors import *
 
 
-class PDDLparser(object):
+class PDDLparser:
     """
     The PDDL parser class
     """

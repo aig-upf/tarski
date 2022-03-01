@@ -9,7 +9,6 @@
     2017
 """
 from ..syntax import Atom, CompoundTerm, CompoundFormula, Constant, symref, Connective, Tautology
-from ..model import Model
 
 
 class NDLSyntaxError(Exception):

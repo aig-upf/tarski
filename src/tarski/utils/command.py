@@ -12,7 +12,7 @@ import tempfile
 def count_file_lines(filename):  # Might be a bit faster with a call to "wc -l"
     """ Count the number of lines in a given file """
     i = 0
-    with open(filename) as f:
+    with open(filename, encoding='utf8') as f:
         for i, _ in enumerate(f, 1):
             pass
     return i
@@ -25,7 +25,7 @@ def remove_duplicate_lines(filename):
 
 def read_file(filename):
     """ Read a file, line by line, ignoring end-of-line characters"""
-    with open(filename) as f:
+    with open(filename, encoding='utf8') as f:
         for line in f:
             yield line.rstrip('\n')
 
@@ -33,10 +33,10 @@ def read_file(filename):
 def execute(command, **kwargs):
     stdout, stderr = kwargs.get("stdout", None), kwargs.get("stderr", None)
     if isinstance(stdout, str):
-        stdout = open(stdout, 'w')  # pylint: disable=consider-using-with
+        stdout = open(stdout, 'w', encoding='utf8')  # pylint: disable=consider-using-with
 
     if isinstance(stderr, str):
-        stderr = open(stderr, 'w')  # pylint: disable=consider-using-with
+        stderr = open(stderr, 'w', encoding='utf8')  # pylint: disable=consider-using-with
 
     cwd = kwargs["cwd"] if "cwd" in kwargs else os.getcwd()
 

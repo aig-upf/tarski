@@ -1,11 +1,10 @@
 """
     Temporal (durative) actions for SAS+
 """
-from tarski.syntax import Term, symref
 from tarski.sas import Action
 
 
-class TemporalAction(object):
+class TemporalAction:
     """
     Temporal action where events are given as SAS+ actions
     """

@@ -10,7 +10,7 @@ class InvalidValue(Exception):
     pass
 
 
-class Variable(object):
+class Variable:
 
     def __init__(self, **kwargs):
         self._id = kwargs.get('id', 0)
