@@ -196,7 +196,7 @@ class CSPCompiler:
             lb, ub = self.sort_bounds[expression.sort]
             # Note that Gecode bounds are inclusive, i.e. lb <= x <= ub, whereas in Tarski the upper-bound is exclusive,
             # so we have to fix that here:
-            bounds = (lb, ub-1)
+            bounds = (lb, ub - 1)
         elif isinstance(expression, Constant):
             val = self.object_ids[symref(expression)]
             bounds = (val, val)

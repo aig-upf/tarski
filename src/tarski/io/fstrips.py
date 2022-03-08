@@ -61,7 +61,7 @@ class FstripsReader:
     def parse_instance(self, filename):
         self.parse_file(filename, 'problem')
         return self.problem
-    
+
     def parse_domain_string(self, domain):
         self.parse_string(domain, 'domain')
         uniformize_costs(self.problem)
@@ -338,7 +338,7 @@ def print_effects(effects, cost=None, indentation=0):
     if cost:  # Add the increase-effect corresponding to the action cost
         assert isinstance(cost, AdditiveActionCost)
         totalcost = cost.addend.language.get('total-cost')
-        effects.append(print_unconditional_effect(IncreaseEffect(totalcost(), cost.addend), indentation+1))
+        effects.append(print_unconditional_effect(IncreaseEffect(totalcost(), cost.addend), indentation + 1))
     return "(and\n{})".format("\n".join(effects))
 
 

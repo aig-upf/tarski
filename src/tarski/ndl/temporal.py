@@ -35,6 +35,7 @@ class ResourceLock:
     def __str__(self):
         return "LOCK {} AFTER {} FOR {}".format(self.r, self.ts, self.td)
 
+
 class ResourceLevel:
 
     def __init__(self, **kwargs):

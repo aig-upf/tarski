@@ -317,9 +317,8 @@ class ForallConcept(Concept):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
-                self.c == other.c and
-                self.r == other.r)
+        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
+                and self.c == other.c and self.r == other.r)
 
     def denotation(self, model):
         universe = model.universe()
@@ -394,8 +393,10 @@ class PrimitiveRole(Role):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
-                self.name == other.name)
+        return (hasattr(other, 'hash')
+                and self.hash == other.hash
+                and self.__class__ is other.__class__
+                and self.name == other.name)
 
     def denotation(self, model):
         return model.compressed(model.primitive_denotation(self), self.ARITY)

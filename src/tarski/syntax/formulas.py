@@ -118,9 +118,9 @@ class CompoundFormula(Formula):
     __repr__ = __str__
 
     def __eq__(self, other):
-        return self.__class__ is other.__class__ and \
-               self.connective == other.connective and \
-               self.subformulas == other.subformulas
+        return (self.__class__ is other.__class__
+                and self.connective == other.connective
+                and self.subformulas == other.subformulas)
 
     def __hash__(self):
         element_hashes = [self.__class__, self.connective]

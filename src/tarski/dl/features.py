@@ -189,8 +189,8 @@ class MinDistanceFeature(Feature):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
-                self.c1 == other.c1 and self.r == other.r and self.c2 == other.c2)
+        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
+                and self.c1 == other.c1 and self.r == other.r and self.c2 == other.c2)
 
     def denotation(self, model):
         """ The value of the feature is the min distance between any object in the extension of c1 and any object
@@ -231,8 +231,8 @@ class DifferenceFeature(Feature):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
-                self.f1 == other.f1 and self.f2 == other.f2)
+        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
+                and self.f1 == other.f1 and self.f2 == other.f2)
 
     def denotation(self, model):
         """ The value of the feature is f1 < f2 """

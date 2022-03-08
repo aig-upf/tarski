@@ -33,7 +33,7 @@ def run_clingo(lp):
     gringo_command = get_gringo_command()
     if gringo_command is None:
         raise CommandNotFoundError("gringo")
-          
+
     with tempfile.NamedTemporaryFile(mode='w+t', delete=False) as f:
         _ = [print(str(r), file=f) for r in lp.rules]
         _ = [print(str(r), file=f) for r in lp.directives]
@@ -44,9 +44,9 @@ def run_clingo(lp):
         with tempfile.NamedTemporaryFile(mode='w+t', delete=False) as stderr:
             # Option "-t" enforces an easier-to-parse textual output. Warnings could also be supressed with
             # option "-Wno-atom-undefined"
-            retcode = cmd.execute(gringo_command+["--text", theory_filename], stdout=f, stderr=stderr)
+            retcode = cmd.execute(gringo_command + ["--text", theory_filename], stdout=f, stderr=stderr)
             model_filename = f.name
-            
+
             if retcode == 0:
                 return model_filename, theory_filename
 

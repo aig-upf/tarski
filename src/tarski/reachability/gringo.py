@@ -24,4 +24,4 @@ class WrapperClingo(Application):
 
 
 # run the clingo application in the default gringo mode
-clingo_main(WrapperClingo("gringo"), ["--mode", "gringo"]+sys.argv[1:])
+clingo_main(WrapperClingo("gringo"), ["--mode", "gringo"] + sys.argv[1:])
