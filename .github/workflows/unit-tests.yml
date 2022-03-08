@@ -28,7 +28,7 @@ jobs:
         experimental: [false]
         include:
           -  os: ubuntu-latest
-             python-version: '3.11'
+             python-version: '3.11.0-alpha.5'
              experimental: true
 #        python-version: [ '2.x', '3.x', 'pypy-2.7', 'pypy-3.7', 'pypy-3.8' ]
 
