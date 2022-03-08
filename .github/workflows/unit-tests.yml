@@ -26,7 +26,9 @@ jobs:
         # Note that for the pre-release, we set the `experimental` tag, and hence the `continue-on-error` flag, to true;
         # this way, failuares are treated as a warning and don’t fail the whole workflow. This is sometimes referred to
         # as a "shadow CI job".
-        python-version: ['3.7', '3.8', '3.9', '3.10', 'pypy-3.9']
+        # pypy is currently disabled, as it takes a long time to run (>20mins)
+#        python-version: ['3.7', '3.8', '3.9', '3.10', 'pypy-3.9']
+        python-version: ['3.7', '3.8', '3.9', '3.10']
         experimental: [false]
         include:
           -  os: ubuntu-latest
