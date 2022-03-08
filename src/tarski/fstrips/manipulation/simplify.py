@@ -198,11 +198,11 @@ def simplify_existential_quantification(node, inplace=True):
 class ExistentialQuantificationSimplifier(FOLWalker):
     """ Replaces a formula of the form ∃x.φ[x] ∧ x = t by the formula φ[x/t]. """
     @dispatch(object)
-    def visit(self, node):  # pylint: disable-msg=E0102
+    def visit(self, node):  # pylint: disable-msg=E0102  # noqa: F811
         return self.default_handler(node)
 
     @dispatch(QuantifiedFormula)
-    def visit(self, node: QuantifiedFormula):  # pylint: disable-msg=E0102
+    def visit(self, node: QuantifiedFormula):  # pylint: disable-msg=E0102  # noqa: F811
         if node.quantifier == Quantifier.Forall:
             return node
 

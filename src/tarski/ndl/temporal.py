@@ -62,11 +62,11 @@ class SetLiteralEffect:
     """
 
     def __init__(self, lit, value):
-        self.l = lit
+        self.lit = lit
         self.value = value
 
     def __str__(self):
-        return "SET({}, {})".format(self.l, self.value)
+        return "SET({}, {})".format(self.lit, self.value)
 
 
 class AssignValueEffect:
@@ -132,10 +132,10 @@ class UnionExpression:
         self.rhs = rhs
 
 
-def is_literal(l):
-    if not isinstance(l, Atom):
-        if isinstance(l, CompoundFormula):
-            return l.connective == Connective.Not and isinstance(l.subformulas[0], Atom)
+def is_literal(lit):
+    if not isinstance(lit, Atom):
+        if isinstance(lit, CompoundFormula):
+            return lit.connective == Connective.Not and isinstance(lit.subformulas[0], Atom)
         return False
     return True
 
@@ -203,15 +203,14 @@ class Action:
             if isinstance(wrapped_effect, AssignValueEffect):
                 self.effect_times[symref(wrapped_effect.atom == eff.eff.value)] = eff.delay
             elif isinstance(wrapped_effect, SetLiteralEffect):
-                self.effect_times[(symref(wrapped_effect.l), wrapped_effect.value)] = eff.delay
+                self.effect_times[(symref(wrapped_effect.lit), wrapped_effect.value)] = eff.delay
             else:
                 raise NotImplementedError("Effects of type {} cannot be handled yet".format(type(wrapped_effect)))
-        for l in kwargs['untimed_effects']:
-            self.untimed_effects += [(0, l)]
+        for elem in kwargs['untimed_effects']:
+            self.untimed_effects += [(0, elem)]
 
-    def get_effect_time(self, l):
-        return self.effect_times[l]
-
+    def get_effect_time(self, elem):
+        return self.effect_times[elem]
 
 
 # class Instance:

@@ -6,6 +6,7 @@ from tarski.syntax.symrefs import TermReference
 from tarski.sas.helper import make_domain
 from typing import List, Union
 
+
 class InvalidValue(Exception):
     pass
 

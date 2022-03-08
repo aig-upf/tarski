@@ -75,4 +75,3 @@ class Action:
         :return:
         """
         self._effects += [(variable, v0, v1)]
-

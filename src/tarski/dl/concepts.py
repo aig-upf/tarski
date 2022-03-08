@@ -21,8 +21,8 @@ class NullaryAtom:
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
-                self.name == other.name)
+        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
+                and self.name == other.name)
 
     def __repr__(self):
         return "{}".format(self.name)
@@ -126,8 +126,8 @@ class NominalConcept(Concept):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
-                self.name == other.name)
+        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
+                and self.name == other.name)
 
     def denotation(self, model):
         return model.compressed(model.primitive_denotation(self), self.ARITY)
@@ -159,8 +159,8 @@ class PrimitiveConcept(Concept):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
-                self.name == other.name)
+        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
+                and self.name == other.name)
 
     def denotation(self, model):
         return model.compressed(model.primitive_denotation(self), self.ARITY)
@@ -192,8 +192,8 @@ class NotConcept(Concept):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
-                self.c == other.c)
+        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
+                and self.c == other.c)
 
     def denotation(self, model):
         return ~model.compressed_denotation(self.c)
@@ -220,9 +220,9 @@ class AndConcept(Concept):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
-                self.c1 == other.c1 and
-                self.c2 == other.c2)
+        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
+                and self.c1 == other.c1
+                and self.c2 == other.c2)
 
     def denotation(self, model):
         ext_c1 = model.compressed_denotation(self.c1)
@@ -251,9 +251,9 @@ class OrConcept(Concept):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
-                self.c1 == other.c1 and
-                self.c2 == other.c2)
+        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
+                and self.c1 == other.c1
+                and self.c2 == other.c2)
 
     def denotation(self, model):
         ext_c1 = model.compressed_denotation(self.c1)
@@ -283,9 +283,9 @@ class ExistsConcept(Concept):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
-                self.c == other.c and
-                self.r == other.r)
+        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
+                and self.c == other.c
+                and self.r == other.r)
 
     def denotation(self, model):
         ext_c = model.uncompressed_denotation(self.c)
@@ -353,9 +353,9 @@ class EqualConcept(Concept):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
-                self.r1 == other.r1 and
-                self.r2 == other.r2)
+        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
+                and self.r1 == other.r1
+                and self.r2 == other.r2)
 
     def denotation(self, model):
         universe = model.universe()
@@ -429,8 +429,8 @@ class InverseRole(Role):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
-                self.r == other.r)
+        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
+                and self.r == other.r)
 
     def denotation(self, model):
         ext_r = model.uncompressed_denotation(self.r)
@@ -457,8 +457,8 @@ class StarRole(Role):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
-                self.r == other.r)
+        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
+                and self.r == other.r)
 
     def denotation(self, model):
         ext_r = model.uncompressed_denotation(self.r)
@@ -487,9 +487,9 @@ class CompositionRole(Role):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
-                self.r1 == other.r1 and
-                self.r2 == other.r2)
+        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
+                and self.r1 == other.r1
+                and self.r2 == other.r2)
 
     def denotation(self, model):
         ext_r1 = model.uncompressed_denotation(self.r1)
@@ -526,9 +526,9 @@ class RestrictRole(Role):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
-                self.c == other.c and
-                self.r == other.r)
+        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
+                and self.c == other.c
+                and self.r == other.r)
 
     def denotation(self, model):
         ext_c = model.uncompressed_denotation(self.c)

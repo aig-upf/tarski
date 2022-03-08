@@ -47,4 +47,3 @@ class TemporalAction:
         """
         self.deltas += [d]
         self.events += [evt]
-
