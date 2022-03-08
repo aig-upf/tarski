@@ -8,9 +8,7 @@ env:
   FSBENCHMARKS: "/tmp/fs-benchmarks"
 
 jobs:
-  unit_tests:
-    runs-on: ${{ matrix.os }}
-
+  style_checks:
     strategy:
       # Keep running all parameter combinations even if one fails
       fail-fast: false
@@ -22,6 +20,7 @@ jobs:
 #        toxenv: ['docs', 'antlrgrammars', 'pylint', 'pycoverage']
         toxenv: ['docs', 'antlrgrammars', 'pylint']
 
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Clone repo

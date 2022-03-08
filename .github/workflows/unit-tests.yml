@@ -22,7 +22,8 @@ jobs:
         include:
           # The Python pre-releases that are available to the GH action are listed here:
           # https://github.com/actions/python-versions/releases
-          -  python: '3.11.0-alpha.5'
+          -  os: ubuntu-latest
+             python: '3.11.0-alpha.5'
              experimental: true
 #        python-version: [ '2.x', '3.x', 'pypy-2.7', 'pypy-3.7', 'pypy-3.8' ]
 
