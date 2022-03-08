@@ -55,6 +55,6 @@ jobs:
           tox --version
           ./scripts/get-benchmarks
 
-      - name: Run tests (Experimental ${{ matrix.experimental }})
+      - name: Run tests (with continue-on-error = ${{ matrix.experimental }})
         run: |
           tox -v -e pytest
