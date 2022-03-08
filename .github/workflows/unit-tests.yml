@@ -9,12 +9,25 @@ env:
 
 jobs:
   unit_tests:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.experimental }}
 
     strategy:
+      # Keep running all parameter combinations even if one fails
+      fail-fast: false
+
       # We run unit tests on all currently active Python releases, see https://www.python.org/downloads/.
       matrix:
+#        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest]
         python-version: ['3.7', '3.8', '3.9', '3.10']
+        experimental: [false]
+        include:
+          # The Python pre-releases that are available to the GH action are listed here:
+          # https://github.com/actions/python-versions/releases
+          -  python: '3.11.0-alpha.5'
+             experimental: true
+#        python-version: [ '2.x', '3.x', 'pypy-2.7', 'pypy-3.7', 'pypy-3.8' ]
 
 
     steps:
@@ -26,13 +39,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      # Install Gringo for the general unit tests and also for the documentation
-      - name: Install Gringo
-        if: matrix.python-version == '3.10'
-        run: |
-          sudo apt-get install -y --no-install-recommends gringo
-          gringo --version
-
       - name: Install dependencies
         # Install all dependencies, then get some benchmarks that we'll use to run the tests.
         # Curl below is necessary to download the benchmarks
@@ -43,6 +49,6 @@ jobs:
           tox --version
           ./scripts/get-benchmarks
 
-      - name: Run tests
+      - name: Run tests (Experimental ${{ matrix.experimental }})
         run: |
           tox -v -e pytest

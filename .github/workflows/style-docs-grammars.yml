@@ -9,12 +9,17 @@ env:
 
 jobs:
   unit_tests:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     strategy:
+      # Keep running all parameter combinations even if one fails
+      fail-fast: false
+
       # We run style tests only on the latest active Python releases, see https://www.python.org/downloads/.
       matrix:
+        os: [ubuntu-latest]
         python-version: ['3.10']
+        toxenv: ['docs', 'antlrgrammars', 'pylint', 'pycoverage']
 
 
     steps:
@@ -26,27 +31,21 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      # Install Gringo for the general unit tests and also for the documentation
+      # Gringo and pandoc required only for the documentation tox environment
+      # Pandoc is installed as an APT package as recommended in the installation instructions.
       - name: Install Gringo
-        if: matrix.python-version == '3.10'
-        run: |
-          sudo apt-get install -y --no-install-recommends gringo
-          gringo --version
+        if: matrix.toxenv == 'docs'
+        run: sudo apt-get install -y --no-install-recommends gringo pandoc && gringo --version
 
-      - name: Install dependencies
-        # Install all dependencies
-        # Pandoc below is installed as an APT package as recommended in the installation instructions.
+      # curl required only for the codecov script
+      - name: Install Gringo
+        if: matrix.toxenv == 'pycoverage'
+        run: sudo apt-get install -y --no-install-recommends curl
+
+      - name: Install tox and packaging dependencies
         run: |
-          sudo apt-get install -y --no-install-recommends gringo pandoc
           python -m pip install --upgrade tox pip setuptools wheel
-          gringo --version
           tox --version
 
-      - name: Run pylint
-        run: tox -v -e pytest
-
-      - name: Test documentation bulding
-        run: tox -v -e docs
-
-      - name: Test ANTLR grammars
-        run: tox -v -e antlrgrammars
+      - name: Run tox environment ${{ matrix.toxenv }}
+        run: tox -v -e ${{ matrix.toxenv }}
