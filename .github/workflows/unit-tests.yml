@@ -13,17 +13,22 @@ jobs:
       # Keep running all parameter combinations even if one fails
       fail-fast: false
 
-      # We run unit tests on all currently active Python releases, see https://www.python.org/downloads/.
       matrix:
-#        os: [ubuntu-latest, macos-latest, windows-latest]
-        os: [ubuntu-latest, macos-latest]
+        # Currently, we only test on ubuntu, would be good to extend to macos-latest, windows-latest,
+        # but this requires a bit of extra work to get the dependencies installed there too
+        os: [ubuntu-latest]
+
+        # We run unit tests on all currently active Python releases, see https://www.python.org/downloads/.
+        # We also run tests in the latest pre-release version. Available pre-releases are listed here:
+        # https://github.com/actions/python-versions/releases
+        # Note that for the pre-release, we set the `experimental` tag, and hence the `continue-on-error` flag, to true;
+        # this way, failuares are treated as a warning and don’t fail the whole workflow. This is sometimes referred to
+        # as a "shadow CI job".
         python-version: ['3.7', '3.8', '3.9', '3.10']
         experimental: [false]
         include:
-          # The Python pre-releases that are available to the GH action are listed here:
-          # https://github.com/actions/python-versions/releases
           -  os: ubuntu-latest
-             python: '3.11.0-alpha.5'
+             python: '3.11'
              experimental: true
 #        python-version: [ '2.x', '3.x', 'pypy-2.7', 'pypy-3.7', 'pypy-3.8' ]
 
