@@ -9,9 +9,6 @@ env:
 
 jobs:
   unit_tests:
-    runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ matrix.experimental }}
-
     strategy:
       # Keep running all parameter combinations even if one fails
       fail-fast: false
@@ -29,6 +26,8 @@ jobs:
              experimental: true
 #        python-version: [ '2.x', '3.x', 'pypy-2.7', 'pypy-3.7', 'pypy-3.8' ]
 
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.experimental }}
 
     steps:
       - name: Clone repo
