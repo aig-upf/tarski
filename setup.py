@@ -41,10 +41,10 @@ def main():
             "License :: OSI Approved :: Apache Software License",
 
             'Programming Language :: Python :: 3',
-            'Programming Language :: Python :: 3.6',
             'Programming Language :: Python :: 3.7',
             'Programming Language :: Python :: 3.8',
             'Programming Language :: Python :: 3.9',
+            'Programming Language :: Python :: 3.10',
         ],
 
         packages=find_packages('src'),  # include all packages under src
@@ -67,24 +67,20 @@ def main():
 
         extras_require={
             'test': [
-                'pytest',
+                'pytest>=7.0.1',
                 'tox',
                 'pytest-cov',
                 'mypy'
             ],
             'docs': [
-                # We pin the Jinja2 version here as there seems to be some incompatibility between later Jinja3 releases
-                # and nbsphinx. Hopefully we can bump this up in the future.
-                'jinja2==2.11.3',
-                # We also pin the docutils version due to incompatibilities with nbsphinx,
-                # see https://github.com/sphinx-doc/sphinx/issues/9001
-                'docutils<0.17',
-                'sphinx==3.5.4',
-                'nbsphinx==0.8.5',
+                'jinja2==3.0.3',
+                'docutils<0.18',
+                'sphinx==4.4.0',
+                'nbsphinx==0.8.8',
                 'recommonmark==0.7.1',
-                'sphinx_rtd_theme==0.5.2',
-                'ipykernel==5.5.5',
-                'ipython==7.24.0'
+                'sphinx_rtd_theme==1.0.0',
+                'ipykernel==6.9.1',
+                'ipython==8.1.0'
             ],
             'arithmetic': [
                 'scipy',
@@ -99,6 +95,9 @@ def main():
             'gringo': [
                 # Clingo (gringo) bindings to the clingo solver
                 'clingo>=5.5.1'
+            ],
+            'stubs': [
+                'types-psutil',
             ]
         },
 

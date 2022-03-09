@@ -1,13 +1,13 @@
 # tarski
 #
 # Author: Miquel Ramirez (miquel.ramirez@pm.me)
-#----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 # io/pddl/lexer.py
 #
 # PDDL tokenizer
-#----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 
-import ply.lex as lex
+import ply.lex as lex  # type: ignore
 import re
 
 # helper definitions
@@ -23,7 +23,7 @@ real = num + r'*\.' + num + r'+'
 ws = ' \t'
 
 
-class LexSymbols(object):
+class LexSymbols:
 
     def __init__(self):
         # PDDL Requirements
@@ -124,7 +124,7 @@ class LexSymbols(object):
         self.rwALL = 'all'
 
 
-class PDDLlex(object):
+class PDDLlex:
     """
     Lexical analyser for PDDL
     """
@@ -204,7 +204,6 @@ class PDDLlex(object):
 
     def t_ignore_COMMENT(self, t):
         r';.*'
-        pass
 
     @lex.TOKEN(identifier)
     def t_ID(self, t):

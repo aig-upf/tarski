@@ -156,6 +156,7 @@ class OutOfMemoryError(TarskiError):
 class OutOfTimeError(TarskiError):
     pass
 
+
 class ArgumentError(TarskiError):
     pass
 

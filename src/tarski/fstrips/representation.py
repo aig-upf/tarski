@@ -1,5 +1,5 @@
 import copy
-from typing import Set, Union, Tuple, Optional
+from typing import Set, Union, Tuple, Optional, List
 
 from ..errors import TarskiError
 from .problem import Problem
@@ -8,6 +8,7 @@ from ..syntax import Formula, CompoundTerm, Atom, CompoundFormula, QuantifiedFor
     VariableBinding, Constant, Tautology, land, Term
 from ..syntax.ops import collect_unique_nodes, flatten, free_variables, all_variables
 from ..syntax.sorts import compute_signature_bindings
+from ..syntax.symrefs import TermReference
 from ..syntax.transform.substitutions import enumerate_substitutions
 from ..syntax.transform.substitutions import substitute_expression as fol_substitute_expression
 from ..syntax.util import get_symbols
@@ -117,7 +118,7 @@ def is_strips_effect_set(effects):
 
 def compute_effect_set_conflicts(effects):
     """ """
-    polarities = dict()
+    polarities = {}
     conflicts = set()
     for eff in effects:
         if not is_atomic_effect(eff) or not is_propositional_effect(eff):
@@ -142,7 +143,15 @@ def transform_operator_to_strips(action: Action):
 
 def is_literal(phi: Formula):
     """ Return true iff the given formula is a literal """
-    return isinstance(phi, Atom) or (is_neg(phi) and isinstance(phi.subformulas[0], Atom))
+    if isinstance(phi, Atom):
+        return True
+
+    if is_neg(phi):
+        # This assert prevents type checkers from complaining
+        assert isinstance(phi, CompoundFormula)
+        return isinstance(phi.subformulas[0], Atom)
+
+    return False
 
 
 def is_ground(element):
@@ -212,13 +221,13 @@ def collect_literals_from_conjunction(phi: Formula) -> Optional[Set[Tuple[Atom, 
     The returned list consists of one tuple (a, p) for each literal in the conjunction phi, where a is the literal atom
     and p its polarity (i.e. True if positive, False if negative)
     """
-    literals = set()  # type: Set[Tuple[Atom, bool]]
+    literals: Set[Tuple[Atom, bool]] = set()
     if _collect_literals_from_conjunction(phi, literals):
         return literals
     return None
 
 
-def _collect_literals_from_conjunction(f, literals: Set[Tuple[Atom, bool]]):
+def _collect_literals_from_conjunction(f, literals: Set[Tuple[Atom, bool]]) -> bool:
     if isinstance(f, Atom):
         literals.add((f, True))
     elif is_neg(f) and isinstance(f.subformulas[0], Atom):
@@ -233,9 +242,11 @@ def _collect_literals_from_conjunction(f, literals: Set[Tuple[Atom, bool]]):
 
 
 def classify_atom_occurrences_in_formula(phi: Formula):
-    """ Classify atoms in the given formula according to whether they occur as positive or negative literals
-    """
-    pos, neg, fun = set(), set(), set()
+    """ Classify atoms in the given formula according to whether they occur as positive or negative literals. """
+    pos: Set[TermReference] = set()
+    neg: Set[TermReference] = set()
+    fun: Set[TermReference] = set()
+
     for atom, truthval in collect_literals_from_conjunction(phi):
         if atom.predicate.builtin:
             fun.update(symref(t) for t in collect_unique_nodes(atom, lambda x: isinstance(x, CompoundTerm)))
@@ -259,11 +270,11 @@ def is_quantifier_free(phi: Formula):
     return len(collect_unique_nodes(phi, lambda x: isinstance(x, QuantifiedFormula))) == 0
 
 
-def collect_effect_free_parameters(action: Action):
-    """ Return the "effect-free" parameters of the given action schema.
-    These are the set of action parameters (logical variables) that do not appear on any effect of the action.
+def collect_effect_free_parameters(action: Action) -> Set[TermReference]:
+    """ Return the set of action parameters (logical variables) in the given action schema that
+     do not appear on any effect of the action.
     """
-    free = set()
+    free: Set[TermReference] = set()
     for eff in action.effects:
         _collect_effect_free_variables(eff, free)
     parameters = {symref(x) for x in action.parameters}
@@ -307,14 +318,14 @@ def project_away_effect_free_variables_from_problem(problem: Problem, inplace=Fa
     return projected
 
 
-def collect_effect_free_variables(eff: fs.BaseEffect):
+def collect_effect_free_variables(eff: fs.BaseEffect) -> Set[TermReference]:
     """ Return the set of all variables that appear free in the given effect. """
     free = set()
     _collect_effect_free_variables(eff, free)
     return free
 
 
-def _collect_effect_free_variables(eff: fs.BaseEffect, free: Set):
+def _collect_effect_free_variables(eff: fs.BaseEffect, free: Set[TermReference]):
     """
     """
     if isinstance(eff, (fs.AddEffect, fs.DelEffect)):
@@ -329,7 +340,7 @@ def _collect_effect_free_variables(eff: fs.BaseEffect, free: Set):
 
     elif isinstance(eff, fs.UniversalEffect):
         bound = {symref(x) for x in eff.variables}
-        free_in_sub = set()
+        free_in_sub: Set[TermReference] = set()
         for sub in eff.effects:
             _collect_effect_free_variables(sub, free_in_sub)
         free.update(free_in_sub - bound)
@@ -344,7 +355,7 @@ def collect_all_function_names(expression, output):
     output.update(f.symbol.name for f in terms)
 
 
-def identify_cost_related_functions(problem: Problem):
+def identify_cost_related_functions(problem: Problem) -> Set[str]:
     """ Return a list of those function symbols that are *only* used in effects that relate to the special
     "total-cost" function. """
     functions = list(get_symbols(problem.language, type_='function', include_builtin=False))
@@ -412,7 +423,7 @@ def compile_negated_preconditions_away(problem: Problem, inplace=False):
     problem = copy.deepcopy(problem) if not inplace else problem
 
     # First compile the action preconditions away
-    negpreds = dict()
+    negpreds = {}
     newactions = []
     for aname, action in problem.actions.items():
         newactions.append((aname, compile_action_negated_preconditions_away(action, negpreds, inplace=True)))
@@ -437,7 +448,7 @@ def compile_negated_preconditions_away(problem: Problem, inplace=False):
 
 def update_action_effects_with_negated_counterparts(action: Action, negpreds):
     """ """
-    neweffects = []
+    neweffects: List[SingleEffect] = []
     for eff in action.effects:
         if not is_propositional_effect(eff):
             raise RepresentationError(f"Don't know how to update negated counterpart atoms for effect {eff}")

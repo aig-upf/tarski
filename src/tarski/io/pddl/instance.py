@@ -15,8 +15,6 @@ import tarski as tsk
 from tarski.io.pddl.errors import UnsupportedFeature
 from tarski.theories import Theory
 from tarski.syntax import Variable, Sort
-from tarski.syntax import neg, land
-from tarski.syntax.formulas import lor, Quantifier, QuantifiedFormula
 from tarski.syntax.sorts import Interval, int_encode_fn
 from tarski.syntax import symref
 
@@ -26,7 +24,7 @@ EventData = namedtuple('EventData', ['pre', 'post'])
 ActionData = namedtuple('ActionData', ['name', 'parameters', 'pre', 'post'])
 DurativeActionData = namedtuple('DurativeActionData', ['name', 'parameters', 'at_start', 'at_end', 'overall', 'duration'])
 DerivedPredicateData = namedtuple('DerivedPredicateData', ['head', 'parameters', 'body'])
-ObjectiveData = namedtuple('Objectivedata', ['mode', 'type', 'expr'])
+ObjectiveData = namedtuple('ObjectiveData', ['mode', 'type', 'expr'])
 
 
 class ObjectiveMode(Enum):
@@ -48,7 +46,7 @@ class ObjectiveType(Enum):
     VIOLATED_PREFS = 4
 
 
-class InstanceModel(object):
+class InstanceModel:
     """
     Instance objects represent the structural components of a planning problem instance as defined in a PDDL program.
     The instance class is meant to be generic by not committing to specific further post-processing (such as

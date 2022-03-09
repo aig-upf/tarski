@@ -6,11 +6,12 @@ from tarski.syntax.symrefs import TermReference
 from tarski.sas.helper import make_domain
 from typing import List, Union
 
+
 class InvalidValue(Exception):
     pass
 
 
-class Variable(object):
+class Variable:
 
     def __init__(self, **kwargs):
         self._id = kwargs.get('id', 0)

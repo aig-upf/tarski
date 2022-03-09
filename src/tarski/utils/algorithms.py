@@ -38,10 +38,10 @@ def compute_min_distance(c1s, relation, c2s):
     # Perform breadth-first search
     while queue:
         s = queue.pop()
-        dist_through_s = min_distances[s]+1
+        dist_through_s = min_distances[s] + 1
         for t in adjacencies[s]:
             if dist_through_s < min_distances[t]:
-                min_distances[t] = min_distances[s]+1
+                min_distances[t] = min_distances[s] + 1
                 queue.appendleft(t)
 
     # Return the minimum distance

@@ -66,7 +66,8 @@ class ProblemWalker:
         return node
 
     def run(self, expression, inplace=True):
-        from . import Action, BaseEffect, Problem  # pylint: disable=import-outside-toplevel  # Avoiding circular references
+        # Avoiding circular references:
+        from . import Action, BaseEffect, Problem  # pylint: disable=import-outside-toplevel
         from ..syntax import Formula, Term  # pylint: disable=import-outside-toplevel  # Avoiding circular references
         # Simply dispatch according to type
         expression = expression if inplace else copy.deepcopy(expression)

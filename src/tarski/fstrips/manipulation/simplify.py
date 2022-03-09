@@ -1,6 +1,6 @@
 import copy
 
-from multipledispatch import dispatch
+from multipledispatch import dispatch  # type: ignore
 
 from ..fstrips import AddEffect, DelEffect, UniversalEffect, FunctionalEffect
 from ..ops import collect_all_symbols, compute_number_potential_groundings
@@ -87,7 +87,8 @@ class Simplify:
             return None
 
         # Filter out those effects that are None, e.g. because they are not applicable:
-        simple.effects = list(filter(None.__ne__, (self.simplify_effect(eff, inplace=True) for eff in simple.effects)))
+        simple.effects = [x for x in (self.simplify_effect(eff, inplace=True) for eff in simple.effects)
+                          if x is not None]
 
         if not simple.effects:  # If not effects remain, the action is useless
             return None
@@ -173,8 +174,8 @@ class Simplify:
 
         if isinstance(effect, UniversalEffect):
             # Go recursively to the universally quantified effects, filter those that are inapplicable
-            effect.effects = list(filter(None.__ne__,
-                                         (self.simplify_effect(eff, inplace=True) for eff in effect.effects)))
+            effect.effects = [x for x in (self.simplify_effect(eff, inplace=True) for eff in effect.effects)
+                              if x is not None]
             return effect
 
         raise RuntimeError(f'Effect "{effect}" of type "{type(effect)}" cannot be analysed')
@@ -197,11 +198,11 @@ def simplify_existential_quantification(node, inplace=True):
 class ExistentialQuantificationSimplifier(FOLWalker):
     """ Replaces a formula of the form ∃x.φ[x] ∧ x = t by the formula φ[x/t]. """
     @dispatch(object)
-    def visit(self, node):  # pylint: disable-msg=E0102
+    def visit(self, node):  # pylint: disable-msg=E0102  # noqa: F811
         return self.default_handler(node)
 
-    @dispatch(QuantifiedFormula)
-    def visit(self, node: QuantifiedFormula):  # pylint: disable-msg=E0102
+    @dispatch(QuantifiedFormula)  # type: ignore
+    def visit(self, node: QuantifiedFormula):  # pylint: disable-msg=E0102  # noqa: F811
         if node.quantifier == Quantifier.Forall:
             return node
 

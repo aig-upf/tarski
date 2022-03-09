@@ -64,7 +64,7 @@ def _remove_ear_if_exists(edges, node_counts):
         # Note that this includes the case where f \subseteq f'.
         # Abiteboul et al. assume that hypergraph is "reduced" and f has thus been compiled into f' at preprocessing;
         # we simply compile it away here on the fly by assuming it is indeed an ear and can be removed.
-        if all(node_counts[node] == 1 for node in f-fprime):
+        if all(node_counts[node] == 1 for node in f - fprime):
             remove_edge(f)
             # print(f'Edge {f} removed in favor of {fprime}')
             return True

@@ -10,6 +10,7 @@
 class SemanticError(Exception):
 
     def __init__(self, line, msg):
+        super().__init__(msg)
         self.line = line
         self.msg = msg
 
@@ -20,6 +21,7 @@ class SemanticError(Exception):
 class ParseError(Exception):
 
     def __init__(self, line, msg):
+        super().__init__(msg)
         self.line = line
         self.msg = msg
 
@@ -30,6 +32,7 @@ class ParseError(Exception):
 class UnsupportedFeature(Exception):
 
     def __init__(self, line, msg):
+        super().__init__(msg)
         self.line = line
         self.msg = msg
 

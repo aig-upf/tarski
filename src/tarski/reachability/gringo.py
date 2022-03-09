@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 import sys
-from clingo.application import Application, clingo_main
+from clingo.application import Application, clingo_main  # type: ignore
 
-"""
-A wrapper to emulate the default clingo app behavior
-"""
+
 class WrapperClingo(Application):
+    """
+    A wrapper to emulate the default clingo app behavior
+    """
     def __init__(self, name):
         self.program_name = name
 
@@ -21,7 +22,6 @@ class WrapperClingo(Application):
         ctl.ground([("base", [])])
         ctl.solve()
 
-"""
-run the clingo application in the default gringo mode
-"""
-clingo_main(WrapperClingo("gringo"), ["--mode", "gringo"]+sys.argv[1:])
+
+# run the clingo application in the default gringo mode
+clingo_main(WrapperClingo("gringo"), ["--mode", "gringo"] + sys.argv[1:])

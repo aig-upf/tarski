@@ -70,15 +70,16 @@ def compute_bool_feature_diff(x, y):
 
 
 def are_feature_changes_analogous(x, y):
-    return x == y or \
-           (x == FeatureValueChange.DEL and y == FeatureValueChange.DEC) or \
-           (x == FeatureValueChange.DEC and y == FeatureValueChange.DEL) or \
-           (x == FeatureValueChange.ADD and y == FeatureValueChange.INC) or \
-           (x == FeatureValueChange.INC and y == FeatureValueChange.ADD)
+    return (x == y
+            or (x == FeatureValueChange.DEL and y == FeatureValueChange.DEC)
+            or (x == FeatureValueChange.DEC and y == FeatureValueChange.DEL)
+            or (x == FeatureValueChange.ADD and y == FeatureValueChange.INC)
+            or (x == FeatureValueChange.INC and y == FeatureValueChange.ADD))
 
 
 class ConceptCardinalityFeature(Feature):
     """ A numeric feature that reflects the cardinality of a set of objects defined by a concept """
+
     def __init__(self, c):
         assert isinstance(c, Concept)
         self.c = c
@@ -99,8 +100,8 @@ class ConceptCardinalityFeature(Feature):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
-                self.c == other.c)
+        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
+                and self.c == other.c)
 
     def concept(self):
         return self.c
@@ -133,8 +134,8 @@ class EmpiricalBinaryConcept(Feature):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
-                self.c == other.c)
+        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
+                and self.c == other.c)
 
     def concept(self):
         return self.c
@@ -142,6 +143,7 @@ class EmpiricalBinaryConcept(Feature):
     def complexity(self):
         # The complexity of a binary feature is the complexity of the underlying concept
         return self.c.size
+
 
 # NOT YET FULLY IMPLEMENTED:
 #
@@ -189,8 +191,8 @@ class MinDistanceFeature(Feature):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
-                self.c1 == other.c1 and self.r == other.r and self.c2 == other.c2)
+        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
+                and self.c1 == other.c1 and self.r == other.r and self.c2 == other.c2)
 
     def denotation(self, model):
         """ The value of the feature is the min distance between any object in the extension of c1 and any object
@@ -231,8 +233,8 @@ class DifferenceFeature(Feature):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
-                self.f1 == other.f1 and self.f2 == other.f2)
+        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
+                and self.f1 == other.f1 and self.f2 == other.f2)
 
     def denotation(self, model):
         """ The value of the feature is f1 < f2 """
@@ -275,8 +277,8 @@ class NullaryAtomFeature(Feature):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__ and
-                self.atom == other.atom)
+        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
+                and self.atom == other.atom)
 
     def complexity(self):
         return 1

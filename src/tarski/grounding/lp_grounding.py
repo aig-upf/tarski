@@ -51,7 +51,7 @@ class LPGroundingStrategy:
                                'configured with ground_actions=False')
         model = self._solve_lp()
         # This will take care of the case where there is not ground action from some schema
-        groundings = dict()
+        groundings = {}
         for k in self.problem.actions.keys():
             key = "action_" + k
             groundings[k] = model[key] if key in model else set()

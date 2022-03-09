@@ -1,0 +1,43 @@
+name: Code coverage
+
+on:
+  pull_request:
+
+env:
+  DOWNWARD_BENCHMARKS: "/tmp/downward-benchmarks"
+  FSBENCHMARKS: "/tmp/fs-benchmarks"
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        # Install all dependencies, then get some benchmarks that we'll use to run the tests.
+        # Curl below is necessary to download the benchmarks
+        run: |
+          sudo apt-get install -y --no-install-recommends gringo curl
+          python -m pip install --upgrade tox pip setuptools wheel
+          gringo --version
+          tox --version
+          ./scripts/get-benchmarks
+
+      - name: Run tests with coverage enabled
+        run: tox -v -e pycoverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+#          env_vars: OS,PYTHON
+          fail_ci_if_error: true
+          files: ./coverage.xml
+          flags: unittests
+          verbose: true

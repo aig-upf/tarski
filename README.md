@@ -1,6 +1,6 @@
 
 # Tarski - An AI Planning Modeling Framework 
-[![Build Status](https://travis-ci.com/aig-upf/tarski.svg?branch=master)](https://travis-ci.com/aig-upf/tarski)
+[![Unit Tests](https://github.com/aig-upf/tarski/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/aig-upf/tarski/actions/workflows/unit-tests.yml)
 [![Documentation Status](https://readthedocs.org/projects/tarski/badge/?version=latest)](https://tarski.readthedocs.io/en/latest/?badge=latest)
 [![codecov](https://codecov.io/gh/aig-upf/tarski/branch/master/graph/badge.svg)](https://codecov.io/gh/aig-upf/tarski)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/tarski.svg?style=popout)

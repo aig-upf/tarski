@@ -131,7 +131,7 @@ class NaiveGroundingStrategy:
     def ground_actions(self):
         """  Return a dictionary mapping each action schema of the problem to the set of parameter groundings that
         make that schema a possible ground action. """
-        groundings = dict()
+        groundings = {}
         for aname, action in self.problem.actions.items():
             domains = [p.sort.domain() for p in action.parameters]
             groundings[aname] = list(itertools.product(*domains))

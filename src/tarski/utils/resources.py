@@ -36,8 +36,8 @@ class Timer:
             # self.start_mem is None whenever the underlying platform could not import the psutil module,
             # in which case at the moment we're happy simply not to show memory consumption info.
             current = get_mem_usage()
-            current_in_mb = current / (1024*1024)
-            rss_in_mb = (current - self.start_mem) / (1024*1024)
+            current_in_mb = current / (1024 * 1024)
+            rss_in_mb = (current - self.start_mem) / (1024 * 1024)
 
         return "[%.2fs CPU, %.2fs wall-clock, diff: %.2fMB, curr:  %.2fMB]" % (
             self._clock() - self.start_clock,

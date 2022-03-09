@@ -134,7 +134,7 @@ def uniformize_costs(problem):
             action.cost = generate_zero_action_cost(action.language)
 
 
-class LowerCasingStreamWrapper(object):
+class LowerCasingStreamWrapper:
     """ A simple wrapper around a stream to lowercase all characters.
      @see https://github.com/antlr/antlr4/blob/master/doc/case-insensitive-lexing.md
     """
