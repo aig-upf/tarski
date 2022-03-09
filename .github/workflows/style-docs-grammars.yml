@@ -1,7 +1,11 @@
 name: Style checks, documentation building, grammars
 
 on:
+  # Run workflow on all PRs plus on direct pushes to devel. master is protected against direct pushes.
   pull_request:
+  push:
+    branches:
+      - devel
 
 env:
   DOWNWARD_BENCHMARKS: "/tmp/downward-benchmarks"

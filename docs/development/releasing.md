@@ -1,39 +1,22 @@
 
-# Release Process
+# Creating Tarski releases
 
-## Uploading a Tarski release to the Python Package Index
+The release procedure is as follows:
 
-Docs: <https://packaging.python.org/tutorials/packaging-projects/>
+We release by creating a PR against the `master` branch, then manually c
 
-1. Update the `CHANGELOG.md` file.
-1. Update the version number in `src/tarski/version.py`
-1. Commit. Use message like "Preparing for release 0.6.0".
-1. Go to the `master` branch and merge the `devel` branch.
-1. Tag the release.
-    ```bash
-        export TARSKI_RELEASE="v0.2.0"
-        git tag -a ${TARSKI_RELEASE} -m "Tarski release ${TARSKI_RELEASE}"
-    ```
-        
-1. Run the following instructions from the root directory of the project:
-    ```bash
-        python3 -m pip install --upgrade twine setuptools wheel  # (optional)
-    
-        rm -rf dist/
-        python3 setup.py sdist bdist_wheel
-    
-        # Test first (result will go to https://test.pypi.org/project/tarski/):
-        python3 -m twine upload --skip-existing --repository-url https://test.pypi.org/legacy/ dist/*
-    
-        # Then go!
-        python3 -m twine upload --skip-existing dist/*
-    ```
+1. Make sure you're in the `devel` branch.
+2. Update the version number in `src/tarski/version.py`
+3. Update the `CHANGELOG.md` file manually to reflect the changes since the last release.
+4. Commit the changes. Use message like "Preparing for release 0.6.0".
+5. Create a PR against the `master` branch.
+6. Once all workflows have executed successfully, merge the PR. 
+7. Create a [new release](https://github.com/aig-upf/tarski/releases/new) in the GH repo,
+   with an appropriate tag such as `v0.2.0`. The new release will trigger a GH workflow that will
+   automatically upload the package to `pypi`.
 
-1. Push all code changes plus the tag to the repo:
-    ```bash
-        git push && git push origin ${TARSKI_RELEASE}
-    ```
-
-1. Check the [Github releases page](https://github.com/aig-upf/tarski/releases) to make sure the new release appears
-   there and can be downwloaded.
-
+## Relevant Pointers
+* <https://packaging.python.org/tutorials/packaging-projects/>
+* <https://github.com/pypa/gh-action-pypi-publish>
+* <https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python#publishing-to-package-registries>
+* <https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/>
