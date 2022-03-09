@@ -5,7 +5,7 @@ from typing import Set, Union
 # At the moment we're using the "multipledispatch" package to implement single-argument dispatching.
 # Whenever we move to support Python 3.8+, we could directly use
 #     https://docs.python.org/3/library/functools.html#functools.singledispatchmethod
-from multipledispatch import dispatch
+from multipledispatch import dispatch  # type: ignore
 
 from .walker import ProblemWalker
 from ..syntax import Predicate, Function, CompoundTerm, Atom
@@ -45,16 +45,16 @@ class AllSymbolWalker(ProblemWalker):
         super().__init__()
         self.symbols = set()
 
-    @dispatch(object)
+    @dispatch(object)  # type: ignore
     def visit(self, node):  # pylint: disable-msg=E0102
         return self.default_handler(node)
 
-    @dispatch(CompoundTerm)
+    @dispatch(CompoundTerm)  # type: ignore
     def visit(self, node):  # pylint: disable-msg=E0102  # noqa: F811
         self.symbols.add(node.symbol)
         return node
 
-    @dispatch(Atom)
+    @dispatch(Atom)  # type: ignore
     def visit(self, node):  # pylint: disable-msg=E0102  # noqa: F811
         self.symbols.add(node.symbol)
         return node
@@ -66,36 +66,36 @@ class AffectedSymbolWalker(ProblemWalker):
         super().__init__()
         self.symbols = set()
 
-    @dispatch(object)
+    @dispatch(object)  # type: ignore
     def visit(self, node):  # pylint: disable-msg=E0102  # noqa: F811
         return self.default_handler(node)
 
-    @dispatch(fs.AddEffect)
+    @dispatch(fs.AddEffect)  # type: ignore
     def visit(self, node):  # pylint: disable-msg=E0102  # noqa: F811
         self.symbols.add(node.atom.symbol)
         return node
 
-    @dispatch(fs.DelEffect)
+    @dispatch(fs.DelEffect)  # type: ignore
     def visit(self, node):  # pylint: disable-msg=E0102  # noqa: F811
         self.symbols.add(node.atom.symbol)
         return node
 
-    @dispatch(fs.FunctionalEffect)
+    @dispatch(fs.FunctionalEffect)  # type: ignore
     def visit(self, node):  # pylint: disable-msg=E0102  # noqa: F811
         self.symbols.add(node.lhs.symbol)
         return node
 
-    @dispatch(fs.ChoiceEffect)
+    @dispatch(fs.ChoiceEffect)  # type: ignore
     def visit(self, node):  # pylint: disable-msg=E0102  # noqa: F811
         self.symbols.add(node.obj.symbol)
         return node
 
-    @dispatch(fs.LinearEffect)
+    @dispatch(fs.LinearEffect)  # type: ignore
     def visit(self, node):  # pylint: disable-msg=E0102  # noqa: F811
         self.symbols.update(lhs.symbol for lhs in node.y[:, 0])
         return node
 
-    @dispatch(Derived)
+    @dispatch(Derived)  # type: ignore
     def visit(self, node):  # pylint: disable-msg=E0102  # noqa: F811
         self.symbols.update(node.predicate)
         return node

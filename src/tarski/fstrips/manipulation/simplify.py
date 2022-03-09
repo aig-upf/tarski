@@ -201,7 +201,7 @@ class ExistentialQuantificationSimplifier(FOLWalker):
     def visit(self, node):  # pylint: disable-msg=E0102  # noqa: F811
         return self.default_handler(node)
 
-    @dispatch(QuantifiedFormula)
+    @dispatch(QuantifiedFormula)  # type: ignore
     def visit(self, node: QuantifiedFormula):  # pylint: disable-msg=E0102  # noqa: F811
         if node.quantifier == Quantifier.Forall:
             return node
