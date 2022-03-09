@@ -361,7 +361,7 @@ class FirstOrderLanguage:
         """
         if t_goal in self.indirect_ancestor_sorts[t_0]:
             return True
-        OPEN = [t for t in self.ancestor_sorts[t_0]]
+        OPEN = list(self.ancestor_sorts[t_0])
         while len(OPEN) != 0:
             t = OPEN.pop()
             if t == t_goal:

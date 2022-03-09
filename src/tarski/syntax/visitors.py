@@ -91,4 +91,3 @@ class CollectEqualityAtoms:
         elif isinstance(phi, Atom):
             if is_eq_atom(phi):
                 self.atoms.add(symref(phi))
-        return

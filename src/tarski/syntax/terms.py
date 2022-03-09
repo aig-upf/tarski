@@ -197,7 +197,8 @@ class CompoundTerm(Term):
         return self.symbol.codomain
 
     def __str__(self):
-        return '{}({})'.format(self.symbol.symbol, ', '.join(str(t) for t in self.subterms))
+        args = ', '.join(str(t) for t in self.subterms)
+        return f'{self.symbol.symbol}({args})'
 
     __repr__ = __str__
 
@@ -258,20 +259,21 @@ class IfThenElse(Term):
         if len(subterms) != 2:
             raise err.ArityMismatch('IfThenElse', subterms, msg='IfThenElse term needs exactly two sub terms')
 
-        self.symbol = subterms[0].language.get('ite')
+        left, right = subterms
+
+        self.symbol = left.language.get('ite')
         self.condition = condition
         # Our implementation of ite requires both branches to have equal sort
-        if subterms[0].sort != subterms[1].sort:
-            if parent(subterms[0].sort) == subterms[1].sort:
-                self._sort = subterms[1].sort
-            elif parent(subterms[1].sort) == subterms[0].sort:
-                self._sort = subterms[0].sort
+        if left.sort != right.sort:
+            if parent(left.sort) == right.sort:
+                self._sort = right.sort
+            elif parent(right.sort) == left.sort:
+                self._sort = left.sort
             else:
-                raise err.SyntacticError(
-                    msg='IfThenElse: both subterms need to be of the same sort! lhs: "{}"({}), rhs: "{}"({})'.format(
-                        subterms[0], subterms[0].sort, subterms[1], subterms[1].sort))
+                raise err.SyntacticError('IfThenElse: Mismatching subterm sort. '
+                                         f'lhs: "{left}"({left.sort}), rhs: "{right}"({right.sort})')
         else:
-            self._sort = subterms[0].sort
+            self._sort = left.sort
 
         self.subterms = tuple(subterms)
 

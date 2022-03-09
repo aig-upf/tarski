@@ -32,15 +32,12 @@ def prodterm(*args):
     variables = args[:-1]
     expr = args[-1]
     if len(variables) < 1:
-        raise err.SyntacticError(msg='sumterm(x0,x1,...,xn,expr) requires at least one\
-        bound variable, arguments: {}'.format(args))
+        raise err.SyntacticError(f'prod(x0,x1,...,xn,expr) requires at least one bound variable, arguments: {args}')
     for x in variables:
         if not isinstance(x, Variable):
-            raise err.SyntacticError(msg='sum(x0,...,xn,expr) require each\
-            argument xi to be an instance of Variable')
+            raise err.SyntacticError('prod(x0,...,xn,expr) requires each argument xi to be an instance of Variable')
     if not isinstance(expr, Term):
-        raise err.SyntacticError(msg='sum(x0,x1,...,xn,expr) requires last \
-        argument "expr" to be an instance of Term, got "{}"'.format(expr))
+        raise err.SyntacticError(f'prod(x0,x1,...,xn,expr) requires "expr" to be a Term, got "{expr}"')
     return AggregateCompoundTerm(BuiltinFunctionSymbol.MUL, variables, expr)
 
 

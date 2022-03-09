@@ -1,5 +1,5 @@
 import logging
-import sys as sys
+import sys
 
 from .version import __version__, __version_info__
 from .fol import FirstOrderLanguage

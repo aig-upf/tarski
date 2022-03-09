@@ -22,24 +22,21 @@ class SemanticError(LanguageError):
 
 class LanguageMismatch(SyntacticError):
     def __init__(self, obj, l1, l2, msg=None):
-        msg = msg or ('Language mismatch when operating on object {obj} of type {classname}.\n'
-                      'Expected language: {l2}\n'
-                      'Actual language: : {l1}\n') \
-            .format(obj=obj, classname=type(obj).__name__, l1=l1, l2=l2)
+        msg = msg or (f'Language mismatch when operating on object {obj} of type {type(obj).__name__}.\n'
+                      f'Expected language: {l2}\n'
+                      f'Actual language: : {l1}\n')
         super().__init__(msg)
 
 
 class ArityMismatch(SyntacticError):
     def __init__(self, head, arguments, msg=None):
-        msg = msg or 'Arity mismatch applying element {} with arity {} to arguments {}'. \
-            format(head, head.arity, arguments)
+        msg = msg or f'Arity mismatch applying element {head} with arity {head.arity} to arguments {arguments}'
         super().__init__(msg)
 
 
 class SortMismatch(SyntacticError):
     def __init__(self, element, type_, expected_type, msg=None):
-        msg = msg or 'Sort mismatch on element {}. Expected sort was "{}", element has sort "{}"'.format(
-            element, expected_type, type_)
+        msg = msg or f'Sort mismatch on element {element}. Expected sort: "{expected_type}". Actual sort: "{type_}"'
         super().__init__(msg)
 
 
@@ -128,8 +125,7 @@ class UnboundVariable(SemanticError):
 
 class IncorrectExtensionDefinition(SemanticError):
     def __init__(self, element, point, value, msg=None):
-        msg = msg or 'Incorrect definition of extension of symbol "{}". Cannot assign value "{}" to point "{}"'.format(
-            element, value, point)
+        msg = msg or f'Incorrect extension of symbol "{element}". Cannot assign value "{value}" to point "{point}"'
         super().__init__(msg)
 
 

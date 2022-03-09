@@ -22,7 +22,8 @@ from tarski.syntax import symref
 AssignmentEffectData = namedtuple('AssignmentEffectData', ['lhs', 'rhs'])
 EventData = namedtuple('EventData', ['pre', 'post'])
 ActionData = namedtuple('ActionData', ['name', 'parameters', 'pre', 'post'])
-DurativeActionData = namedtuple('DurativeActionData', ['name', 'parameters', 'at_start', 'at_end', 'overall', 'duration'])
+DurativeActionData = namedtuple('DurativeActionData',
+                                ['name', 'parameters', 'at_start', 'at_end', 'overall', 'duration'])
 DerivedPredicateData = namedtuple('DerivedPredicateData', ['head', 'parameters', 'body'])
 ObjectiveData = namedtuple('ObjectiveData', ['mode', 'type', 'expr'])
 
