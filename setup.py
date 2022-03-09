@@ -55,8 +55,6 @@ def main():
             # to the functioning of Tarski, better be conservative here and install only on Linux.
             'psutil; platform_system=="Linux"',
 
-            'multipledispatch',
-
             # Antlr pinned to a specific version to avoid messages "ANTLR runtime and generated code versions disagree"
             # messages. If we want to bump this up, we'll need to regenerate the grammar files with the new version.
             'antlr4-python3-runtime==4.7.2',

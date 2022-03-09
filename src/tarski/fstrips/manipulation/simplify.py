@@ -1,6 +1,5 @@
 import copy
-
-from multipledispatch import dispatch  # type: ignore
+from functools import singledispatchmethod
 
 from ..fstrips import AddEffect, DelEffect, UniversalEffect, FunctionalEffect
 from ..ops import collect_all_symbols, compute_number_potential_groundings
@@ -197,12 +196,12 @@ def simplify_existential_quantification(node, inplace=True):
 
 class ExistentialQuantificationSimplifier(FOLWalker):
     """ Replaces a formula of the form ∃x.φ[x] ∧ x = t by the formula φ[x/t]. """
-    @dispatch(object)
-    def visit(self, node):  # pylint: disable-msg=E0102  # noqa: F811
+    @singledispatchmethod
+    def visit(self, node):
         return self.default_handler(node)
 
-    @dispatch(QuantifiedFormula)  # type: ignore
-    def visit(self, node: QuantifiedFormula):  # pylint: disable-msg=E0102  # noqa: F811
+    @visit.register
+    def _(self, node: QuantifiedFormula):
         if node.quantifier == Quantifier.Forall:
             return node
 

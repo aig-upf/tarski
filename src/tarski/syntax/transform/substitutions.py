@@ -1,8 +1,6 @@
 import itertools
 from typing import List
 
-from multipledispatch import dispatch  # type: ignore
-
 from ..symrefs import symref
 from ..terms import Variable
 from ..walker import FOLWalker
@@ -14,8 +12,7 @@ class ExpressionSubstitutionWalker(FOLWalker):
         super().__init__(raise_on_undefined=False)
         self.substitution = substitution
 
-    @dispatch(object)
-    def visit(self, node):  # pylint: disable-msg=E0102
+    def visit(self, node):
         x = self.substitution.get(symref(node))
         return node if x is None else x
 
