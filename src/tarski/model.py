@@ -2,7 +2,7 @@ import warnings
 from typing import Union
 
 from . import errors as err
-from .syntax import Function, Constant, CompoundTerm, symref, Variable
+from .syntax import Function, Constant, CompoundTerm, symref
 from .syntax.predicate import Predicate
 
 

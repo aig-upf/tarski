@@ -2,7 +2,7 @@
 import sys
 from typing import Sequence
 
-from clingo import Control
+from clingo import Control  # type: ignore
 from clingo.application import Application, clingo_main  # type: ignore
 
 
