@@ -30,10 +30,14 @@ jobs:
 #        python-version: ['3.7', '3.8', '3.9', '3.10', 'pypy-3.9']
         python-version: ['3.7', '3.8', '3.9', '3.10']
         experimental: [false]
-        include:
-          -  os: ubuntu-latest
-             python-version: '3.11.0-alpha.5'
-             experimental: true
+
+        # I'm temporarily disabling the build on the 3.11 alpha, as the installation aims at buiilding the scipy wheel,
+        # which fails spectacularly with a 10K lines log of Fortran compilation errors.
+        # Let's wait a bit until a binary wheel is available
+#        include:
+#          -  os: ubuntu-latest
+#             python-version: '3.11.0-alpha.5'
+#             experimental: true
 
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ matrix.experimental }}
