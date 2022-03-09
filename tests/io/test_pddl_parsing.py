@@ -150,7 +150,7 @@ def test_basic_constructs():
         print("Predicates", len(instance.predicates))
         print("Types", len(instance.types))
         print("Constants", len(instance.constants))
-        print("Actions: instantaneous: {} durative: {}".format(len(instance.actions), len(instance.durative)))
+        print(f"Actions: instantaneous: {len(instance.actions)} durative: {len(instance.durative)}")
         print("Derived predicates:", len(instance.derived))
         print("Initial State literals", len(instance.init))
 

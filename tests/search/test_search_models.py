@@ -31,7 +31,7 @@ def test_forward_search_model():
     moveright_op = ground_schema_into_plain_operator_from_grounding(move, ('rooma', 'roomb'))
     assert s1 == progress(s0, moveright_op)
 
-    successors = set(succ for op, succ in model.successors(s0))
+    successors = {succ for op, succ in model.successors(s0)}
     assert s1 in successors
 
     # Let's test add-after-delete semantics are correctly enforced. The move(x, y) action in Gripper doesn't

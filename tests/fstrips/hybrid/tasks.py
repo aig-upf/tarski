@@ -11,7 +11,7 @@ def create_particles_world():
     particles = generate_numeric_instance()
     task.language = generate_numeric_instance()
 
-    x, y, f = [particles.get_function(name) for name in ['x', 'y', 'f']]
+    x, y, f = (particles.get_function(name) for name in ['x', 'y', 'f'])
     _ = [particles.get_constant(name) for name in ['p1', 'p2', 'p3', 'p4']]
 
     p_var = Variable('p', task.language.get_sort('particle'))
@@ -26,7 +26,7 @@ def create_billiards_world():
     task = hybrid.Problem()
     lang = generate_billiards_instance()
     task.language = lang
-    m, F, a, v, p = [lang.get_function(n) for n in ['m', 'F', 'a', 'v', 'p']]
+    m, F, a, v, p = (lang.get_function(n) for n in ['m', 'F', 'a', 'v', 'p'])
 
     b = Variable('b', lang.get_sort('ball'))
     d = Variable('d', lang.get_sort('dimension'))

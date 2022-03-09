@@ -1,4 +1,3 @@
-
 import tarski
 import tarski.benchmarks.blocksworld
 import tarski.model

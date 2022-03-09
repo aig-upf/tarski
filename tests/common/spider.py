@@ -1,4 +1,3 @@
-
 from tarski.fstrips import fstrips
 from tarski.theories import Theory
 

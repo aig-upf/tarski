@@ -1,4 +1,3 @@
-
 from tarski.syntax import neg, land, lor, exists, symref, forall, Variable, Constant, Atom
 from tarski.syntax.ops import free_variables, flatten, collect_unique_nodes, all_variables
 from tests.common import tarskiworld

@@ -284,7 +284,7 @@ def test_compute_complementary_atoms():
 
 def test_simple_expression_substitutions():
     lang = tarski.benchmarks.blocksworld.generate_strips_bw_language(nblocks=2)
-    clear, b1, b2 = [lang.get(name) for name in ('clear', 'b1', 'b2')]
+    clear, b1, b2 = (lang.get(name) for name in ('clear', 'b1', 'b2'))
     x, y = lang.variable('x', 'object'), lang.variable('y', 'object')
 
     formula = clear(x)

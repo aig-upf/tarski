@@ -27,7 +27,7 @@ def test_action_grounding_bw():
     b1, b2, b3, clear, on, ontable, handempty, holding = \
         problem.language.get('b1', 'b2', 'b3', 'clear', 'on', 'ontable', 'handempty', 'holding')
     unstack = problem.get_action("unstack")
-    x1, x2 = [symref(x) for x in unstack.parameters]  # Unstack has two parameters
+    x1, x2 = (symref(x) for x in unstack.parameters)  # Unstack has two parameters
     ground = ground_schema_into_plain_operator(unstack, {x1: b1, x2: b2})  # i.e. the operator unstack(b1, b2)
     assert isinstance(ground, PlainOperator) and \
            str(ground.precondition) == '(on(b1,b2) and clear(b1) and handempty())'

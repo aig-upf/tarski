@@ -1,4 +1,3 @@
-
 import pytest
 from tarski.errors import UndefinedSort, UndefinedPredicate
 from tarski.fstrips import AddEffect, FunctionalEffect
@@ -107,12 +106,12 @@ def test_domain_name_parsing():
 
     # Test a few names expected to be valid:
     for domain_name in ["BLOCKS", "blocS-woRlD", "blocks_world"]:
-        tag = "(domain {})".format(domain_name)
+        tag = f"(domain {domain_name})"
         _ = r.parse_string(tag, get_rule("domain"))
 
     # And a few ones expected to be invalid
     for domain_name in ["BL#OCKS", "@mydomain", "2ndblocksworld", "blocks2.0"]:
-        tag = "(domain {})".format(domain_name)
+        tag = f"(domain {domain_name})"
 
         with pytest.raises(ParsingError):
             _ = r.parse_string(tag, get_rule("domain"))
@@ -123,12 +122,12 @@ def test_formulas():
 
     # Test a few names expected to be valid:
     for domain_name in ["BLOCKS", "blocS-woRlD", "blocks_world"]:
-        tag = "(domain {})".format(domain_name)
+        tag = f"(domain {domain_name})"
         _ = r.parse_string(tag, get_rule("domain"))
 
     # And a few ones expected to be invalid
     for domain_name in ["BL#OCKS", "@mydomain", "2ndblocksworld", "blocks2.0"]:
-        tag = "(domain {})".format(domain_name)
+        tag = f"(domain {domain_name})"
 
         with pytest.raises(ParsingError):
             _ = r.parse_string(tag, get_rule("domain"))
@@ -246,7 +245,7 @@ def test_symbol_casing():
     # PDDL predicate current-deal remains unaffected
     _ = problem.language.get_predicate("current-deal")
 
-    assert "to-deal" in set(x.symbol for x in get_symbols(problem.language, type_="predicate", include_builtin=False))
+    assert "to-deal" in {x.symbol for x in get_symbols(problem.language, type_="predicate", include_builtin=False)}
 
 
 SPIDER_DEAL_CARD_ACTION = """

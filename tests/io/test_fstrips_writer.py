@@ -65,11 +65,11 @@ def test_effect_writing():
     e2 = AddEffect(clear(b1))
     e3 = DelEffect(clear(b1))
 
-    s1, s2, s3 = [print_effect(e) for e in [e1, e2, e3]]
+    s1, s2, s3 = (print_effect(e) for e in [e1, e2, e3])
     assert s1 == "(assign (loc b1) table)"
     assert s2 == "(clear b1)"
     assert s3 == "(not (clear b1))"
-    assert print_effects([e1, e2, e3]) == "(and\n    {}\n    {}\n    {})".format(s1, s2, s3)
+    assert print_effects([e1, e2, e3]) == f"(and\n    {s1}\n    {s2}\n    {s3})"
 
     e4 = UniversalEffect([block_var], [AddEffect(clear(block_var))])
     s4 = print_effect(e4)

@@ -1,5 +1,3 @@
-
-
 def get_lenient_benchmarks():
     """ Return a list of IPC domains that require non-strict PDDL parsing because of missing requirement flags or
     similar minor bugs, which would result in a parsing error. """

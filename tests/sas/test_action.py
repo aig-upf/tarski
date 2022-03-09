@@ -22,9 +22,9 @@ def test_variable_interface():
 
     # Constant objects
     none = L.constant("none", L.Object)
-    the_balls = [L.constant('ball{}'.format(i), ball_t) for i in range(5)]
+    the_balls = [L.constant(f'ball{i}', ball_t) for i in range(5)]
     grippers = [L.constant(gripper_name, gripper_t) for gripper_name in ('left', 'right')]
-    the_rooms = [L.constant('room{}'.format(i), room_t) for i in ('a', 'b')]
+    the_rooms = [L.constant(f'room{i}', room_t) for i in ('a', 'b')]
 
     # predicates
     carry = L.function('carry', ball_t, gripper_t, L.Integer)
@@ -67,9 +67,9 @@ def test_gripper():
 
     # Constant objects
     none = L.constant("none", L.Object)
-    the_balls = [L.constant('ball{}'.format(i), ball_t) for i in range(5)]
+    the_balls = [L.constant(f'ball{i}', ball_t) for i in range(5)]
     grippers = [L.constant(gripper_name, gripper_t) for gripper_name in ('left', 'right')]
-    the_rooms = [L.constant('room{}'.format(i), room_t) for i in ('a', 'b')]
+    the_rooms = [L.constant(f'room{i}', room_t) for i in ('a', 'b')]
 
     # predicates
     carry = L.function('carry', ball_t, gripper_t, L.Integer)
@@ -145,8 +145,8 @@ def test_temporal_action():
     qstate_t = L.sort('qstate', L.Object)
 
     # constant objects
-    qbits = [L.constant('n{}'.format(i), qbit_t) for i in range(8)]
-    qstates = [L.constant('q{}'.format(i), qstate_t) for i in range(8)]
+    qbits = [L.constant(f'n{i}', qbit_t) for i in range(8)]
+    qstates = [L.constant(f'q{i}', qstate_t) for i in range(8)]
 
     # predicates
     at = L.function('at', qstate_t, qbit_t, L.Integer)

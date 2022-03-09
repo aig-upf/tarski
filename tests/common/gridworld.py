@@ -1,4 +1,3 @@
-
 from tarski.fstrips import create_fstrips_problem, language
 from tarski.theories import Theory
 from tarski.syntax import Tautology, land

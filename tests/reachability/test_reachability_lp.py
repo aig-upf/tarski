@@ -1,4 +1,3 @@
-
 from tarski.reachability.asp import create_reachability_lp, LogicProgram, ReachabilityLPCompiler, LPAtom
 from tarski.syntax import exists
 from tarski import fstrips as fs
@@ -16,7 +15,7 @@ def test_lp_compilation():
     problem = create_sample_problem()
     lang = problem.language
 
-    x, y, z = [lang.variable(x, lang.Object) for x in ["x", "y", "z"]]
+    x, y, z = (lang.variable(x, lang.Object) for x in ["x", "y", "z"])
     room, ball, at_robby, free, at, gripper, carry = lang.get(
         "room", "ball", "at-robby", "free", "at", "gripper", "carry")
 

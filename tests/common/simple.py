@@ -1,4 +1,3 @@
-
 import tarski.model
 from tarski import fstrips as fs
 from tarski.syntax import land, neg
