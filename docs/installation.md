@@ -2,7 +2,7 @@
 # Installing Tarski
 
 ## Software Requirements
-Tarski is mostly developed in Python, and requires a working Python>=3.6 installation.
+Tarski is mostly developed in Python, and requires a working Python>=3.8 installation.
 We strongly recommend installing Tarski within a Python
 [virtual environment](https://docs.python.org/3/tutorial/venv.html).
 The installation instructions below will install for you any additional

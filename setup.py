@@ -41,7 +41,6 @@ def main():
             "License :: OSI Approved :: Apache Software License",
 
             'Programming Language :: Python :: 3',
-            'Programming Language :: Python :: 3.7',
             'Programming Language :: Python :: 3.8',
             'Programming Language :: Python :: 3.9',
             'Programming Language :: Python :: 3.10',
@@ -50,7 +49,7 @@ def main():
         packages=find_packages('src'),  # include all packages under src
         package_dir={'': 'src'},  # tell distutils packages are under src
 
-        python_requires='>=3.6',  # supported Python ranges
+        python_requires='>=3.8',  # supported Python ranges
         install_requires=[
             # psutil not supported on Windows, we haven't tested in other platforms, but since it's not essential
             # to the functioning of Tarski, better be conservative here and install only on Linux.
