@@ -1,4 +1,3 @@
-
 from .problem import Problem, create_fstrips_problem
 from .action import Action
 from .derived import Derived

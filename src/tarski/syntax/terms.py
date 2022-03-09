@@ -152,7 +152,7 @@ class Variable(Term):
         return str(self.symbol)
 
     def __repr__(self):
-        return '{} ({})'.format(self.symbol, self.sort.name)
+        return f'{self.symbol} ({self.sort.name})'
 
     def hash(self):
         return hash((self.symbol, self.sort.name))
@@ -333,7 +333,7 @@ class Constant(Term):
         return str(self.name)
 
     def __repr__(self):
-        return '{} ({})'.format(self.name, self.sort.name)
+        return f'{self.name} ({self.sort.name})'
 
     def hash(self):
         return hash(self.signature)

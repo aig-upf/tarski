@@ -636,7 +636,7 @@ class fstripsLexer(Lexer):
     K_PRECONDITION = 90
     K_EFFECT = 91
 
-    channelNames = [ u"DEFAULT_TOKEN_CHANNEL", u"HIDDEN" ]
+    channelNames = [ "DEFAULT_TOKEN_CHANNEL", "HIDDEN" ]
 
     modeNames = [ "DEFAULT_MODE" ]
 

@@ -1,4 +1,3 @@
-
 from enum import Enum
 from typing import Union, List, Optional, Callable, Any
 
@@ -18,7 +17,7 @@ class BaseEffect:
 
 class SingleEffect(BaseEffect):
     def __str__(self):
-        return "({} -> {})".format(self.condition, self.tostring())
+        return f"({self.condition} -> {self.tostring()})"
 
     __repr__ = __str__
 
@@ -33,7 +32,7 @@ class AddEffect(SingleEffect):
         self.atom = atom
 
     def tostring(self):
-        return "ADD({})".format(self.atom)
+        return f"ADD({self.atom})"
 
 
 class DelEffect(SingleEffect):
@@ -43,7 +42,7 @@ class DelEffect(SingleEffect):
         self.atom = atom
 
     def tostring(self):
-        return "DEL({})".format(self.atom)
+        return f"DEL({self.atom})"
 
 
 class LiteralEffect(SingleEffect):
@@ -52,7 +51,7 @@ class LiteralEffect(SingleEffect):
         self.lit = lit
 
     def tostring(self):
-        return "LIT({})".format(self.lit)
+        return f"LIT({self.lit})"
 
 
 class FunctionalEffect(SingleEffect):
@@ -156,7 +155,7 @@ class VectorisedEffect(SingleEffect):
         self.check_well_formed()
 
     def tostring(self):
-        return "VectorisedEffect({} := {})".format(self.lhs, self.rhs)
+        return f"VectorisedEffect({self.lhs} := {self.rhs})"
 
     def check_well_formed(self):
         if not hasattr(self.lhs, 'shape'):
@@ -195,7 +194,7 @@ class LinearEffect(SingleEffect):
         self.check_well_formed()
 
     def tostring(self):
-        return "LinearEffect({} := {} * {} + {})".format(self.y, self.A, self.x, self.b)
+        return f"LinearEffect({self.y} := {self.A} * {self.x} + {self.b})"
 
     def check_well_formed(self):
         if not hasattr(self.y, 'shape'):

@@ -30,10 +30,10 @@ class ResourceLock:
         self.td = kwargs['td']
         self.r = kwargs['r']
         if not isinstance(self.r, CompoundTerm):
-            raise NDLSyntaxError("NDL Syntactic Error: resource lock needs to be a term (given: {})".format(self.r))
+            raise NDLSyntaxError(f"NDL Syntactic Error: resource lock needs to be a term (given: {self.r})")
 
     def __str__(self):
-        return "LOCK {} AFTER {} FOR {}".format(self.r, self.ts, self.td)
+        return f"LOCK {self.r} AFTER {self.ts} FOR {self.td}"
 
 
 class ResourceLevel:
@@ -43,17 +43,17 @@ class ResourceLevel:
         self.td = kwargs['td']
         self.r = kwargs['r']
         if not isinstance(self.r, CompoundTerm):
-            raise NDLSyntaxError("NDL Syntactic Error: resource lock must refer to term (given: {})".format(self.r))
+            raise NDLSyntaxError(f"NDL Syntactic Error: resource lock must refer to term (given: {self.r})")
         self.n = kwargs['n']
         if not isinstance(self.n, Constant):
-            raise NDLSyntaxError("NDL Syntactic Error: resource level must be a constant (given: {}".format(self.n))
+            raise NDLSyntaxError(f"NDL Syntactic Error: resource level must be a constant (given: {self.n}")
         if self.n.sort != self.r.sort:
             raise NDLSyntaxError(
                 "NDL Type Mismatch: resource and level have different sorts (resource is: {}, level is: {}".format(
                     self.r.sort, self.n.sort))
 
     def __str__(self):
-        return "LOCK {} AFTER {} FOR {}".format(self.r, self.ts, self.td)
+        return f"LOCK {self.r} AFTER {self.ts} FOR {self.td}"
 
 
 class SetLiteralEffect:
@@ -66,7 +66,7 @@ class SetLiteralEffect:
         self.value = value
 
     def __str__(self):
-        return "SET({}, {})".format(self.lit, self.value)
+        return f"SET({self.lit}, {self.value})"
 
 
 class AssignValueEffect:
@@ -79,7 +79,7 @@ class AssignValueEffect:
         self.value = value
 
     def __str__(self):
-        return "ASSIGN({}, {})".format(self.atom, self.value)
+        return f"ASSIGN({self.atom}, {self.value})"
 
 
 class UniversalEffect:
@@ -92,7 +92,7 @@ class UniversalEffect:
         self.eff = effect
 
     def __str__(self):
-        return "FORALL({}, {})".format(self.var, self.effect)
+        return f"FORALL({self.var}, {self.effect})"
 
 
 class ConditionalEffect:
@@ -106,7 +106,7 @@ class ConditionalEffect:
         self.else_eff = else_eff
 
     def __str__(self):
-        return "IF ({}) \nTHEN {}\n ELSE {}".format(self.condition, self.then_eff, self.else_eff)
+        return f"IF ({self.condition}) \nTHEN {self.then_eff}\n ELSE {self.else_eff}"
 
 
 class TimedEffect:
@@ -119,7 +119,7 @@ class TimedEffect:
         self.eff = eff
 
     def __str__(self):
-        return "AFTER {} APPLY {}".format(self.delay, self.eff)
+        return f"AFTER {self.delay} APPLY {self.eff}"
 
 
 class UnionExpression:
@@ -190,13 +190,13 @@ class Action:
                 self.levels += [req]
                 self.max_eff_time = max(self.max_eff_time, req.eff.td)
             else:
-                raise NDLSyntaxError("NDL syntax error: '{}' is not a resource lock or level request".format(req))
+                raise NDLSyntaxError(f"NDL syntax error: '{req}' is not a resource lock or level request")
         # effects
         self.untimed_effects = []
         self.timed_effects = []
         for eff in kwargs['timed_effects']:
             if not isinstance(eff, TimedEffect):
-                raise NDLSyntaxError("NDL Syntax error: eff '{}' must be timed".format(eff))
+                raise NDLSyntaxError(f"NDL Syntax error: eff '{eff}' must be timed")
             self.timed_effects += [eff]
             self.max_eff_time = max(self.max_eff_time, eff.delay)
             wrapped_effect = eff.eff
@@ -205,7 +205,7 @@ class Action:
             elif isinstance(wrapped_effect, SetLiteralEffect):
                 self.effect_times[(symref(wrapped_effect.lit), wrapped_effect.value)] = eff.delay
             else:
-                raise NotImplementedError("Effects of type {} cannot be handled yet".format(type(wrapped_effect)))
+                raise NotImplementedError(f"Effects of type {type(wrapped_effect)} cannot be handled yet")
         for elem in kwargs['untimed_effects']:
             self.untimed_effects += [(0, elem)]
 

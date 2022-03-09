@@ -1,4 +1,3 @@
-
 from .function import Function
 from .predicate import Predicate
 from .sorts import Sort, Interval, inclusion_closure

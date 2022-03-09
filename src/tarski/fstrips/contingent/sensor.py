@@ -25,7 +25,7 @@ class Sensor:
 
     def ident(self):
         params = ', '.join([str(o) for o in self.parameters])
-        return '{}({})'.format(self.name, params)
+        return f'{self.name}({params})'
 
     def dump(self):
         return dict(name=self.name,
@@ -34,7 +34,7 @@ class Sensor:
                     obs=[eff.dump() for eff in self.effects.dump()])
 
     def __str__(self):
-        tokens = ['action {}:'.format(self.name),
-                  'C=({})'.format(self.condition),
-                  'L=({})'.format(str(self.obs))]
+        tokens = [f'action {self.name}:',
+                  f'C=({self.condition})',
+                  f'L=({str(self.obs)})']
         return '\n'.join(tokens)

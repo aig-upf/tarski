@@ -68,7 +68,7 @@ class PDDLparser:
 
     def _print_verbose(self, p_name):
         if self.verbose:
-            print('>> Parsed `{}` ...'.format(p_name))
+            print(f'>> Parsed `{p_name}` ...')
 
     def p_begin(self, p):
         '''begin    : domain
@@ -122,7 +122,7 @@ class PDDLparser:
         '''domain_ref  : LPAREN rwDOMAIN_REF ID RPAREN'''
         expected_domain = p[3]
         if expected_domain != self.domain_name:
-            msg = "Domain and problem mismatch: expected domain name is '{}', provided domain is '{}'".format(expected_domain, self.domain_name)
+            msg = f"Domain and problem mismatch: expected domain name is '{expected_domain}', provided domain is '{self.domain_name}'"
             raise SemanticError(self.lexer.lineno(), msg)
 
     def p_domain_require_def(self, p):
@@ -300,14 +300,14 @@ class PDDLparser:
             if isinstance(entry, tuple):
                 typename, constant_list = entry
                 if typename not in self.instance.types:
-                    msg = "Error parsing (:constants ) section: type '{}' was not defined".format(typename)
+                    msg = f"Error parsing (:constants ) section: type '{typename}' was not defined"
                     raise SemanticError(self.lexer.lineno(), msg)
 
                 self.instance.process_constant_definition(entry)
 
                 total_constants += len(constant_list)
             else:
-                msg = "Error processing (:constants ) section: constant '{}' has no type attached".format(entry)
+                msg = f"Error processing (:constants ) section: constant '{entry}' has no type attached"
                 raise SemanticError(self.lexer.lineno(), msg)
         if self.debug:
             print("Total constants defined:", total_constants)
@@ -350,7 +350,7 @@ class PDDLparser:
             if token_type == 'type':
                 var_type = token_value
                 if var_type not in self.instance.types:
-                    msg = "Error parsing list of typed variables: type '{}' is not defined".format(var_type)
+                    msg = f"Error parsing list of typed variables: type '{var_type}' is not defined"
                     raise SemanticError(self.lexer.lineno(), msg)
                 for t2 in unnorm_args[last_index+1:i]:
                     var_term, var_sort = self.instance.get_variable(t2[1], var_type)
@@ -649,7 +649,7 @@ class PDDLparser:
             p[0] = lor(neg(p[3]), p[4])
         elif p[2] == self.lexer.symbols.rwEXISTS:
             if self.debug:
-                print('existential quantifier, scope tokens: {} formula: {}'.format(p[3], p[4]))
+                print(f'existential quantifier, scope tokens: {p[3]} formula: {p[4]}')
             vars = p[3]
             phi = p[4]
             p[0] = QuantifiedFormula(Quantifier.Exists, [entry['term'] for entry in vars], phi)
@@ -722,7 +722,7 @@ class PDDLparser:
             try:
                 func_name = self.instance.get(p[2])
             except tsk.LanguageError as e:
-                msg = "Error parsing term in formula, function '{}' is not declared".format(p[2])
+                msg = f"Error parsing term in formula, function '{p[2]}' is not declared"
                 raise SemanticError(self.lexer.lineno(), msg)
             sub_terms = p[3]
             p[0] = func_name(*sub_terms)
@@ -732,14 +732,14 @@ class PDDLparser:
                 constant_ref = self.instance.get(p[1])
                 p[0] = constant_ref
             except tsk.LanguageError as e:
-                msg = "Error parsing term in formula, constant '{}' is not declared".format(p[1])
+                msg = f"Error parsing term in formula, constant '{p[1]}' is not declared"
                 raise SemanticError(self.lexer.lineno(), msg)
         elif self.lexer.is_variable(p[1]):
             try:
                 var_ref = self.var_dict[p[1]]
                 p[0] = var_ref
             except KeyError as e:
-                msg = "Error parsing term in formula, variable '{}' is not declared in the current scope".format(p[1])
+                msg = f"Error parsing term in formula, variable '{p[1]}' is not declared in the current scope"
                 raise SemanticError(self.lexer.lineno(), msg)
 
     def p_function_term(self, p):
@@ -749,7 +749,7 @@ class PDDLparser:
             sub_terms = p[3]
             p[0] = func_name(*sub_terms)
         except tsk.LanguageError as e:
-            msg = "Error parsing function term, function '{}' is not declared".format(p[2])
+            msg = f"Error parsing function term, function '{p[2]}' is not declared"
             raise SemanticError(self.lexer.lineno(), msg)
 
     def p_list_of_expression(self, p):
@@ -797,7 +797,7 @@ class PDDLparser:
                     p[0] = constant_ref
                     return
                 except tsk.LanguageError as e:
-                    msg = "Error parsing expression, constant '{}' is not declared".format(p[1])
+                    msg = f"Error parsing expression, constant '{p[1]}' is not declared"
                     raise SemanticError(self.lexer.lineno(), msg)
             else:
                 # raise error
@@ -833,7 +833,7 @@ class PDDLparser:
                 func_name = self.instance.get(p[1])
                 p[0] = func_name()
             except tsk.LanguageError as e:
-                msg = "Error parsing expression, function '{}' is not declared".format(p[1])
+                msg = f"Error parsing expression, function '{p[1]}' is not declared"
                 raise SemanticError(self.lexer.lineno(), msg)
             return
 
@@ -842,7 +842,7 @@ class PDDLparser:
             sub_terms = p[3]
             p[0] = func_name(*sub_terms)
         except tsk.LanguageError as e:
-            msg = "Error parsing expression, function '{}' is not declared".format(p[1])
+            msg = f"Error parsing expression, function '{p[1]}' is not declared"
             raise SemanticError(self.lexer.lineno(), msg)
 
     def p_binary_op(self, p):
@@ -1118,7 +1118,7 @@ class PDDLparser:
             raise UnsupportedFeature(self.lexer.lineno(), msg)
         variable = p[3]
         if variable != '?duration':
-            msg = "Error parsing duration of durative action: found variable '{}' rather than '?duration'".format(variable)
+            msg = f"Error parsing duration of durative action: found variable '{variable}' rather than '?duration'"
             raise ParseError(self.lexer.lineno(), msg)
         p[0] = p[4]
 
@@ -1228,17 +1228,17 @@ class PDDLparser:
         try:
             head_pred = self.instance.predicates.get(symbol)
         except ValueError as e:
-            msg = "Error parsing derived predicate, head symbol '{}' is not declared".format(symbol)
+            msg = f"Error parsing derived predicate, head symbol '{symbol}' is not declared"
             raise SemanticError(self.lexer.lineno(), msg)
         for k, arg in enumerate(head_pred.domain):
             if self.debug:
                 print('signature: {} provided: {}'.format(head_pred.domain[k], var_list[k]['type']))
             if not head_pred.domain[k] == var_list[k]['type']:
-                msg = "Error parsing derived predicate, head predicate '{}' type mismatch, check definition in (:predicates ...)".format(symbol)
+                msg = f"Error parsing derived predicate, head predicate '{symbol}' type mismatch, check definition in (:predicates ...)"
                 raise SemanticError(self.lexer.lineno(), msg)
         dpred_body = p[4]
         if self.debug:
-            print("Body: {} type: {}".format(dpred_body, type(dpred_body)))
+            print(f"Body: {dpred_body} type: {type(dpred_body)}")
         self.instance.process_derived_predicate_skeleton(head_pred, var_list, dpred_body)
         # clear up scope
         for entry in var_list:
@@ -1260,11 +1260,11 @@ class PDDLparser:
             if isinstance(entry, tuple):
                 typename, constant_list = entry
                 if typename not in self.instance.types:
-                    msg = "Error parsing (:objects ) section: type '{}' was not defined".format(typename)
+                    msg = f"Error parsing (:objects ) section: type '{typename}' was not defined"
                     raise SemanticError(self.lexer.lineno(), msg)
                 self.instance.process_constant_definition(entry)
             else:
-                msg = "Error processing (:objects ) section: constant '{}' has no type attached".format(entry)
+                msg = f"Error processing (:objects ) section: constant '{entry}' has no type attached"
                 raise SemanticError(self.lexer.lineno(), msg)
         if self.debug:
             total_constants = 0
@@ -1308,7 +1308,7 @@ class PDDLparser:
                 constant_term = self.instance.get(p[4])
                 p[0] = (p[3], constant_term)
             except tsk.LanguageError as e:
-                msg = "Error processing initial state: object '{}' was not defined".format(p[4])
+                msg = f"Error processing initial state: object '{p[4]}' was not defined"
                 raise SemanticError(self.lexer.lineno(), msg)
 
     def p_literal_of_name(self, p):
@@ -1333,7 +1333,7 @@ class PDDLparser:
             try:
                 func_symbol = self.instance.get(p[2])
             except tsk.LanguageError as e:
-                msg = "Error parsing ground atomic formula: function '{}' is not defined".format(p[2])
+                msg = f"Error parsing ground atomic formula: function '{p[2]}' is not defined"
                 raise SemanticError(self.lexer.lineno(), msg)
             sub_terms = p[3]
             p[0] = {
@@ -1416,9 +1416,9 @@ class PDDLparser:
             # reached End of File
             return
         if self.debug:
-            print('Syntax error in input! See log file: {}'.format(self.logfile))
+            print(f'Syntax error in input! See log file: {self.logfile}')
 
-        print('Syntax error in input! Line: {} failed token: {} next: {}'.format(p.lineno, p, self._parser.token()))
+        print(f'Syntax error in input! Line: {p.lineno} failed token: {p} next: {self._parser.token()}')
 
         while True:
             tok = self._parser.token()

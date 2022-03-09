@@ -219,7 +219,7 @@ class Reader:
 
     @staticmethod
     def _load_rddl_model(filename):
-        with open(filename, 'r', encoding='utf8') as input_file:
+        with open(filename, encoding='utf8') as input_file:
             rddl = input_file.read()
         parser = modules.import_pyrddl_parser()()
         parser.build()
@@ -426,12 +426,12 @@ class Writer:
             reward_expr=self.get_reward(),
             action_precondition_list=self.get_preconditions(),
             state_invariant_list=self.get_state_invariants(),
-            domain_non_fluents='{}_non_fluents'.format(self.task.instance_name),
+            domain_non_fluents=f'{self.task.instance_name}_non_fluents',
             object_list=self.get_objects(),
             non_fluent_expr=self.get_non_fluent_init(),
             instance_name=self.task.instance_name,
             init_state_fluent_expr=self.get_state_fluent_init(),
-            non_fluents_ref='{}_non_fluents'.format(self.task.instance_name),
+            non_fluents_ref=f'{self.task.instance_name}_non_fluents',
             max_nondef_actions=self.get_max_nondef_actions(),
             horizon=self.get_horizon(),
             discount=self.get_discount()
@@ -451,7 +451,7 @@ class Writer:
             if isinstance(S, Interval):
                 self.need_constraints[S.name] = S
                 continue
-            type_decl_list += ['{} : {};'.format(S.name, parent(S).name)]
+            type_decl_list += [f'{S.name} : {parent(S).name};']
             self.need_obj_decl += [S]
         return '\n'.join(type_decl_list)
 
@@ -477,7 +477,7 @@ class Writer:
         else:
             assert False
         if len(domain) == 0:
-            return '{}'.format(head)
+            return f'{head}'
         return '{}({})'.format(head, ','.join(domain))
 
     def get_pvars(self):
@@ -485,30 +485,30 @@ class Writer:
         # state fluents
         for fl, v in self.task.state_fluents:
             rsig = self.get_signature(fl)
-            pvar_decl_list += ['\t{} : {{state-fluent, {}, default = {}}};'.format(rsig, self.get_type(fl), str(v))]
+            pvar_decl_list += [f'\t{rsig} : {{state-fluent, {self.get_type(fl)}, default = {str(v)}}};']
         for fl, level in self.task.interm_fluents:
             rsig = self.get_signature(fl)
             try:
                 self.interm_signatures.add(fl.symbol.signature)
             except AttributeError:
                 self.interm_signatures.add(fl.predicate.signature)
-            pvar_decl_list += ['\t{} : {{interm-fluent, {}, level = {}}};'.format(rsig, self.get_type(fl), str(level))]
+            pvar_decl_list += [f'\t{rsig} : {{interm-fluent, {self.get_type(fl)}, level = {str(level)}}};']
         for fl, v in self.task.action_fluents:
             rsig = self.get_signature(fl)
-            pvar_decl_list += ['\t{} : {{action-fluent, {}, default = {}}};'.format(rsig, self.get_type(fl), str(v))]
+            pvar_decl_list += [f'\t{rsig} : {{action-fluent, {self.get_type(fl)}, default = {str(v)}}};']
         for fl, v in self.task.non_fluents:
             rsig = self.get_signature(fl)
             try:
                 self.non_fluent_signatures.add(fl.symbol.signature)
             except AttributeError:
                 self.non_fluent_signatures.add(fl.predicate.signature)
-            pvar_decl_list += ['\t{} : {{non-fluent, {}, default = {}}};'.format(rsig, self.get_type(fl), str(v))]
+            pvar_decl_list += [f'\t{rsig} : {{non-fluent, {self.get_type(fl)}, default = {str(v)}}};']
         return '\n'.join(pvar_decl_list)
 
     def get_cpfs(self):
         cpfs_decl_list = []
         for lhs, rhs in self.task.cpfs:
-            cpfs_decl_list += ['\t{} = {};'.format(self.get_fluent(lhs, True), self.rewrite(rhs))]
+            cpfs_decl_list += [f'\t{self.get_fluent(lhs, True)} = {self.rewrite(rhs)};']
         return '\n'.join(cpfs_decl_list)
 
     def get_reward(self):
@@ -518,14 +518,14 @@ class Writer:
         act_prec_list = []
         for expr, ctype in self.task.constraints:
             if ctype == ConstraintType.ACTION:
-                act_prec_list += ['\t{};'.format(self.rewrite(expr))]
+                act_prec_list += [f'\t{self.rewrite(expr)};']
         return '\n'.join(act_prec_list)
 
     def get_state_invariants(self):
         state_inv_list = []
         for expr, ctype in self.task.constraints:
             if ctype == ConstraintType.STATE:
-                state_inv_list += ['\t{};'.format(self.rewrite(expr))]
+                state_inv_list += [f'\t{self.rewrite(expr)};']
         return '\n'.join(state_inv_list)
 
     def get_objects(self):
@@ -537,7 +537,7 @@ class Writer:
         # initialize
         for S in self.need_obj_decl:
             domain_str = ','.join([str(c.symbol) for c in S.domain()])
-            obj_decl_blocks += ['\t{} : {{{}}};'.format(S.name, domain_str)]
+            obj_decl_blocks += [f'\t{S.name} : {{{domain_str}}};']
 
         return 'objects {{{}}};'.format('\n'.join(obj_decl_blocks))
 
@@ -552,7 +552,7 @@ class Writer:
                     term_str = signature[0]
                 else:
                     term_str = str(self.task.L.get(signature[0])(*subterms))
-                non_fluent_init_list += ['\t{} = {};'.format(term_str, value)]
+                non_fluent_init_list += [f'\t{term_str} = {value};']
         for signature, defs in self.task.x0.predicate_extensions.items():
             if signature not in self.non_fluent_signatures:
                 continue
@@ -562,7 +562,7 @@ class Writer:
                     atom_str = signature[0]
                 else:
                     atom_str = str(self.task.L.get(signature[0])(*subterms))
-                non_fluent_init_list += ['\t{} = true;'.format(atom_str)]
+                non_fluent_init_list += [f'\t{atom_str} = true;']
 
         if len(non_fluent_init_list) == 0:
             return ''
@@ -581,7 +581,7 @@ class Writer:
                     term_str = signature[0]
                 else:
                     term_str = str(self.task.L.get(signature[0])(*subterms))
-                init_list += ['\t{} = {};'.format(term_str, value)]
+                init_list += [f'\t{term_str} = {value};']
         for signature, defs in self.task.x0.predicate_extensions.items():
             if signature in self.non_fluent_signatures \
                     or signature in self.interm_signatures:
@@ -592,7 +592,7 @@ class Writer:
                     atom_str = signature[0]
                 else:
                     atom_str = str(self.task.L.get(signature[0])(*subterms))
-                init_list += ['\t{} = true;'.format(atom_str)]
+                init_list += [f'\t{atom_str} = true;']
 
         return '\n'.join(init_list)
 
@@ -603,7 +603,7 @@ class Writer:
             re_st = [self.rewrite(st) for st in expr.subterms]
             if expr.symbol.builtin:
                 if expr.symbol.symbol in symbol_map.keys():
-                    return '({} {} {})'.format(re_st[0], symbol_map[expr.symbol.symbol], re_st[1])
+                    return f'({re_st[0]} {symbol_map[expr.symbol.symbol]} {re_st[1]})'
             st_str = ''
             if expr.symbol.builtin:
                 if expr.symbol.symbol in function_map.keys():
@@ -614,19 +614,19 @@ class Writer:
                             st_str = '({})'.format(','.join(re_st))
                         else:
                             st_str = '[{}]'.format(','.join(re_st))
-                    return '{}{}'.format(function_map[expr.symbol.symbol], st_str)
+                    return f'{function_map[expr.symbol.symbol]}{st_str}'
             if len(re_st) > 0:
                 st_str = '({})'.format(','.join(re_st))
-            return '{}{}'.format(expr.symbol.signature[0], st_str)
+            return f'{expr.symbol.signature[0]}{st_str}'
         elif isinstance(expr, Atom):
             re_st = [self.rewrite(st) for st in expr.subterms]
             if expr.predicate.builtin:
                 if expr.predicate.symbol in symbol_map.keys():
-                    return '({} {} {})'.format(re_st[0], symbol_map[expr.predicate.symbol], re_st[1])
+                    return f'({re_st[0]} {symbol_map[expr.predicate.symbol]} {re_st[1]})'
             st_str = ''
             if len(re_st) > 0:
                 st_str = '({})'.format(','.join(re_st))
-            return '{}{}'.format(expr.predicate.signature[0], st_str)
+            return f'{expr.predicate.signature[0]}{st_str}'
         elif isinstance(expr, Variable):
             # remove ? just in case
             return '?{}'.format(expr.symbol.replace('?', ''))
@@ -636,7 +636,7 @@ class Writer:
             cond = self.rewrite(expr.condition)
             expr1 = self.rewrite(expr.subterms[0])
             expr2 = self.rewrite(expr.subterms[1])
-            return 'if ({}) then ({}) else ({})'.format(cond, expr1, expr2)
+            return f'if ({cond}) then ({expr1}) else ({expr2})'
         elif isinstance(expr, Tautology):
             return 'true'
         elif isinstance(expr, Contradiction):
@@ -645,16 +645,16 @@ class Writer:
             re_sf = [self.rewrite(st) for st in expr.subformulas]
             re_sym = symbol_map[expr.connective]
             if len(re_sf) == 1:
-                return '{}{}'.format(re_sym, re_sf)
-            return '({} {} {})'.format(re_sf[0], re_sym, re_sf[1])
+                return f'{re_sym}{re_sf}'
+            return f'({re_sf[0]} {re_sym} {re_sf[1]})'
         elif isinstance(expr, QuantifiedFormula):
             re_f = self.rewrite(expr.formula)
-            re_vars = ['?{} : {}'.format(x.symbol, x.sort.name) for x in expr.variables]
+            re_vars = [f'?{x.symbol} : {x.sort.name}' for x in expr.variables]
             re_sym = symbol_map[expr.quantifier]
             return '{}_{{{}}} ({})'.format(re_sym, ','.join(re_vars), re_f)
         elif isinstance(expr, AggregateCompoundTerm):
             re_expr = self.rewrite(expr.subterm)
-            re_vars = ['?{} : {}'.format(x.symbol, x.sort.name) for x in expr.bound_vars]
+            re_vars = [f'?{x.symbol} : {x.sort.name}' for x in expr.bound_vars]
             if expr.symbol == BFS.ADD:
                 re_sym = 'sum'
             elif expr.symbol == BFS.MUL:
@@ -681,7 +681,7 @@ class Writer:
         prima = ''
         if next_state:
             prima = "'"
-        return "{}{}{}".format(head, prima, subterms_str)
+        return f"{head}{prima}{subterms_str}"
 
     def get_max_nondef_actions(self):
         return str(self.task.parameters.max_nondef_actions)

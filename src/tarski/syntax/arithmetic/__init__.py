@@ -218,4 +218,4 @@ def simplify(expr: Term) -> Term:
         expr.subterms = (simplify(expr.subterms[0]), simplify(expr.subterms[1]))
         return expr
 
-    raise NotImplementedError("Can't handle expression {} yet".format(expr))
+    raise NotImplementedError(f"Can't handle expression {expr} yet")

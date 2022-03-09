@@ -28,7 +28,7 @@ class PrenexTransformation:
                 new_variables[key_y] = y
             else:
                 if renaming:
-                    y2 = self.L.variable("{}'".format(y.symbol), y.sort)
+                    y2 = self.L.variable(f"{y.symbol}'", y.sort)
                     subst[y] = y2
                     new_variables[(y2.symbol, y2.sort.name)] = y2
         if len(subst) > 0:
@@ -49,7 +49,7 @@ class PrenexTransformation:
             if key_y not in in_vars_dict:
                 new_out_vars.append(y)
             else:
-                y2 = self.L.variable("{}'".format(y.symbol), y.sort)
+                y2 = self.L.variable(f"{y.symbol}'", y.sort)
                 subst[symref(y)] = y2
                 new_out_vars.append(y2)
         if len(subst) > 0:

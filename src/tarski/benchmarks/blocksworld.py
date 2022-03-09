@@ -24,7 +24,7 @@ def generate_strips_bw_language(nblocks=4):
     lang.predicate('on', object_t, object_t)
     _ = [lang.predicate(p, object_t) for p in "ontable clear holding".split()]
 
-    _ = [lang.constant('b{}'.format(k), object_t) for k in range(1, nblocks + 1)]
+    _ = [lang.constant(f'b{k}', object_t) for k in range(1, nblocks + 1)]
     return lang
 
 
@@ -41,7 +41,7 @@ def generate_fstrips_bw_language(nblocks=4):
 
     # Table and blocks
     lang.constant('table', place)
-    _ = [lang.constant('b{}'.format(k), block) for k in range(1, nblocks + 1)]
+    _ = [lang.constant(f'b{k}', block) for k in range(1, nblocks + 1)]
     return lang
 
 

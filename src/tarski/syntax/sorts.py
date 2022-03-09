@@ -16,7 +16,7 @@ class Sort:
         self.builtin = builtin
 
     def __str__(self):
-        return 'Sort({})'.format(self.name)
+        return f'Sort({self.name})'
 
     __repr__ = __str__
 
@@ -111,7 +111,7 @@ class Interval(Sort):
         #         pass
         y = self.encode(x)  # can raise ValueError
         if not self.is_within_bounds(y):
-            raise ValueError("Cast: Symbol '{}' (encoded '{}') outside of defined interval bounds".format(x, y))
+            raise ValueError(f"Cast: Symbol '{x}' (encoded '{y}') outside of defined interval bounds")
         return y
 
     def to_constant(self, x):
@@ -238,8 +238,7 @@ def compute_signature_bindings(signature):
     """ Return an exhaustive list of all possible bindings compatible with the given signature, i.e.
     list of sorts. """
     domains = [s.domain() for s in signature]
-    for binding in itertools.product(*domains):
-        yield binding
+    yield from itertools.product(*domains)
 
 
 def compute_direct_sort_map(lang):

@@ -1,5 +1,4 @@
 # Generated from /home/frances/projects/code/tarski/utils/parsers/grammars/fstrips.g4 by ANTLR 4.7.1
-# encoding: utf-8
 from antlr4 import *
 from io import StringIO
 from typing.io import TextIO
@@ -1935,7 +1934,7 @@ class fstripsParser ( Parser ):
                     self.state = 269 
                     self._errHandler.sync(self)
                     _la = self._input.LA(1)
-                    if not (((((_la - 79)) & ~0x3f) == 0 and ((1 << (_la - 79)) & ((1 << (fstripsParser.INT_T - 79)) | (1 << (fstripsParser.FLOAT_T - 79)) | (1 << (fstripsParser.OBJECT_T - 79)) | (1 << (fstripsParser.NUMBER_T - 79)) | (1 << (fstripsParser.NAME - 79)))) != 0)):
+                    if not (((_la - 79) & ~0x3f) == 0 and ((1 << (_la - 79)) & ((1 << (fstripsParser.INT_T - 79)) | (1 << (fstripsParser.FLOAT_T - 79)) | (1 << (fstripsParser.OBJECT_T - 79)) | (1 << (fstripsParser.NUMBER_T - 79)) | (1 << (fstripsParser.NAME - 79)))) != 0):
                         break
 
                 self.state = 271
@@ -3642,7 +3641,7 @@ class fstripsParser ( Parser ):
             self.state = 444
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            while _la==fstripsParser.T__0 or _la==fstripsParser.T__15 or ((((_la - 83)) & ~0x3f) == 0 and ((1 << (_la - 83)) & ((1 << (fstripsParser.NAME - 83)) | (1 << (fstripsParser.VARIABLE - 83)) | (1 << (fstripsParser.NUMBER - 83)))) != 0):
+            while _la==fstripsParser.T__0 or _la==fstripsParser.T__15 or (((_la - 83) & ~0x3f) == 0 and ((1 << (_la - 83)) & ((1 << (fstripsParser.NAME - 83)) | (1 << (fstripsParser.VARIABLE - 83)) | (1 << (fstripsParser.NUMBER - 83)))) != 0):
                 self.state = 441
                 self.term()
                 self.state = 446
@@ -3970,7 +3969,7 @@ class fstripsParser ( Parser ):
                 self.state = 461
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
-                while _la==fstripsParser.T__0 or _la==fstripsParser.T__15 or ((((_la - 83)) & ~0x3f) == 0 and ((1 << (_la - 83)) & ((1 << (fstripsParser.NAME - 83)) | (1 << (fstripsParser.VARIABLE - 83)) | (1 << (fstripsParser.NUMBER - 83)))) != 0):
+                while _la==fstripsParser.T__0 or _la==fstripsParser.T__15 or (((_la - 83) & ~0x3f) == 0 and ((1 << (_la - 83)) & ((1 << (fstripsParser.NAME - 83)) | (1 << (fstripsParser.VARIABLE - 83)) | (1 << (fstripsParser.NUMBER - 83)))) != 0):
                     self.state = 458
                     self.term()
                     self.state = 463
@@ -4659,7 +4658,7 @@ class fstripsParser ( Parser ):
             self.enterOuterAlt(localctx, 1)
             self.state = 551
             _la = self._input.LA(1)
-            if not((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << fstripsParser.T__6) | (1 << fstripsParser.T__18) | (1 << fstripsParser.T__19) | (1 << fstripsParser.T__20) | (1 << fstripsParser.T__21) | (1 << fstripsParser.T__22) | (1 << fstripsParser.T__23))) != 0)):
+            if not(((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << fstripsParser.T__6) | (1 << fstripsParser.T__18) | (1 << fstripsParser.T__19) | (1 << fstripsParser.T__20) | (1 << fstripsParser.T__21) | (1 << fstripsParser.T__22) | (1 << fstripsParser.T__23))) != 0):
                 self._errHandler.recoverInline(self)
             else:
                 self._errHandler.reportMatch(self)
@@ -4708,7 +4707,7 @@ class fstripsParser ( Parser ):
             self.enterOuterAlt(localctx, 1)
             self.state = 553
             _la = self._input.LA(1)
-            if not((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << fstripsParser.T__6) | (1 << fstripsParser.T__24) | (1 << fstripsParser.T__25) | (1 << fstripsParser.T__26) | (1 << fstripsParser.T__27) | (1 << fstripsParser.T__28) | (1 << fstripsParser.T__29) | (1 << fstripsParser.T__30) | (1 << fstripsParser.T__31) | (1 << fstripsParser.T__32))) != 0)):
+            if not(((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << fstripsParser.T__6) | (1 << fstripsParser.T__24) | (1 << fstripsParser.T__25) | (1 << fstripsParser.T__26) | (1 << fstripsParser.T__27) | (1 << fstripsParser.T__28) | (1 << fstripsParser.T__29) | (1 << fstripsParser.T__30) | (1 << fstripsParser.T__31) | (1 << fstripsParser.T__32))) != 0):
                 self._errHandler.recoverInline(self)
             else:
                 self._errHandler.reportMatch(self)
@@ -4757,7 +4756,7 @@ class fstripsParser ( Parser ):
             self.enterOuterAlt(localctx, 1)
             self.state = 555
             _la = self._input.LA(1)
-            if not((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << fstripsParser.T__33) | (1 << fstripsParser.T__34) | (1 << fstripsParser.T__35) | (1 << fstripsParser.T__36) | (1 << fstripsParser.T__37))) != 0)):
+            if not(((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << fstripsParser.T__33) | (1 << fstripsParser.T__34) | (1 << fstripsParser.T__35) | (1 << fstripsParser.T__36) | (1 << fstripsParser.T__37))) != 0):
                 self._errHandler.recoverInline(self)
             else:
                 self._errHandler.reportMatch(self)
@@ -4817,7 +4816,7 @@ class fstripsParser ( Parser ):
             self.enterOuterAlt(localctx, 1)
             self.state = 557
             _la = self._input.LA(1)
-            if not(((((_la - 75)) & ~0x3f) == 0 and ((1 << (_la - 75)) & ((1 << (fstripsParser.K_INCREASE - 75)) | (1 << (fstripsParser.K_DECREASE - 75)) | (1 << (fstripsParser.K_SCALEUP - 75)) | (1 << (fstripsParser.K_SCALEDOWN - 75)))) != 0)):
+            if not(((_la - 75) & ~0x3f) == 0 and ((1 << (_la - 75)) & ((1 << (fstripsParser.K_INCREASE - 75)) | (1 << (fstripsParser.K_DECREASE - 75)) | (1 << (fstripsParser.K_SCALEUP - 75)) | (1 << (fstripsParser.K_SCALEDOWN - 75)))) != 0):
                 self._errHandler.recoverInline(self)
             else:
                 self._errHandler.reportMatch(self)

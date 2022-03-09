@@ -368,7 +368,7 @@ def identify_cost_related_functions(problem: Problem) -> Set[str]:
         for effect in action.effects:
             mark_cost_unrelated_functions_in_effect(effect, related_to_non_cost_effects)
 
-    return set(f.name for f in functions if f.name not in related_to_non_cost_effects)
+    return {f.name for f in functions if f.name not in related_to_non_cost_effects}
 
 
 def mark_cost_unrelated_functions_in_effect(effect, functions):

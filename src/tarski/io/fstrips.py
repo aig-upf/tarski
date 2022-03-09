@@ -50,7 +50,7 @@ class FstripsReader:
         return self.problem
 
     def parse_file(self, filename, start_rule):
-        logging.debug('Parsing filename "{}" from grammar rule "{}"'.format(filename, start_rule))
+        logging.debug(f'Parsing filename "{filename}" from grammar rule "{start_rule}"')
         domain_parse_tree, _ = self.parser.parse_file(filename, start_rule)
         self.parser.visit(domain_parse_tree)
 
@@ -71,7 +71,7 @@ class FstripsReader:
         return self.problem
 
     def parse_string(self, string, start_rule):
-        logging.debug('Parsing custom string from grammar rule "{}"'.format(start_rule))
+        logging.debug(f'Parsing custom string from grammar rule "{start_rule}"')
         parse_tree, _ = self.parser.parse_string(string, start_rule)
         logging.debug("Processing AST")
         return self.parser.visit(parse_tree)
@@ -104,7 +104,7 @@ def print_objects(constants):
     elements = []
     for sort in sorted(constants_by_sort.keys()):
         sobjects = " ".join(sorted(constants_by_sort[sort]))
-        elements.append("{} - {}".format(sobjects, sort))
+        elements.append(f"{sobjects} - {sort}")
 
     return linebreaks(elements, indentation=2, indent_first=False)
 
@@ -126,14 +126,14 @@ def print_init(problem):
             continue  # Ignore intensionally defined symbols
         fname = signature[0]
         for point, value in definition.data.items():
-            elements.append("(= ({} {}) {})".format(fname, print_term_ref_list(point), value))
+            elements.append(f"(= ({fname} {print_term_ref_list(point)}) {value})")
 
     # e.g. (clear b1)
     for signature, definition in problem.init.predicate_extensions.items():
         assert isinstance(definition, set)
         predname = signature[0]
         for point in definition:
-            elements.append("({} {})".format(predname, print_term_ref_list(point)))
+            elements.append(f"({predname} {print_term_ref_list(point)})")
 
     return linebreaks(elements, indentation=2, indent_first=False)
 
@@ -149,7 +149,7 @@ def print_domain_bounds(problem):
         if not sort.builtin and isinstance(sort, Interval):
             assert lang.has_sort('Integer')
             if lang.Integer in ancestors(sort):
-                bounds.append("({} - int[{}..{}])".format(sort.name, sort.lower_bound, sort.upper_bound))
+                bounds.append(f"({sort.name} - int[{sort.lower_bound}..{sort.upper_bound}])")
             elif lang.Real in ancestors(sort):
                 pass  # TODO
 
@@ -157,7 +157,7 @@ def print_domain_bounds(problem):
         return ""
 
     inner = "\n".join(indent(b, 2) for b in bounds)
-    return "(:bounds\n{})".format(inner)
+    return f"(:bounds\n{inner})"
 
 
 def print_problem_constraints(problem):
@@ -261,7 +261,7 @@ class FstripsWriter:
                 continue  # Don't declare builtin elements
             domain_str = build_signature_string(fun.domain)
             codomain_str = tarski_to_pddl_type(fun.codomain)
-            res.append("({} {}) - {}".format(fun.symbol, domain_str, codomain_str))
+            res.append(f"({fun.symbol} {domain_str}) - {codomain_str}")
         return ("\n" + _TAB * 2).join(res)
 
     def get_predicates(self):
@@ -270,7 +270,7 @@ class FstripsWriter:
             if fun.builtin:
                 continue  # Don't declare builtin elements
             domain_str = build_signature_string(fun.sort)
-            res.append("({} {})".format(fun.symbol, domain_str))
+            res.append(f"({fun.symbol} {domain_str})")
         return ("\n" + _TAB * 2).join(res)
 
     def get_actions(self):
@@ -322,13 +322,13 @@ def print_formula(formula, indentation=0):
     elif isinstance(formula, Atom):
         return print_atom(formula)
     elif isinstance(formula, CompoundFormula):
-        return "({} {})".format(formula.connective, print_formula_list(formula.subformulas))
+        return f"({formula.connective} {print_formula_list(formula.subformulas)})"
 
     elif isinstance(formula, QuantifiedFormula):
         vars_ = print_variable_list(formula.variables)
         # e.g. (exists (?x - object) (and (= ?x 2)))
-        return '({} ({}) {})'.format(formula.quantifier, vars_, print_formula(formula.formula))
-    raise RuntimeError("Unexpected element type: {}".format(formula))
+        return f'({formula.quantifier} ({vars_}) {print_formula(formula.formula)})'
+    raise RuntimeError(f"Unexpected element type: {formula}")
 
 
 def print_effects(effects, cost=None, indentation=0):
@@ -347,19 +347,19 @@ def print_unconditional_effect(eff, indentation=0):
     increase = isinstance(eff, IncreaseEffect)
 
     if increase:
-        return indent("(increase {} {})".format(print_term(eff.lhs), print_term(eff.rhs)), indentation)
+        return indent(f"(increase {print_term(eff.lhs)} {print_term(eff.rhs)})", indentation)
     elif functional:
-        return indent("(assign {} {})".format(print_term(eff.lhs), print_term(eff.rhs)), indentation)
+        return indent(f"(assign {print_term(eff.lhs)} {print_term(eff.rhs)})", indentation)
     elif isinstance(eff, AddEffect):
-        return indent("{}".format(print_atom(eff.atom)), indentation)
+        return indent(f"{print_atom(eff.atom)}", indentation)
     elif isinstance(eff, DelEffect):
-        return indent("(not {})".format(print_atom(eff.atom)), indentation)
+        return indent(f"(not {print_atom(eff.atom)})", indentation)
     elif isinstance(eff, UniversalEffect):
         effect_str = (print_effect(eff.effects[0]) if len(eff.effects) == 1 else print_effects(eff.effects))
-        return indent("(forall ({}) {})".format(print_variable_list(eff.variables), effect_str),
+        return indent(f"(forall ({print_variable_list(eff.variables)}) {effect_str})",
                       indentation)
 
-    raise RuntimeError("Unexpected element type: {}".format(eff))
+    raise RuntimeError(f"Unexpected element type: {eff}")
 
 
 def print_effect(eff, indentation=0):
@@ -367,7 +367,7 @@ def print_effect(eff, indentation=0):
 
     if conditional:
         return indent(
-            "(when {} {})".format(print_formula(eff.condition), print_unconditional_effect(eff)),
+            f"(when {print_formula(eff.condition)} {print_unconditional_effect(eff)})",
             indentation)
     else:
         return print_unconditional_effect(eff, indentation)
@@ -378,10 +378,10 @@ def print_term(term):
     if isinstance(term, Variable):
         return print_variable_name(term.symbol)
     elif isinstance(term, CompoundTerm):
-        return "({} {})".format(term.symbol.symbol, print_term_list(term.subterms))
+        return f"({term.symbol.symbol} {print_term_list(term.subterms)})"
     elif isinstance(term, Constant):
-        return "{}".format(term.symbol)
-    raise RuntimeError("Unexpected element type: {}".format(term))
+        return f"{term.symbol}"
+    raise RuntimeError(f"Unexpected element type: {term}")
 
 
 def print_atom(atom: Atom):

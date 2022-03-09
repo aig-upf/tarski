@@ -77,7 +77,7 @@ class LPGroundingStrategy:
         return self.model
 
     def __str__(self):
-        return 'LPGroundingStrategy["{}"]'.format(self.problem.name)
+        return f'LPGroundingStrategy["{self.problem.name}"]'
 
     __repr__ = __str__
 

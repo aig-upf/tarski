@@ -45,7 +45,7 @@ class ReachabilityLPCompiler:
     def gen_aux_atom(self, args=None):
         """ Return a new auxiliary atom with the given arguments """
         self.aux_atom_count += 1
-        return self.lp_atom("__f{}".format(self.aux_atom_count), args)
+        return self.lp_atom(f"__f{self.aux_atom_count}", args)
 
     def create(self):
         problem, lang, lp = self.problem, self.problem.language, self.lp
@@ -127,7 +127,7 @@ class ReachabilityLPCompiler:
     def process_action_cost(self, action, action_atom, parameters_types, lp):
         """ Process the increase-total-cost effect of the given action. This results in a LP atom
         of the form cost(action(X), 7) :- block(X). """
-        used_varnames = set(make_variable_name(v.symbol) for v in action.parameters)
+        used_varnames = {make_variable_name(v.symbol) for v in action.parameters}
         if action.cost is None:
             lp.rule(f'cost({action_atom}, 1)', parameters_types)
         elif isinstance(action.cost, AdditiveActionCost):
@@ -191,7 +191,7 @@ class ReachabilityLPCompiler:
                 return [negate_lp_atom(processed)]
 
             else:
-                raise RuntimeError('Unexpected connective "{}" within CompoundFormula "{}"'.format(f.connective, f))
+                raise RuntimeError(f'Unexpected connective "{f.connective}" within CompoundFormula "{f}"')
 
         elif isinstance(f, QuantifiedFormula):
             if f.quantifier == Quantifier.Exists:
@@ -208,7 +208,7 @@ class ReachabilityLPCompiler:
                 assert f.quantifier == Quantifier.Forall
                 raise RuntimeError('Formula should be forall-free, revise source code')
 
-        raise RuntimeError('Unexpected formula "{}" with type "{}"'.format(f, type(f)))
+        raise RuntimeError(f'Unexpected formula "{f}" with type "{type(f)}"')
 
     @staticmethod
     def process_term(t: Term):
@@ -220,7 +220,7 @@ class ReachabilityLPCompiler:
         elif isinstance(t, Constant):
             return str(t.symbol)
 
-        raise RuntimeError('Unexpected term "{}" with type "{}"'.format(t, type(t)))
+        raise RuntimeError(f'Unexpected term "{t}" with type "{type(t)}"')
 
     def process_effect(self, lang, eff, action_name):
         """ Process a given effect and return the corresponding LP rule (a pair with head and body). For instance a
@@ -301,9 +301,9 @@ class LPAtom:
     def __str__(self):
         """ Return a string of the form 'symbol(arg1, ..., argn)', or 'symbol()', if args is empty """
         if self.infix:
-            return "{} {} {}".format(self.args[0], self.symbol, self.args[1])
+            return f"{self.args[0]} {self.symbol} {self.args[1]}"
         arglist = ", ".join(str(arg) for arg in _ensure_list(self.args))
-        return "{}({})".format(self.symbol, arglist)
+        return f"{self.symbol}({arglist})"
 
     __repr__ = __str__
 
@@ -400,7 +400,7 @@ class InFileLogicProgram:
 
 def _print_rule(head, body):
     assert body is None or isinstance(body, (list, tuple))
-    return "{}.".format(head) if body is None else "{} :- {}.".format(head, _print_body(body))
+    return f"{head}." if body is None else f"{head} :- {_print_body(body)}."
 
 
 def _print_body(body):
@@ -415,7 +415,7 @@ def sanitize(name: str):
 def _var(i=0):
     """ Return a distinct variable name for each given value of i """
     alphabet = "XYZABCDEFGHIJKLMNOPQRSTUVW"
-    return alphabet[i] if i < len(alphabet) else "X{}".format(i)
+    return alphabet[i] if i < len(alphabet) else f"X{i}"
 
 
 def generate_varname(avoid=None):

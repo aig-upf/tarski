@@ -368,4 +368,4 @@ class InstanceModel:
                                         type=objective_data['definition']['type'],
                                         expr=objective_data['definition']['expr'])
         if self.debug:
-            print("Objective: mode: {} type: {} expr: {}".format(self.objective.mode, self.objective.type, self.objective.expr))
+            print(f"Objective: mode: {self.objective.mode} type: {self.objective.type} expr: {self.objective.expr}")

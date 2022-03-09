@@ -1,4 +1,3 @@
-
 from .formulas import Formula
 from .terms import Term
 
@@ -29,6 +28,6 @@ class TermReference:
         return self.__class__ is other.__class__ and self.expr.is_syntactically_equal(other.expr)
 
     def __str__(self):
-        return "symref[{}]".format(self.expr)
+        return f"symref[{self.expr}]"
 
     __repr__ = __str__

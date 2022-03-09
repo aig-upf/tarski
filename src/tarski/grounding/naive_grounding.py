@@ -138,7 +138,7 @@ class NaiveGroundingStrategy:
         return groundings
 
     def __str__(self):
-        return 'NaiveGroundingStrategy["{}"]'.format(self.problem.name)
+        return f'NaiveGroundingStrategy["{self.problem.name}"]'
 
     __repr__ = __str__
 

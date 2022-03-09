@@ -1,4 +1,3 @@
-
 class TarskiError(Exception):
     """ Common ancestor class to all of Tarski's exceptions """
 
@@ -89,7 +88,7 @@ class DuplicateActionDefinition(DuplicateDefinition):
 
 class DuplicateVariableDefinition(DuplicateDefinition):
     def __init__(self, variable, other, msg=None):
-        msg = msg or "Variable with name '{}' already defined in binding: {}".format(variable.symbol, other)
+        msg = msg or f"Variable with name '{variable.symbol}' already defined in binding: {other}"
         super().__init__(variable, other, msg)
 
 
@@ -123,7 +122,7 @@ class UndefinedVariable(UndefinedElement):
 
 class UnboundVariable(SemanticError):
     def __init__(self, var, msg=None):
-        msg = msg or 'Attempted to evaluate open formula with free variable {}'.format(var)
+        msg = msg or f'Attempted to evaluate open formula with free variable {var}'
         super().__init__(msg)
 
 
@@ -136,12 +135,12 @@ class IncorrectExtensionDefinition(SemanticError):
 
 class UnknownTheory(LanguageError):
     def __init__(self, theory):
-        super().__init__('Unknown first-order theory "{}"'.format(theory))
+        super().__init__(f'Unknown first-order theory "{theory}"')
 
 
 class CommandNotFoundError(TarskiError):
     def __init__(self, name, msg=None):
-        msg = msg or 'Necessary command "{}" could not be found'.format(name)
+        msg = msg or f'Necessary command "{name}" could not be found'
         super().__init__(msg)
 
 

@@ -43,7 +43,7 @@ class Matrix(Term):
         return self.matrix[i, j]
 
     def __str__(self):
-        return '{}'.format(self.matrix)
+        return f'{self.matrix}'
 
     __repr__ = __str__
 

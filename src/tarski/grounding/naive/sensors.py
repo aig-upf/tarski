@@ -1,4 +1,3 @@
-
 import itertools
 
 from ...fstrips.contingent import Sensor
@@ -18,7 +17,7 @@ class SensorGrounder:
         self.sensors_generated = 0
 
     def __str__(self):
-        return 'Sensors generated: {}'.format(self.sensors_generated)
+        return f'Sensors generated: {self.sensors_generated}'
 
     def calculate_sensors(self):
         # @TODO: this is pretty much the same code as that of grounding actions

@@ -125,7 +125,7 @@ def symbolic_matrix_multiplication(lhs: Matrix, rhs: Matrix):
     C, D = rhs.shape
 
     if B != C:
-        raise TypeError('matrices {}x{} and {}x{} cannot be multiplied together'.format(A, B, C, D))
+        raise TypeError(f'matrices {A}x{B} and {C}x{D} cannot be multiplied together')
 
     zip_b = list(zip(*rhs.matrix))
     return [[sum(ele_a * ele_b for ele_a, ele_b in zip(row_a, col_b))

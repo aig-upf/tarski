@@ -53,7 +53,7 @@ class Action:
         self._effects = kwargs.get('effects', [])
         for eff in self._effects:
             if not isinstance(eff, Effect):
-                raise RuntimeError("Action effect has invalid type: got: {} expected: Effect".format(type(eff)))
+                raise RuntimeError(f"Action effect has invalid type: got: {type(eff)} expected: Effect")
 
     @property
     def name(self):

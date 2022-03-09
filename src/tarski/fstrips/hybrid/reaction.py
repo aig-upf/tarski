@@ -1,4 +1,3 @@
-
 class Reaction:
     """ A (possibly lifted) reaction """
 
@@ -15,7 +14,7 @@ class Reaction:
 
     def ident(self):
         params = ', '.join([str(o) for o in self.parameters])
-        return '{}({})'.format(self.name, params)
+        return f'{self.name}({params})'
 
     def dump(self):
         return dict(name=self.name,
@@ -24,7 +23,7 @@ class Reaction:
                     effect=[eff.dump() for eff in self.effect.dump()])
 
     def __str__(self):
-        tokens = ['reaction {}:'.format(self.name),
-                  'cond: ({})'.format(self.condition),
-                  'eff: ({})'.format(self.effect)]
+        tokens = [f'reaction {self.name}:',
+                  f'cond: ({self.condition})',
+                  f'eff: ({self.effect})']
         return '\n'.join(tokens)

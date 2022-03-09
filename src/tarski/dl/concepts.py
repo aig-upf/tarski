@@ -25,7 +25,7 @@ class NullaryAtom:
                 and self.name == other.name)
 
     def __repr__(self):
-        return "{}".format(self.name)
+        return f"{self.name}"
 
     __str__ = __repr__
 
@@ -35,7 +35,7 @@ class NullaryAtom:
 
 class GoalNullaryAtom(NullaryAtom):
     def __repr__(self):
-        return "{}_g".format(self.name)
+        return f"{self.name}_g"
 
     __str__ = __repr__
 
@@ -133,7 +133,7 @@ class NominalConcept(Concept):
         return model.compressed(model.primitive_denotation(self), self.ARITY)
 
     def __repr__(self):
-        return "Nominal({})".format(self.name)
+        return f"Nominal({self.name})"
 
     __str__ = __repr__
 
@@ -166,7 +166,7 @@ class PrimitiveConcept(Concept):
         return model.compressed(model.primitive_denotation(self), self.ARITY)
 
     def __repr__(self):
-        return "{}".format(self.name)
+        return f"{self.name}"
 
     __str__ = __repr__
 
@@ -176,7 +176,7 @@ class PrimitiveConcept(Concept):
 
 class GoalConcept(PrimitiveConcept):
     def __repr__(self):
-        return "{}_g".format(self.name)
+        return f"{self.name}_g"
 
     __str__ = __repr__
 
@@ -199,7 +199,7 @@ class NotConcept(Concept):
         return ~model.compressed_denotation(self.c)
 
     def __repr__(self):
-        return 'Not({})'.format(self.c)
+        return f'Not({self.c})'
 
     __str__ = __repr__
 
@@ -230,7 +230,7 @@ class AndConcept(Concept):
         return ext_c1 & ext_c2
 
     def __repr__(self):
-        return 'And({},{})'.format(self.c1, self.c2)
+        return f'And({self.c1},{self.c2})'
 
     __str__ = __repr__
 
@@ -261,7 +261,7 @@ class OrConcept(Concept):
         return ext_c1 | ext_c2
 
     def __repr__(self):
-        return 'Or({},{})'.format(self.c1, self.c2)
+        return f'Or({self.c1},{self.c2})'
 
     __str__ = __repr__
 
@@ -291,11 +291,11 @@ class ExistsConcept(Concept):
         ext_c = model.uncompressed_denotation(self.c)
         ext_r = model.uncompressed_denotation(self.r)
         # result = [x for x in objects if [z for (y, z) in ext_r if y == x and z in ext_c]]
-        result = set(x for x, y in ext_r if y in ext_c)
+        result = {x for x, y in ext_r if y in ext_c}
         return model.compressed(result, self.ARITY)
 
     def __repr__(self):
-        return 'Exists({},{})'.format(self.r, self.c)
+        return f'Exists({self.r},{self.c})'
 
     __str__ = __repr__
 
@@ -332,7 +332,7 @@ class ForallConcept(Concept):
         return model.compressed(result, self.ARITY)
 
     def __repr__(self):
-        return 'Forall({},{})'.format(self.r, self.c)
+        return f'Forall({self.r},{self.c})'
 
     __str__ = __repr__
 
@@ -363,14 +363,14 @@ class EqualConcept(Concept):
         ext_r2 = model.uncompressed_denotation(self.r2)
         result = set()
         for x in universe:
-            left = set(z for (y, z) in ext_r1 if y == x)
-            right = set(z for (y, z) in ext_r2 if y == x)
+            left = {z for (y, z) in ext_r1 if y == x}
+            right = {z for (y, z) in ext_r2 if y == x}
             if left == right:
                 result.add(x)
         return model.compressed(result, self.ARITY)
 
     def __repr__(self):
-        return 'Equal({},{})'.format(self.r1, self.r2)
+        return f'Equal({self.r1},{self.r2})'
 
     __str__ = __repr__
 
@@ -402,7 +402,7 @@ class PrimitiveRole(Role):
         return model.compressed(model.primitive_denotation(self), self.ARITY)
 
     def __repr__(self):
-        return '{}'.format(self.name)
+        return f'{self.name}'
 
     __str__ = __repr__
 
@@ -412,7 +412,7 @@ class PrimitiveRole(Role):
 
 class GoalRole(PrimitiveRole):
     def __repr__(self):
-        return "{}_g".format(self.name)
+        return f"{self.name}_g"
 
     __str__ = __repr__
 
@@ -434,11 +434,11 @@ class InverseRole(Role):
 
     def denotation(self, model):
         ext_r = model.uncompressed_denotation(self.r)
-        result = set((y, x) for (x, y) in ext_r)
+        result = {(y, x) for (x, y) in ext_r}
         return model.compressed(result, self.ARITY)
 
     def __repr__(self):
-        return 'Inverse({})'.format(self.r)
+        return f'Inverse({self.r})'
 
     __str__ = __repr__
 
@@ -466,7 +466,7 @@ class StarRole(Role):
         return model.compressed(result, self.ARITY)
 
     def __repr__(self):
-        return 'Star({})'.format(self.r)
+        return f'Star({self.r})'
 
     __str__ = __repr__
 
@@ -505,7 +505,7 @@ class CompositionRole(Role):
         return model.compressed(result, self.ARITY)
 
     def __repr__(self):
-        return 'Composition({},{})'.format(self.r1, self.r2)
+        return f'Composition({self.r1},{self.r2})'
 
     __str__ = __repr__
 
@@ -533,11 +533,11 @@ class RestrictRole(Role):
     def denotation(self, model):
         ext_c = model.uncompressed_denotation(self.c)
         ext_r = model.uncompressed_denotation(self.r)
-        result = set((x, y) for (x, y) in ext_r if y in ext_c)
+        result = {(x, y) for (x, y) in ext_r if y in ext_c}
         return model.compressed(result, self.ARITY)
 
     def __repr__(self):
-        return 'Restrict({},{})'.format(self.r, self.c)
+        return f'Restrict({self.r},{self.c})'
 
     __str__ = __repr__
 
@@ -547,4 +547,4 @@ class RestrictRole(Role):
 
 def _check_arity(term, expected_arity, predfun):
     if expected_arity != predfun.uniform_arity():
-        raise ArityDLMismatch('Cannot create {} from predicate "{}"'.format(term, predfun))
+        raise ArityDLMismatch(f'Cannot create {term} from predicate "{predfun}"')

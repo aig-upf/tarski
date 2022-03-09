@@ -26,7 +26,7 @@ def collect_all_symbols(problem: Problem, include_builtin=False) -> Set[Union[Pr
     walker.run(problem)
     if include_builtin:
         return walker.symbols
-    return set(s for s in walker.symbols if not s.builtin)
+    return {s for s in walker.symbols if not s.builtin}
 
 
 def collect_affected_symbols(problem: Problem) -> Set[Union[Predicate, Function]]:

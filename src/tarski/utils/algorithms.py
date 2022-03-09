@@ -5,7 +5,7 @@ from collections import deque, defaultdict
 def transitive_closure(elements):
     closure = set(elements)
     while True:
-        closure_until_now = closure | set((x, w) for x, y in closure for q, w in closure if q == y)
+        closure_until_now = closure | {(x, w) for x, y in closure for q, w in closure if q == y}
 
         if len(closure_until_now) == len(closure):
             break

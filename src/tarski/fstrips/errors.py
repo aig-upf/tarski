@@ -1,17 +1,16 @@
-
 from ..errors import TarskiError, DuplicateDefinition, UndefinedElement
 
 
 class IncompleteProblemError(TarskiError):
     def __init__(self, problem, msg=None):
         msg = msg or 'specification is incomplete!'
-        super().__init__('Problem "{}": {}'.format(problem.name, msg))
+        super().__init__(f'Problem "{problem.name}": {msg}')
 
 
 class InvalidEffectError(TarskiError):
     def __init__(self, effect, msg=None):
-        msg = msg or 'definition of effect "{}" is invalid!'.format(effect.tostring())
-        super().__init__('{}'.format(msg))
+        msg = msg or f'definition of effect "{effect.tostring()}" is invalid!'
+        super().__init__(f'{msg}')
 
 
 class DuplicateActionDefinition(DuplicateDefinition):
@@ -31,5 +30,5 @@ class InvalidDerivedPredicateError(TarskiError):
         if msg is None:
             msg = ' '
 
-        msg = 'definition of derived predicate "{} \\equiv {}" is invalid! {}'.format(symbol, formula, msg)
+        msg = f'definition of derived predicate "{symbol} \\equiv {formula}" is invalid! {msg}'
         super().__init__(msg)

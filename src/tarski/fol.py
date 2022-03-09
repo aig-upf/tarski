@@ -1,4 +1,3 @@
-
 import copy
 import itertools
 from collections import defaultdict, OrderedDict
@@ -224,7 +223,7 @@ class FirstOrderLanguage:
 
         # obj must be a string, which we take as the name of a language element
         if type_ not in self._element_containers:
-            raise RuntimeError("Trying to index incorrect type {}".format(type_))
+            raise RuntimeError(f"Trying to index incorrect type {type_}")
 
         if obj not in self._element_containers[type_]:
             raise err.UndefinedElement(obj)
@@ -339,7 +338,7 @@ class FirstOrderLanguage:
     def check_well_formed(self):
         for _, s in self._sorts.items():
             if s.cardinality() == 0:
-                raise err.LanguageError("Sort '{}' is empty!".format(s))
+                raise err.LanguageError(f"Sort '{s}' is empty!")
 
     def most_restricted_type(self, t1, t2):
         if self.is_subtype(t1, t2):

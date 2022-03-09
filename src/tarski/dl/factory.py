@@ -1,4 +1,3 @@
-
 import logging
 
 from .. import FirstOrderLanguage
@@ -57,7 +56,7 @@ class SyntacticFactory:
                     roles.append(GoalRole(predfun))
 
             else:
-                logging.warning('Predicate/Function "{}" with normalized arity > 2 ignored'.format(predfun))
+                logging.warning(f'Predicate/Function "{predfun}" with normalized arity > 2 ignored')
 
         for c in nominals:
             concepts.append(NominalConcept(c.symbol, c.sort))
@@ -78,12 +77,12 @@ class SyntacticFactory:
         _, s2 = role.sort
 
         if concept == self.bot:
-            logging.debug('Concept "{}" is statically empty'.format(result))
+            logging.debug(f'Concept "{result}" is statically empty')
             return None
 
         # TODO ADD: If C is a sort-concept of the same sort than s2, then the concept will be equiv to exist(R.True)
         if not self.language.are_vertically_related(s2, concept.sort):
-            logging.debug('Concept "{}" pruned for type-inconsistency reasons'.format(result))
+            logging.debug(f'Concept "{result}" pruned for type-inconsistency reasons')
             return None
 
         if isinstance(role, RestrictRole) and concept == self.top:
@@ -109,7 +108,7 @@ class SyntacticFactory:
             return None
 
         if not self.language.are_vertically_related(s2, concept.sort):
-            logging.debug('Concept "{}" pruned for type-inconsistency reasons'.format(result))
+            logging.debug(f'Concept "{result}" pruned for type-inconsistency reasons')
             return None
 
         return result
@@ -123,12 +122,12 @@ class SyntacticFactory:
             return None  # No sense in C and C
 
         if c1 in (self.top, self.bot) or c2 in (self.top, self.bot):
-            logging.debug('AND of {} and {} pruned, no sense in AND\'ing with top or bot'.format(c1, c2))
+            logging.debug(f'AND of {c1} and {c2} pruned, no sense in AND\'ing with top or bot')
             return None
 
         if sort is None:
             # i.e. c1 and c2 are disjoint types
-            logging.debug('AND of {} and {} pruned for type-inconsistency reasons'.format(c1, c2))
+            logging.debug(f'AND of {c1} and {c2} pruned for type-inconsistency reasons')
             return None
 
         return AndConcept(c1, c2, sort)
@@ -140,7 +139,7 @@ class SyntacticFactory:
             return None  # No sense in C OR C
 
         if c1 in (self.top, self.bot) or c2 in (self.top, self.bot):
-            logging.debug('OR of {} and {} pruned, no sense in OR\'ing with top or bot'.format(c1, c2))
+            logging.debug(f'OR of {c1} and {c2} pruned, no sense in OR\'ing with top or bot')
             return None
 
         return OrConcept(c1, c2, sort)
@@ -151,7 +150,7 @@ class SyntacticFactory:
         sort = self.language.most_restricted_type(r1.sort[0], r2.sort[0])
 
         if sort is None:
-            logging.debug('Concept "EqualConcept({},{})" pruned for type-inconsistency reasons'.format(r1, r2))
+            logging.debug(f'Concept "EqualConcept({r1},{r2})" pruned for type-inconsistency reasons')
             return None
         return EqualConcept(r1, r2, sort)
 
@@ -159,15 +158,15 @@ class SyntacticFactory:
 
         result = RestrictRole(r, c)
         if not self.language.are_vertically_related(r.sort[1], c.sort):
-            logging.debug('Role "{}" pruned for type-inconsistency reasons'.format(result))
+            logging.debug(f'Role "{result}" pruned for type-inconsistency reasons')
             return None
 
         if isinstance(c, UniversalConcept) or c == self.bot:
-            logging.debug('Role "{}" pruned; no sense in restricting to top / bot concepts'.format(result))
+            logging.debug(f'Role "{result}" pruned; no sense in restricting to top / bot concepts')
             return None
 
         if isinstance(r, RestrictRole):
-            logging.debug('Role "{}" pruned; no direct nesting of restrictions'.format(result))
+            logging.debug(f'Role "{result}" pruned; no direct nesting of restrictions')
             return None
 
         return result
@@ -182,12 +181,12 @@ class SyntacticFactory:
         result = CompositionRole(r1, r2)
 
         if not self.language.are_vertically_related(r1.sort[1], r2.sort[0]):
-            logging.debug('Role "{}" pruned for type-inconsistency reasons'.format(result))
+            logging.debug(f'Role "{result}" pruned for type-inconsistency reasons')
             return None
 
         num_comp = len(filter_subnodes(result, CompositionRole))
         if num_comp > 2:
-            logging.debug('Role "{}" pruned: number of compositions ({}) exceeds threshold'.format(result, num_comp))
+            logging.debug(f'Role "{result}" pruned: number of compositions ({num_comp}) exceeds threshold')
             return None
 
         return result

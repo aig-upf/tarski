@@ -1,4 +1,3 @@
-
 from .operations import is_applicable, progress
 from ..evaluators.simple import evaluate
 

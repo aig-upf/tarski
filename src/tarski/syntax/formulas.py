@@ -102,7 +102,7 @@ class CompoundFormula(Formula):
 
     def _check_well_formed(self):
         if any(not isinstance(f, Formula) for f in self.subformulas):
-            raise err.LanguageError("Wrong argument types for compound formula: '{}' ".format(self.subformulas))
+            raise err.LanguageError(f"Wrong argument types for compound formula: '{self.subformulas}' ")
 
         if self.connective == Connective.Not:
             if len(self.subformulas) != 1:
@@ -113,10 +113,10 @@ class CompoundFormula(Formula):
     def __str__(self):
         if self.connective == Connective.Not:
             assert len(self.subformulas) == 1
-            return "({} {})".format(self.connective, str(self.subformulas[0]))
+            return f"({self.connective} {str(self.subformulas[0])})"
 
-        inner = " {} ".format(self.connective).join(str(f) for f in self.subformulas)
-        return "({})".format(inner)
+        inner = f" {self.connective} ".join(str(f) for f in self.subformulas)
+        return f"({inner})"
 
     __repr__ = __str__
 
@@ -148,7 +148,7 @@ class QuantifiedFormula(Formula):
 
     def __str__(self):
         vars_ = ', '.join(str(x) for x in self.variables)
-        return '{} {} : ({})'.format(self.quantifier, vars_, self.formula)
+        return f'{self.quantifier} {vars_} : ({self.formula})'
 
     __repr__ = __str__
 
@@ -244,10 +244,10 @@ def quantified(quantifier, *args):
     variables, formula = args[:-1], args[-1]
 
     if not isinstance(formula, Formula):
-        raise err.LanguageError('Illformed arguments for quantified formula: {}'.format(args))
+        raise err.LanguageError(f'Illformed arguments for quantified formula: {args}')
 
     if not all(isinstance(x, Variable) for x in variables):
-        raise err.LanguageError('Illformed arguments for quantified formula: {}'.format(args))
+        raise err.LanguageError(f'Illformed arguments for quantified formula: {args}')
 
     return QuantifiedFormula(quantifier, variables, args[-1])
 
@@ -308,7 +308,7 @@ class Atom(Formula):
         head = self.predicate
 
         if not isinstance(head, Predicate):
-            raise err.LanguageError("Incorrect atom head: '{}' ".format(head))
+            raise err.LanguageError(f"Incorrect atom head: '{head}' ")
 
         # Check arities match
         if len(self.subterms) != self.predicate.arity:
@@ -319,7 +319,7 @@ class Atom(Formula):
         # Check arguments are all terms of the appropriate type and matching language
         for arg, expected_sort in zip(self.subterms, head.sort):
             if not isinstance(arg, Term):
-                raise err.LanguageError("Wrong argument for atomic formula: '{}' ".format(arg))
+                raise err.LanguageError(f"Wrong argument for atomic formula: '{arg}' ")
 
             if arg.language != language:
                 raise err.LanguageMismatch(arg, arg.language, language)

@@ -1,4 +1,3 @@
-
 from ...syntax import Atom, CompoundFormula, Connective, Constant, CompoundTerm
 from ...syntax.builtins import BuiltinPredicateSymbol
 

@@ -1,4 +1,3 @@
-
 from ..fol import FirstOrderLanguage
 from ..io import rddl
 from ..model import Model

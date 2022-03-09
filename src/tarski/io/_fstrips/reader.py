@@ -159,7 +159,7 @@ class FStripsParser(fstripsVisitor):
         typename = ctx.NAME().getText().lower()
         sort = self.language.get_sort(typename)
         if not isinstance(sort, Interval):
-            raise ParsingError("Attempt at bounding symbolic non-interval sort '{}'".format(sort))
+            raise ParsingError(f"Attempt at bounding symbolic non-interval sort '{sort}'")
 
         # Encode the bounds and set them into the sort
         lower = sort.encode(ctx.NUMBER(0).getText())
@@ -221,7 +221,7 @@ class FStripsParser(fstripsVisitor):
 
     def _recover_variable_from_context(self, name):
         if self.current_binding is None:
-            raise ParsingError("Variable '{}' used declared outside variable binding".format(name))
+            raise ParsingError(f"Variable '{name}' used declared outside variable binding")
 
         return self.current_binding.get(name)
 
@@ -459,7 +459,7 @@ class UndeclaredVariable(Exception):
         self.value = value
 
     def __str__(self):
-        return 'in {} found undeclared variable {}'.format(self.component, repr(self.value))
+        return f'in {self.component} found undeclared variable {repr(self.value)}'
 
 
 class ParserVariableContext:

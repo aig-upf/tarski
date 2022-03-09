@@ -42,9 +42,9 @@ def execute(command, **kwargs):
 
     msg = 'Executing "{}" on directory "{}"'.format(' '.join(command), cwd)
     if stdout:
-        msg += '. Standard output redirected to "{}"'.format(stdout.name)
+        msg += f'. Standard output redirected to "{stdout.name}"'
     if stderr:
-        msg += '. Standard error redirected to "{}"'.format(stderr.name)
+        msg += f'. Standard error redirected to "{stderr.name}"'
     logging.debug(msg)
 
     retcode = subprocess.call(command, cwd=cwd, stdout=stdout, stderr=stderr)

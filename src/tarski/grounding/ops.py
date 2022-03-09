@@ -1,4 +1,3 @@
-
 from ..syntax.util import get_symbols
 from ..fstrips.ops import collect_affected_symbols
 
