@@ -28,7 +28,7 @@ spec.loader.exec_module(tskversion)
 # -- Project information -----------------------------------------------------
 
 project = 'Tarski'
-copyright = '2019-2020, Miquel Ramírez and Guillem Francès'
+copyright = '2019-2022, Miquel Ramírez and Guillem Francès'
 author = 'Miquel Ramírez and Guillem Francès'
 
 # The short X.Y version.
