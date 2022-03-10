@@ -58,7 +58,8 @@ class QuantifierElimination:
         return phi
 
     def _expand(self, phi: QuantifiedFormula, creator):
-        from ...grounding.naive import instantiation  # pylint: disable=import-outside-toplevel  # Avoiding circular references
+        # Avoiding circular references in the import:
+        from ...grounding.naive import instantiation  # pylint: disable=import-outside-toplevel
         card, syms, substs = instantiation.enumerate_groundings(phi.variables)
         if card == 0:
             raise TransformationError("quantifier elimination", phi, "No constants were defined!")

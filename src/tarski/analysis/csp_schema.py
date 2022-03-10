@@ -34,8 +34,8 @@ def get_type_prefix(t):
 
 class CSPInformation:
     def __init__(self):
-        self.name_to_vardata = dict()
-        self.vardata = list()
+        self.name_to_vardata = {}
+        self.vardata = []
         self.constraints = []
         self.effect_relevant_variables = set()
         self.parameter_index = []
@@ -196,7 +196,7 @@ class CSPCompiler:
             lb, ub = self.sort_bounds[expression.sort]
             # Note that Gecode bounds are inclusive, i.e. lb <= x <= ub, whereas in Tarski the upper-bound is exclusive,
             # so we have to fix that here:
-            bounds = (lb, ub-1)
+            bounds = (lb, ub - 1)
         elif isinstance(expression, Constant):
             val = self.object_ids[symref(expression)]
             bounds = (val, val)
@@ -221,7 +221,7 @@ class CSPCompiler:
         # sanitized = action.name.lower()
         sanitized = action.name
 
-        with open(os.path.join(path, f'{sanitized}.csp'), 'w') as f:
+        with open(os.path.join(path, f'{sanitized}.csp'), 'w', encoding='utf8') as f:
             print('variables', file=f)
             print(len(csp.vardata), file=f)
             for name, type_, cspvartype, range_ in csp.vardata:

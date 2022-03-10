@@ -183,7 +183,7 @@ def test_neg_precondition_compilation_on_formulas():
     x = lang.variable('x', 'object')
     y = lang.variable('y', 'object')
 
-    negpreds = dict()
+    negpreds = {}
 
     comp = compile_away_formula_negated_literals(clear(x) & (x != y), negpreds)
     assert comp == clear(x) & (x != y) and not negpreds  # No change was made
@@ -208,7 +208,7 @@ def test_neg_precondition_compilation_on_action():
     clear, on, ontable, handempty, holding = lang.get('clear', 'on', 'ontable', 'handempty', 'holding')
     x = lang.variable('x', 'object')
 
-    negpreds = dict()
+    negpreds = {}
     
     pickup = problem.get_action('pick-up')
     pickupc = compile_action_negated_preconditions_away(pickup, negpreds)

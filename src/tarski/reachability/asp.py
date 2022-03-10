@@ -347,8 +347,8 @@ def _ensure_list(elem):
 
 class Translator:
     def __init__(self):
-        self.d = dict()
-        self.inv = dict()
+        self.d = {}
+        self.inv = {}
 
     def normalize(self, name: str, prefix=''):
         """ Translate a given name and store the translation """

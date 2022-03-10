@@ -1,4 +1,7 @@
 
+# ply-generated obejcts
+parsetab.py
+
 # Object code
 *.slo
 *.lo

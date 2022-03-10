@@ -1,6 +1,7 @@
 # Unit tests for PDDL lexer, parser and instance structure
 #
 # Contact: Miquel Ramirez (miquel.ramirez@pm.me)
+import tempfile
 
 import pytest
 from tarski.io.pddl.lexer import PDDLlex
@@ -131,39 +132,41 @@ def test_basic_constructs():
     )
     """
     parser = PDDLparser(debug=True)
-    parser.build(logfile='pddl.test_basic_constructs.log')
 
-    parser.parse(pddl_data)
+    with tempfile.NamedTemporaryFile() as f:
+        parser.build(logfile=f.name)
 
-    assert parser.domain_name == 'foo'
-    assert parser.problem_name == 'instance_001'
-    assert Features.DURATIVE_ACTIONS in parser.required_features
-    assert Features.TYPING in parser.required_features
+        parser.parse(pddl_data)
 
-    instance = parser.instance
-    assert instance is not None
+        assert parser.domain_name == 'foo'
+        assert parser.problem_name == 'instance_001'
+        assert Features.DURATIVE_ACTIONS in parser.required_features
+        assert Features.TYPING in parser.required_features
 
-    print("Functions", len(instance.functions))
-    print("Predicates", len(instance.predicates))
-    print("Types", len(instance.types))
-    print("Constants", len(instance.constants))
-    print("Actions: instantaneous: {} durative: {}".format(len(instance.actions), len(instance.durative)))
-    print("Derived predicates:", len(instance.derived))
-    print("Initial State literals", len(instance.init))
+        instance = parser.instance
+        assert instance is not None
 
-    eq_atoms_visitor = CollectEqualityAtoms()
-    eq_atoms_visitor.visit(instance.goal)
-    goal_atoms = eq_atoms_visitor.atoms
-    print("Goal literals", len(goal_atoms))
+        print("Functions", len(instance.functions))
+        print("Predicates", len(instance.predicates))
+        print("Types", len(instance.types))
+        print("Constants", len(instance.constants))
+        print("Actions: instantaneous: {} durative: {}".format(len(instance.actions), len(instance.durative)))
+        print("Derived predicates:", len(instance.derived))
+        print("Initial State literals", len(instance.init))
 
-    assert len(instance.types) == 6
-    assert 'object' in instance.types
-    assert len(instance.constants) == 4
-    assert len(instance.functions) == 2
-    assert len(instance.predicates) == 8
-    assert len(instance.types) == 6
-    assert len(instance.actions) == 1
-    assert len(instance.durative) == 1
-    assert len(instance.derived) == 1
-    assert len(instance.init) == 2
-    assert len(goal_atoms) == 2
+        eq_atoms_visitor = CollectEqualityAtoms()
+        eq_atoms_visitor.visit(instance.goal)
+        goal_atoms = eq_atoms_visitor.atoms
+        print("Goal literals", len(goal_atoms))
+
+        assert len(instance.types) == 6
+        assert 'object' in instance.types
+        assert len(instance.constants) == 4
+        assert len(instance.functions) == 2
+        assert len(instance.predicates) == 8
+        assert len(instance.types) == 6
+        assert len(instance.actions) == 1
+        assert len(instance.durative) == 1
+        assert len(instance.derived) == 1
+        assert len(instance.init) == 2
+        assert len(goal_atoms) == 2

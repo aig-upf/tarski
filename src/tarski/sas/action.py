@@ -7,7 +7,6 @@
 """
 from typing import Union
 from tarski.syntax import Term, symref
-from tarski.sas.variable import Variable
 
 
 class InvalidEffectDefinition(Exception):
@@ -20,7 +19,7 @@ def wrap_term(t: Union[Term, None]):
     return symref(t)
 
 
-class Effect(object):
+class Effect:
 
     def __init__(self, **kwargs):
         self._var = kwargs['var']
@@ -47,7 +46,7 @@ class Effect(object):
         return hash(self.tuple)
 
 
-class Action(object):
+class Action:
 
     def __init__(self, **kwargs):
         self._name = kwargs.get('name', None)
@@ -76,4 +75,3 @@ class Action(object):
         :return:
         """
         self._effects += [(variable, v0, v1)]
-

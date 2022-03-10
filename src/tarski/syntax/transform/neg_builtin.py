@@ -30,7 +30,7 @@ class NegatedBuiltinAbsorption:
                 return phi
 
             else:
-                assert phi.connective == Connective.And or phi.connective == Connective.Or
+                assert phi.connective in (Connective.And, Connective.Or)
                 new_sub = [self._convert(phi.subformulas[0]),
                            self._convert(phi.subformulas[1])]
                 phi.subformulas = tuple(new_sub)
