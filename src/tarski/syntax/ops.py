@@ -17,7 +17,7 @@ def cast_to_closest_common_numeric_ancestor(lang, lhs, rhs):
     if isinstance(lhs, Term) and isinstance(rhs, Term):
         return lhs, rhs
 
-    np = modules.import_numpy()
+    np = modules.numpy
     if isinstance(lhs, Term):
         if isinstance(rhs, np.ndarray):  # lhs is scalar, rhs is matrix
             return lhs.language.matrix([[lhs]], lhs.sort), rhs

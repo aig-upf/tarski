@@ -5,13 +5,12 @@ def impl(symbol):
     """ """
 
     if symbol in {"erf", "erfc"}:
-        sci = modules.import_scipy_special()
         return {
-            "erf": sci.erf,
-            "erfc": sci.erfc,
+            "erf": modules.scipy_special.erf, # lazily import scipy.special
+            "erfc": modules.scipy_special.erfc,
         }.get(symbol)
 
-    np = modules.import_numpy()
+    np = modules.numpy  # lazily import numpy
     return {
         "min": lambda x, y: np.min((x, y)),
         "max": lambda x, y: np.max((x, y)),

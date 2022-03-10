@@ -9,8 +9,7 @@ def normal(mu, sigma):
         try:
             normal_func = mu.language.get_function(bfs.NORMAL)
         except AttributeError:
-            np = modules.import_numpy()
-            return np.random.normal(mu, sigma)
+            return modules.numpy.random.normal(mu, sigma)
     return normal_func(mu, sigma)
 
 
@@ -21,6 +20,5 @@ def gamma(shape, scale):
         try:
             gamma_func = scale.language.get_function(bfs.GAMMA)
         except AttributeError:
-            np = modules.import_numpy()
-            return np.random.gamma(shape, scale)
+            return modules.numpy.random.gamma(shape, scale)
     return gamma_func(shape, scale)

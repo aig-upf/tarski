@@ -267,8 +267,7 @@ class FirstOrderLanguage:
 
     @staticmethod
     def vector(arraylike, sort: Sort):
-        np = modules.import_numpy()
-        return Matrix(np.reshape(arraylike, (len(arraylike), 1)), sort)
+        return Matrix(modules.numpy.reshape(arraylike, (len(arraylike), 1)), sort)
 
     @staticmethod
     def matrix(arraylike, sort: Sort):

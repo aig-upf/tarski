@@ -1,34 +1,41 @@
-""" A helper module to deal with import of packages that depend on the installation of certain pip extras,
-to keep Tarski modular and lightweight for simple uses, but optionally heavyweight for more sophisticated uses. """
-
-# TODO: Whenever we raise the Python requirement to Python >= 3.7, we should migrate this to a better
-#       interface providing direct access to the desired package, e.g. allowing "from tarski.modules import pyrddl",
-#       which can be easily achieved with the new module-level __getattr__
-#       https://docs.python.org/3/reference/datamodel.html#customizing-module-attribute-access
+"""
+This module helps lazily importing some packages that depend on the installation of certain pip extras,
+and that therefore we cannot import greedily.
+"""
 
 
-def import_scipy_special():
+def _import_scipy_special():
     try:
-        import scipy.special as sci  # pylint: disable=import-outside-toplevel
+        import scipy.special  # pylint: disable=import-outside-toplevel
+        return scipy.special
     except ImportError:
         raise ImportError('The scipy module does not seem available. '
-                          'Please try installing Tarski with the "arithmetic" extra.') from None
-    return sci
+                          'Install Tarski with the "arithmetic" extra: pip install "tarski[arithmetic]"') from None
 
 
-def import_numpy():
+def _import_numpy():
     try:
-        import numpy as np  # pylint: disable=import-outside-toplevel
+        import numpy  # pylint: disable=import-outside-toplevel
+        return numpy
     except ImportError:
         raise ImportError('The numpy module does not seem available. '
-                          'Please try installing Tarski with the "arithmetic" extra.') from None
-    return np
+                          'Install Tarski with the "arithmetic" extra: pip install "tarski[arithmetic]"') from None
 
 
-def import_pyrddl_parser():
+def _import_pyrddl_parser():
     try:
         from pyrddl.parser import RDDLParser  # pylint: disable=import-outside-toplevel
+        return RDDLParser
     except ImportError:
         raise ImportError('The pyrddl module does not seem available. '
-                          'Please try installing Tarski with the "rddl" extra.') from None
-    return RDDLParser
+                          'Install Tarski with the "rddl" extra: pip install "tarski[rddl]"') from None
+
+
+def __getattr__(name, *args, **kwargs):
+    if name == 'RDDLParser':
+        return _import_pyrddl_parser()
+    elif name == 'numpy':
+        return _import_numpy()
+    elif name == 'scipy_special':
+        return _import_scipy_special()
+    raise ImportError(f'Module "{name}" is not available')

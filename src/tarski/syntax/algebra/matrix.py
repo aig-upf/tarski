@@ -6,7 +6,7 @@ from ... import errors as err
 
 class Matrix(Term):
     def __init__(self, arraylike, sort: Sort):
-        np = modules.import_numpy()
+        np = modules.numpy
         self.matrix = np.array(arraylike, dtype=np.dtype(object))
         self._sort = sort
         # verify and cast

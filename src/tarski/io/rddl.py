@@ -221,7 +221,8 @@ class Reader:
     def _load_rddl_model(filename):
         with open(filename, encoding='utf8') as input_file:
             rddl = input_file.read()
-        parser = modules.import_pyrddl_parser()()
+
+        parser = modules.RDDLParser()
         parser.build()
         # parse RDDL
         return parser.parse(rddl)

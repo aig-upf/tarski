@@ -9,12 +9,12 @@ from ..common import numeric
 from tarski.evaluators.simple import evaluate
 from tarski.syntax import Constant, ite, symref
 from tarski.theories import Theory
-from tarski.modules import import_scipy_special
+from tarski import modules
 
 import pytest
 
 try:
-    sci = import_scipy_special()
+    sp = modules.scipy_special
 except ImportError:
     pytest.skip('Please install the "arithmetic" extra to run the full suite of tests', allow_module_level=True)
 
@@ -230,7 +230,7 @@ def test_special_function_erf():
     model.evaluator = evaluate
     reals = lang.Real
     x = lang.constant(0.5, reals)
-    assert model[erf(x)].symbol == sci.erf(0.5)
+    assert model[erf(x)].symbol == sp.erf(0.5)
 
 
 def test_special_function_erfc():
@@ -240,7 +240,7 @@ def test_special_function_erfc():
     model.evaluator = evaluate
     reals = lang.Real
     x = lang.constant(0.5, reals)
-    assert model[erfc(x)].symbol == sci.erfc(0.5)
+    assert model[erfc(x)].symbol == sp.erfc(0.5)
 
 
 def test_special_function_sgn():

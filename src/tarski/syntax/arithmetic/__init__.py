@@ -149,7 +149,6 @@ def one(sort):
 
 
 def simplify(expr: Term) -> Term:
-    np = modules.import_numpy()
     if isinstance(expr, Constant):
         return expr
     elif isinstance(expr, Variable):
@@ -202,7 +201,7 @@ def simplify(expr: Term) -> Term:
                 return one(expr.sort)
             expr.subterms = (simplified,)
             return expr
-    elif isinstance(expr, (Matrix, np.ndarray)):
+    elif isinstance(expr, (Matrix, modules.numpy.ndarray)):
         N, M = expr.shape
         for i in range(N):
             for j in range(M):
