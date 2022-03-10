@@ -290,9 +290,9 @@ def main(opt: Namespace):
 
     # and the goal
     goal = [
-        (on(D), C),
-        (on(C), B),
-        (on(B), A)
+        (on(C), D),
+        (on(B), C),
+        (on(A), B)
     ]
 
     print("Ground actions generated:", len(actions))
