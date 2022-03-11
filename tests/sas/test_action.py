@@ -4,7 +4,10 @@ from tarski.theories import Theory
 from tarski.syntax import land, symref
 from tarski.sas import Schema, Action
 from tarski.sas.temporal import TemporalAction
+from tarski.sas.util import ground_temporal_action
 from itertools import combinations, permutations
+import tarski.model
+from tarski.evaluators.simple import evaluate
 
 
 @pytest.mark.sas
@@ -17,15 +20,17 @@ def test_temporal_action():
 
     # sorts
     # qbits in a quantum circuit
-    qbits = [L.constant('n{}'.format(i), L.Object) for i in range(8)]
+    qbits = [L.constant('n{}'.format(i), L.Object) for i in range(4)]
     # quantum state
-    qstates = [L.constant('q{}'.format(i), L.Object) for i in range(8)]
+    qstates = [L.constant('q{}'.format(i), L.Object) for i in range(4)]
     # used for representing quantum states that are in the process of transferring between
     # two qbits
     moving = L.constant('moving', L.Object)
 
     # qstate location
     location = L.function('location', L.Object, L.Object)
+    # static predicate
+    adj = L.predicate('adjacent', L.Object, L.Object)
 
     target0 = L.variable('target0', L.Object)
     target1 = L.variable('target1', L.Object)
@@ -34,7 +39,7 @@ def test_temporal_action():
 
     swap_0 = Schema(name='swap_0',
                     variables=[(target0, qstates), (target1, qstates), (src, qbits), (dst, qbits)],
-                    constraints=[src != dst, target0 != target1],
+                    constraints=[src != dst, target0 != target1, adj(src, dst)],
                     transitions=[
                         (location(target0), src, moving),
                         (location(target1), dst, moving)
@@ -48,14 +53,25 @@ def test_temporal_action():
                       ])
     swap_f = Schema(name='swap_f',
                     variables=[(target0, qstates), (target1, qstates), (src, qbits), (dst, qbits)],
-                    constraints=[src != dst, target0 != target1],
+                    constraints=[src != dst, target0 != target1, adj(src, dst)],
                     transitions=[
                         (location(target0), moving, dst),
                         (location(target1), moving, src)
                     ])
 
+    s = tarski.model.create(L)
+    s.evaluator = evaluate
+
+    # adj constraint
+    for k in range(1, len(qbits)):
+        s.add(adj, qbits[k-1], qbits[k])
+        s.add(adj, qbits[k], qbits[k-1])
+
     epsilon = 0.001
-    swap_schema = TemporalAction(name='swap', events=[(swap_0, 0.001), (swap_inv, 2.0), (swap_f, 0.001)])
+    swap_schema = TemporalAction(name='swap', events=[(0.001, swap_0), (2.0, swap_inv), (0.001, swap_f)])
+
+    swap_grounded = ground_temporal_action(L, s, swap_schema)
+    assert len(swap_grounded) == 72
 
     swap_simple = Schema(name='swap_0',
                         variables=[(target0, qstates), (target1, qstates), (src, qbits), (dst, qbits)],
@@ -64,11 +80,9 @@ def test_temporal_action():
                             (location(target0), src, dst),
                             (location(target1), dst, src)
                         ])
-    swap_schema2 = TemporalAction(name='swap', events=[(swap_simple, 2.0)])
+    swap_schema2 = TemporalAction(name='swap', events=[(2.0, swap_simple)])
 
-    # constant objects
-    if False:
-        assert len(swap_actions) == 1568
+
 
 
 
