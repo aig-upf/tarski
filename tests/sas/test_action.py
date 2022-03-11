@@ -2,8 +2,10 @@ import pytest
 import tarski as tsk
 from tarski.theories import Theory
 from tarski.syntax import land, symref
-from tarski.sas import Effect, Action, Variable, TemporalAction
+from tarski.sas import Schema, Action
+from tarski.sas.temporal import TemporalAction
 from itertools import combinations, permutations
+
 
 @pytest.mark.sas
 def test_temporal_action():
@@ -14,55 +16,59 @@ def test_temporal_action():
     L = tsk.language("qcc", theories=[Theory.BOOLEAN, Theory.EQUALITY, Theory.ARITHMETIC])
 
     # sorts
-    qbit_t = L.sort('qbit', L.Object)
-    qstate_t = L.sort('qstate', L.Object)
+    # qbits in a quantum circuit
+    qbits = [L.constant('n{}'.format(i), L.Object) for i in range(8)]
+    # quantum state
+    qstates = [L.constant('q{}'.format(i), L.Object) for i in range(8)]
+    # used for representing quantum states that are in the process of transferring between
+    # two qbits
+    moving = L.constant('moving', L.Object)
+
+    # qstate location
+    location = L.function('location', L.Object, L.Object)
+
+    target0 = L.variable('target0', L.Object)
+    target1 = L.variable('target1', L.Object)
+    src = L.variable('src', L.Object)
+    dst = L.variable('dst', L.Object)
+
+    swap_0 = Schema(name='swap_0',
+                    variables=[(target0, qstates), (target1, qstates), (src, qbits), (dst, qbits)],
+                    constraints=[src != dst, target0 != target1],
+                    transitions=[
+                        (location(target0), src, moving),
+                        (location(target1), dst, moving)
+                    ])
+    swap_inv = Schema(name='swap_inv',
+                      variables=[(target0, qstates), (target1, qstates)],
+                      constraints=[target0 != target1],
+                      transitions=[
+                          (location(target0), moving, moving),
+                          (location(target1), moving, moving),
+                      ])
+    swap_f = Schema(name='swap_f',
+                    variables=[(target0, qstates), (target1, qstates), (src, qbits), (dst, qbits)],
+                    constraints=[src != dst, target0 != target1],
+                    transitions=[
+                        (location(target0), moving, dst),
+                        (location(target1), moving, src)
+                    ])
+
+    epsilon = 0.001
+    swap_schema = TemporalAction(name='swap', events=[(swap_0, 0.001), (swap_inv, 2.0), (swap_f, 0.001)])
+
+    swap_simple = Schema(name='swap_0',
+                        variables=[(target0, qstates), (target1, qstates), (src, qbits), (dst, qbits)],
+                        constraints=[src != dst, target0 != target1],
+                        transitions=[
+                            (location(target0), src, dst),
+                            (location(target1), dst, src)
+                        ])
+    swap_schema2 = TemporalAction(name='swap', events=[(swap_simple, 2.0)])
 
     # constant objects
-    qbits = [L.constant('n{}'.format(i), qbit_t) for i in range(8)]
-    qstates = [L.constant('q{}'.format(i), qstate_t) for i in range(8)]
-
-    # predicates
-    at = L.function('at', qstate_t, qbit_t, L.Integer)
-
-    X = []
-
-    qstate_loc = L.function('qstate_loc', qstate_t, qbit_t)
-
-    for i, qstate in enumerate(qstates):
-
-        values = [at(qstates[i], qbit) for qbit in qbits]
-        qstate_i_loc = Variable(id=i,
-                                symbol=qstate_loc(qstates[i]),
-                                domain=values,
-                                needs_closure=True)
-        X += [qstate_i_loc]
-
-    assert len(X) == 8
-
-    swap_evt0 = L.function('swap_evt_0', qstate_t, qstate_t, qbit_t, qbit_t, L.Integer)
-    swap_evt1 = L.function('swap_evt_1', qstate_t, qstate_t, qbit_t, qbit_t, L.Integer)
-    swap_act = L.function('swap', qstate_t, qstate_t, qbit_t, qbit_t, L.Integer)
-
-    swap_actions = []
-    for qs1, qs2 in combinations(range(len(qstates)), 2):
-
-        for qb1, qb2 in permutations(range(len(qbits)), 2):
-
-            evt0 = Action(name=swap_evt0(qstates[qs1], qstates[qs2], qbits[qb1], qbits[qb2]),
-                          effects=[
-                              Effect(var=X[qs1], pre=at(qstates[qs1], qbits[qb1]), post=None),
-                              Effect(var=X[qs2], pre=at(qstates[qs2], qbits[qb2]), post=None)
-                          ])
-            evt1 = Action(name=swap_evt1(qstates[qs1], qstates[qs2], qbits[qb1], qbits[qb2]),
-                          effects=[
-                              Effect(var=X[qs1], pre=None, post=at(qstates[qs1], qbits[qb2])),
-                              Effect(var=X[qs2], pre=None, post=at(qstates[qs2], qbits[qb1]))
-                          ])
-            swap_action = TemporalAction(name=swap_act(qstates[qs1], qstates[qs2], qbits[qb1], qbits[qb2]),
-                                        events=[(0.0, evt0), (3.0, evt1)])
-            swap_actions += [swap_action]
-
-    assert len(swap_actions) == 1568
+    if False:
+        assert len(swap_actions) == 1568
 
 
 

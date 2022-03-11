@@ -44,94 +44,94 @@ def test_gripper_instance():
 
     # Constants
     L2 = tsk.language("mv-gripper", theories=[Theory.EQUALITY])
-    none = L2.constant("<none of those>")
+    none = L2.constant("<none of those>", L2.Object)
 
-    var0 = L2.function("var0", L.Object)
+    var0 = L2.function("var0", L2.Object)
     var0_domain = [
-        L2.constant(str(carry(the_balls[0], grippers[1])), L.Object),
-        L2.constant(str(carry(the_balls[1], grippers[1])), L.Object),
-        L2.constant(str(carry(the_balls[2], grippers[1])), L.Object),
-        L2.constant(str(free(grippers[1])), L.Object),
-        L2.constant(str(carry(the_balls[3], grippers[1])), L.Object)
+        L2.constant(str(carry(the_balls[0], grippers[1])), L2.Object),
+        L2.constant(str(carry(the_balls[1], grippers[1])), L2.Object),
+        L2.constant(str(carry(the_balls[2], grippers[1])), L2.Object),
+        L2.constant(str(free(grippers[1])), L2.Object),
+        L2.constant(str(carry(the_balls[3], grippers[1])), L2.Object)
     ]
 
-    X.add(symref(var0))
-    D[symref(var0)] = SymbolIndex()
+    X.add(symref(var0()))
+    D[symref(var0())] = SymbolIndex()
     for v in var0_domain:
-        D[symref(var0)].add(symref(v))
+        D[symref(var0())].add(symref(v))
 
-    var1 = L2.function("var1", L.Object)
+    var1 = L2.function("var1", L2.Object)
     var1_domain = [
-        L2.constant(str(carry(the_balls[2], grippers[0])), L.Object),
-        L2.constant(str(free(grippers[0])), L.Object),
-        L2.constant(str(carry(the_balls[1], grippers[0])), L.Object),
-        L2.constant(str(carry(the_balls[0], grippers[0])), L.Object),
-        L2.constant(str(carry(the_balls[3], grippers[0])), L.Object)
+        L2.constant(str(carry(the_balls[2], grippers[0])), L2.Object),
+        L2.constant(str(free(grippers[0])), L2.Object),
+        L2.constant(str(carry(the_balls[1], grippers[0])), L2.Object),
+        L2.constant(str(carry(the_balls[0], grippers[0])), L2.Object),
+        L2.constant(str(carry(the_balls[3], grippers[0])), L2.Object)
     ]
 
-    X.add(symref(var1))
-    D[symref(var1)] = SymbolIndex()
+    X.add(symref(var1()))
+    D[symref(var1())] = SymbolIndex()
     for v in var1_domain:
-        D[symref(var1)].add(symref(v))
+        D[symref(var1())].add(symref(v))
 
-    var2 = L2.function("var2", L.Object)
+    var2 = L2.function("var2", L2.Object)
     var2_domain = [
-        L2.constant(str(at_ball(the_balls[3], the_rooms[0])), L.Object),
-        L2.constant(str(at_ball(the_balls[3], the_rooms[1])), L.Object),
+        L2.constant(str(at_ball(the_balls[3], the_rooms[0])), L2.Object),
+        L2.constant(str(at_ball(the_balls[3], the_rooms[1])), L2.Object),
         none
     ]
 
-    X.add(symref(var2))
-    D[symref(var2)] = SymbolIndex()
+    X.add(symref(var2()))
+    D[symref(var2())] = SymbolIndex()
     for v in var2_domain:
-        D[symref(var2)].add(symref(v))
+        D[symref(var2())].add(symref(v))
 
-    var3 = L2.function("var3", L.Object)
+    var3 = L2.function("var3", L2.Object)
     var3_domain = [
-        L2.constant(str(at_ball(the_balls[2], the_rooms[0])), L.Object),
-        L2.constant(str(at_ball(the_balls[2], the_rooms[1])), L.Object),
+        L2.constant(str(at_ball(the_balls[2], the_rooms[0])), L2.Object),
+        L2.constant(str(at_ball(the_balls[2], the_rooms[1])), L2.Object),
         none
     ]
 
-    X.add(symref(var3))
-    D[symref(var3)] = SymbolIndex()
+    X.add(symref(var3()))
+    D[symref(var3())] = SymbolIndex()
     for v in var3_domain:
-        D[symref(var3)].add(symref(v))
+        D[symref(var3())].add(symref(v))
 
-    var4 = L2.function("var4", L.Object)
+    var4 = L2.function("var4", L2.Object)
     var4_domain = [
-        L2.constant(str(at_ball(the_balls[0], the_rooms[0])), L.Object),
-        L2.constant(str(at_ball(the_balls[0], the_rooms[1])), L.Object),
+        L2.constant(str(at_ball(the_balls[0], the_rooms[0])), L2.Object),
+        L2.constant(str(at_ball(the_balls[0], the_rooms[1])), L2.Object),
         none
     ]
 
-    X.add(symref(var4))
-    D[symref(var4)] = SymbolIndex()
+    X.add(symref(var4()))
+    D[symref(var4())] = SymbolIndex()
     for v in var4_domain:
-        D[symref(var4)].add(symref(v))
+        D[symref(var4())].add(symref(v))
 
-    var5 = L2.function("var5", L.Object)
+    var5 = L2.function("var5", L2.Object)
     var5_domain = [
-        L2.constant(str(at_ball(the_balls[1], the_rooms[0])), L.Object),
-        L2.constant(str(at_ball(the_balls[1], the_rooms[1])), L.Object),
+        L2.constant(str(at_ball(the_balls[1], the_rooms[0])), L2.Object),
+        L2.constant(str(at_ball(the_balls[1], the_rooms[1])), L2.Object),
         none
     ]
 
-    X.add(symref(var5))
-    D[symref(var5)] = SymbolIndex()
+    X.add(symref(var5()))
+    D[symref(var5())] = SymbolIndex()
     for v in var5_domain:
-        D[symref(var5)].add(symref(v))
+        D[symref(var5())].add(symref(v))
 
-    var6 = L2.function("var6", L.Object)
+    var6 = L2.function("var6", L2.Object)
     var6_domain = [
-        L2.constant(str(at_robot(the_rooms[1])), L.Object),
-        L2.constant(str(at_robot(the_rooms[0])), L.Object)
+        L2.constant(str(at_robot(the_rooms[1])), L2.Object),
+        L2.constant(str(at_robot(the_rooms[0])), L2.Object)
     ]
 
-    X.add(symref(var6))
-    D[symref(var6)] = SymbolIndex()
+    X.add(symref(var6()))
+    D[symref(var6())] = SymbolIndex()
     for v in var6_domain:
-        D[symref(var6)].add(symref(v))
+        D[symref(var6())].add(symref(v))
 
 
     # initial state
