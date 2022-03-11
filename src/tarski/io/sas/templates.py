@@ -5,6 +5,8 @@
 # src/tarski/io/sas/templates.py
 #
 # Templates for Fast Downward SAS instance structure
+#
+# Source: https://www.fast-downward.org/TranslatorOutputFormat4
 # ----------------------------------------------------------------------------------------------------------------------
 
 from string import Template

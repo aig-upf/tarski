@@ -19,10 +19,10 @@ import tarski.model
 from tarski.syntax import symref
 from tarski.theories import Theory
 from tarski.syntax.transform.substitutions import substitute_expression, create_substitution
-from tarski.util import SymbolIndex
 
-Schema = namedtuple('Schema', ['name', 'variables', 'constraints', 'transitions'])
-Action = namedtuple('Action', ['name', 'arguments', 'transitions'])
+from tarski.sas import Action, Schema
+
+from tarski.util import SymbolIndex
 
 
 def process_command_line():
@@ -95,7 +95,7 @@ def dump(lang, actions, initial, goal, objects, fp):
     X = SymbolIndex()
 
     # We identify the set of terms by inspecting 1) action transition constraints, 2) the definition of the
-    # initial state, and 3) the structure of the (conjunctive) goal formula.
+    # initial state, and 3) the structure of the (conjunctive) goal3 formula.
     for act in actions:
         for x, _, _ in act.transitions:
             if symref(x) in X:
