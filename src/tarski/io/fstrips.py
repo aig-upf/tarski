@@ -18,7 +18,7 @@ from ._fstrips.reader import FStripsParser
 
 # Leave the next import so that it can be imported from the outside without warnings of importing a private module
 # pylint: disable=unused-import
-from ._fstrips.reader import ParsingError
+from ._fstrips.reader import ParsingError  # noqa: F401
 
 
 class FstripsReader:

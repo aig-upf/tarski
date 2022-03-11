@@ -6,7 +6,7 @@ def impl(symbol):
 
     if symbol in {"erf", "erfc"}:
         return {
-            "erf": modules.scipy_special.erf, # lazily import scipy.special
+            "erf": modules.scipy_special.erf,  # lazily import scipy.special
             "erfc": modules.scipy_special.erfc,
         }.get(symbol)
 
