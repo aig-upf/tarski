@@ -7,14 +7,15 @@
 # Utility method to process SAS
 # ----------------------------------------------------------------------------------------------------------------------
 from itertools import product
+
 import tarski.model
 from tarski.evaluators.simple import evaluate
-from tarski.syntax import symref
-from tarski.theories import Theory
-from tarski.syntax.transform.substitutions import substitute_expression, create_substitution
-
 from tarski.sas import Action
 from tarski.sas.temporal import TemporalAction
+from tarski.syntax import symref
+from tarski.syntax.transform.substitutions import (create_substitution,
+                                                   substitute_expression)
+from tarski.theories import Theory
 
 
 def check_constraints(C, s, subst):

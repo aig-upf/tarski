@@ -9,7 +9,6 @@
 
 from collections import namedtuple
 
-
 Schema = namedtuple('Schema', ['name', 'variables', 'constraints', 'transitions'])
 Action = namedtuple('Action', ['name', 'arguments', 'transitions'])
 

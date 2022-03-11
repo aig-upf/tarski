@@ -1,8 +1,8 @@
 """
     CNF Transformation
 """
+from .nnf import to_negation_normal_form
 from ..formulas import CompoundFormula, Connective, QuantifiedFormula
-from ..transform import to_negation_normal_form
 from .errors import TransformationError
 
 

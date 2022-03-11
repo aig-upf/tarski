@@ -63,8 +63,8 @@ class ProblemWalker:
         # Avoiding circular references:
         from ..syntax import (  # pylint: disable=import-outside-toplevel  # Avoiding circular references
             Formula, Term)
-        from . import (Action,  # pylint: disable=import-outside-toplevel
-                       BaseEffect, Problem)
+        from . import Action  # pylint: disable=import-outside-toplevel
+        from . import BaseEffect, Problem
 
         # Simply dispatch according to type
         expression = expression if inplace else copy.deepcopy(expression)
@@ -98,8 +98,8 @@ class ProblemWalker:
         return node
 
     def visit_effect(self, effect, inplace=True):
-        from . import (AddEffect,  # pylint: disable=import-outside-toplevel
-                       DelEffect, FunctionalEffect, UniversalEffect)
+        from . import AddEffect  # pylint: disable=import-outside-toplevel
+        from . import DelEffect, FunctionalEffect, UniversalEffect
         effect = effect if inplace else copy.deepcopy(effect)
 
         if isinstance(effect, (AddEffect, DelEffect)):

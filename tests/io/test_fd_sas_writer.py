@@ -1,10 +1,11 @@
 import pytest
 
 import tarski as tsk
-from tarski.theories import Theory
-from tarski.syntax import land, symref
 from tarski.io.sas.fd import Writer
+from tarski.syntax import land, symref
+from tarski.theories import Theory
 from tarski.util import SymbolIndex
+
 
 @pytest.mark.sas
 def test_gripper_instance():
