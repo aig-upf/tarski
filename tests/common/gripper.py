@@ -1,4 +1,3 @@
-
 import tarski.model
 from tarski import fstrips as fs
 from tarski.syntax import land
@@ -46,7 +45,7 @@ def create_sample_problem():
     problem.init = init
     problem.goal = land(at(ball1, roomb), at(ball2, roomb), at(ball3, roomb), at(ball4, roomb))
 
-    from_, to, o, r, g = [lang.variable(x, lang.Object) for x in ["from", "to", "o", "r", "g"]]
+    from_, to, o, r, g = (lang.variable(x, lang.Object) for x in ["from", "to", "o", "r", "g"])
 
     problem.action("move", [from_, to],
                    precondition=land(from_ != to, room(from_), room(to), at_robby(from_), flat=True),

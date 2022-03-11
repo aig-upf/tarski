@@ -41,16 +41,10 @@ class WalkerContext(Enum):
 
 
 class ProblemWalker:
-    """ This is an experimental implementation of a visitor pattern based on single-dispatch.
-    At the moment we're using the "multipledispatch" package to implement single-argument dispatching.
-    It's far from perfect; it requires that the subclass declares the following "default" method:
-
-    >>> @dispatch(object)
-    >>> def visit(self, node):  # pylint: disable-msg=E0102
-    >>>    return self.default_handler(node)
-
-    Whenever we move to support Python 3.8+, we could directly use:
-        https://docs.python.org/3/library/functools.html#functools.singledispatchmethod
+    """
+    This is an experimental implementation of a visitor pattern based on single-dispatch.
+    To use it, you need to subclass it and "overload" the `visit` function using the
+    `functools.singledispatchmethod` decorator, as it is done, for instance, in the class AllSymbolWalker.
     """
     def __init__(self, raise_on_undefined=False):
         self.default_handler = self._raise if raise_on_undefined else self._donothing
@@ -67,8 +61,11 @@ class ProblemWalker:
 
     def run(self, expression, inplace=True):
         # Avoiding circular references:
-        from . import Action, BaseEffect, Problem  # pylint: disable=import-outside-toplevel
-        from ..syntax import Formula, Term  # pylint: disable=import-outside-toplevel  # Avoiding circular references
+        from ..syntax import (  # pylint: disable=import-outside-toplevel  # Avoiding circular references
+            Formula, Term)
+        from . import Action  # pylint: disable=import-outside-toplevel
+        from . import BaseEffect, Problem
+
         # Simply dispatch according to type
         expression = expression if inplace else copy.deepcopy(expression)
         if isinstance(expression, (Formula, Term)):
@@ -101,7 +98,8 @@ class ProblemWalker:
         return node
 
     def visit_effect(self, effect, inplace=True):
-        from . import AddEffect, DelEffect, UniversalEffect, FunctionalEffect  # pylint: disable=import-outside-toplevel
+        from . import AddEffect  # pylint: disable=import-outside-toplevel
+        from . import DelEffect, FunctionalEffect, UniversalEffect
         effect = effect if inplace else copy.deepcopy(effect)
 
         if isinstance(effect, (AddEffect, DelEffect)):
@@ -122,8 +120,9 @@ class ProblemWalker:
         return self.visit(effect)
 
     def visit_expression(self, node, inplace=True):
-        from ..syntax import CompoundFormula, QuantifiedFormula, Atom, Tautology, Contradiction, Constant, Variable,\
-            CompoundTerm, IfThenElse  # pylint: disable=import-outside-toplevel  # Avoiding circular references
+        from ..syntax import (  # pylint: disable=import-outside-toplevel  # Avoiding circular references
+            Atom, CompoundFormula, CompoundTerm, Constant, Contradiction,
+            IfThenElse, QuantifiedFormula, Tautology, Variable)
         node = node if inplace else copy.deepcopy(node)
 
         if isinstance(node, (Variable, Constant, Contradiction, Tautology)):

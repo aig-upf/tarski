@@ -1,6 +1,6 @@
-from ...fstrips.representation import substitute_expression
-from ...syntax import symref, Constant, create_substitution, VariableBinding
 from ...fstrips.action import Action, PlainOperator
+from ...fstrips.representation import substitute_expression
+from ...syntax import Constant, VariableBinding, create_substitution, symref
 
 
 def ground_schema_into_plain_operator(action: Action, substitution):

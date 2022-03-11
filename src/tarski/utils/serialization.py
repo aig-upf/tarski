@@ -1,5 +1,3 @@
-
-
 def serialize_atom(atom):
     """ Return a comma-separated serialization of a given atom, e.g. from atom "on(a,b)", it will return "on,a,b". """
     if not atom.subterms:

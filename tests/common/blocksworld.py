@@ -17,7 +17,7 @@ def generate_bw_loc_and_clear(num_blocks):
     # Table and blocks
     lang.constant('table', lang.Object)
     lang.constant('hand', lang.Object)
-    _ = [lang.constant('b{}'.format(k), lang.Object) for k in range(1, num_blocks + 1)]
+    _ = [lang.constant(f'b{k}', lang.Object) for k in range(1, num_blocks + 1)]
     return lang
 
 
@@ -27,7 +27,7 @@ def create_4blocks_task():
 
     loc = bw.get_function('loc')
     clear = bw.get_predicate('clear')
-    b1, b2, b3, b4 = [bw.get_constant('b{}'.format(k)) for k in range(1, 5)]
+    b1, b2, b3, b4 = (bw.get_constant(f'b{k}') for k in range(1, 5))
     table = bw.get_constant('table')
     hand = bw.get_constant('hand')
 

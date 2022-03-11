@@ -1,18 +1,21 @@
 import tempfile
-from typing import Optional, List
+from typing import List, Optional
 
 import tarski.fstrips as fs
 from tarski.benchmarks.blocksworld import generate_fstrips_blocksworld_problem
-from tarski.benchmarks.counters import get_counters_elements, generate_fstrips_counters_problem
-from tarski.fstrips import AddEffect, DelEffect, FunctionalEffect, UniversalEffect
+from tarski.benchmarks.counters import (generate_fstrips_counters_problem,
+                                        get_counters_elements)
+from tarski.fstrips import (AddEffect, DelEffect, FunctionalEffect,
+                            UniversalEffect)
 from tarski.io import FstripsWriter
 from tarski.io._fstrips.common import get_requirements_string
-from tarski.io.fstrips import print_effects, print_effect, print_objects, print_metric, print_formula, print_term
-from tarski.syntax import forall, exists, Constant
+from tarski.io.fstrips import (print_effect, print_effects, print_formula,
+                               print_metric, print_objects, print_term)
+from tarski.syntax import Constant, exists, forall
 from tarski.theories import Theory
-
 from tests.common import parcprinter
 from tests.io.common import reader
+
 from ..common.gridworld import generate_small_gridworld
 
 
@@ -65,11 +68,11 @@ def test_effect_writing():
     e2 = AddEffect(clear(b1))
     e3 = DelEffect(clear(b1))
 
-    s1, s2, s3 = [print_effect(e) for e in [e1, e2, e3]]
+    s1, s2, s3 = (print_effect(e) for e in [e1, e2, e3])
     assert s1 == "(assign (loc b1) table)"
     assert s2 == "(clear b1)"
     assert s3 == "(not (clear b1))"
-    assert print_effects([e1, e2, e3]) == "(and\n    {}\n    {}\n    {})".format(s1, s2, s3)
+    assert print_effects([e1, e2, e3]) == f"(and\n    {s1}\n    {s2}\n    {s3})"
 
     e4 = UniversalEffect([block_var], [AddEffect(clear(block_var))])
     s4 = print_effect(e4)

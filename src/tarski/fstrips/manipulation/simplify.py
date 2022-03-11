@@ -1,19 +1,20 @@
 import copy
+from functools import singledispatchmethod
 
-from multipledispatch import dispatch  # type: ignore
-
-from ..fstrips import AddEffect, DelEffect, UniversalEffect, FunctionalEffect
-from ..ops import collect_all_symbols, compute_number_potential_groundings
 from ...evaluators.simple import evaluate
 from ...grounding.ops import approximate_symbol_fluency
-from ...syntax.terms import Constant, Variable, CompoundTerm
-from ...syntax.formulas import CompoundFormula, QuantifiedFormula, Atom, Tautology, Contradiction, Connective, is_neg, \
-    Quantifier, unwrap_conjunction_or_atom, is_eq_atom, land, exists
+from ...syntax import symref
+from ...syntax.formulas import (Atom, CompoundFormula, Connective,
+                                Contradiction, QuantifiedFormula, Quantifier,
+                                Tautology, exists, is_eq_atom, is_neg, land,
+                                unwrap_conjunction_or_atom)
+from ...syntax.ops import flatten
+from ...syntax.terms import CompoundTerm, Constant, Variable
 from ...syntax.transform.substitutions import substitute_expression
 from ...syntax.util import get_symbols
 from ...syntax.walker import FOLWalker
-from ...syntax.ops import flatten
-from ...syntax import symref
+from ..fstrips import AddEffect, DelEffect, FunctionalEffect, UniversalEffect
+from ..ops import collect_all_symbols, compute_number_potential_groundings
 
 
 def bool_to_expr(val):
@@ -197,12 +198,12 @@ def simplify_existential_quantification(node, inplace=True):
 
 class ExistentialQuantificationSimplifier(FOLWalker):
     """ Replaces a formula of the form ∃x.φ[x] ∧ x = t by the formula φ[x/t]. """
-    @dispatch(object)
-    def visit(self, node):  # pylint: disable-msg=E0102  # noqa: F811
+    @singledispatchmethod
+    def visit(self, node):
         return self.default_handler(node)
 
-    @dispatch(QuantifiedFormula)  # type: ignore
-    def visit(self, node: QuantifiedFormula):  # pylint: disable-msg=E0102  # noqa: F811
+    @visit.register
+    def _(self, node: QuantifiedFormula):
         if node.quantifier == Quantifier.Forall:
             return node
 

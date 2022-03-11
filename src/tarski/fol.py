@@ -1,14 +1,14 @@
-
 import copy
 import itertools
-from collections import defaultdict, OrderedDict
+from collections import OrderedDict, defaultdict
 from typing import Union, cast
 
 from . import errors as err
-from .errors import UndefinedElement
-from .syntax import Function, Constant, Variable, Sort, inclusion_closure, Predicate, Interval
-from .syntax.algebra import Matrix
 from . import modules
+from .errors import UndefinedElement
+from .syntax import (Constant, Function, Interval, Predicate, Sort, Variable,
+                     inclusion_closure)
+from .syntax.algebra import Matrix
 
 
 class FirstOrderLanguage:
@@ -224,7 +224,7 @@ class FirstOrderLanguage:
 
         # obj must be a string, which we take as the name of a language element
         if type_ not in self._element_containers:
-            raise RuntimeError("Trying to index incorrect type {}".format(type_))
+            raise RuntimeError(f"Trying to index incorrect type {type_}")
 
         if obj not in self._element_containers[type_]:
             raise err.UndefinedElement(obj)
@@ -268,8 +268,7 @@ class FirstOrderLanguage:
 
     @staticmethod
     def vector(arraylike, sort: Sort):
-        np = modules.import_numpy()
-        return Matrix(np.reshape(arraylike, (len(arraylike), 1)), sort)
+        return Matrix(modules.numpy.reshape(arraylike, (len(arraylike), 1)), sort)
 
     @staticmethod
     def matrix(arraylike, sort: Sort):
@@ -339,7 +338,7 @@ class FirstOrderLanguage:
     def check_well_formed(self):
         for _, s in self._sorts.items():
             if s.cardinality() == 0:
-                raise err.LanguageError("Sort '{}' is empty!".format(s))
+                raise err.LanguageError(f"Sort '{s}' is empty!")
 
     def most_restricted_type(self, t1, t2):
         if self.is_subtype(t1, t2):
@@ -362,7 +361,7 @@ class FirstOrderLanguage:
         """
         if t_goal in self.indirect_ancestor_sorts[t_0]:
             return True
-        OPEN = [t for t in self.ancestor_sorts[t_0]]
+        OPEN = list(self.ancestor_sorts[t_0])
         while len(OPEN) != 0:
             t = OPEN.pop()
             if t == t_goal:

@@ -1,12 +1,12 @@
-from ... import modules
-from ...syntax import Term, Constant
-from ...syntax.sorts import Sort
 from ... import errors as err
+from ... import modules
+from ...syntax import Constant, Term
+from ...syntax.sorts import Sort
 
 
 class Matrix(Term):
     def __init__(self, arraylike, sort: Sort):
-        np = modules.import_numpy()
+        np = modules.numpy
         self.matrix = np.array(arraylike, dtype=np.dtype(object))
         self._sort = sort
         # verify and cast
@@ -43,7 +43,7 @@ class Matrix(Term):
         return self.matrix[i, j]
 
     def __str__(self):
-        return '{}'.format(self.matrix)
+        return f'{self.matrix}'
 
     __repr__ = __str__
 

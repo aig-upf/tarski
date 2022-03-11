@@ -3,9 +3,9 @@
 """
 from enum import Enum
 
-from .concepts import Concept, Role, NullaryAtom
 from ..utils.algorithms import compute_min_distance
 from ..utils.hashing import consistent_hash
+from .concepts import Concept, NullaryAtom, Role
 
 
 class FeatureValueChange(Enum):
@@ -92,7 +92,7 @@ class ConceptCardinalityFeature(Feature):
         return compute_int_feature_diff(x, y)
 
     def __repr__(self):
-        return 'Num[{}]'.format(self.c)
+        return f'Num[{self.c}]'
 
     __str__ = __repr__
 
@@ -126,7 +126,7 @@ class EmpiricalBinaryConcept(Feature):
         return compute_bool_feature_diff(x, y)
 
     def __repr__(self):
-        return 'Bool[{}]'.format(self.c)
+        return f'Bool[{self.c}]'
 
     __str__ = __repr__
 
@@ -214,7 +214,7 @@ class MinDistanceFeature(Feature):
         return compute_int_feature_diff(x, y)
 
     def __repr__(self):
-        return 'Dist[{};{};{}]'.format(self.c1, self.r, self.c2)
+        return f'Dist[{self.c1};{self.r};{self.c2}]'
 
     __str__ = __repr__
 
@@ -269,7 +269,7 @@ class NullaryAtomFeature(Feature):
         return compute_bool_feature_diff(x, y)
 
     def __repr__(self):
-        return 'Atom[{}]'.format(self.atom)
+        return f'Atom[{self.atom}]'
 
     __str__ = __repr__
 

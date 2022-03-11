@@ -1,14 +1,15 @@
 import logging
 import os
-import sys
 import shutil
+import sys
 import tempfile
-from pathlib import Path
 from collections import defaultdict
-
-from ..errors import CommandNotFoundError, ExternalCommandError, OutOfMemoryError, OutOfTimeError, ArgumentError
-from ..utils import command as cmd
 from importlib.util import find_spec
+from pathlib import Path
+
+from ..errors import (ArgumentError, CommandNotFoundError,
+                      ExternalCommandError, OutOfMemoryError, OutOfTimeError)
+from ..utils import command as cmd
 
 
 def get_gringo_command():
@@ -24,7 +25,7 @@ def get_gringo_command():
     else:
         gringo = shutil.which("gringo")
         command = [gringo] if gringo else None
-        logging.debug('Using gringo binary found in "{}"'.format(gringo))
+        logging.debug(f'Using gringo binary found in "{gringo}"')
 
     return command
 
@@ -51,7 +52,7 @@ def run_clingo(lp):
                 return model_filename, theory_filename
 
     if os.path.isfile(stderr.name):
-        with open(stderr.name, 'r', encoding='utf8') as file:
+        with open(stderr.name, encoding='utf8') as file:
             errlog = file.read()
 
     if 'std::bad_alloc' in errlog:
@@ -64,7 +65,7 @@ def run_clingo(lp):
 
 def parse_model(*, filename=None, content=None, symbol_mapping):
     if filename and not content:
-        with open(filename, "r", encoding='utf8') as f:
+        with open(filename, encoding='utf8') as f:
             return _parse_model(f, symbol_mapping)
     elif content and not filename:
         return _parse_model(content.splitlines(), symbol_mapping)

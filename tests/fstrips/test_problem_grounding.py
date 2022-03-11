@@ -1,15 +1,16 @@
 from collections import OrderedDict
 
-from tarski.fstrips import DelEffect, UniversalEffect, AddEffect
+from tarski.benchmarks.blocksworld import generate_strips_blocksworld_problem
+from tarski.fstrips import AddEffect, DelEffect, UniversalEffect
 from tarski.fstrips.action import PlainOperator
 from tarski.fstrips.representation import is_ground
 from tarski.grounding import ProblemGrounding
-from tarski.grounding.lp_grounding import ground_problem_schemas_into_plain_operators
+from tarski.grounding.lp_grounding import \
+    ground_problem_schemas_into_plain_operators
 from tarski.syntax import symref
-from tarski.syntax.transform.action_grounding import ground_schema_into_plain_operator, \
-    ground_schema_into_plain_operator_from_grounding
-from tarski.benchmarks.blocksworld import generate_strips_blocksworld_problem
-
+from tarski.syntax.transform.action_grounding import (
+    ground_schema_into_plain_operator,
+    ground_schema_into_plain_operator_from_grounding)
 from tests.common import blocksworld
 
 
@@ -27,7 +28,7 @@ def test_action_grounding_bw():
     b1, b2, b3, clear, on, ontable, handempty, holding = \
         problem.language.get('b1', 'b2', 'b3', 'clear', 'on', 'ontable', 'handempty', 'holding')
     unstack = problem.get_action("unstack")
-    x1, x2 = [symref(x) for x in unstack.parameters]  # Unstack has two parameters
+    x1, x2 = (symref(x) for x in unstack.parameters)  # Unstack has two parameters
     ground = ground_schema_into_plain_operator(unstack, {x1: b1, x2: b2})  # i.e. the operator unstack(b1, b2)
     assert isinstance(ground, PlainOperator) and \
            str(ground.precondition) == '(on(b1,b2) and clear(b1) and handempty())'

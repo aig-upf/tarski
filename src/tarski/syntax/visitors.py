@@ -1,5 +1,5 @@
-
-from tarski.syntax import symref, QuantifiedFormula, CompoundTerm, Variable, CompoundFormula, Atom
+from tarski.syntax import (Atom, CompoundFormula, CompoundTerm,
+                           QuantifiedFormula, Variable, symref)
 from tarski.syntax.formulas import is_eq_atom
 
 
@@ -92,4 +92,3 @@ class CollectEqualityAtoms:
         elif isinstance(phi, Atom):
             if is_eq_atom(phi):
                 self.atoms.add(symref(phi))
-        return

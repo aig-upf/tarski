@@ -17,7 +17,7 @@ def generate_numeric_instance():
 
     # Particles
     for k in (1, 2, 3, 4):
-        lang.constant('p{}'.format(k), particle)
+        lang.constant(f'p{k}', particle)
 
     return lang
 
@@ -33,7 +33,7 @@ def generate_billiards_instance():
     # The stuff
     lang.balls = []
     for k in (1, 2):
-        bk = lang.constant('ball_{}'.format(k), ball)
+        bk = lang.constant(f'ball_{k}', ball)
         lang.balls.append(bk)
 
     lang.dimensions = []

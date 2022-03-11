@@ -2,7 +2,6 @@ import pytest
 
 from tarski.fstrips import contingent
 from tarski.syntax import *
-
 from tests.common import grid_navigation
 from tests.fstrips.contingent import localize
 

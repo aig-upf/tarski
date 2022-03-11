@@ -1,15 +1,16 @@
 # pylint: disable=redefined-builtin
 
-import itertools
 import copy
+import itertools
 
-from ..transform.substitutions import substitute_expression
-from ...syntax import Term, AggregateCompoundTerm, CompoundTerm, Constant, Variable, IfThenElse, create_substitution
-from ...syntax.algebra import Matrix
 from ... import errors as err
-from ... grounding.naive import instantiation
-from ..builtins import BuiltinFunctionSymbol, get_arithmetic_binary_functions
 from ... import modules
+from ...grounding.naive import instantiation
+from ...syntax import (AggregateCompoundTerm, CompoundTerm, Constant,
+                       IfThenElse, Term, Variable, create_substitution)
+from ...syntax.algebra import Matrix
+from ..builtins import BuiltinFunctionSymbol, get_arithmetic_binary_functions
+from ..transform.substitutions import substitute_expression
 
 
 def sumterm(*args):
@@ -32,15 +33,12 @@ def prodterm(*args):
     variables = args[:-1]
     expr = args[-1]
     if len(variables) < 1:
-        raise err.SyntacticError(msg='sumterm(x0,x1,...,xn,expr) requires at least one\
-        bound variable, arguments: {}'.format(args))
+        raise err.SyntacticError(f'prod(x0,x1,...,xn,expr) requires at least one bound variable, arguments: {args}')
     for x in variables:
         if not isinstance(x, Variable):
-            raise err.SyntacticError(msg='sum(x0,...,xn,expr) require each\
-            argument xi to be an instance of Variable')
+            raise err.SyntacticError('prod(x0,...,xn,expr) requires each argument xi to be an instance of Variable')
     if not isinstance(expr, Term):
-        raise err.SyntacticError(msg='sum(x0,x1,...,xn,expr) requires last \
-        argument "expr" to be an instance of Term, got "{}"'.format(expr))
+        raise err.SyntacticError(f'prod(x0,x1,...,xn,expr) requires "expr" to be a Term, got "{expr}"')
     return AggregateCompoundTerm(BuiltinFunctionSymbol.MUL, variables, expr)
 
 
@@ -152,7 +150,6 @@ def one(sort):
 
 
 def simplify(expr: Term) -> Term:
-    np = modules.import_numpy()
     if isinstance(expr, Constant):
         return expr
     elif isinstance(expr, Variable):
@@ -205,7 +202,7 @@ def simplify(expr: Term) -> Term:
                 return one(expr.sort)
             expr.subterms = (simplified,)
             return expr
-    elif isinstance(expr, (Matrix, np.ndarray)):
+    elif isinstance(expr, (Matrix, modules.numpy.ndarray)):
         N, M = expr.shape
         for i in range(N):
             for j in range(M):
@@ -218,4 +215,4 @@ def simplify(expr: Term) -> Term:
         expr.subterms = (simplify(expr.subterms[0]), simplify(expr.subterms[1]))
         return expr
 
-    raise NotImplementedError("Can't handle expression {} yet".format(expr))
+    raise NotImplementedError(f"Can't handle expression {expr} yet")

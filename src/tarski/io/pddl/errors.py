@@ -15,7 +15,7 @@ class SemanticError(Exception):
         self.msg = msg
 
     def __str__(self):
-        return "Semantic Error: Line {}: {}".format(self.line, self.msg)
+        return f"Semantic Error: Line {self.line}: {self.msg}"
 
 
 class ParseError(Exception):
@@ -26,7 +26,7 @@ class ParseError(Exception):
         self.msg = msg
 
     def __str__(self):
-        return "Parse Error: Line {}: {}".format(self.line, self.msg)
+        return f"Parse Error: Line {self.line}: {self.msg}"
 
 
 class UnsupportedFeature(Exception):
@@ -37,4 +37,4 @@ class UnsupportedFeature(Exception):
         self.msg = msg
 
     def __str__(self):
-        return "Unsupported PDDL feature: Line {}: {}".format(self.line, self.msg)
+        return f"Unsupported PDDL feature: Line {self.line}: {self.msg}"

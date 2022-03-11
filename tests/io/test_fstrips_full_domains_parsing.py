@@ -1,7 +1,11 @@
-from tarski.fstrips.representation import is_unit_cost_problem, is_unit_cost_action, is_zero_cost_action, \
-    is_constant_cost_action
+from tarski.fstrips.representation import (is_constant_cost_action,
+                                           is_unit_cost_action,
+                                           is_unit_cost_problem,
+                                           is_zero_cost_action)
 from tests.common.benchmarks import get_lenient_benchmarks
-from .common import reader, collect_strips_benchmarks, collect_fstrips_benchmarks, parse_benchmark_instance
+
+from .common import (collect_fstrips_benchmarks, collect_strips_benchmarks,
+                     parse_benchmark_instance, reader)
 
 # Let's make sure we can correctly parse all benchmarks from the IPC competitions in 2008, 2011, 2014, 2018.
 # We have chosen optimal track benchmarks, which one would expect to be the smallest between optimal / satisficing

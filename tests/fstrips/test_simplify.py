@@ -2,8 +2,9 @@ import tarski.benchmarks.blocksworld
 from tarski.benchmarks.counters import generate_fstrips_counters_problem
 from tarski.fstrips import UniversalEffect
 from tarski.fstrips.manipulation import Simplify
-from tarski.fstrips.manipulation.simplify import simplify_existential_quantification
-from tarski.syntax import symref, land, lor, neg, bot, top, forall, exists
+from tarski.fstrips.manipulation.simplify import \
+    simplify_existential_quantification
+from tarski.syntax import bot, exists, forall, land, lor, neg, symref, top
 
 
 def test_simplifier():
@@ -11,7 +12,7 @@ def test_simplifier():
     lang = problem.language
     value, max_int, counter, val_t, c1 = lang.get('value', 'max_int', 'counter', 'val', 'c1')
     x = lang.variable('x', counter)
-    two, three, six = [lang.constant(c, val_t) for c in (2, 3, 6)]
+    two, three, six = (lang.constant(c, val_t) for c in (2, 3, 6))
 
     s = Simplify(problem, problem.init)
     assert symref(s.simplify_expression(x)) == symref(x)
@@ -76,7 +77,7 @@ def test_simplification_pruning():
     problem = generate_fstrips_counters_problem(ncounters=3)
     lang = problem.language
     value, max_int, counter, val_t, c1 = lang.get('value', 'max_int', 'counter', 'val', 'c1')
-    three, six = [lang.constant(c, val_t) for c in (3, 6)]
+    three, six = (lang.constant(c, val_t) for c in (3, 6))
 
     s = Simplify(problem, problem.init)
 
@@ -98,7 +99,7 @@ def test_simplification_of_ex_quantification():
     value, max_int, counter, val_t, c1 = lang.get('value', 'max_int', 'counter', 'val', 'c1')
     x = lang.variable('x', counter)
     z = lang.variable('z', counter)
-    two, three, six = [lang.constant(c, val_t) for c in (2, 3, 6)]
+    two, three, six = (lang.constant(c, val_t) for c in (2, 3, 6))
 
     phi = exists(z, land(x == z, top, value(z) < six))
     assert simplify_existential_quantification(phi, inplace=False) == land(top, value(x) < six), \

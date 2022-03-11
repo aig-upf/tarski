@@ -1,4 +1,3 @@
-
 from ...syntax import BuiltinFunctionSymbol, CompoundTerm
 from . import errors as err
 
@@ -24,7 +23,7 @@ class DifferentialConstraint:
 
     def ident(self):
         params = ', '.join([str(o) for o in self.parameters])
-        return '{}({})'.format(self.name, params)
+        return f'{self.name}({params})'
 
     def dump(self):
         return dict(name=self.name,
@@ -34,8 +33,8 @@ class DifferentialConstraint:
                     ode=self.ode.dump())
 
     def __str__(self):
-        tokens = ['reaction {}:'.format(self.name),
-                  'cond: ({})'.format(self.condition),
-                  'variate: {}'.format(self.variate),
-                  'ode: {}'.format(self.ode)]
+        tokens = [f'reaction {self.name}:',
+                  f'cond: ({self.condition})',
+                  f'variate: {self.variate}',
+                  f'ode: {self.ode}']
         return '\n'.join(tokens)

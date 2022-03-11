@@ -1,14 +1,15 @@
 """ Management of the theories (e.g. equality, etc.) associated to the FO languages """
 from enum import Enum
-from typing import Union, List, Optional
+from typing import List, Optional, Union
 
 from tarski.errors import DuplicateTheoryDefinition
-from .syntax.sorts import attach_arithmetic_sorts, build_the_bools
-from .fol import FirstOrderLanguage
-from .syntax import builtins, Term
-from .syntax.factory import create_atom, create_arithmetic_term
-from .syntax.ops import cast_to_closest_common_numeric_ancestor
+
 from . import errors as err
+from .fol import FirstOrderLanguage
+from .syntax import Term, builtins
+from .syntax.factory import create_arithmetic_term, create_atom
+from .syntax.ops import cast_to_closest_common_numeric_ancestor
+from .syntax.sorts import attach_arithmetic_sorts, build_the_bools
 
 
 class Theory(Enum):

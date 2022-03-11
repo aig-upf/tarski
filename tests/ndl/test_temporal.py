@@ -1,12 +1,12 @@
 import pytest
 
 import tarski as tsk
-from tarski.model import Model
 from tarski.evaluators.simple import evaluate
-from tarski.syntax import forall, equiv, neg, land, exists
-from tarski.theories import Theory
+from tarski.model import Model
 from tarski.ndl import temporal
-from tarski.ndl.temporal import TimedEffect, SetLiteralEffect
+from tarski.ndl.temporal import SetLiteralEffect, TimedEffect
+from tarski.syntax import equiv, exists, forall, land, neg
+from tarski.theories import Theory
 
 
 def test_resource_lock_creation():
@@ -21,7 +21,7 @@ def test_resource_lock_creation():
     L = tsk.language("mylang", theories=[Theory.EQUALITY, Theory.ARITHMETIC])
 
     sensor_sort = L.sort('sensor')
-    camera, range, bearing = [L.constant(name, sensor_sort) for name in ('camera', 'range', 'bearing')]
+    camera, range, bearing = (L.constant(name, sensor_sort) for name in ('camera', 'range', 'bearing'))
     int_t = L.Integer
     engaged = L.function('engaged', sensor_sort, int_t)
 
@@ -63,7 +63,7 @@ def test_action_creation():
     direction = L.function('direction', platform_t, int_t)
 
     sensor_sort = L.sort('sensor')
-    camera, range, bearing = [L.constant(name, sensor_sort) for name in ('camera', 'range', 'bearing')]
+    camera, range, bearing = (L.constant(name, sensor_sort) for name in ('camera', 'range', 'bearing'))
     engaged = L.function('engaged', sensor_sort, int_t)
 
     region_t = L.sort('region')
@@ -105,7 +105,7 @@ def test_instance_creation():
     direction = L.function('direction', platform_t, int_t)
 
     sensor_sort = L.sort('sensor')
-    camera, range, bearing = [L.constant(name, sensor_sort) for name in ('camera', 'range', 'bearing')]
+    camera, range, bearing = (L.constant(name, sensor_sort) for name in ('camera', 'range', 'bearing'))
     engaged = L.function('engaged', sensor_sort, int_t)
 
     region_t = L.sort('region')

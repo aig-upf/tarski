@@ -1,21 +1,19 @@
+import pytest
 
 import tarski
 import tarski.benchmarks.blocksworld
 import tarski.model
+from tarski import errors, modules
+from tarski.evaluators.simple import evaluate
 from tarski.fstrips import language
 from tarski.model import Model
-from tarski import errors
-
-from ..common import numeric
-from tarski.evaluators.simple import evaluate
 from tarski.syntax import Constant, ite, symref
 from tarski.theories import Theory
-from tarski.modules import import_scipy_special
 
-import pytest
+from ..common import numeric
 
 try:
-    sci = import_scipy_special()
+    sp = modules.scipy_special
 except ImportError:
     pytest.skip('Please install the "arithmetic" extra to run the full suite of tests', allow_module_level=True)
 
@@ -138,6 +136,7 @@ def test_special_function_abs():
 
 def test_special_function_pow():
     import numpy as np
+
     from tarski.syntax.arithmetic import pow
     lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL])
     model = Model(lang)
@@ -149,6 +148,7 @@ def test_special_function_pow():
 
 def test_special_function_sin():
     import numpy as np
+
     from tarski.syntax.arithmetic.special import sin
     lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL])
     model = Model(lang)
@@ -160,6 +160,7 @@ def test_special_function_sin():
 
 def test_special_function_sqrt():
     import numpy as np
+
     from tarski.syntax.arithmetic import sqrt
     lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL])
     model = Model(lang)
@@ -171,6 +172,7 @@ def test_special_function_sqrt():
 
 def test_special_function_cos():
     import numpy as np
+
     from tarski.syntax.arithmetic.special import cos
     lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL])
     model = Model(lang)
@@ -182,6 +184,7 @@ def test_special_function_cos():
 
 def test_special_function_tan():
     import numpy as np
+
     from tarski.syntax.arithmetic.special import tan
     lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL])
     model = Model(lang)
@@ -193,6 +196,7 @@ def test_special_function_tan():
 
 def test_special_function_atan():
     import numpy as np
+
     from tarski.syntax.arithmetic.special import atan
     lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL])
     model = Model(lang)
@@ -204,6 +208,7 @@ def test_special_function_atan():
 
 def test_special_function_exp():
     import numpy as np
+
     from tarski.syntax.arithmetic.special import exp
     lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL])
     model = Model(lang)
@@ -215,6 +220,7 @@ def test_special_function_exp():
 
 def test_special_function_log():
     import numpy as np
+
     from tarski.syntax.arithmetic.special import log
     lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL])
     model = Model(lang)
@@ -231,7 +237,7 @@ def test_special_function_erf():
     model.evaluator = evaluate
     reals = lang.Real
     x = lang.constant(0.5, reals)
-    assert model[erf(x)].symbol == sci.erf(0.5)
+    assert model[erf(x)].symbol == sp.erf(0.5)
 
 
 def test_special_function_erfc():
@@ -241,11 +247,12 @@ def test_special_function_erfc():
     model.evaluator = evaluate
     reals = lang.Real
     x = lang.constant(0.5, reals)
-    assert model[erfc(x)].symbol == sci.erfc(0.5)
+    assert model[erfc(x)].symbol == sp.erfc(0.5)
 
 
 def test_special_function_sgn():
     import numpy as np
+
     from tarski.syntax.arithmetic.special import sgn
     lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL])
     model = Model(lang)
@@ -257,6 +264,7 @@ def test_special_function_sgn():
 
 def test_random_function_normal():
     import numpy as np
+
     from tarski.syntax.arithmetic.random import normal
     np.random.seed(1234)  # for repeatability
     lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL, Theory.RANDOM])
@@ -272,6 +280,7 @@ def test_random_function_normal():
 
 def test_random_function_gamma():
     import numpy as np
+
     from tarski.syntax.arithmetic.random import gamma
     np.random.seed(1234)  # for repeatability
     lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL, Theory.RANDOM])
@@ -287,6 +296,7 @@ def test_random_function_gamma():
 
 def test_arcsin():
     import numpy as np
+
     from tarski.syntax.arithmetic.special import asin
     lang = tarski.fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL])
     model = Model(lang)

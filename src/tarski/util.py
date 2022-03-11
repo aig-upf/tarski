@@ -29,7 +29,7 @@ class SymbolIndex:
         return [str(o) for o in self.data.keys()]
 
     def __str__(self):
-        return ','.join('{}: {}'.format(idx, o) for o, idx in self.data.items())
+        return ','.join(f'{idx}: {o}' for o, idx in self.data.items())
 
     __repr__ = __str__
 

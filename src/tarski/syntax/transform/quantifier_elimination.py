@@ -6,9 +6,10 @@ import itertools
 from enum import Enum
 
 from ... import errors as err
-from .substitutions import create_substitution, substitute_expression
-from ..formulas import land, lor, Quantifier, QuantifiedFormula, Atom, Tautology, Contradiction, CompoundFormula
+from ..formulas import (Atom, CompoundFormula, Contradiction,
+                        QuantifiedFormula, Quantifier, Tautology, land, lor)
 from .errors import TransformationError
+from .substitutions import create_substitution, substitute_expression
 
 
 class QuantifierEliminationMode(Enum):
@@ -59,7 +60,8 @@ class QuantifierElimination:
 
     def _expand(self, phi: QuantifiedFormula, creator):
         # Avoiding circular references in the import:
-        from ...grounding.naive import instantiation  # pylint: disable=import-outside-toplevel
+        from ...grounding.naive import \
+            instantiation  # pylint: disable=import-outside-toplevel
         card, syms, substs = instantiation.enumerate_groundings(phi.variables)
         if card == 0:
             raise TransformationError("quantifier elimination", phi, "No constants were defined!")

@@ -2,13 +2,13 @@ import os
 import tempfile
 
 import tarski
-from tarski.theories import Theory
-from tarski.syntax import *
 from tarski.io import rddl
-from tarski.syntax.arithmetic import *
-from tarski.syntax.arithmetic.special import *
-from tarski.syntax.arithmetic.random import *
 from tarski.rddl import Task
+from tarski.syntax import *
+from tarski.syntax.arithmetic import *
+from tarski.syntax.arithmetic.random import *
+from tarski.syntax.arithmetic.special import *
+from tarski.theories import Theory
 
 
 def test_simple_rddl_model():

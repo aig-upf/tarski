@@ -1,5 +1,6 @@
 from ..errors import TarskiError
-from ..syntax import Predicate, Function, Constant, termlists_are_equal, termlist_hash
+from ..syntax import (Constant, Function, Predicate, termlist_hash,
+                      termlists_are_equal)
 
 
 class StateVariableLite:

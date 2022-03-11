@@ -5,19 +5,22 @@
 import copy
 import logging
 
-from antlr4 import FileStream, CommonTokenStream, InputStream
+from antlr4 import CommonTokenStream, FileStream, InputStream
 from antlr4.error.ErrorListener import ErrorListener
 
-from .common import parse_number, process_requirements, create_sort, process_cost_effects, LowerCasingStreamWrapper
 from ...errors import SyntacticError
-from ...fstrips import DelEffect, AddEffect, FunctionalEffect, UniversalEffect, OptimizationMetric, OptimizationType
-from ...syntax import CompoundFormula, Connective, neg, Tautology, implies, exists, forall, Term, Interval
-from ...syntax.builtins import get_predicate_from_symbol, get_function_from_symbol
+from ...fstrips import (AddEffect, DelEffect, FunctionalEffect,
+                        OptimizationMetric, OptimizationType, UniversalEffect)
+from ...syntax import (CompoundFormula, Connective, Interval, Tautology, Term,
+                       exists, forall, implies, neg)
+from ...syntax.builtins import (get_function_from_symbol,
+                                get_predicate_from_symbol)
 from ...syntax.formulas import VariableBinding
-
-from .parser.visitor import fstripsVisitor
+from .common import (LowerCasingStreamWrapper, create_sort, parse_number,
+                     process_cost_effects, process_requirements)
 from .parser.lexer import fstripsLexer
 from .parser.parser import fstripsParser
+from .parser.visitor import fstripsVisitor
 
 
 class FStripsParser(fstripsVisitor):
@@ -159,7 +162,7 @@ class FStripsParser(fstripsVisitor):
         typename = ctx.NAME().getText().lower()
         sort = self.language.get_sort(typename)
         if not isinstance(sort, Interval):
-            raise ParsingError("Attempt at bounding symbolic non-interval sort '{}'".format(sort))
+            raise ParsingError(f"Attempt at bounding symbolic non-interval sort '{sort}'")
 
         # Encode the bounds and set them into the sort
         lower = sort.encode(ctx.NUMBER(0).getText())
@@ -221,7 +224,7 @@ class FStripsParser(fstripsVisitor):
 
     def _recover_variable_from_context(self, name):
         if self.current_binding is None:
-            raise ParsingError("Variable '{}' used declared outside variable binding".format(name))
+            raise ParsingError(f"Variable '{name}' used declared outside variable binding")
 
         return self.current_binding.get(name)
 
@@ -459,7 +462,7 @@ class UndeclaredVariable(Exception):
         self.value = value
 
     def __str__(self):
-        return 'in {} found undeclared variable {}'.format(self.component, repr(self.value))
+        return f'in {self.component} found undeclared variable {repr(self.value)}'
 
 
 class ParserVariableContext:

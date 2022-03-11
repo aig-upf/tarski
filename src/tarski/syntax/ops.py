@@ -1,12 +1,12 @@
 import itertools
 
-from .walker import FOLWalker
 from .. import modules
-from .sorts import children, compute_direct_sort_map, Interval
-from .visitors import CollectFreeVariables
-from .terms import Term, Constant, Variable, CompoundTerm
 from .formulas import CompoundFormula, Connective
+from .sorts import Interval, children, compute_direct_sort_map
 from .symrefs import symref
+from .terms import CompoundTerm, Constant, Term, Variable
+from .visitors import CollectFreeVariables
+from .walker import FOLWalker
 
 
 def cast_to_closest_common_numeric_ancestor(lang, lhs, rhs):
@@ -17,7 +17,7 @@ def cast_to_closest_common_numeric_ancestor(lang, lhs, rhs):
     if isinstance(lhs, Term) and isinstance(rhs, Term):
         return lhs, rhs
 
-    np = modules.import_numpy()
+    np = modules.numpy
     if isinstance(lhs, Term):
         if isinstance(rhs, np.ndarray):  # lhs is scalar, rhs is matrix
             return lhs.language.matrix([[lhs]], lhs.sort), rhs

@@ -1,4 +1,3 @@
-
 from tarski.utils import resources
 
 

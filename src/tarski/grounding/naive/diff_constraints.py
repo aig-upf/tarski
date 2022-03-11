@@ -1,4 +1,3 @@
-
 import itertools
 
 from ...fstrips import hybrid
@@ -18,7 +17,7 @@ class DifferentialConstraintGrounder:
         self.differential_constraints_generated = 0
 
     def __str__(self):
-        return 'Reactions generated: {}'.format(self.differential_constraints_generated)
+        return f'Reactions generated: {self.differential_constraints_generated}'
 
     def calculate_constraints(self):
 

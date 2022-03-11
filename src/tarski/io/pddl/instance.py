@@ -7,22 +7,21 @@
 # PDDL parser
 # ----------------------------------------------------------------------------------------------------------------------
 
-from collections import namedtuple, OrderedDict
-from typing import Tuple
+from collections import OrderedDict, namedtuple
 from enum import Enum
+from typing import Tuple
 
 import tarski as tsk
 from tarski.io.pddl.errors import UnsupportedFeature
-from tarski.theories import Theory
-from tarski.syntax import Variable, Sort
+from tarski.syntax import Sort, Variable, symref
 from tarski.syntax.sorts import Interval, int_encode_fn
-from tarski.syntax import symref
-
+from tarski.theories import Theory
 
 AssignmentEffectData = namedtuple('AssignmentEffectData', ['lhs', 'rhs'])
 EventData = namedtuple('EventData', ['pre', 'post'])
 ActionData = namedtuple('ActionData', ['name', 'parameters', 'pre', 'post'])
-DurativeActionData = namedtuple('DurativeActionData', ['name', 'parameters', 'at_start', 'at_end', 'overall', 'duration'])
+DurativeActionData = namedtuple('DurativeActionData',
+                                ['name', 'parameters', 'at_start', 'at_end', 'overall', 'duration'])
 DerivedPredicateData = namedtuple('DerivedPredicateData', ['head', 'parameters', 'body'])
 ObjectiveData = namedtuple('ObjectiveData', ['mode', 'type', 'expr'])
 
@@ -368,4 +367,4 @@ class InstanceModel:
                                         type=objective_data['definition']['type'],
                                         expr=objective_data['definition']['expr'])
         if self.debug:
-            print("Objective: mode: {} type: {} expr: {}".format(self.objective.mode, self.objective.type, self.objective.expr))
+            print(f"Objective: mode: {self.objective.mode} type: {self.objective.type} expr: {self.objective.expr}")

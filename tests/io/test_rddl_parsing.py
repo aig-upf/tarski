@@ -1,5 +1,5 @@
-from tarski.syntax import *
 from tarski.io import rddl
+from tarski.syntax import *
 
 
 def test_language_init_mars_rovers():

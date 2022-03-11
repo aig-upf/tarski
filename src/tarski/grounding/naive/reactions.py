@@ -1,4 +1,3 @@
-
 import itertools
 
 from ...fstrips import hybrid
@@ -19,7 +18,7 @@ class ReactionGrounder:
         self.reactions_generated = 0
 
     def __str__(self):
-        return 'Reactions generated: {}'.format(self.reactions_generated)
+        return f'Reactions generated: {self.reactions_generated}'
 
     def calculate_reactions(self):
 

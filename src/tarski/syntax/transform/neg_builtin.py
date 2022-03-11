@@ -3,8 +3,8 @@
 """
 import copy
 
-from ..formulas import Connective, Atom, QuantifiedFormula, CompoundFormula
 from ..builtins import negate_builtin_atom
+from ..formulas import Atom, CompoundFormula, Connective, QuantifiedFormula
 
 
 class NegatedBuiltinAbsorption:

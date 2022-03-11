@@ -5,7 +5,7 @@ import itertools
 from collections import defaultdict
 
 from ..errors import TarskiError
-from ..syntax import CompoundFormula, Atom, Connective, Variable, Constant
+from ..syntax import Atom, CompoundFormula, Connective, Constant, Variable
 
 
 class WrongFormalismError(TarskiError):
@@ -77,7 +77,7 @@ def check_hypergraph_acyclicity(hypergraph):
         Abiteboul, S., Hull, R. and Vianu, V (1995). Foundations of Databases, pp.131-132.
     """
     nodes = set(itertools.chain.from_iterable(hypergraph))
-    edges = set(frozenset(x) for x in hypergraph)  # simply convert the tuple into frozensets
+    edges = {frozenset(x) for x in hypergraph}  # simply convert the tuple into frozensets
     if len(edges) <= 1 or len(nodes) <= 1:
         return True
 

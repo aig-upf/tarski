@@ -1,11 +1,10 @@
-
 from collections import OrderedDict
 
-from ..problem import Problem
-from .reaction import Reaction
-from .differential_constraints import DifferentialConstraint
-from . import errors as err
 from .. import fstrips as fs
+from ..problem import Problem
+from . import errors as err
+from .differential_constraints import DifferentialConstraint
+from .reaction import Reaction
 
 
 class HybridProblem(Problem):
@@ -58,12 +57,12 @@ class HybridProblem(Problem):
                 for yk in eff.lhs[:, 0]:
                     ev.visit(yk)
             else:
-                raise RuntimeError("Effect type '{}' cannot be analysed".format(type(eff)))
+                raise RuntimeError(f"Effect type '{type(eff)}' cannot be analysed")
         for _, dc in self.differential_constraints.items():
             pv.visit(dc.condition)
             pv.visit(dc.variate)
 
     def __str__(self):
-        return 'FSTRIPS Hybrid Problem "{}", domain "{}"'.format(self.name, self.domain_name)
+        return f'FSTRIPS Hybrid Problem "{self.name}", domain "{self.domain_name}"'
 
     __repr__ = __str__

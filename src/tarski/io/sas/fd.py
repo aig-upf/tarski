@@ -7,9 +7,8 @@
 # SAS instance writer for Fast Downward pre-processor
 # ----------------------------------------------------------------------------------------------------------------------
 
-from tarski.syntax import symref, CompoundTerm
 from tarski.io.sas.templates import *
-
+from tarski.syntax import CompoundTerm, symref
 
 FAST_DOWNWARD_SAS_VERSION = 4
 

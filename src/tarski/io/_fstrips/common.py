@@ -1,9 +1,9 @@
+from ... import theories
 from ...errors import TarskiError
 from ...fstrips import FunctionalEffect
 from ...fstrips.action import AdditiveActionCost, generate_zero_action_cost
 from ...fstrips.representation import is_typed_problem
-from ...syntax import Interval, CompoundTerm, Tautology, BuiltinFunctionSymbol
-from ... import theories
+from ...syntax import BuiltinFunctionSymbol, CompoundTerm, Interval, Tautology
 from ...syntax.util import get_symbols
 from ...theories import Theory
 

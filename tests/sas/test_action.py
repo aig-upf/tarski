@@ -1,13 +1,15 @@
-import pytest
-import tarski as tsk
-from tarski.theories import Theory
-from tarski.syntax import land, symref
-from tarski.sas import Schema, Action
-from tarski.sas.temporal import TemporalAction
-from tarski.sas.util import ground_temporal_action
 from itertools import combinations, permutations
+
+import pytest
+
+import tarski as tsk
 import tarski.model
 from tarski.evaluators.simple import evaluate
+from tarski.sas import Action, Schema
+from tarski.sas.temporal import TemporalAction
+from tarski.sas.util import ground_temporal_action
+from tarski.syntax import land, symref
+from tarski.theories import Theory
 
 
 @pytest.mark.sas

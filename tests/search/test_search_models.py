@@ -2,10 +2,12 @@
  Tests for the Search module
 """
 from tarski.benchmarks.blocksworld import generate_strips_blocksworld_problem
-from tarski.grounding.lp_grounding import ground_problem_schemas_into_plain_operators
-from tarski.search import GroundForwardSearchModel, BreadthFirstSearch
+from tarski.grounding.lp_grounding import \
+    ground_problem_schemas_into_plain_operators
+from tarski.search import BreadthFirstSearch, GroundForwardSearchModel
 from tarski.search.model import progress
-from tarski.syntax.transform.action_grounding import ground_schema_into_plain_operator_from_grounding
+from tarski.syntax.transform.action_grounding import \
+    ground_schema_into_plain_operator_from_grounding
 from tarski.utils import parse_model
 from tests.io.common import parse_benchmark_instance
 
@@ -31,7 +33,7 @@ def test_forward_search_model():
     moveright_op = ground_schema_into_plain_operator_from_grounding(move, ('rooma', 'roomb'))
     assert s1 == progress(s0, moveright_op)
 
-    successors = set(succ for op, succ in model.successors(s0))
+    successors = {succ for op, succ in model.successors(s0)}
     assert s1 in successors
 
     # Let's test add-after-delete semantics are correctly enforced. The move(x, y) action in Gripper doesn't

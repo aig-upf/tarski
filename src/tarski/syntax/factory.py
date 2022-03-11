@@ -1,7 +1,7 @@
 from .. import errors as err
+from .builtins import BuiltinFunctionSymbol, BuiltinPredicateSymbol
 from .formulas import Atom
 from .terms import Term
-from .builtins import BuiltinPredicateSymbol, BuiltinFunctionSymbol
 
 
 def check_same_language(lhs, rhs):

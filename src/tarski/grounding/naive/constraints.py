@@ -1,10 +1,10 @@
-
 import itertools
 
-from ...syntax import QuantifiedFormula, Quantifier, create_substitution, substitute_expression
-from ...syntax.transform import NegatedBuiltinAbsorption, CNFTransformation,\
-    QuantifierEliminationMode, remove_quantifiers
+from ...syntax import (QuantifiedFormula, Quantifier, create_substitution,
+                       substitute_expression)
 from ...syntax.ops import all_variables
+from ...syntax.transform import (CNFTransformation, NegatedBuiltinAbsorption,
+                                 QuantifierEliminationMode, remove_quantifiers)
 from ...util import SymbolIndex
 from . import instantiation
 
@@ -20,7 +20,7 @@ class ConstraintGrounder:
         self.constraints_generated = 0
 
     def __str__(self):
-        return 'Constraints Generated: {}'.format(self.constraints_generated)
+        return f'Constraints Generated: {self.constraints_generated}'
 
     def calculate_constraints(self):
 

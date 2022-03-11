@@ -7,8 +7,9 @@
 # PDDL tokenizer
 # ----------------------------------------------------------------------------------------------------------------------
 
-import ply.lex as lex  # type: ignore
 import re
+
+import ply.lex as lex  # type: ignore
 
 # helper definitions
 alpha = r'[A-Za-z]'
@@ -236,7 +237,7 @@ class PDDLlex:
         return t
 
     def t_error(self, t):
-        print("Illegal character: {} at line: {}".format(repr(t.value[0]), self._lexer.lineno))
+        print(f"Illegal character: {repr(t.value[0])} at line: {self._lexer.lineno}")
         t.lexer.skip(1)
 
     def lineno(self):

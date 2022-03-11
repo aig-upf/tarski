@@ -4,14 +4,15 @@
 import itertools
 from typing import List
 
-from ..grounding.ops import approximate_symbol_fluency
-from ..syntax import Constant, Variable, CompoundTerm, Atom, create_substitution, termlists_are_equal, termlist_hash
 from ..errors import DuplicateDefinition
-from .errors import UnableToGroundError
-from .common import StateVariableLite
+from ..fstrips.visitors import FluentHeuristic, FluentSymbolCollector
+from ..grounding.ops import approximate_symbol_fluency
+from ..syntax import (Atom, CompoundTerm, Constant, Variable,
+                      create_substitution, termlist_hash, termlists_are_equal)
 from ..syntax.transform.substitutions import substitute_expression
 from ..util import SymbolIndex
-from ..fstrips.visitors import FluentSymbolCollector, FluentHeuristic
+from .common import StateVariableLite
+from .errors import UnableToGroundError
 
 
 class ProblemGrounding:
@@ -138,7 +139,7 @@ class NaiveGroundingStrategy:
         return groundings
 
     def __str__(self):
-        return 'NaiveGroundingStrategy["{}"]'.format(self.problem.name)
+        return f'NaiveGroundingStrategy["{self.problem.name}"]'
 
     __repr__ = __str__
 

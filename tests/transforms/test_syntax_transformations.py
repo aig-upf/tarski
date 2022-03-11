@@ -3,15 +3,16 @@ import pytest
 import tarski.benchmarks.blocksworld
 from tarski.fstrips.representation import is_quantifier_free
 from tarski.syntax import *
-from tests.common import tarskiworld
-
-from tarski.syntax.transform.nnf import NNFTransformation
+from tarski.syntax.transform import (CNFTransformation,
+                                     NegatedBuiltinAbsorption,
+                                     QuantifierElimination,
+                                     QuantifierEliminationMode,
+                                     remove_quantifiers)
 from tarski.syntax.transform.cnf import to_conjunctive_normal_form_clauses
-from tarski.syntax.transform.prenex import to_prenex_negation_normal_form
-from tarski.syntax.transform import CNFTransformation, QuantifierElimination, remove_quantifiers, \
-    QuantifierEliminationMode
-from tarski.syntax.transform import NegatedBuiltinAbsorption
 from tarski.syntax.transform.errors import TransformationError
+from tarski.syntax.transform.nnf import NNFTransformation
+from tarski.syntax.transform.prenex import to_prenex_negation_normal_form
+from tests.common import tarskiworld
 
 
 def test_nnf_conjunction():
@@ -20,7 +21,7 @@ def test_nnf_conjunction():
     _ = bw.get_sort('place')
     loc = bw.get_function('loc')
     _ = bw.get_predicate('clear')
-    b1, b2, b3, b4 = [bw.get_constant('b{}'.format(k)) for k in range(1, 5)]
+    b1, b2, b3, b4 = (bw.get_constant(f'b{k}') for k in range(1, 5))
     _ = bw.get_constant('table')
 
     phi = neg(land(loc(b1) != loc(b2), loc(b3) != loc(b4)))
@@ -36,7 +37,7 @@ def test_nnf_double_negation():
     _ = bw.get_sort('place')
     loc = bw.get_function('loc')
     _ = bw.get_predicate('clear')
-    b1, b2, b3, b4 = [bw.get_constant('b{}'.format(k)) for k in range(1, 5)]
+    b1, b2, b3, b4 = (bw.get_constant(f'b{k}') for k in range(1, 5))
     _ = bw.get_constant('table')
 
     phi = neg(neg(loc(b1) == loc(b2)))
@@ -50,7 +51,7 @@ def test_nnf_quantifier_flips():
     bw = tarski.benchmarks.blocksworld.generate_fstrips_bw_language()
     block = bw.get_sort('block')
     loc = bw.get_function('loc')
-    b1, b2, b3, b4 = [bw.get_constant('b{}'.format(k)) for k in range(1, 5)]
+    b1, b2, b3, b4 = (bw.get_constant(f'b{k}') for k in range(1, 5))
 
     x = bw.variable('x', block)
 
@@ -74,7 +75,7 @@ def test_nnf_lpl_page_321_antecedent():
 def test_prenex_idempotency():
     bw = tarski.benchmarks.blocksworld.generate_fstrips_bw_language()
     loc = bw.get_function('loc')
-    b1, b2, b3, b4 = [bw.get_constant('b{}'.format(k)) for k in range(1, 5)]
+    b1, b2, b3, b4 = (bw.get_constant(f'b{k}') for k in range(1, 5))
 
     phi = loc(b1) == b2
     assert str(to_prenex_negation_normal_form(bw, phi, do_copy=True)) == str(phi)
@@ -161,7 +162,7 @@ def test_builtin_negation_absorption():
     _ = bw.get_sort('place')
     loc = bw.get_function('loc')
     _ = bw.get_predicate('clear')
-    b1, b2, b3, b4 = [bw.get_constant('b{}'.format(k)) for k in range(1, 5)]
+    b1, b2, b3, b4 = (bw.get_constant(f'b{k}') for k in range(1, 5))
     _ = bw.get_constant('table')
 
     _ = bw.variable('x', block)

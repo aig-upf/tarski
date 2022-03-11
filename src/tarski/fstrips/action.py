@@ -19,7 +19,7 @@ class Action:
         return self.name < other.name
 
     def ident(self):
-        paramlist = "{}".format(','.join("{}: {}".format(p.symbol, p.sort.name) for p in self.parameters))
+        paramlist = "{}".format(','.join(f"{p.symbol}: {p.sort.name}" for p in self.parameters))
         return f'{self.name}({paramlist})'
 
     def __str__(self):
@@ -27,8 +27,8 @@ class Action:
     __repr__ = __str__
 
     def print(self):
-        tokens = ['{}:'.format(self.ident()),
-                  'pre=({})'.format(self.precondition),
+        tokens = [f'{self.ident()}:',
+                  f'pre=({self.precondition})',
                   'eff=({})'.format(' & '.join(str(eff) for eff in self.effects))]
         return '\n'.join(tokens)
 

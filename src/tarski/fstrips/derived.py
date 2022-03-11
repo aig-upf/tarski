@@ -27,10 +27,10 @@ class Derived:
 
     def ident(self):
         params = ', '.join([str(o) for o in self.parameters])
-        return '{}({})'.format(self.predicate.symbol, params)
+        return f'{self.predicate.symbol}({params})'
 
     def __str__(self):
         tokens = ['derived {} {}:'.format(self.predicate.symbol,
                                           ' '.join(map(str, self.parameters))),
-                  'formula=({})'.format(self.formula)]
+                  f'formula=({self.formula})']
         return '\n'.join(tokens)
