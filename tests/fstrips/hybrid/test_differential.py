@@ -1,6 +1,5 @@
 from tarski.fstrips import hybrid
 from tarski.syntax import *
-
 from tests.common.numeric import generate_numeric_instance
 
 

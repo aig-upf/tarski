@@ -1,8 +1,7 @@
+import tests.common.numeric as numeric
 from tarski import fstrips as fs
 from tarski.fstrips import hybrid
 from tarski.syntax import *
-
-import tests.common.numeric as numeric
 
 
 def test_reaction_creation():

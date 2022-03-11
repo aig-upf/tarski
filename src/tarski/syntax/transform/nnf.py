@@ -4,8 +4,9 @@
 import copy
 
 from ... import errors as err
-from ..formulas import neg, Formula, QuantifiedFormula, CompoundFormula, Connective, negate_quantifier, Tautology, \
-    Contradiction, Atom
+from ..formulas import (Atom, CompoundFormula, Connective, Contradiction,
+                        Formula, QuantifiedFormula, Tautology, neg,
+                        negate_quantifier)
 
 
 class NNFTransformation:

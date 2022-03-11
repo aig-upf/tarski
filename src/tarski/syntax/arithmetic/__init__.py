@@ -1,15 +1,16 @@
 # pylint: disable=redefined-builtin
 
-import itertools
 import copy
+import itertools
 
-from ..transform.substitutions import substitute_expression
-from ...syntax import Term, AggregateCompoundTerm, CompoundTerm, Constant, Variable, IfThenElse, create_substitution
-from ...syntax.algebra import Matrix
 from ... import errors as err
-from ... grounding.naive import instantiation
-from ..builtins import BuiltinFunctionSymbol, get_arithmetic_binary_functions
 from ... import modules
+from ...grounding.naive import instantiation
+from ...syntax import (AggregateCompoundTerm, CompoundTerm, Constant,
+                       IfThenElse, Term, Variable, create_substitution)
+from ...syntax.algebra import Matrix
+from ..builtins import BuiltinFunctionSymbol, get_arithmetic_binary_functions
+from ..transform.substitutions import substitute_expression
 
 
 def sumterm(*args):

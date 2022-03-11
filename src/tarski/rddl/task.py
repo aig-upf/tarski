@@ -1,7 +1,7 @@
+from ..evaluators.simple import evaluate
 from ..fol import FirstOrderLanguage
 from ..io import rddl
 from ..model import Model
-from ..evaluators.simple import evaluate
 
 
 class Task:

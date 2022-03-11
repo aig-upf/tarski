@@ -1,5 +1,5 @@
-from .operations import is_applicable, progress
 from ..evaluators.simple import evaluate
+from .operations import is_applicable, progress
 
 
 class SearchModel:

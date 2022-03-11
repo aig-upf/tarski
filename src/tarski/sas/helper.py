@@ -1,8 +1,9 @@
 """
     SAS+ Modeling helper
 """
-from tarski.syntax import Term, symref, land
 from typing import List
+
+from tarski.syntax import Term, land, symref
 
 
 def make_domain(dom: List[Term], close: bool = False):

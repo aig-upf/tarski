@@ -2,10 +2,12 @@
  Tests for the Search module
 """
 from tarski.benchmarks.blocksworld import generate_strips_blocksworld_problem
-from tarski.grounding.lp_grounding import ground_problem_schemas_into_plain_operators
-from tarski.search import GroundForwardSearchModel, BreadthFirstSearch
+from tarski.grounding.lp_grounding import \
+    ground_problem_schemas_into_plain_operators
+from tarski.search import BreadthFirstSearch, GroundForwardSearchModel
 from tarski.search.model import progress
-from tarski.syntax.transform.action_grounding import ground_schema_into_plain_operator_from_grounding
+from tarski.syntax.transform.action_grounding import \
+    ground_schema_into_plain_operator_from_grounding
 from tarski.utils import parse_model
 from tests.io.common import parse_benchmark_instance
 

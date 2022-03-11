@@ -6,6 +6,7 @@
         - Representation of action costs is not baked into the class
 """
 from typing import Union
+
 from tarski.syntax import Term, symref
 
 

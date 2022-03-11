@@ -1,12 +1,12 @@
 import operator
-from functools import singledispatchmethod, reduce
+from functools import reduce, singledispatchmethod
 from typing import Set, Union
 
-from .walker import ProblemWalker
-from ..syntax import Predicate, Function, CompoundTerm, Atom
-from .problem import Problem
+from ..syntax import Atom, CompoundTerm, Function, Predicate
 from . import fstrips as fs
 from .derived import Derived
+from .problem import Problem
+from .walker import ProblemWalker
 
 
 def collect_all_symbols(problem: Problem, include_builtin=False) -> Set[Union[Predicate, Function]]:

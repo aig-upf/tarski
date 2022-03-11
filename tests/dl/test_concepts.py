@@ -4,8 +4,10 @@
 import pytest
 
 import tarski.benchmarks.blocksworld
-from tarski.dl import SyntacticFactory, PrimitiveRole, PrimitiveConcept, NominalConcept, StarRole, InverseRole, \
-    ArityDLMismatch
+from tarski.dl import (ArityDLMismatch, InverseRole, NominalConcept,
+                       PrimitiveConcept, PrimitiveRole, StarRole,
+                       SyntacticFactory)
+
 from ..common import blocksworld
 
 

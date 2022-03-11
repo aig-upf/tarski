@@ -1,4 +1,4 @@
-from ...syntax import CompoundFormula, Atom, Connective
+from ...syntax import Atom, CompoundFormula, Connective
 from . import errors as err
 
 

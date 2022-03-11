@@ -2,7 +2,6 @@ import os
 
 from .common import reader
 
-
 _this_dir = os.path.dirname(os.path.realpath(__file__))
 _data_dir = os.path.join(_this_dir, "..", "data", "pddl")
 

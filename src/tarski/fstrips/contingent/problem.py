@@ -1,7 +1,8 @@
 from collections import OrderedDict
+
 from ..problem import Problem
-from .sensor import Sensor
 from . import errors as err
+from .sensor import Sensor
 
 
 class ContingentProblem(Problem):

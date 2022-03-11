@@ -4,9 +4,9 @@ from typing import List
 
 from .. import errors as err
 from .builtins import BuiltinPredicateSymbol
-from .terms import Variable, Term
-from .util import termlists_are_equal, termlist_hash
 from .predicate import Predicate
+from .terms import Term, Variable
+from .util import termlist_hash, termlists_are_equal
 
 
 class Connective(Enum):

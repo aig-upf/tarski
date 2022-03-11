@@ -6,7 +6,8 @@ import tarski.errors as err
 from tarski.benchmarks.counters import generate_fstrips_counters_problem
 from tarski.syntax import symref
 from tarski.syntax.ops import compute_sort_id_assignment
-from tarski.syntax.sorts import parent, ancestors, compute_signature_bindings, compute_direct_sort_map
+from tarski.syntax.sorts import (ancestors, compute_direct_sort_map,
+                                 compute_signature_bindings, parent)
 from tarski.theories import Theory
 
 

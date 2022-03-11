@@ -1,18 +1,21 @@
 import tempfile
-from typing import Optional, List
+from typing import List, Optional
 
 import tarski.fstrips as fs
 from tarski.benchmarks.blocksworld import generate_fstrips_blocksworld_problem
-from tarski.benchmarks.counters import get_counters_elements, generate_fstrips_counters_problem
-from tarski.fstrips import AddEffect, DelEffect, FunctionalEffect, UniversalEffect
+from tarski.benchmarks.counters import (generate_fstrips_counters_problem,
+                                        get_counters_elements)
+from tarski.fstrips import (AddEffect, DelEffect, FunctionalEffect,
+                            UniversalEffect)
 from tarski.io import FstripsWriter
 from tarski.io._fstrips.common import get_requirements_string
-from tarski.io.fstrips import print_effects, print_effect, print_objects, print_metric, print_formula, print_term
-from tarski.syntax import forall, exists, Constant
+from tarski.io.fstrips import (print_effect, print_effects, print_formula,
+                               print_metric, print_objects, print_term)
+from tarski.syntax import Constant, exists, forall
 from tarski.theories import Theory
-
 from tests.common import parcprinter
 from tests.io.common import reader
+
 from ..common.gridworld import generate_small_gridworld
 
 

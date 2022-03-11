@@ -1,7 +1,7 @@
 import errno
 import logging
-import subprocess
 import os
+import subprocess
 
 
 def count_file_lines(filename):  # Might be a bit faster with a call to "wc -l"

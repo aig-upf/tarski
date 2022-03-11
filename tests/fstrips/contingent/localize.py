@@ -2,7 +2,6 @@ import tarski.model
 from tarski import fstrips as fs
 from tarski.fstrips import contingent
 from tarski.syntax import *
-
 from tests.common.grid_navigation import generate_single_agent_language
 
 

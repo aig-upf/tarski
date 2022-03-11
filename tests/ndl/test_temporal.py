@@ -1,12 +1,12 @@
 import pytest
 
 import tarski as tsk
-from tarski.model import Model
 from tarski.evaluators.simple import evaluate
-from tarski.syntax import forall, equiv, neg, land, exists
-from tarski.theories import Theory
+from tarski.model import Model
 from tarski.ndl import temporal
-from tarski.ndl.temporal import TimedEffect, SetLiteralEffect
+from tarski.ndl.temporal import SetLiteralEffect, TimedEffect
+from tarski.syntax import equiv, exists, forall, land, neg
+from tarski.theories import Theory
 
 
 def test_resource_lock_creation():

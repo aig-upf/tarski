@@ -1,8 +1,10 @@
 # Generated from /home/frances/projects/code/tarski/utils/parsers/grammars/fstrips.g4 by ANTLR 4.7.1
-from antlr4 import *
+import sys
 from io import StringIO
 from typing.io import TextIO
-import sys
+
+from antlr4 import *
+
 
 def serializedATN():
     with StringIO() as buf:

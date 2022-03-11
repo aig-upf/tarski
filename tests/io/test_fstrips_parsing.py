@@ -1,14 +1,14 @@
 import pytest
-from tarski.errors import UndefinedSort, UndefinedPredicate
+
+from tarski.errors import UndefinedPredicate, UndefinedSort
 from tarski.fstrips import AddEffect, FunctionalEffect
 from tarski.fstrips.errors import InvalidEffectError
-from tarski.io.fstrips import ParsingError, FstripsReader
+from tarski.io.fstrips import FstripsReader, ParsingError
 from tarski.syntax import Atom, CompoundFormula, Tautology
 from tarski.syntax.util import get_symbols
 from tarski.theories import Theory
-
 from tests.common.spider import generate_spider_language
-from tests.io.common import reader, parse_benchmark_instance
+from tests.io.common import parse_benchmark_instance, reader
 
 
 def get_rule(name):

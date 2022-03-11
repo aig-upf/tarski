@@ -1,8 +1,8 @@
 from enum import Enum
-from typing import Union, List, Optional, Callable, Any
+from typing import Any, Callable, List, Optional, Union
 
-from ..syntax import CompoundTerm, Term, symref, top
 from .. import theories as ths
+from ..syntax import CompoundTerm, Term, symref, top
 from .errors import InvalidEffectError
 
 

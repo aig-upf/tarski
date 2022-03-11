@@ -3,15 +3,16 @@ import pytest
 import tarski.benchmarks.blocksworld
 from tarski.fstrips.representation import is_quantifier_free
 from tarski.syntax import *
-from tests.common import tarskiworld
-
-from tarski.syntax.transform.nnf import NNFTransformation
+from tarski.syntax.transform import (CNFTransformation,
+                                     NegatedBuiltinAbsorption,
+                                     QuantifierElimination,
+                                     QuantifierEliminationMode,
+                                     remove_quantifiers)
 from tarski.syntax.transform.cnf import to_conjunctive_normal_form_clauses
-from tarski.syntax.transform.prenex import to_prenex_negation_normal_form
-from tarski.syntax.transform import CNFTransformation, QuantifierElimination, remove_quantifiers, \
-    QuantifierEliminationMode
-from tarski.syntax.transform import NegatedBuiltinAbsorption
 from tarski.syntax.transform.errors import TransformationError
+from tarski.syntax.transform.nnf import NNFTransformation
+from tarski.syntax.transform.prenex import to_prenex_negation_normal_form
+from tests.common import tarskiworld
 
 
 def test_nnf_conjunction():

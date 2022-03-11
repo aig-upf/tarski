@@ -1,7 +1,8 @@
 """
  Tests for the CSP analysis module
 """
-from tarski.analysis.csp import compute_schema_constraint_hypergraph, check_hypergraph_acyclicity
+from tarski.analysis.csp import (check_hypergraph_acyclicity,
+                                 compute_schema_constraint_hypergraph)
 from tests.io.common import parse_benchmark_instance
 
 

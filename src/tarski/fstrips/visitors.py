@@ -4,11 +4,11 @@
 """
 from typing import Set
 
+from ..syntax import symref
+from ..syntax.formulas import Atom, CompoundFormula, QuantifiedFormula
 from ..syntax.symrefs import TermReference
 from ..syntax.temporal import ltl
-from ..syntax.formulas import CompoundFormula, Atom, QuantifiedFormula
 from ..syntax.terms import CompoundTerm
-from ..syntax import symref
 
 
 class FluentHeuristic:

@@ -1,9 +1,11 @@
-import pytest
-import tarski as tsk
-from tarski.theories import Theory
-from tarski.syntax import land, symref
-from tarski.sas import Effect, Action, Variable, TemporalAction
 from itertools import combinations, permutations
+
+import pytest
+
+import tarski as tsk
+from tarski.sas import Action, Effect, TemporalAction, Variable
+from tarski.syntax import land, symref
+from tarski.theories import Theory
 
 
 @pytest.mark.sas

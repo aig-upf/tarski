@@ -2,13 +2,15 @@ import os
 from enum import Enum
 from pathlib import Path
 
-from ..fstrips.manipulation import Simplify
 from ..errors import TarskiError
-from ..fstrips.representation import is_conjunction_of_literals, has_state_variable_shape, \
-    collect_effect_free_parameters
+from ..fstrips.manipulation import Simplify
+from ..fstrips.representation import (collect_effect_free_parameters,
+                                      has_state_variable_shape,
+                                      is_conjunction_of_literals)
 from ..grounding.common import StateVariableLite
-from ..syntax import QuantifiedFormula, Quantifier, Contradiction, CompoundFormula, Atom, CompoundTerm, \
-    is_neg, symref, Constant, Variable, Tautology, top
+from ..syntax import (Atom, CompoundFormula, CompoundTerm, Constant,
+                      Contradiction, QuantifiedFormula, Quantifier, Tautology,
+                      Variable, is_neg, symref, top)
 from ..syntax.ops import collect_unique_nodes, flatten
 from ..syntax.transform import to_prenex_negation_normal_form
 

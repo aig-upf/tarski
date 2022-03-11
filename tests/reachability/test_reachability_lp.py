@@ -1,6 +1,8 @@
-from tarski.reachability.asp import create_reachability_lp, LogicProgram, ReachabilityLPCompiler, LPAtom
-from tarski.syntax import exists
 from tarski import fstrips as fs
+from tarski.reachability.asp import (LogicProgram, LPAtom,
+                                     ReachabilityLPCompiler,
+                                     create_reachability_lp)
+from tarski.syntax import exists
 from tests.io.common import parse_benchmark_instance
 
 from ..common.gripper import create_sample_problem

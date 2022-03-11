@@ -3,15 +3,18 @@
 """
 import itertools
 
+from ..fstrips import (AddEffect, DelEffect, FunctionalEffect, Problem,
+                       SingleEffect)
 from ..fstrips.action import AdditiveActionCost
-from ..syntax.transform import remove_quantifiers, QuantifierEliminationMode
+from ..fstrips.representation import (expand_universal_effect,
+                                      identify_cost_related_functions)
+from ..syntax import (Atom, BuiltinPredicateSymbol, CompoundFormula,
+                      CompoundTerm, Connective, Constant, Formula,
+                      QuantifiedFormula, Quantifier, Tautology, Term, Variable)
 from ..syntax.builtins import symbol_complements
 from ..syntax.ops import free_variables
-from ..syntax import Formula, Atom, CompoundFormula, Connective, Term, Variable, Constant, Tautology, \
-    BuiltinPredicateSymbol, QuantifiedFormula, Quantifier, CompoundTerm
-from ..syntax.sorts import parent, Interval
-from ..fstrips import Problem, SingleEffect, AddEffect, DelEffect, FunctionalEffect
-from ..fstrips.representation import identify_cost_related_functions, expand_universal_effect
+from ..syntax.sorts import Interval, parent
+from ..syntax.transform import QuantifierEliminationMode, remove_quantifiers
 
 GOAL = "goal"
 

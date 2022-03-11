@@ -5,7 +5,7 @@ import itertools
 from collections import defaultdict
 
 from ..errors import TarskiError
-from ..syntax import CompoundFormula, Atom, Connective, Variable, Constant
+from ..syntax import Atom, CompoundFormula, Connective, Constant, Variable
 
 
 class WrongFormalismError(TarskiError):

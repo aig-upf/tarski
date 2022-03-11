@@ -4,8 +4,9 @@
 import tempfile
 
 import pytest
-from tarski.io.pddl.lexer import PDDLlex
+
 from tarski.io.pddl import Features
+from tarski.io.pddl.lexer import PDDLlex
 from tarski.io.pddl.parser import PDDLparser, UnsupportedFeature
 from tarski.syntax.visitors import CollectEqualityAtoms
 

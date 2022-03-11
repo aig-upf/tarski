@@ -1,9 +1,10 @@
 import itertools
 
-from ...syntax import QuantifiedFormula, Quantifier, create_substitution, substitute_expression
-from ...syntax.transform import NegatedBuiltinAbsorption, CNFTransformation,\
-    QuantifierEliminationMode, remove_quantifiers
+from ...syntax import (QuantifiedFormula, Quantifier, create_substitution,
+                       substitute_expression)
 from ...syntax.ops import all_variables
+from ...syntax.transform import (CNFTransformation, NegatedBuiltinAbsorption,
+                                 QuantifierEliminationMode, remove_quantifiers)
 from ...util import SymbolIndex
 from . import instantiation
 

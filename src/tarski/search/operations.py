@@ -1,7 +1,7 @@
 import copy
 
-from ..fstrips import AddEffect, DelEffect, FunctionalEffect, UniversalEffect
 from ..evaluators.simple import evaluate
+from ..fstrips import AddEffect, DelEffect, FunctionalEffect, UniversalEffect
 from ..fstrips.representation import substitute_expression
 from ..syntax.transform.substitutions import enumerate_substitutions
 

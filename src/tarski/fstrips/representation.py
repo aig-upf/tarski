@@ -1,19 +1,23 @@
 import copy
-from typing import Set, Union, Tuple, Optional, List
+from typing import List, Optional, Set, Tuple, Union
 
 from ..errors import TarskiError
-from .problem import Problem
-from . import fstrips as fs
-from ..syntax import Formula, CompoundTerm, Atom, CompoundFormula, QuantifiedFormula, is_and, is_neg, exists, symref,\
-    VariableBinding, Constant, Tautology, land, Term
-from ..syntax.ops import collect_unique_nodes, flatten, free_variables, all_variables
+from ..fstrips import (AddEffect, BaseEffect, DelEffect, FunctionalEffect,
+                       LiteralEffect, SingleEffect, UniversalEffect)
+from ..syntax import (Atom, CompoundFormula, CompoundTerm, Constant, Formula,
+                      QuantifiedFormula, Tautology, Term, VariableBinding,
+                      exists, is_and, is_neg, land, symref)
+from ..syntax.ops import (all_variables, collect_unique_nodes, flatten,
+                          free_variables)
 from ..syntax.sorts import compute_signature_bindings
 from ..syntax.symrefs import TermReference
 from ..syntax.transform.substitutions import enumerate_substitutions
-from ..syntax.transform.substitutions import substitute_expression as fol_substitute_expression
+from ..syntax.transform.substitutions import \
+    substitute_expression as fol_substitute_expression
 from ..syntax.util import get_symbols
-from ..fstrips import AddEffect, DelEffect, LiteralEffect, FunctionalEffect, UniversalEffect, BaseEffect, SingleEffect
+from . import fstrips as fs
 from .action import Action
+from .problem import Problem
 
 
 class RepresentationError(TarskiError):

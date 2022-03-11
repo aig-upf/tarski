@@ -1,9 +1,9 @@
 from typing import Tuple
 
-from .util import termlists_are_equal, termlist_hash
-from .sorts import Sort, parent, Interval
 from .. import errors as err
-from .builtins import BuiltinPredicateSymbol, BuiltinFunctionSymbol
+from .builtins import BuiltinFunctionSymbol, BuiltinPredicateSymbol
+from .sorts import Interval, Sort, parent
+from .util import termlist_hash, termlists_are_equal
 
 
 class Term:

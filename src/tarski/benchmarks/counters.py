@@ -5,7 +5,6 @@ from ..fstrips import create_fstrips_problem, language
 from ..syntax import land
 from ..theories import Theory
 
-
 BASE_DOMAIN_NAME = "counters-fn"
 
 

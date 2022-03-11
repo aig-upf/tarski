@@ -5,11 +5,11 @@ import random
 
 import tarski as tsk
 from tarski import fstrips as fs
-from tarski.fstrips import DelEffect, AddEffect
+from tarski.fstrips import AddEffect, DelEffect
+
 from ..fstrips import create_fstrips_problem
 from ..syntax import land
 from ..theories import Theory
-
 
 BASE_DOMAIN_NAME = "blocksworld"
 

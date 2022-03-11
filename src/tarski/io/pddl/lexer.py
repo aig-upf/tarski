@@ -7,8 +7,9 @@
 # PDDL tokenizer
 # ----------------------------------------------------------------------------------------------------------------------
 
-import ply.lex as lex  # type: ignore
 import re
+
+import ply.lex as lex  # type: ignore
 
 # helper definitions
 alpha = r'[A-Za-z]'

@@ -1,5 +1,5 @@
-from ..syntax.util import get_symbols
 from ..fstrips.ops import collect_affected_symbols
+from ..syntax.util import get_symbols
 
 
 def approximate_symbol_fluency(problem, include_builtin=False):

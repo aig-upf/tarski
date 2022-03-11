@@ -51,5 +51,6 @@ class Predicate:
     __repr__ = __str__
 
     def __call__(self, *args):
-        from .formulas import Atom  # pylint: disable=import-outside-toplevel  # Avoiding circular references
+        from .formulas import \
+            Atom  # pylint: disable=import-outside-toplevel  # Avoiding circular references
         return Atom(self, args)

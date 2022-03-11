@@ -4,18 +4,22 @@
 from enum import Enum
 
 from .. import modules
-from .common import load_tpl
-from ..fol import FirstOrderLanguage
-from ..syntax import implies, land, lor, neg, Connective, Quantifier, CompoundTerm, Interval, Atom, IfThenElse, \
-    Contradiction, Tautology, CompoundFormula, forall, ite, AggregateCompoundTerm, QuantifiedFormula, Term, Function, \
-    Variable, Predicate, Constant, Formula, builtins
-from ..syntax import arithmetic as tm
-from ..syntax.temporal import ltl as tt
-from ..syntax.builtins import create_atom, BuiltinPredicateSymbol as BPS, BuiltinFunctionSymbol as BFS
-from ..model import Model
-from ..evaluators.simple import evaluate
 from ..errors import LanguageError
+from ..evaluators.simple import evaluate
+from ..fol import FirstOrderLanguage
+from ..model import Model
+from ..syntax import (AggregateCompoundTerm, Atom, CompoundFormula,
+                      CompoundTerm, Connective, Constant, Contradiction,
+                      Formula, Function, IfThenElse, Interval, Predicate,
+                      QuantifiedFormula, Quantifier, Tautology, Term, Variable)
+from ..syntax import arithmetic as tm
+from ..syntax import builtins, forall, implies, ite, land, lor, neg
+from ..syntax.builtins import BuiltinFunctionSymbol as BFS
+from ..syntax.builtins import BuiltinPredicateSymbol as BPS
+from ..syntax.builtins import create_atom
+from ..syntax.temporal import ltl as tt
 from ..theories import Theory, language
+from .common import load_tpl
 
 
 class TranslationError(Exception):
@@ -444,7 +448,8 @@ class Writer:
         return ', '.join([str(r) for r in self.task.requirements])
 
     def get_types(self):
-        from ..syntax.sorts import parent  # pylint: disable=import-outside-toplevel  # Avoiding circular references
+        from ..syntax.sorts import \
+            parent  # pylint: disable=import-outside-toplevel  # Avoiding circular references
         type_decl_list = []
         for S in self.task.L.sorts:
             if S.builtin or S.name == 'object':

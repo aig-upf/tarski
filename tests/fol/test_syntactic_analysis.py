@@ -1,5 +1,7 @@
-from tarski.syntax import neg, land, lor, exists, symref, forall, Variable, Constant, Atom
-from tarski.syntax.ops import free_variables, flatten, collect_unique_nodes, all_variables
+from tarski.syntax import (Atom, Constant, Variable, exists, forall, land, lor,
+                           neg, symref)
+from tarski.syntax.ops import (all_variables, collect_unique_nodes, flatten,
+                               free_variables)
 from tests.common import tarskiworld
 from tests.common.blocksworld import generate_bw_loc_and_clear
 

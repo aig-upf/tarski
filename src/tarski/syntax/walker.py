@@ -52,8 +52,10 @@ class FOLWalker:
 
     def visit_expression(self, node, inplace=True):
         # pylint: disable=import-outside-toplevel  # Avoiding circular references
-        from .formulas import CompoundFormula, QuantifiedFormula, Atom, Tautology, Contradiction
-        from .terms import Constant, Variable, CompoundTerm, IfThenElse    # pylint: disable=import-outside-toplevel
+        from .formulas import (Atom, CompoundFormula, Contradiction,
+                               QuantifiedFormula, Tautology)
+        from .terms import (  # pylint: disable=import-outside-toplevel
+            CompoundTerm, Constant, IfThenElse, Variable)
         node = node if inplace else copy.deepcopy(node)
 
         if isinstance(node, (Variable, Constant, Contradiction, Tautology)):

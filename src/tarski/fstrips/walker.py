@@ -61,8 +61,11 @@ class ProblemWalker:
 
     def run(self, expression, inplace=True):
         # Avoiding circular references:
-        from . import Action, BaseEffect, Problem  # pylint: disable=import-outside-toplevel
-        from ..syntax import Formula, Term  # pylint: disable=import-outside-toplevel  # Avoiding circular references
+        from ..syntax import (  # pylint: disable=import-outside-toplevel  # Avoiding circular references
+            Formula, Term)
+        from . import (Action,  # pylint: disable=import-outside-toplevel
+                       BaseEffect, Problem)
+
         # Simply dispatch according to type
         expression = expression if inplace else copy.deepcopy(expression)
         if isinstance(expression, (Formula, Term)):
@@ -95,7 +98,8 @@ class ProblemWalker:
         return node
 
     def visit_effect(self, effect, inplace=True):
-        from . import AddEffect, DelEffect, UniversalEffect, FunctionalEffect  # pylint: disable=import-outside-toplevel
+        from . import (AddEffect,  # pylint: disable=import-outside-toplevel
+                       DelEffect, FunctionalEffect, UniversalEffect)
         effect = effect if inplace else copy.deepcopy(effect)
 
         if isinstance(effect, (AddEffect, DelEffect)):
@@ -116,8 +120,9 @@ class ProblemWalker:
         return self.visit(effect)
 
     def visit_expression(self, node, inplace=True):
-        from ..syntax import CompoundFormula, QuantifiedFormula, Atom, Tautology, Contradiction, Constant, Variable,\
-            CompoundTerm, IfThenElse  # pylint: disable=import-outside-toplevel  # Avoiding circular references
+        from ..syntax import (  # pylint: disable=import-outside-toplevel  # Avoiding circular references
+            Atom, CompoundFormula, CompoundTerm, Constant, Contradiction,
+            IfThenElse, QuantifiedFormula, Tautology, Variable)
         node = node if inplace else copy.deepcopy(node)
 
         if isinstance(node, (Variable, Constant, Contradiction, Tautology)):

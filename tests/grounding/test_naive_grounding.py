@@ -1,17 +1,21 @@
-from tarski.benchmarks.blocksworld import generate_fstrips_blocksworld_problem, generate_strips_blocksworld_problem
-from tarski.grounding import ProblemGrounding, NaiveGroundingStrategy, create_all_possible_state_variables
+from tarski.benchmarks.blocksworld import (
+    generate_fstrips_blocksworld_problem, generate_strips_blocksworld_problem)
+from tarski.grounding import (NaiveGroundingStrategy, ProblemGrounding,
+                              create_all_possible_state_variables)
 from tarski.grounding.naive import instantiation
-from tarski.util import SymbolIndex
-from tarski.syntax import create_substitution
-from tarski.grounding.naive.sensors import SensorGrounder
 from tarski.grounding.naive.constraints import ConstraintGrounder
-from tarski.grounding.naive.diff_constraints import DifferentialConstraintGrounder
+from tarski.grounding.naive.diff_constraints import \
+    DifferentialConstraintGrounder
 from tarski.grounding.naive.reactions import ReactionGrounder
+from tarski.grounding.naive.sensors import SensorGrounder
+from tarski.syntax import create_substitution
+from tarski.util import SymbolIndex
+from tests.common import parcprinter
+from tests.common.blocksworld import create_4blocks_task
 
 from ..fstrips.contingent import localize
-from ..fstrips.hybrid.tasks import create_particles_world, create_billiards_world
-from tests.common.blocksworld import create_4blocks_task
-from tests.common import parcprinter
+from ..fstrips.hybrid.tasks import (create_billiards_world,
+                                    create_particles_world)
 
 
 def create_small_bw_with_index():

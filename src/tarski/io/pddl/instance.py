@@ -7,17 +7,15 @@
 # PDDL parser
 # ----------------------------------------------------------------------------------------------------------------------
 
-from collections import namedtuple, OrderedDict
-from typing import Tuple
+from collections import OrderedDict, namedtuple
 from enum import Enum
+from typing import Tuple
 
 import tarski as tsk
 from tarski.io.pddl.errors import UnsupportedFeature
-from tarski.theories import Theory
-from tarski.syntax import Variable, Sort
+from tarski.syntax import Sort, Variable, symref
 from tarski.syntax.sorts import Interval, int_encode_fn
-from tarski.syntax import symref
-
+from tarski.theories import Theory
 
 AssignmentEffectData = namedtuple('AssignmentEffectData', ['lhs', 'rhs'])
 EventData = namedtuple('EventData', ['pre', 'post'])

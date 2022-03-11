@@ -1,12 +1,12 @@
 """
     Rewrite formulas into prenex negation normal form
 """
-from .substitutions import substitute_expression
+from ..formulas import (CompoundFormula, Connective, QuantifiedFormula,
+                        Quantifier, lor)
 from ..symrefs import symref
-from ..formulas import CompoundFormula, QuantifiedFormula, Connective, Quantifier, lor
 from ..transform.nnf import NNFTransformation
-
 from .errors import TransformationError
+from .substitutions import substitute_expression
 
 
 class PrenexTransformation:

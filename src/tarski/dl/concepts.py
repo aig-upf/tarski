@@ -1,7 +1,7 @@
 """
 
 """
-from ..syntax import Predicate, Function, Sort
+from ..syntax import Function, Predicate, Sort
 from ..utils.algorithms import transitive_closure
 from ..utils.hashing import consistent_hash
 from .errors import ArityDLMismatch

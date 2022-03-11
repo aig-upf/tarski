@@ -1,4 +1,4 @@
-from ..errors import TarskiError, DuplicateDefinition, UndefinedElement
+from ..errors import DuplicateDefinition, TarskiError, UndefinedElement
 
 
 class IncompleteProblemError(TarskiError):

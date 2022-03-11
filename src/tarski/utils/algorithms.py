@@ -1,5 +1,5 @@
 import sys
-from collections import deque, defaultdict
+from collections import defaultdict, deque
 
 
 def transitive_closure(elements):

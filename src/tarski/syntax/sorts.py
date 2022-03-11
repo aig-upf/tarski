@@ -52,7 +52,8 @@ class Sort:
 
     def to_constant(self, x):
         """ Cast the given element to a constant of this sort. """
-        from . import Constant, Variable  # pylint: disable=import-outside-toplevel  # Avoiding circular references
+        from . import (  # pylint: disable=import-outside-toplevel  # Avoiding circular references
+            Constant, Variable)
         if isinstance(x, (Constant, Variable)) and x.sort == self:
             return x
         if x not in self._domain:
@@ -116,7 +117,8 @@ class Interval(Sort):
 
     def to_constant(self, x):
         """ Cast the given element to a constant of this sort. """
-        from . import Constant, Variable  # pylint: disable=import-outside-toplevel  # Avoiding circular references
+        from . import (  # pylint: disable=import-outside-toplevel  # Avoiding circular references
+            Constant, Variable)
         if isinstance(x, (Constant, Variable)) and x.sort == self:
             return x
         return Constant(self.cast(x), self)
@@ -157,7 +159,8 @@ class Interval(Sort):
     def domain(self):
         if self.builtin or self.upper_bound - self.lower_bound > 9999:  # Yes, very hacky
             raise err.TarskiError(f'Cannot iterate over interval with range [{self.lower_bound}, {self.upper_bound}]')
-        from . import Constant  # pylint: disable=import-outside-toplevel  # Avoiding circular references
+        from . import \
+            Constant  # pylint: disable=import-outside-toplevel  # Avoiding circular references
         return (Constant(x, self) for x in range(self.lower_bound, self.upper_bound + 1))
 
 

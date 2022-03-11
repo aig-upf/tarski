@@ -24,7 +24,8 @@ def _import_numpy():
 
 def _import_pyrddl_parser():
     try:
-        from pyrddl.parser import RDDLParser  # pylint: disable=import-outside-toplevel
+        from pyrddl.parser import \
+            RDDLParser  # pylint: disable=import-outside-toplevel
         return RDDLParser
     except ImportError:
         raise ImportError('The pyrddl module does not seem available. '

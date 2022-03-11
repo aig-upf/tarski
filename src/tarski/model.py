@@ -2,7 +2,7 @@ import warnings
 from typing import Union
 
 from . import errors as err
-from .syntax import Function, Constant, CompoundTerm, symref
+from .syntax import CompoundTerm, Constant, Function, symref
 from .syntax.predicate import Predicate
 
 
@@ -101,7 +101,8 @@ class Model:
 
     def add(self, predicate, *args):
         """ """
-        from .syntax import Atom  # pylint: disable=import-outside-toplevel  # Avoiding circular references
+        from .syntax import \
+            Atom  # pylint: disable=import-outside-toplevel  # Avoiding circular references
         if isinstance(predicate, Atom):
             args = predicate.subterms
             predicate = predicate.predicate
@@ -141,7 +142,8 @@ class Model:
         This list *unwraps* the TermReference's used internally in this class back into plain Tarski terms, so that
         you can rely on the returned extensions being made up of Constants, Variables, etc., not TermReferences
         """
-        from .syntax.util import get_symbols  # pylint: disable=import-outside-toplevel  # Avoiding circular references
+        from .syntax.util import \
+            get_symbols  # pylint: disable=import-outside-toplevel  # Avoiding circular references
         exts = {k: [unwrap_tuple(tup) for tup in ext] for k, ext in self.predicate_extensions.items()}
         exts.update((k, [unwrap_tuple(point) + (value, ) for point, value in ext.data.items()])
                     for k, ext in self.function_extensions.items())

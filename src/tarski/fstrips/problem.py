@@ -1,10 +1,10 @@
 from collections import OrderedDict
 
 from .. import model
+from . import errors as err
+from . import fstrips as fs
 from .action import Action
 from .derived import Derived
-from . import fstrips as fs
-from . import errors as err
 
 
 class Problem:
@@ -104,7 +104,8 @@ def create_fstrips_problem(language, problem_name=None, domain_name=None, evalua
     problem.language = language
 
     if evaluator is None:
-        from tarski.evaluators.simple import evaluate as evaluator  # pylint: disable=import-outside-toplevel
+        from tarski.evaluators.simple import \
+            evaluate as evaluator  # pylint: disable=import-outside-toplevel
 
     problem.init = model.create(language, evaluator)
     return problem

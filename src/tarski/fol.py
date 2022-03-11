@@ -1,13 +1,14 @@
 import copy
 import itertools
-from collections import defaultdict, OrderedDict
+from collections import OrderedDict, defaultdict
 from typing import Union, cast
 
 from . import errors as err
-from .errors import UndefinedElement
-from .syntax import Function, Constant, Variable, Sort, inclusion_closure, Predicate, Interval
-from .syntax.algebra import Matrix
 from . import modules
+from .errors import UndefinedElement
+from .syntax import (Constant, Function, Interval, Predicate, Sort, Variable,
+                     inclusion_closure)
+from .syntax.algebra import Matrix
 
 
 class FirstOrderLanguage:

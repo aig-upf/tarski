@@ -1,24 +1,23 @@
 import logging
 from collections import defaultdict
-from typing import Optional, List
+from typing import List, Optional
 
+from ..fstrips import (AddEffect, DelEffect, FunctionalEffect, IncreaseEffect,
+                       UniversalEffect, create_fstrips_problem, language)
 from ..fstrips.action import AdditiveActionCost
-from ..theories import load_theory, Theory
-from .common import load_tpl
 from ..model import ExtensionalFunctionDefinition
-from ..syntax import Tautology, Contradiction, Atom, CompoundTerm, CompoundFormula, QuantifiedFormula, \
-    Term, Variable, Constant, Formula, symref, BuiltinPredicateSymbol
-from ..syntax.sorts import parent, Interval, ancestors
-
-from ._fstrips.common import tarski_to_pddl_type, get_requirements_string, create_number_type, uniformize_costs
-from ..fstrips import create_fstrips_problem, language, FunctionalEffect, AddEffect, DelEffect, IncreaseEffect,\
-    UniversalEffect
-
-from ._fstrips.reader import FStripsParser
-
+from ..syntax import (Atom, BuiltinPredicateSymbol, CompoundFormula,
+                      CompoundTerm, Constant, Contradiction, Formula,
+                      QuantifiedFormula, Tautology, Term, Variable, symref)
+from ..syntax.sorts import Interval, ancestors, parent
+from ..theories import Theory, load_theory
+from ._fstrips.common import (create_number_type, get_requirements_string,
+                              tarski_to_pddl_type, uniformize_costs)
 # Leave the next import so that it can be imported from the outside without warnings of importing a private module
 # pylint: disable=unused-import
 from ._fstrips.reader import ParsingError  # noqa: F401
+from ._fstrips.reader import FStripsParser
+from .common import load_tpl
 
 
 class FstripsReader:

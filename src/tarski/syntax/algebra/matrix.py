@@ -1,7 +1,7 @@
-from ... import modules
-from ...syntax import Term, Constant
-from ...syntax.sorts import Sort
 from ... import errors as err
+from ... import modules
+from ...syntax import Constant, Term
+from ...syntax.sorts import Sort
 
 
 class Matrix(Term):

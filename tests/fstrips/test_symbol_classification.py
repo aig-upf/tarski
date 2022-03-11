@@ -1,9 +1,10 @@
 import pytest
+
 from tarski.grounding.ops import approximate_symbol_fluency
 from tarski.syntax.util import get_symbols
 
-from ..io.common import reader, collect_strips_benchmarks, collect_fstrips_benchmarks
-
+from ..io.common import (collect_fstrips_benchmarks, collect_strips_benchmarks,
+                         reader)
 
 SAMPLE_STRIPS_INSTANCES = [
     "settlers-sat18-adl:p01.pddl",

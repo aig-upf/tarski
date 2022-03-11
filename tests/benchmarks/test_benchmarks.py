@@ -1,4 +1,5 @@
-from tarski.benchmarks.blocksworld import generate_fstrips_blocksworld_problem, generate_strips_blocksworld_problem
+from tarski.benchmarks.blocksworld import (
+    generate_fstrips_blocksworld_problem, generate_strips_blocksworld_problem)
 from tarski.benchmarks.counters import generate_fstrips_counters_problem
 from tarski.syntax import is_and
 

@@ -1,15 +1,22 @@
 import tarski.benchmarks.blocksworld
+from tarski.benchmarks.blocksworld import (
+    generate_fstrips_blocksworld_problem, generate_fstrips_bw_language,
+    generate_strips_blocksworld_problem)
 from tarski.benchmarks.counters import generate_fstrips_counters_problem
-from tarski.fstrips.representation import collect_effect_free_parameters, project_away_effect_free_variables, \
-    collect_effect_free_variables, project_away_effect_free_variables_from_problem, is_typed_problem, \
-    identify_cost_related_functions, compute_delete_free_relaxation, is_delete_free, is_strips_problem, \
-    is_conjunction_of_positive_atoms, is_strips_effect_set, compile_away_formula_negated_literals, \
-    compile_action_negated_preconditions_away, compile_negated_preconditions_away, compute_complementary_atoms
-from tarski.syntax import exists, land, neg, symref, substitute_expression, forall
-from tarski.fstrips import representation as rep, AddEffect, DelEffect
+from tarski.fstrips import AddEffect, DelEffect
+from tarski.fstrips import representation as rep
+from tarski.fstrips.representation import (
+    collect_effect_free_parameters, collect_effect_free_variables,
+    compile_action_negated_preconditions_away,
+    compile_away_formula_negated_literals, compile_negated_preconditions_away,
+    compute_complementary_atoms, compute_delete_free_relaxation,
+    identify_cost_related_functions, is_conjunction_of_positive_atoms,
+    is_delete_free, is_strips_effect_set, is_strips_problem, is_typed_problem,
+    project_away_effect_free_variables,
+    project_away_effect_free_variables_from_problem)
+from tarski.syntax import (exists, forall, land, neg, substitute_expression,
+                           symref)
 from tarski.syntax.ops import flatten
-from tarski.benchmarks.blocksworld import generate_fstrips_bw_language, generate_fstrips_blocksworld_problem, \
-    generate_strips_blocksworld_problem
 from tests.io.common import parse_benchmark_instance
 
 

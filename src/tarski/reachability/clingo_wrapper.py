@@ -1,14 +1,15 @@
 import logging
 import os
-import sys
 import shutil
+import sys
 import tempfile
-from pathlib import Path
 from collections import defaultdict
-
-from ..errors import CommandNotFoundError, ExternalCommandError, OutOfMemoryError, OutOfTimeError, ArgumentError
-from ..utils import command as cmd
 from importlib.util import find_spec
+from pathlib import Path
+
+from ..errors import (ArgumentError, CommandNotFoundError,
+                      ExternalCommandError, OutOfMemoryError, OutOfTimeError)
+from ..utils import command as cmd
 
 
 def get_gringo_command():

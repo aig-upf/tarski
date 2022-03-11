@@ -1,10 +1,10 @@
 from tarski.benchmarks.blocksworld import generate_fstrips_bw_language
-from tarski.fstrips import create_fstrips_problem, AddEffect
+from tarski.fstrips import AddEffect, create_fstrips_problem
 from tarski.fstrips.ops import collect_all_symbols
 from tarski.grounding.ops import approximate_symbol_fluency
 from tarski.syntax import top
 
-from ..common import parcprinter, gripper
+from ..common import gripper, parcprinter
 
 
 def test_symbol_classification_in_parcprinter():

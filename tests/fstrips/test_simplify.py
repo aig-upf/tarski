@@ -2,8 +2,9 @@ import tarski.benchmarks.blocksworld
 from tarski.benchmarks.counters import generate_fstrips_counters_problem
 from tarski.fstrips import UniversalEffect
 from tarski.fstrips.manipulation import Simplify
-from tarski.fstrips.manipulation.simplify import simplify_existential_quantification
-from tarski.syntax import symref, land, lor, neg, bot, top, forall, exists
+from tarski.fstrips.manipulation.simplify import \
+    simplify_existential_quantification
+from tarski.syntax import bot, exists, forall, land, lor, neg, symref, top
 
 
 def test_simplifier():

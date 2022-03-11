@@ -1,13 +1,13 @@
 """
  Classes and methods related to the Logic-Program based grounding  strategy of planning problems.
 """
-from ..utils.command import silentremove
 from ..grounding.ops import approximate_symbol_fluency
-from ..reachability import create_reachability_lp, run_clingo, parse_model
+from ..reachability import create_reachability_lp, parse_model, run_clingo
 from ..reachability.asp import GOAL
-from .errors import ReachabilityLPUnsolvable
 from ..util import SymbolIndex
+from ..utils.command import silentremove
 from .common import StateVariableLite
+from .errors import ReachabilityLPUnsolvable
 
 
 class LPGroundingStrategy:
@@ -89,7 +89,8 @@ def compute_action_groundings(problem, include_variable_inequalities=False):
 
 def ground_problem_schemas_into_plain_operators(problem, include_variable_inequalities=False):
     # pylint: disable=import-outside-toplevel
-    from ..syntax.transform.action_grounding import ground_schema_into_plain_operator_from_grounding
+    from ..syntax.transform.action_grounding import \
+        ground_schema_into_plain_operator_from_grounding
     action_groundings = compute_action_groundings(problem, include_variable_inequalities)
     operators = []
     for action_name, groundings in action_groundings.items():

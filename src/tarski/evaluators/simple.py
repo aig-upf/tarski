@@ -1,12 +1,14 @@
 import operator
 from typing import List
 
-from .. import funcsym
 from .. import errors as err
-from ..syntax import ops, Connective, Atom, Formula, CompoundFormula, QuantifiedFormula, builtins, Variable, \
-    Constant, CompoundTerm, Tautology, Contradiction, IfThenElse, AggregateCompoundTerm, Term
-from ..syntax.algebra import Matrix
+from .. import funcsym
 from ..model import Model
+from ..syntax import (AggregateCompoundTerm, Atom, CompoundFormula,
+                      CompoundTerm, Connective, Constant, Contradiction,
+                      Formula, IfThenElse, QuantifiedFormula, Tautology, Term,
+                      Variable, builtins, ops)
+from ..syntax.algebra import Matrix
 
 
 # TODO We will need to extend this so that the interpretation depends on a certain, given sigma of values to

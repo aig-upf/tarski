@@ -3,15 +3,17 @@ from collections import defaultdict
 
 import pytest
 
-from tarski import theories, Term, Constant
-from tarski.benchmarks.blocksworld import generate_strips_bw_language
-from tarski.fstrips import fstrips
-from tarski.syntax import symref, CompoundFormula, Atom, ite, AggregateCompoundTerm, CompoundTerm, lor, Tautology, \
-    Contradiction, land, top, bot
-from tarski.theories import Theory
+from tarski import Constant, Term
 from tarski import errors as err
 from tarski import fstrips as fs
+from tarski import theories
+from tarski.benchmarks.blocksworld import generate_strips_bw_language
+from tarski.fstrips import fstrips
+from tarski.syntax import (AggregateCompoundTerm, Atom, CompoundFormula,
+                           CompoundTerm, Contradiction, Tautology, bot, ite,
+                           land, lor, symref, top)
 from tarski.syntax.algebra import Matrix
+from tarski.theories import Theory
 
 from ..common import numeric
 

@@ -3,9 +3,9 @@
 """
 from enum import Enum
 
-from .concepts import Concept, Role, NullaryAtom
 from ..utils.algorithms import compute_min_distance
 from ..utils.hashing import consistent_hash
+from .concepts import Concept, NullaryAtom, Role
 
 
 class FeatureValueChange(Enum):

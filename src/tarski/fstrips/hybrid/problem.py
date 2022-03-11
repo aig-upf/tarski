@@ -1,10 +1,10 @@
 from collections import OrderedDict
 
-from ..problem import Problem
-from .reaction import Reaction
-from .differential_constraints import DifferentialConstraint
-from . import errors as err
 from .. import fstrips as fs
+from ..problem import Problem
+from . import errors as err
+from .differential_constraints import DifferentialConstraint
+from .reaction import Reaction
 
 
 class HybridProblem(Problem):

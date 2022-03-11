@@ -1,6 +1,5 @@
 from tarski.benchmarks.blocksworld import generate_fstrips_blocksworld_problem
 
-
 # def test_fstrips_problem_walker():
 #     problem = generate_fstrips_blocksworld_problem(
 #         nblocks=2,

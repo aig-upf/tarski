@@ -1,6 +1,5 @@
-from ...syntax import Atom, CompoundFormula, Connective, Constant, CompoundTerm
+from ...syntax import Atom, CompoundFormula, CompoundTerm, Connective, Constant
 from ...syntax.builtins import BuiltinPredicateSymbol
-
 from .errors import TransformationError
 
 

@@ -1,4 +1,4 @@
-from ... errors import DuplicateDefinition, UndefinedElement, SyntacticError
+from ...errors import DuplicateDefinition, SyntacticError, UndefinedElement
 
 
 class DuplicateReactionDefinition(DuplicateDefinition):

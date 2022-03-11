@@ -5,19 +5,22 @@
 import copy
 import logging
 
-from antlr4 import FileStream, CommonTokenStream, InputStream
+from antlr4 import CommonTokenStream, FileStream, InputStream
 from antlr4.error.ErrorListener import ErrorListener
 
-from .common import parse_number, process_requirements, create_sort, process_cost_effects, LowerCasingStreamWrapper
 from ...errors import SyntacticError
-from ...fstrips import DelEffect, AddEffect, FunctionalEffect, UniversalEffect, OptimizationMetric, OptimizationType
-from ...syntax import CompoundFormula, Connective, neg, Tautology, implies, exists, forall, Term, Interval
-from ...syntax.builtins import get_predicate_from_symbol, get_function_from_symbol
+from ...fstrips import (AddEffect, DelEffect, FunctionalEffect,
+                        OptimizationMetric, OptimizationType, UniversalEffect)
+from ...syntax import (CompoundFormula, Connective, Interval, Tautology, Term,
+                       exists, forall, implies, neg)
+from ...syntax.builtins import (get_function_from_symbol,
+                                get_predicate_from_symbol)
 from ...syntax.formulas import VariableBinding
-
-from .parser.visitor import fstripsVisitor
+from .common import (LowerCasingStreamWrapper, create_sort, parse_number,
+                     process_cost_effects, process_requirements)
 from .parser.lexer import fstripsLexer
 from .parser.parser import fstripsParser
+from .parser.visitor import fstripsVisitor
 
 
 class FStripsParser(fstripsVisitor):

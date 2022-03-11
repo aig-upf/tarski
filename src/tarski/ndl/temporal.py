@@ -8,7 +8,8 @@
     Proceedings of the 26th Int'l Joint Conference on Artificial Intelligence (IJCAI)
     2017
 """
-from ..syntax import Atom, CompoundTerm, CompoundFormula, Constant, symref, Connective, Tautology
+from ..syntax import (Atom, CompoundFormula, CompoundTerm, Connective,
+                      Constant, Tautology, symref)
 
 
 class NDLSyntaxError(Exception):

@@ -3,10 +3,10 @@
 """
 import tarski as tsk
 import tarski.model
-from tarski.theories import Theory
 from tarski import fstrips as fs
-from tarski.syntax import top, land
 from tarski.evaluators.simple import evaluate
+from tarski.syntax import land, top
+from tarski.theories import Theory
 
 
 def create_small_language():

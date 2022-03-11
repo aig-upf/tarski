@@ -1,4 +1,5 @@
 import shutil
+
 import pytest
 
 from tarski.grounding import LPGroundingStrategy, NaiveGroundingStrategy
@@ -7,10 +8,11 @@ from tarski.grounding.lp_grounding import compute_action_groundings
 from tarski.reachability import create_reachability_lp
 from tarski.syntax import neg
 from tests.common.benchmarks import get_lenient_benchmarks
-
 from tests.common.gripper import create_sample_problem
 from tests.common.simple import create_simple_problem
-from ..io.common import reader, collect_strips_benchmarks, parse_benchmark_instance
+
+from ..io.common import (collect_strips_benchmarks, parse_benchmark_instance,
+                         reader)
 
 if shutil.which("gringo") is None:
     pytest.skip('Install the Clingo ASP solver and put the "gringo" binary on your PATH in order to test ASP-based '

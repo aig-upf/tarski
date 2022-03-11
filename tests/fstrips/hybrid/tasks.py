@@ -2,8 +2,8 @@ from tarski import fstrips as fs
 from tarski.fstrips import hybrid
 from tarski.syntax import *
 from tarski.syntax.arithmetic import summation
-
-from tests.common.numeric import generate_numeric_instance, generate_billiards_instance
+from tests.common.numeric import (generate_billiards_instance,
+                                  generate_numeric_instance)
 
 
 def create_particles_world():

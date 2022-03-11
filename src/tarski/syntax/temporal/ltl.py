@@ -1,6 +1,7 @@
 from enum import Enum
+
 from ... import errors as err
-from ..formulas import Formula, Connective, CompoundFormula, lor
+from ..formulas import CompoundFormula, Connective, Formula, lor
 
 
 class TemporalConnective(Enum):

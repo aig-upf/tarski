@@ -1,15 +1,16 @@
 from collections import OrderedDict
 
-from tarski.fstrips import DelEffect, UniversalEffect, AddEffect
+from tarski.benchmarks.blocksworld import generate_strips_blocksworld_problem
+from tarski.fstrips import AddEffect, DelEffect, UniversalEffect
 from tarski.fstrips.action import PlainOperator
 from tarski.fstrips.representation import is_ground
 from tarski.grounding import ProblemGrounding
-from tarski.grounding.lp_grounding import ground_problem_schemas_into_plain_operators
+from tarski.grounding.lp_grounding import \
+    ground_problem_schemas_into_plain_operators
 from tarski.syntax import symref
-from tarski.syntax.transform.action_grounding import ground_schema_into_plain_operator, \
-    ground_schema_into_plain_operator_from_grounding
-from tarski.benchmarks.blocksworld import generate_strips_blocksworld_problem
-
+from tarski.syntax.transform.action_grounding import (
+    ground_schema_into_plain_operator,
+    ground_schema_into_plain_operator_from_grounding)
 from tests.common import blocksworld
 
 
