@@ -1,6 +1,16 @@
-from .action import Action, Effect
-from .helper import make_domain
-from .temporal import TemporalAction
-from .variable import Variable
+# tarski: An AI Planning Modeling Framework
+#
+# Author: Miquel Ramirez <miquel.ramirez@pm.me>
+# ----------------------------------------------------------------------------------------------------------------------
+# src/tarski/sas/__init__.py
+#
+# SAS Modeling support
+# ----------------------------------------------------------------------------------------------------------------------
 
-__all__ = ['Effect', 'Action', 'TemporalAction', 'Variable', 'make_domain']
+from collections import namedtuple
+
+
+Schema = namedtuple('Schema', ['name', 'variables', 'constraints', 'transitions'])
+Action = namedtuple('Action', ['name', 'arguments', 'transitions'])
+
+__all__ = ['Schema', 'Action']
