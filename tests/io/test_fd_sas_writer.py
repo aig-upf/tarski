@@ -1,9 +1,12 @@
 import pytest
 
+import tempfile
+
 import tarski as tsk
 from tarski.theories import Theory
 from tarski.syntax import land, symref
 from tarski.io.sas.fd import Writer
+from tarski.sas import Action
 from tarski.util import SymbolIndex
 
 @pytest.mark.sas
@@ -24,7 +27,7 @@ def test_gripper_instance():
 
     # Constant objects
     none = L.constant("none", L.Object)
-    the_balls = [L.constant('ball{}'.format(i), ball_t) for i in range(5)]
+    the_balls = [L.constant('ball{}'.format(i), ball_t) for i in range(4)]
     grippers = [L.constant(gripper_name, gripper_t) for gripper_name in ('left', 'right')]
     the_rooms = [L.constant('room{}'.format(i), room_t) for i in ('a', 'b')]
 
@@ -133,24 +136,54 @@ def test_gripper_instance():
     for v in var6_domain:
         D[symref(var6())].add(symref(v))
 
+    # actions
+    # MRJ: Note that here we're divergin from the FD docs, as the given preconditions do not seem correct. Note that
+    # below we have what in my opinion is a proper SAS formulation of gripper, where 1) the robot must remain at the
+    # room while dropping the ball on the ground, 2) the multi-valued variable for the location of ball3 (roomA, roomB,
+    # <none of those>) requires, for each transition (s,a,s') that s satisfies var3 = <none of these>. Otherwise it
+    # would be possible (in principle) to allow transitions where var3 has an inconvenient value (like the ball being in
+    # different room).
+    # Otherwise, states then are to be interpreted as a CSP with equality constraints, and "mutex groups", constraints
+    # of the form x=v -> x'\neq v' (or x \neq v \lor x' \neq v'). I haven't heard of states as CSPs (with multiple models?)
+    # How would this work?
+    Act = [
+        Action(name='drop',
+               arguments=[the_balls[0], the_rooms[0], grippers[0]],
+               transitions=[
+                   (var1(), var1_domain[3], var1_domain[1]),
+                   (var6(), var6_domain[0], var6_domain[0]),
+                   (var3(), var3_domain[2], var3_domain[0])
+               ])
+    ]
+
 
     # initial state
     # note that here we diverge from the example in https://www.fast-downward.org/TranslatorOutputFormat4 which
     # does not give sensible values for the state variables given
     initial_state = [
-        (var0, var0_domain[0]), # robot carries ball1 on right gripper
-        (var1, var1_domain[0]), # robot carries ball3 on left gripper
-        (var2, var2_domain[0]), # ball 4 is at room a
-        (var3, var3_domain[2]), # ball 3 is <none of those>
-        (var4, var4_domain[2]), # ball 1 is <none of those>
-        (var5, var5_domain[0]), # ball 2 is at room a
-        (var6, var6_domain[0]), # robot is at room b
+        (var0(), var0_domain[0]), # robot carries ball1 on right gripper
+        (var1(), var1_domain[0]), # robot carries ball3 on left gripper
+        (var2(), var2_domain[0]), # ball 4 is at room a
+        (var3(), var3_domain[2]), # ball 3 is <none of those>
+        (var4(), var4_domain[2]), # ball 1 is <none of those>
+        (var5(), var5_domain[0]), # ball 2 is at room a
+        (var6(), var6_domain[0]), # robot is at room b
     ]
 
     goal_state = [
-        (var2, var2_domain[1]), # ball 4 is at room b
-        (var3, var3_domain[1]), # ball 3 is at room b
-        (var4, var4_domain[1]), # ball 1 is at room b
-        (var5, var5_domain[1]), # ball 2 is at room b
+        (var2(), var2_domain[1]), # ball 4 is at room b
+        (var3(), var3_domain[1]), # ball 3 is at room b
+        (var4(), var4_domain[1]), # ball 1 is at room b
+        (var5(), var5_domain[1]), # ball 2 is at room b
     ]
 
+    with tempfile.TemporaryFile(mode='w+') as outstream:
+        Writer(theory=L2,
+               state_variables=X,
+               domains=D,
+               actions=Act,
+               initial=initial_state,
+               goal=goal_state).dump(outstream)
+        outstream.seek(0)
+        written_data = outstream.read()
+        print(written_data)

@@ -47,13 +47,13 @@ class Writer(object):
 
     def make_variable_section(self) -> str:
         elements = []
-        for idx, var in self.state_variables:
+        for var in self.state_variables:
             elements += [variable_section_elem_tmpl.substitute(
-                name=str(var),
+                name=str(var.expr),
                 # @TODO: come up with proper value when we get axioms in fully
                 axiom_layer=-1,
-                domain_size=len(self.domains[symref(var)]),
-                value_section=self.make_value_section(var)
+                domain_size=len(self.domains[var]),
+                value_section=self.make_value_section(var.expr)
             )]
 
         return '\n'.join(elements)
@@ -74,6 +74,8 @@ class Writer(object):
         mutex_groups = []
 
         # @TODO: implement when we have an idea of what are these constraints exactly
+        if len(mutex_groups) == 0:
+            return ''
 
         return "\n".join(mutex_groups)
 
@@ -81,14 +83,15 @@ class Writer(object):
         defaults = []
 
         # @TODO: finish implementation when we have axioms in
-
-        return '\n'.join(defaults)
+        if len(defaults) == 0:
+            return ''
+        return '\n' + '\n'.join(defaults)
 
     def make_axiom_defaults_section(self) -> str:
         # @TODO: finish implementation when we have axioms in
         return axiom_defaults_section_tmpl.substitute(
             num_axiom_vars=0,
-            axioms_defaults_list=self.make_axioms_defaults_list()
+            axiom_defaults_list=self.make_axioms_defaults_list()
         )
 
     def get_number_axiom_rules(self) -> str:
@@ -99,14 +102,15 @@ class Writer(object):
         rules = []
 
         # @TODO: finish implementation when we have it
-
-        return '\n'.format(rules)
+        if len(rules) == 0:
+            return ''
+        return '\n' + '\n'.join(rules)
 
     def get_num_operators(self):
         return '{}'.format(len(self.actions))
 
     def get_action_name(self, a):
-        return "{}({})".format(a.name, ",".join(a.arguments))
+        return "{}({})".format(a.name, ",".join([str(arg) for arg in a.arguments]))
 
     def get_num_preconditions(self, a):
         return len(a.transitions)
@@ -130,8 +134,8 @@ class Writer(object):
             elems += [effect_elem_tmpl.substitute(
                 num_effect_conditions=0,
                 effect_condition_list='',
-                variable_index=self.state_variables.get_index(symref(x)),
-                value_index=self.domains[symref(x)].get_index(symref(w))
+                affected_variable_index=self.state_variables.get_index(symref(x)),
+                new_value_index=self.domains[symref(x)].get_index(symref(w))
             )]
 
         return '\n'.join(elems)
@@ -146,7 +150,7 @@ class Writer(object):
         :return:
         """
         operators = []
-
+        assert len(self.actions) > 0
         for action in self.actions:
             operators += [operator_tmpl.substitute(
                 name=self.get_action_name(action),
@@ -156,8 +160,8 @@ class Writer(object):
                 effect_list=self.make_effect_list(action),
                 cost=self.get_cost(action)
             )]
-
-        return '\n'.format(operators)
+        print(operators)
+        return '\n'.join(operators)
 
     def make_initial_value_list(self) -> str:
         """
@@ -186,6 +190,8 @@ class Writer(object):
                 variable_index=self.state_variables.get_index(symref(x)),
                 value_index=self.domains[symref(x)].get_index(symref(v))
             )]
+        return '\n'.join(values)
+
 
     def make_goal_state_section(self) -> str:
         return goal_state_section_tmpl.substitute(
