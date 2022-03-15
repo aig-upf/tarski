@@ -29,21 +29,30 @@ def check_constraints(C, s, subst):
     return all([s[substitute_expression(c, subst)] for c in C])
 
 
-def ground_action_schemas(lang, schemas):
+def ground_action_schemas(lang, schemas, domains=None, sem_struct=None):
     """
     Straightforward grounding by enumeration
     :param lang: domain theory
     :param schemas: action schemas to be enumerated
+    :param domains: table with variable symbols domains, or None if domains provided inline
+    :param sem_struct: semantic structure to check the satisfiability of schema constraints, or None if all
+    predicates in constraints are built-ins (e.g. relational operators, equality)
     :return:
     """
 
     actions = []
-    s = tarski.model.create(lang)
-    s.evaluator = evaluate
+    if sem_struct is None:
+        s = tarski.model.create(lang)
+        s.evaluator = evaluate
+    else:
+        s = sem_struct
 
     for sch in schemas:
         sch_x = [entry[0] for entry in sch.variables]
-        sch_D = [entry[1] for entry in sch.variables]
+        if domains is None:
+            sch_D = [entry[1] for entry in sch.variables]
+        else:
+            sch_D = [domains[entry[1]] for entry in sch.variables]
 
         for a in product(*sch_D):
             subst = create_substitution(sch_x, a)
