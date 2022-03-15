@@ -65,6 +65,7 @@ def ground_action_schemas(lang, schemas, domains=None, sem_struct=None):
                                             substitute_expression(pre, subst),
                                             substitute_expression(post, subst)) for x, pre, post in sch.transitions])
             actions += [action_a]
+            #print(action_a.name, a)
 
     return actions
 
