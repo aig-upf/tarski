@@ -12,7 +12,7 @@ from tarski.syntax import symref
 from tarski.util import SymbolIndex
 
 
-def dump(lang, actions, initial, goal, objects, domains, fp):
+def dump(lang, actions, initial, goal, objects, domains, name, fp):
     """
     Serializes instance elements (domain theory, actions, initial state and goal condition) into a JSON
     formatted stream.
@@ -22,6 +22,7 @@ def dump(lang, actions, initial, goal, objects, domains, fp):
     :param initial: Initial state, a list of equality literals, given as pairs of terms
     (symbol of the form $x(\bar{a})$) and values v (constant symbols)
     :param goal: Goal state, a list of equality literals, given as pairs of term (as above) and values v (as above)
+    :param name: instance name
     :param fp:
     :return:
     """
@@ -133,8 +134,8 @@ def dump(lang, actions, initial, goal, objects, domains, fp):
     # Now we put all the instance data together and build the JSON document
     doc = {
         "metadata": {
-            "domain": "blocksworld",
-            "instance": "probBLOCKS-4-0"
+            "domain": lang.name,
+            "instance": name
         },
         "types": types_data,
         "vars": vars_data,

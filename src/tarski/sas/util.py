@@ -70,7 +70,7 @@ def ground_action_schemas(lang, schemas, domains=None, sem_struct=None):
     return actions
 
 
-def ground_temporal_action(lang, s, schema):
+def ground_temporal_action(lang, s, schema, domains=None):
     """
     Grounds temporal actions events
     :param lang:
