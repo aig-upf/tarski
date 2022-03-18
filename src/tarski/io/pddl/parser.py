@@ -282,9 +282,13 @@ class PDDLparser:
 
     def p_primitive_type(self, p):
         '''primitive_type   : rwOBJECT
+                            | rwNUMBER
                             | ID'''
         if p[1] == self.lexer.symbols.rwOBJECT:
             p[0] = 'Object'
+            return
+        if p[1] == self.lexer.symbols.rwNUMBER:
+            p[0] = 'Real'
             return
         p[0] = p[1]
 
@@ -943,7 +947,27 @@ class PDDLparser:
                 msg = "Error parsing action effect: 'undefined' special constant is not supported at the moment"
                 raise UnsupportedFeature(self.lexer.lineno(), msg)
             return
-        msg = "Error parsing action effect: special assignment operators are not supported at the moment"
+        if p[2] == self.lexer.symbols.rwSCALE_UP:
+            lhs = p[3]
+            rhs = p[4]
+            p[0] = AssignmentEffectData(lhs=lhs, rhs=lhs * rhs)
+            return
+        elif p[2] == self.lexer.symbols.rwSCALE_DOWN:
+            lhs = p[3]
+            rhs = p[4]
+            p[0] = AssignmentEffectData(lhs=lhs, rhs=lhs * rhs)
+            return
+        elif p[2] == self.lexer.symbols.rwINCREASE:
+            lhs = p[3]
+            rhs = p[4]
+            p[0] = AssignmentEffectData(lhs=lhs, rhs=lhs + rhs)
+            return
+        elif p[2] == self.lexer.symbols.rwDECREASE:
+            lhs = p[3]
+            rhs = p[4]
+            p[0] = AssignmentEffectData(lhs=lhs, rhs=lhs - rhs)
+            return
+        msg = "Error parsing action effect: special assignment operator {} is not supported at the moment".format(p[2])
         raise UnsupportedFeature(self.lexer.lineno(), msg)
 
     def p_cond_effect(self, p):

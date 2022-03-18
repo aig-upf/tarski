@@ -23,6 +23,7 @@ def process_command_line():
     opt = parser.parse_args()
     return opt
 
+
 def main(opt: Namespace):
     parser = PDDLparser(debug=True)
 

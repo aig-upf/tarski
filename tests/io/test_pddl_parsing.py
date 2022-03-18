@@ -170,3 +170,55 @@ def test_basic_constructs():
         assert len(instance.derived) == 1
         assert len(instance.init) == 2
         assert len(goal_atoms) == 2
+
+
+@pytest.mark.pddl
+def test_temporal_numeric():
+
+    pddl_data = ""
+
+    with open('tests/data/pddl/temporal/ipc08/elevators/p01-domain.pddl') as instream:
+        pddl_data = instream.read()
+
+    with open('tests/data/pddl/temporal/ipc08/elevators/p01.pddl') as instream:
+        pddl_data += instream.read()
+
+    parser = PDDLparser(debug=True)
+
+    with tempfile.NamedTemporaryFile() as f:
+        parser.build(logfile=f.name)
+
+        parser.parse(pddl_data)
+
+        #assert parser.domain_name == 'foo'
+        #assert parser.problem_name == 'instance_001'
+        #assert Features.DURATIVE_ACTIONS in parser.required_features
+        #assert Features.TYPING in parser.required_features
+
+        instance = parser.instance
+        assert instance is not None
+
+        print("Functions", len(instance.functions))
+        print("Predicates", len(instance.predicates))
+        print("Types", len(instance.types))
+        print("Constants", len(instance.constants))
+        print("Actions: instantaneous: {} durative: {}".format(len(instance.actions), len(instance.durative)))
+        print("Derived predicates:", len(instance.derived))
+        print("Initial State literals", len(instance.init))
+
+        eq_atoms_visitor = CollectEqualityAtoms()
+        eq_atoms_visitor.visit(instance.goal)
+        goal_atoms = eq_atoms_visitor.atoms
+        print("Goal literals", len(goal_atoms))
+
+        #assert len(instance.types) == 6
+        #assert 'object' in instance.types
+        #assert len(instance.constants) == 4
+        #assert len(instance.functions) == 2
+        #assert len(instance.predicates) == 8
+        #assert len(instance.types) == 6
+        #assert len(instance.actions) == 1
+        #assert len(instance.durative) == 1
+        #assert len(instance.derived) == 1
+        #assert len(instance.init) == 2
+        #assert len(goal_atoms) == 2
