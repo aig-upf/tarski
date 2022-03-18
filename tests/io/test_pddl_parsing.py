@@ -149,7 +149,7 @@ def test_basic_constructs():
         print("Functions", len(instance.functions))
         print("Predicates", len(instance.predicates))
         print("Types", len(instance.types))
-        print("Constants", len(instance.constants))
+        print("Constants", len(instance.domains))
         print("Actions: instantaneous: {} durative: {}".format(len(instance.actions), len(instance.durative)))
         print("Derived predicates:", len(instance.derived))
         print("Initial State literals", len(instance.init))
@@ -161,7 +161,7 @@ def test_basic_constructs():
 
         assert len(instance.types) == 6
         assert 'object' in instance.types
-        assert len(instance.constants) == 4
+        assert len(instance.domains) == 4
         assert len(instance.functions) == 2
         assert len(instance.predicates) == 8
         assert len(instance.types) == 6
@@ -201,7 +201,7 @@ def test_temporal_numeric():
         print("Functions", len(instance.functions))
         print("Predicates", len(instance.predicates))
         print("Types", len(instance.types))
-        print("Constants", len(instance.constants))
+        print("Constants", len(instance.domains))
         print("Actions: instantaneous: {} durative: {}".format(len(instance.actions), len(instance.durative)))
         print("Derived predicates:", len(instance.derived))
         print("Initial State literals", len(instance.init))

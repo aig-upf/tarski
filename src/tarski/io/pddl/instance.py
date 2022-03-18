@@ -102,7 +102,7 @@ class InstanceModel:
         return self._types
 
     @property
-    def constants(self):
+    def domains(self):
         """
         Dictionary of constants defined in the PDDL program
         :return:
@@ -196,11 +196,11 @@ class InstanceModel:
         :return:
         """
         typename, constant_list = constant_data
-        if typename in self.constants:
-            self.constants[typename] += [self.L.constant(c, self.types[typename]) for c in constant_list]
+        if typename in self.domains:
+            self.domains[typename] += [self.L.constant(c, self.types[typename]) for c in constant_list]
             return
 
-        self.constants[typename] = [self.L.constant(c, self.types[typename]) for c in constant_list]
+        self.domains[typename] = [self.L.constant(c, self.types[typename]) for c in constant_list]
 
     def process_predicate_definition(self, predicate_data):
         """

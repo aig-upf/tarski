@@ -1292,7 +1292,7 @@ class PDDLparser:
                 raise SemanticError(self.lexer.lineno(), msg)
         if self.debug:
             total_constants = 0
-            for typename, constant_list in self.instance.constants.items():
+            for typename, constant_list in self.instance.domains.items():
                 total_constants += len(constant_list)
             print("Total constants defined:", total_constants)
 

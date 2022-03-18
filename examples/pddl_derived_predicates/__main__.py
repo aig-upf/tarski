@@ -60,7 +60,7 @@ def main(opt: Namespace):
     # constants are grouped per type
     total_constants = 0
     print("Objects (constant symbols) found in the instance:")
-    for typename, constant_list in instance_data.constants.items():
+    for typename, constant_list in instance_data.domains.items():
         print("Type:", typename, "# constants:", len(constant_list))
         total_constants += len(constant_list)
     print("Total constants (objects) in instance:", total_constants)
