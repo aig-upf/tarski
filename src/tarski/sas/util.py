@@ -18,7 +18,7 @@ from tarski.sas.temporal import TemporalAction
 
 
 def check_constraints(C, s, subst):
-    """
+    r"""
     Returns true if s \models C[x/subst(x)], that is, the result of replacing every variable symbol x by
     subst(x) in C is satisfiable under s.
     :param C: A constraint (predicate)
@@ -65,7 +65,7 @@ def ground_action_schemas(lang, schemas, domains=None, sem_struct=None):
                                             substitute_expression(pre, subst),
                                             substitute_expression(post, subst)) for x, pre, post in sch.transitions])
             actions += [action_a]
-            #print(action_a.name, a)
+            # print(action_a.name, a)
 
     return actions
 
@@ -89,7 +89,6 @@ def ground_temporal_action(lang, s, schema, domains=None):
 
     sch_x = [x.expr for x in X]
     sch_D = [D[symref(x_k)] for x_k in sch_x]
-
 
     actions = []
 

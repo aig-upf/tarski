@@ -52,7 +52,7 @@ def dump(lang, actions, initial, goal, objects, domains, name, fp):
     D = SymbolIndex()
     for obj in objects:
         if obj.sort == lang.Integer:
-            continue # do not encode integers as objects
+            continue  # do not encode integers as objects
         if symref(obj) in D:
             continue
         D.add(symref(obj))
@@ -91,7 +91,6 @@ def dump(lang, actions, initial, goal, objects, domains, name, fp):
     action_names = [
         "{}({})".format(a.name, ",".join([str(arg) for arg in a.arguments])) for a in actions
     ]
-
 
     # The transition function is factored as table constraints $Tr(a,x)$, and for each constraint
     # - indexed by action and variable - we give the pairs of values v and w s.t. for any tuple

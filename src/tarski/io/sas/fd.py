@@ -6,9 +6,10 @@
 #
 # SAS instance writer for Fast Downward pre-processor
 # ----------------------------------------------------------------------------------------------------------------------
-
+from tarski.io.sas.templates import variable_section_elem_tmpl, axiom_defaults_section_tmpl, precondition_elem_tmpl, \
+    effect_elem_tmpl, operator_tmpl, initial_value_list_elem_tmpl, initial_state_section_tmpl, \
+    goal_value_list_elem_tmpl, goal_state_section_tmpl, sas_instance_tmpl
 from tarski.syntax import symref, CompoundTerm
-from tarski.io.sas.templates import *
 
 
 FAST_DOWNWARD_SAS_VERSION = 4
@@ -191,7 +192,6 @@ class Writer(object):
                 value_index=self.domains[symref(x)].get_index(symref(v))
             )]
         return '\n'.join(values)
-
 
     def make_goal_state_section(self) -> str:
         return goal_state_section_tmpl.substitute(
