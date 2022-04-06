@@ -31,7 +31,7 @@ jobs:
           ./scripts/get-benchmarks
 
       - name: Run tests with coverage enabled
-        run: tox -v -e pycoverage
+        run: tox -v -e coverage
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2

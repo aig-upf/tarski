@@ -39,11 +39,6 @@ jobs:
         if: matrix.toxenv == 'docs'
         run: sudo apt-get install -y --no-install-recommends gringo pandoc && gringo --version
 
-      # curl required only for the codecov script
-      - name: Install Gringo
-        if: matrix.toxenv == 'pycoverage'
-        run: sudo apt-get install -y --no-install-recommends curl
-
       - name: Install tox and packaging dependencies
         run: |
           python -m pip install --upgrade tox pip setuptools wheel
