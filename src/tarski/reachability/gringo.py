@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 import sys
-from clingo.application import Application, clingo_main  # type: ignore
+
+try:
+    from clingo.application import Application, clingo_main  # type: ignore
+except ModuleNotFoundError:
+    print("Clingo not installed")
+    sys.exit(-1)
 
 
 class WrapperClingo(Application):
