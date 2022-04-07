@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 ### Fixed
 
+## [0.8.1] 2022-04-07
+### Fixed
+ - Fixed pypi publishing workflow.
 
 ## [0.8.0] 2022-04-07
 ### Changed
