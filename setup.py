@@ -87,7 +87,7 @@ def main():
                 'numpy'
             ],
             'rddl': [
-                "pyrddl @ https://github.com/thiagopbueno/pyrddl/archive/9ccab6a.zip#sha1=a584f90381bf7d48b85976807b9bc6c0cb2761ba"
+                "pyrddl"
             ],
             'parsegen': [
                 'ply==3.11'
