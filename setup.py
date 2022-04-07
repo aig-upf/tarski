@@ -92,8 +92,8 @@ def main():
             'parsegen': [
                 'ply==3.11'
             ],
-            'gringo': [
-                # Clingo (gringo) bindings to the clingo solver
+            'clingo': [
+                # Clingo (& gringo) bindings to the clingo solver
                 'clingo>=5.5.1'
             ],
             'stubs': [
