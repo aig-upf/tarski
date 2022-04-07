@@ -6,33 +6,32 @@ import tempfile
 from pathlib import Path
 from collections import defaultdict
 
+from typing import List
+
 from ..errors import CommandNotFoundError, ExternalCommandError, OutOfMemoryError, OutOfTimeError, ArgumentError
 from ..utils import command as cmd
 from importlib.util import find_spec
 
 
-def get_gringo_command():
-    """Assemble the command to run gringo
+def get_gringo_command() -> List[str]:
+    """ Assemble the command to run gringo. First try to find a pip-installed gringo, then fall back to a system-wide
+    gringo installation. Raise exception if no gringo is found.
 
-    :return: A list depicting the command with arguments
-    :rtype: list of String / None(if command could not be assembled)
+    :return: A list with the command and arguments to invoke gringo.
     """
-    command = None
     if find_spec("clingo"):
-        command = [sys.executable, os.path.join(Path(__file__).parent.absolute(), "gringo.py")]
         logging.debug("Using the clingo pypi bindings to emulate gringo binary")
-    else:
-        gringo = shutil.which("gringo")
-        command = [gringo] if gringo else None
-        logging.debug('Using gringo binary found in "{}"'.format(gringo))
+        return [sys.executable, os.path.join(Path(__file__).parent.absolute(), "gringo.py")]
 
-    return command
+    if (gringo := shutil.which("gringo")) is None:
+        raise CommandNotFoundError("gringo")
+
+    logging.debug(f'Using gringo binary found in "{gringo}"')
+    return [gringo]
 
 
 def run_clingo(lp):
     gringo_command = get_gringo_command()
-    if gringo_command is None:
-        raise CommandNotFoundError("gringo")
 
     with tempfile.NamedTemporaryFile(mode='w+t', delete=False) as f:
         _ = [print(str(r), file=f) for r in lp.rules]
