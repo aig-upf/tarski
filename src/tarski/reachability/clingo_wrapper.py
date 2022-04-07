@@ -23,7 +23,8 @@ def get_gringo_command() -> List[str]:
         logging.debug("Using the clingo pypi bindings to emulate gringo binary")
         return [sys.executable, os.path.join(Path(__file__).parent.absolute(), "gringo.py")]
 
-    if (gringo := shutil.which("gringo")) is None:
+    gringo = shutil.which("gringo")
+    if gringo is None:
         raise CommandNotFoundError("gringo")
 
     logging.debug(f'Using gringo binary found in "{gringo}"')
