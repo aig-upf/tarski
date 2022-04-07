@@ -1,0 +1,107 @@
+name: Tests
+
+on:
+  # The master branch is protected against direct pushes.
+  # Let's run the tests on all PRs and pushes
+  pull_request:
+    branches: [ master, devel ]
+    # See https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request
+    types: [opened, reopened]
+  push:
+
+env:
+  DOWNWARD_BENCHMARKS: "/tmp/downward-benchmarks"
+  FSBENCHMARKS: "/tmp/fs-benchmarks"
+
+jobs:
+  unit_tests:
+    strategy:
+      # Keep running all parameter combinations even if one fails
+      fail-fast: false
+
+      matrix:
+        # Currently, we only test on ubuntu, would be good to extend to macos-latest, windows-latest,
+        # but this requires a bit of extra work to get the dependencies installed there too
+        os: [ubuntu-latest]
+
+        # We run unit tests on all currently active Python releases, see https://www.python.org/downloads/.
+        # GH-hosted versions for the Ubuntu image are listed here:
+        # https://github.com/actions/virtual-environments/blob/main/images/linux/Ubuntu2004-Readme.md
+        # We also run tests in the latest pre-release version. Available pre-releases are listed here:
+        # https://github.com/actions/python-versions/releases
+        # Note that for the pre-release, we set the `experimental` tag, and hence the `continue-on-error` flag, to true;
+        # this way, failuares are treated as a warning and don’t fail the whole workflow. This is sometimes referred to
+        # as a "shadow CI job".
+        # pypy is currently disabled, as it takes a long time to run (>20mins)
+#        python-version: ['3.7', '3.8', '3.9', '3.10', 'pypy-3.9']
+        python-version: ['3.7', '3.8', '3.9', '3.10']
+        experimental: [false]
+
+        # I'm temporarily disabling the build on the 3.11 alpha, as the installation aims at buiilding the scipy wheel,
+        # which fails spectacularly with a 10K lines log of Fortran compilation errors.
+        # Let's wait a bit until a binary wheel is available
+#        include:
+#          -  os: ubuntu-latest
+#             python-version: '3.11.0-alpha.5'
+#             experimental: true
+
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.experimental }}
+
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        # Install all dependencies, then get some benchmarks that we'll use to run the tests.
+        # Curl below is necessary to download the benchmarks
+        run: |
+          sudo apt-get install -y --no-install-recommends gringo curl
+          python -m pip install --upgrade tox pip setuptools wheel
+          gringo --version
+          tox --version
+          ./scripts/get-benchmarks
+
+      - name: Run tests (with continue-on-error = ${{ matrix.experimental }})
+        run: |
+          tox -v -e pytest
+
+  style:
+    strategy:
+      # Keep running all parameter combinations even if one fails
+      fail-fast: false
+
+      # We run style tests only on the latest active Python releases, see https://www.python.org/downloads/.
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ['3.10']
+        toxenv: ['docs', 'antlrgrammars', 'pylint', 'flake8', 'mypy']
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # Gringo and pandoc required only for the documentation tox environment
+      # Pandoc is installed as an APT package as recommended in the installation instructions.
+      - name: Install Gringo
+        if: matrix.toxenv == 'docs'
+        run: sudo apt-get install -y --no-install-recommends gringo pandoc && gringo --version
+
+      - name: Install tox and packaging dependencies
+        run: |
+          python -m pip install --upgrade tox pip setuptools wheel
+          tox --version
+
+      - name: Run tox environment ${{ matrix.toxenv }}
+        run: tox -v -e ${{ matrix.toxenv }}

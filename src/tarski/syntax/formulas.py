@@ -1,4 +1,3 @@
-
 from collections import OrderedDict
 from enum import Enum
 from typing import List
@@ -33,6 +32,7 @@ def negate_quantifier(q: Quantifier):
 
 class Formula:
     """ A first-order logical formula. """
+
     def __str__(self):
         raise NotImplementedError()  # To be subclassed
 
@@ -68,6 +68,7 @@ class Formula:
 class Tautology(Formula):
     def __str__(self):
         return "T"
+
     __repr__ = __str__
 
     def __eq__(self, other):
@@ -80,6 +81,7 @@ class Tautology(Formula):
 class Contradiction(Formula):
     def __str__(self):
         return "F"
+
     __repr__ = __str__
 
     def __eq__(self, other):
@@ -115,12 +117,13 @@ class CompoundFormula(Formula):
 
         inner = " {} ".format(self.connective).join(str(f) for f in self.subformulas)
         return "({})".format(inner)
+
     __repr__ = __str__
 
     def __eq__(self, other):
-        return self.__class__ is other.__class__ and \
-               self.connective == other.connective and \
-               self.subformulas == other.subformulas
+        return (self.__class__ is other.__class__
+                and self.connective == other.connective
+                and self.subformulas == other.subformulas)
 
     def __hash__(self):
         element_hashes = [self.__class__, self.connective]
@@ -146,13 +149,14 @@ class QuantifiedFormula(Formula):
     def __str__(self):
         vars_ = ', '.join(str(x) for x in self.variables)
         return '{} {} : ({})'.format(self.quantifier, vars_, self.formula)
+
     __repr__ = __str__
 
     def __eq__(self, other):
-        return self.__class__ is other.__class__ \
-               and self.quantifier == other.quantifier \
-               and termlists_are_equal(self.variables, other.variables) \
-               and self.formula == other.formula
+        return (self.__class__ is other.__class__
+                and self.quantifier == other.quantifier
+                and termlists_are_equal(self.variables, other.variables)
+                and self.formula == other.formula)
 
     def __hash__(self):
         return hash((self.__class__, self.quantifier, termlist_hash(self.variables), self.formula))
@@ -325,12 +329,13 @@ class Atom(Formula):
 
     def __str__(self):
         return '{}({})'.format(self.predicate.symbol, ','.join(str(t) for t in self.subterms))
+
     __repr__ = __str__
 
     def __eq__(self, other):
-        return self.__class__ is other.__class__ and \
-               self.predicate == other.predicate and \
-               termlists_are_equal(self.subterms, other.subterms)
+        return (self.__class__ is other.__class__
+                and self.predicate == other.predicate
+                and termlists_are_equal(self.subterms, other.subterms))
 
     def __hash__(self):
         return hash((self.__class__, self.predicate, termlist_hash(self.subterms)))
@@ -338,6 +343,7 @@ class Atom(Formula):
 
 class VariableBinding:
     """ A VariableBinding contains a set of logical variables which are _bound_ in some formula or term """
+
     def __init__(self, variables=None):
         variables = variables or []
         # An (ordered) map between variable name and the variable itself:
@@ -387,4 +393,5 @@ class VariableBinding:
 
     def __str__(self):
         return f"Variables({','.join(map(str, self._v_values))})"
+
     __repr__ = __str__

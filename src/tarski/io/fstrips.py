@@ -62,6 +62,14 @@ class FstripsReader:
         self.parse_file(filename, 'problem')
         return self.problem
 
+    def parse_domain_string(self, domain):
+        self.parse_string(domain, 'domain')
+        uniformize_costs(self.problem)
+
+    def parse_instance_string(self, instance):
+        self.parse_string(instance, 'problem')
+        return self.problem
+
     def parse_string(self, string, start_rule):
         logging.debug('Parsing custom string from grammar rule "{}"'.format(start_rule))
         parse_tree, _ = self.parser.parse_string(string, start_rule)
@@ -198,7 +206,7 @@ class FstripsWriter:
         return content
 
     def write_domain(self, filename, constant_objects):
-        with open(filename, 'w') as file:
+        with open(filename, 'w', encoding='utf8') as file:
             file.write(self.print_domain(constant_objects))
 
     def print_instance(self, constant_objects: Optional[List[Constant]] = None):
@@ -229,7 +237,7 @@ class FstripsWriter:
         return content
 
     def write_instance(self, filename, constant_objects):
-        with open(filename, 'w') as file:
+        with open(filename, 'w', encoding='utf8') as file:
             file.write(self.print_instance(constant_objects))
 
     def get_types(self):
@@ -239,10 +247,11 @@ class FstripsWriter:
                 continue  # Don't declare builtin elements
             tname = tarski_to_pddl_type(t)
             p = parent(t)
-            if p:
-                res.append("{} - {}".format(tname, tarski_to_pddl_type(p)))
-            else:
-                res.append(tname)
+            if p is not None:
+                tname = f"{tname} - {tarski_to_pddl_type(p)}"
+            res.append(tname)
+        # We always add the object type on the last line
+        res.append("object")
         return ("\n" + _TAB * 2).join(res)
 
     def get_functions(self):
@@ -329,7 +338,7 @@ def print_effects(effects, cost=None, indentation=0):
     if cost:  # Add the increase-effect corresponding to the action cost
         assert isinstance(cost, AdditiveActionCost)
         totalcost = cost.addend.language.get('total-cost')
-        effects.append(print_unconditional_effect(IncreaseEffect(totalcost(), cost.addend), indentation+1))
+        effects.append(print_unconditional_effect(IncreaseEffect(totalcost(), cost.addend), indentation + 1))
     return "(and\n{})".format("\n".join(effects))
 
 

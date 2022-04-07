@@ -38,12 +38,13 @@ def main():
 
             'Topic :: Scientific/Engineering :: Artificial Intelligence',
 
-            'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+            "License :: OSI Approved :: Apache Software License",
 
             'Programming Language :: Python :: 3',
-            'Programming Language :: Python :: 3.6',
             'Programming Language :: Python :: 3.7',
             'Programming Language :: Python :: 3.8',
+            'Programming Language :: Python :: 3.9',
+            'Programming Language :: Python :: 3.10',
         ],
 
         packages=find_packages('src'),  # include all packages under src
@@ -60,13 +61,44 @@ def main():
             # Antlr pinned to a specific version to avoid messages "ANTLR runtime and generated code versions disagree"
             # messages. If we want to bump this up, we'll need to regenerate the grammar files with the new version.
             'antlr4-python3-runtime==4.7.2',
+
+
         ],
 
         extras_require={
-            'test': ['pytest', 'tox', 'pytest-cov', 'mypy'],
-            'docs': ['sphinx>=2.1.2', 'recommonmark', 'nbsphinx', 'sphinx_rtd_theme', 'ipykernel', 'ipython'],
-            'arithmetic': ['scipy', 'numpy'],
-            'rddl': ['pyrddl'],
+            'test': [
+                'pytest>=7.0.1',
+                'tox',
+                'pytest-cov',
+                'mypy'
+            ],
+            'docs': [
+                'jinja2==3.0.3',
+                'docutils<0.18',
+                'sphinx==4.4.0',
+                'nbsphinx==0.8.8',
+                'recommonmark==0.7.1',
+                'sphinx_rtd_theme==1.0.0',
+                'ipykernel==6.9.1',
+                'ipython==8.1.0'
+            ],
+            'arithmetic': [
+                'scipy',
+                'numpy'
+            ],
+            'rddl': [
+                "pyrddl @ https://github.com/thiagopbueno/pyrddl/archive/9ccab6a.zip#sha1=a584f90381bf7d48b85976807b9bc6c0cb2761ba"
+            ],
+            'parsegen': [
+                'ply==3.11'
+            ],
+            'clingo': [
+                # Clingo (& gringo) bindings to the clingo solver
+                'clingo>=5.5.1'
+            ],
+            'stubs': [
+                'types-psutil',
+            ]
         },
 
         # This will include non-code files specified in the manifest, see e.g.

@@ -66,8 +66,7 @@ def get_requirements_string(problem):
 
 def create_number_type(lang):
     """ Creates a sort corresponding to the PDDL "number" """
-    # For the moment being, we assume that PDDL "number"s are unbound integers
-    parent = lang.get_sort("Integer")
+    parent = lang.get_sort("Real")
     lower = parent.lower_bound
     upper = parent.upper_bound
     lang.interval("number", parent, lower, upper)
@@ -135,7 +134,7 @@ def uniformize_costs(problem):
             action.cost = generate_zero_action_cost(action.language)
 
 
-class LowerCasingStreamWrapper(object):
+class LowerCasingStreamWrapper:
     """ A simple wrapper around a stream to lowercase all characters.
      @see https://github.com/antlr/antlr4/blob/master/doc/case-insensitive-lexing.md
     """

@@ -112,7 +112,7 @@ name_list_with_type
 	
 // A possibly_typed_type_list is different from a possibly_typed_name_list in that it can include 'object'
 // in the *untyped* part of the list (note that 'object' will get tokenized as an OBJECT_T even if it 
-// is also a NAME simply because of the priority of OBJECT_T
+// is also a NAME simply because of the priority of OBJECT_T)
 possibly_typed_type_list
     : (NAME | OBJECT_T)*                       # UntypedTypenameList
     // If there is a mixture of names with and without types,

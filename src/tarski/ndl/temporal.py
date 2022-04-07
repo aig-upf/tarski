@@ -9,7 +9,6 @@
     2017
 """
 from ..syntax import Atom, CompoundTerm, CompoundFormula, Constant, symref, Connective, Tautology
-from ..model import Model
 
 
 class NDLSyntaxError(Exception):
@@ -36,6 +35,7 @@ class ResourceLock:
     def __str__(self):
         return "LOCK {} AFTER {} FOR {}".format(self.r, self.ts, self.td)
 
+
 class ResourceLevel:
 
     def __init__(self, **kwargs):
@@ -56,19 +56,20 @@ class ResourceLevel:
         return "LOCK {} AFTER {} FOR {}".format(self.r, self.ts, self.td)
 
 
-class SetLiteralEffect(object):
+class SetLiteralEffect:
     """
     Set literal truth value
     """
 
     def __init__(self, lit, value):
-        self.l = lit
+        self.lit = lit
         self.value = value
 
     def __str__(self):
-        return "SET({}, {})".format(self.l, self.value)
+        return "SET({}, {})".format(self.lit, self.value)
 
-class AssignValueEffect(object):
+
+class AssignValueEffect:
     """
     Sets equality constraint
     """
@@ -80,7 +81,8 @@ class AssignValueEffect(object):
     def __str__(self):
         return "ASSIGN({}, {})".format(self.atom, self.value)
 
-class UniversalEffect(object):
+
+class UniversalEffect:
     """
     Forall effect
     """
@@ -92,7 +94,8 @@ class UniversalEffect(object):
     def __str__(self):
         return "FORALL({}, {})".format(self.var, self.effect)
 
-class ConditionalEffect(object):
+
+class ConditionalEffect:
     """
     If Then Else effect
     """
@@ -105,7 +108,8 @@ class ConditionalEffect(object):
     def __str__(self):
         return "IF ({}) \nTHEN {}\n ELSE {}".format(self.condition, self.then_eff, self.else_eff)
 
-class TimedEffect(object):
+
+class TimedEffect:
     """
     (t, eff) time-delayed effect
     """
@@ -118,7 +122,7 @@ class TimedEffect(object):
         return "AFTER {} APPLY {}".format(self.delay, self.eff)
 
 
-class UnionExpression(object):
+class UnionExpression:
     """
     A union set expression
     """
@@ -128,10 +132,10 @@ class UnionExpression(object):
         self.rhs = rhs
 
 
-def is_literal(l):
-    if not isinstance(l, Atom):
-        if isinstance(l, CompoundFormula):
-            return l.connective == Connective.Not and isinstance(l.subformulas[0], Atom)
+def is_literal(lit):
+    if not isinstance(lit, Atom):
+        if isinstance(lit, CompoundFormula):
+            return lit.connective == Connective.Not and isinstance(lit.subformulas[0], Atom)
         return False
     return True
 
@@ -155,15 +159,26 @@ class Action:
         self.name = kwargs['name']
         self.parameters = kwargs['parameters']
         self.max_eff_time = 0.0
+        self.duration = kwargs.get('duration', None)
+        self.grounding_constraints = kwargs.get('grounding_constraints', [])
         self.effect_times = {}
         # precondition
         prec = kwargs['precondition']
         if not isinstance(prec, CompoundFormula) \
                 and not isinstance(prec, Atom)\
                 and not isinstance(prec, Tautology):
-            raise NDLSyntaxError(
-                "NDL Syntactic Error: precondition of action must be a compound formula, atom or tautology (given: {})".format(prec))
+            raise NDLSyntaxError("NDL Syntactic Error: precondition of action must be a compound formula,"
+                                 " atom or tautology (given: {})".format(prec))
         self.precondition = prec
+        # post-condition
+        post = kwargs.get('postcondition', None)
+        if post is not None:
+            if not isinstance(post, CompoundFormula) \
+                    and not isinstance(post, Atom)\
+                    and not isinstance(post, Tautology):
+                raise NDLSyntaxError("NDL Syntactic Error: post-condition of action must be a compound formula,"
+                                     " atom or tautology (given: {})".format(prec))
+        self.postcondition = post
         # resource requirements
         self.locks = []
         self.levels = []
@@ -188,15 +203,14 @@ class Action:
             if isinstance(wrapped_effect, AssignValueEffect):
                 self.effect_times[symref(wrapped_effect.atom == eff.eff.value)] = eff.delay
             elif isinstance(wrapped_effect, SetLiteralEffect):
-                self.effect_times[(symref(wrapped_effect.l), wrapped_effect.value)] = eff.delay
+                self.effect_times[(symref(wrapped_effect.lit), wrapped_effect.value)] = eff.delay
             else:
                 raise NotImplementedError("Effects of type {} cannot be handled yet".format(type(wrapped_effect)))
-        for l in kwargs['untimed_effects']:
-            self.untimed_effects += [(0, l)]
+        for elem in kwargs['untimed_effects']:
+            self.untimed_effects += [(0, elem)]
 
-    def get_effect_time(self, l):
-        return self.effect_times[l]
-
+    def get_effect_time(self, elem):
+        return self.effect_times[elem]
 
 
 # class Instance:

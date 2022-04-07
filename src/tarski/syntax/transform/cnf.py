@@ -103,4 +103,3 @@ def to_conjunctive_normal_form(lang, phi, do_copy=True):
 def to_conjunctive_normal_form_clauses(lang, phi, do_copy=True):
     trans = CNFTransformation(lang, phi, do_copy)
     return trans.convert_to_clause_list()
-

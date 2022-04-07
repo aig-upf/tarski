@@ -1,4 +1,3 @@
-
 from typing import Tuple
 
 from .util import termlists_are_equal, termlist_hash
@@ -17,7 +16,7 @@ class Term:
         >>> from tarski.fstrips import language
         >>> from tarski.syntax import symref
         >>> lang = language("test")
-        >>> counter = dict()
+        >>> counter = {}
         >>> c = lang.constant('c', 'object')
         >>> counter[c] = 2  # ERROR: will not work correctly
         >>> counter[symref(c)] = 2  # This is the correct way of doing it
@@ -125,7 +124,7 @@ class Term:
 
     # def __hash__(self):
     #     Raise an informative exception to prevent wrong usage of terms in associative containers
-        # raise err.WrongTermUsageError()
+    # raise err.WrongTermUsageError()
     # @see https://docs.python.org/3/reference/datamodel.html#object.__hash__
     __hash__ = None  # type: ignore
 
@@ -206,9 +205,9 @@ class CompoundTerm(Term):
         return hash((self.symbol.symbol, termlist_hash(self.subterms)))
 
     def is_syntactically_equal(self, other):
-        return self.__class__ is other.__class__ and \
-               self.symbol == other.symbol and \
-               termlists_are_equal(self.subterms, other.subterms)
+        return (self.__class__ is other.__class__
+                and self.symbol == other.symbol
+                and termlists_are_equal(self.subterms, other.subterms))
 
 
 class AggregateCompoundTerm(Term):
@@ -241,10 +240,10 @@ class AggregateCompoundTerm(Term):
         raise NotImplementedError()
 
     def is_syntactically_equal(self, other):
-        return self.__class__ is other.__class__ and \
-               self.symbol == other.symbol and \
-               termlists_are_equal(self.bound_vars, other.bound_vars) and \
-               self.subterm.is_syntactically_equal(other.subterm)
+        return (self.__class__ is other.__class__
+                and self.symbol == other.symbol
+                and termlists_are_equal(self.bound_vars, other.bound_vars)
+                and self.subterm.is_syntactically_equal(other.subterm))
 
 
 class IfThenElse(Term):
@@ -293,10 +292,10 @@ class IfThenElse(Term):
         return hash(('ite', self.condition, termlist_hash(self.subterms)))
 
     def is_syntactically_equal(self, other):
-        return self.__class__ is other.__class__ and \
-               self.symbol == other.symbol and \
-               self.condition.is_syntactically_equal(other.condition) and \
-               termlists_are_equal(self.subterms, other.subterms)
+        return (self.__class__ is other.__class__
+                and self.symbol == other.symbol
+                and self.condition.is_syntactically_equal(other.condition)
+                and termlists_are_equal(self.subterms, other.subterms))
 
 
 def ite(c, t1: Term, t2: Term):

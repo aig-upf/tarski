@@ -1,5 +1,6 @@
 
-from ..syntax import symref, CompoundFormula, QuantifiedFormula, Atom, CompoundTerm, Variable
+from tarski.syntax import symref, QuantifiedFormula, CompoundTerm, Variable, CompoundFormula, Atom
+from tarski.syntax.formulas import is_eq_atom
 
 
 class MatchExpression:
@@ -78,3 +79,17 @@ class CollectFreeVariables:
 
         elif isinstance(phi, (Atom, CompoundTerm)):
             _ = [self.visit(f) for f in phi.subterms]
+
+
+class CollectEqualityAtoms:
+    """Collects all equality atoms in given formula"""
+    def __init__(self):
+        self.atoms = set()
+
+    def visit(self, phi):
+        if isinstance(phi, CompoundFormula):
+            _ = [self.visit(f) for f in phi.subformulas]
+        elif isinstance(phi, Atom):
+            if is_eq_atom(phi):
+                self.atoms.add(symref(phi))
+        return

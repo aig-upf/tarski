@@ -320,4 +320,4 @@ def test_increase_effects():
 
     increase = output[1][0]
     assert isinstance(increase, FunctionalEffect) and isinstance(increase.condition, Tautology)
-    assert str(increase.rhs) == '+(total-cost(), 1)'
+    assert str(increase.rhs) == '+(total-cost(), 1.0)'

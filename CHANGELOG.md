@@ -10,7 +10,58 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 ### Fixed
 
-## [0.7.0]
+
+## [0.8.0] 2022-04-07
+### Changed
+ - Added support for `clingo`'s `pypi` distribution, avoiding the need to install it manually.
+   Some internal interfaces were changed, review these changes if your code is coupled to the ASP-based grounding
+   components (#123). `clingo` now is an `extra` dependency of our package. Use `pip install tarski[clingo]`
+   to install tarski with it. The ASP-based grounding component will fall back to a "manually installed" `clingo`
+   in the `PATH` if the Python package is not present.
+### Added
+ - Temporal planning model:
+   - Added concept of post-condition (i.e. `at end` conditions) `Action` class
+   - Added concept of duration to `Action` class
+   - Added concept of grounding constraints to `Action` class
+ - Naive grounding features:
+   - Added method to exhaustively ground terms with subterms that are constants. For instance, the term `foo(x, a)`
+   where `x` is a variable and `a` is a constant can be now grounded taking into account that the second argument of
+   `foo` is already fixed to `a`.
+ - Error reporting and handling:
+   - `UndefinedTerm`: added name of term as an argument. This enables processing exception data, for instance,
+   to initialise such terms to some value like `infty` or force the failure to ground some structural element in
+   a domain, such as an action.
+ - _Experimental_ support for a SAS writer (work in progress).
+ - _Experimental_ ply-based PDDL parser (work in progress):
+   - Current implementation using `ply` package, version 3.11. Eventually will be refactored for `sly`. Plan is 
+   eventually to parse correctly and generate instance structural elements for PDDL 3.1.
+   - Supported features:
+     - Instantaneous actions
+     - Durative actions
+       - Care has been taken so the parser allows the keyword `at` to be used as a predicate/function/type identifier
+     - Derived predicates
+     - Object fluents
+     - Metrics associated with IPC formulations of temporal planning
+   - Partial support:
+     - Conditional effects
+     - Quantified conditions in preconditions, conditional effects and derived predicates
+     - Arithmetic expressions and effects
+ - New formula visitor: `CollectEqualityAtoms`
+   - What it says on the tin: collects equality atoms that appear as subformulas of a given formula
+ - New optional `pip` dependency: `ply`
+ - `FirstOrderLanguage.is_subtype`: it is now checked if there is a path connecting two types in the type hierarchy. If
+     that is the case, this fact is recorded in the dictionary `indirect_ancestor_sorts`. Whenever a change is made 
+     in the type hierarchy (e.g. adding a new sort or changing the parent of a sort), the cache is invalidated. 
+### Removed
+### Fixed
+ - Fixed issue with `parse_atom` method and whitespace in the description of atoms (#121)
+ - Fixed issue with printing of types in untyped domains (#113)
+ - Use real instead of integer numbers by default when parsing with strict_with_requirements=False (#114)
+ - Fixed issue with equality predicates trying to coerce the right hand side to a constant when the left hand side is
+    a term
+ 
+    
+## [0.7.0] - 2021-05-12
 ### Added
   - Added some basic forward search capabilities (#101).
   - Import psutil module conditionally, to offer better support for non-Linux 

@@ -7,6 +7,7 @@ def parse_atom(lang, string):
     """ Parse a string representation of an atom such as "on(b1, b2)" from the given language
     and return a Tarski atom object. """
     parts = string.rstrip(')').replace('(', ',').split(',')
+    parts = [part.strip() for part in parts]
     pred = lang.get(parts[0])
     args = [lang.get(o) for o in parts[1:]]
     return pred(*args)

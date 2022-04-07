@@ -51,7 +51,7 @@ class LPGroundingStrategy:
                                'configured with ground_actions=False')
         model = self._solve_lp()
         # This will take care of the case where there is not ground action from some schema
-        groundings = dict()
+        groundings = {}
         for k in self.problem.actions.keys():
             key = "action_" + k
             groundings[k] = model[key] if key in model else set()
@@ -66,7 +66,7 @@ class LPGroundingStrategy:
         if self.model is None:
             lp, tr = create_reachability_lp(self.problem, self.do_ground_actions, self.include_variable_inequalities)
             model_filename, theory_filename = run_clingo(lp)
-            self.model = parse_model(model_filename, tr)
+            self.model = parse_model(filename=model_filename, symbol_mapping=tr)
 
             # Remove the input and output files for Gringo
             silentremove(model_filename)
@@ -88,6 +88,7 @@ def compute_action_groundings(problem, include_variable_inequalities=False):
 
 
 def ground_problem_schemas_into_plain_operators(problem, include_variable_inequalities=False):
+    # pylint: disable=import-outside-toplevel
     from ..syntax.transform.action_grounding import ground_schema_into_plain_operator_from_grounding
     action_groundings = compute_action_groundings(problem, include_variable_inequalities)
     operators = []

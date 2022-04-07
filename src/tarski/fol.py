@@ -2,7 +2,7 @@
 import copy
 import itertools
 from collections import defaultdict, OrderedDict
-from typing import Union
+from typing import Union, cast
 
 from . import errors as err
 from .errors import UndefinedElement
@@ -19,17 +19,18 @@ class FirstOrderLanguage:
         self._sorts = {}
 
         # A mapping between each sort and its single immediate parent
-        self.immediate_parent = dict()
+        self.immediate_parent = {}
 
         # ancestor_sorts[t] is a set containing all supertypes of sort 't', but NOT 't'
         self.ancestor_sorts = defaultdict(set)
+        self.indirect_ancestor_sorts = defaultdict(set)
 
         self._functions = {}
         self._predicates = {}
         self._constants = OrderedDict()
 
-        self._operators = dict()
-        self._global_index = dict()
+        self._operators = {}
+        self._global_index = {}
         self._element_containers = {Sort: self._sorts,
                                     Function: self._functions,
                                     Predicate: self._predicates}
@@ -66,7 +67,7 @@ class FirstOrderLanguage:
 
     def deepcopy(self):
         """ Use this method instead of copy.deepcopy() if you need a true deep-copy of the language """
-        memo = dict()
+        memo = {}
         newone = type(self)()
         memo[id(self)] = newone
         for k, v in self.__dict__.items():
@@ -99,6 +100,7 @@ class FirstOrderLanguage:
         self._global_index['object'] = sort
         self.immediate_parent[sort] = None
         self.ancestor_sorts[sort] = set()
+        self.indirect_ancestor_sorts[sort] = set()
 
     @property
     def Object(self):
@@ -157,13 +159,15 @@ class FirstOrderLanguage:
             raise err.UndefinedSort(name)
         return self._sorts[name]
 
-    def interval(self, name, parent: Interval, lower_bound, upper_bound):
+    def interval(self, name: str, parent: Union[Interval, str], lower_bound, upper_bound) -> Interval:
         """ Create a (bound) interval sort.
 
         We allow only the new sort to derive from the built-in natural, integer or real sorts.
         """
         self._check_name_not_defined(name, self._sorts, err.DuplicateSortDefinition)
-        parent = self._retrieve_sort(parent)
+
+        # Cast just for type-hinting purposes. The cast will be enforced in the type check in the line below.
+        parent = cast(Interval, self._retrieve_sort(parent))
 
         if parent not in (self.Real, self.Natural, self.Integer):
             raise err.SemanticError("Only intervals derived or real, integer or naturals are allowed")
@@ -198,6 +202,9 @@ class FirstOrderLanguage:
 
         self.immediate_parent[sort] = parent
         self.ancestor_sorts[sort].update(inclusion_closure(parent))
+        for s in self.indirect_ancestor_sorts:
+            self.indirect_ancestor_sorts[s] = set()
+        self.indirect_ancestor_sorts[sort] = set()
 
     def _retrieve_sort(self, obj: Union[Sort, str]) -> Sort:
         return self._retrieve_object(obj, Sort)
@@ -344,7 +351,27 @@ class FirstOrderLanguage:
     def is_subtype(self, t, st):
         t = self._retrieve_sort(t)
         st = self._retrieve_sort(st)
-        return t == st or self.is_strict_subtype(t, st)
+        return t == st or self.is_strict_subtype(t, st) or self.connected_in_type_hierarchy(t, st)
+
+    def connected_in_type_hierarchy(self, t_0, t_goal):
+        """
+        Checks if there is a path in the type hierarchy between t_0 and t_goal
+        :param t_0:
+        :param t_goal:
+        :return:
+        """
+        if t_goal in self.indirect_ancestor_sorts[t_0]:
+            return True
+        OPEN = [t for t in self.ancestor_sorts[t_0]]
+        while len(OPEN) != 0:
+            t = OPEN.pop()
+            if t == t_goal:
+                self.indirect_ancestor_sorts[t_0].add(t_goal)
+                return True
+            for t2 in self.ancestor_sorts[t]:
+                if t2 not in OPEN:
+                    OPEN += [t2]
+        return False
 
     def is_strict_subtype(self, t, st):
         t = self._retrieve_sort(t)
