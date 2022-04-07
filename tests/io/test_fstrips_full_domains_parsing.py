@@ -53,7 +53,7 @@ SAMPLE_STRIPS_INSTANCES = [
 ]
 
 SAMPLE_FSTRIPS_INSTANCES = [
-    # "counters-fn:instance_4.pddl",  # functions, ints
+    "counters-fn:instance_4.pddl",  # functions, ints
     # "blocksworld-pattern-fn-ex:sample.pddl"  # @alldiff
 ]
 
