@@ -4,6 +4,8 @@
 import tempfile
 
 import pytest
+
+import tarski.io.pddl.errors
 from tarski.io.pddl.lexer import PDDLlex
 from tarski.io.pddl import Features
 from tarski.io.pddl.parser import PDDLparser, UnsupportedFeature
@@ -222,3 +224,41 @@ def test_temporal_numeric():
         #assert len(instance.derived) == 1
         #assert len(instance.init) == 2
         #assert len(goal_atoms) == 2
+
+
+@pytest.mark.pddl
+def test_preconditions_with_existential_effects():
+
+    pddl_data = """\
+(define (domain logistics)
+(:requirements :strips :typing :existential-preconditions) 
+(:types  city location thing - object
+         package vehicle - thing
+         truck airplane - vehicle  
+         airport - location)
+(:predicates  (in-city ?l - location ?c - city)
+              (at ?obj - thing ?l - location)
+              (in ?p - package ?veh - vehicle))
+(:action drive
+         :parameters    (?t - truck ?to - location)
+         :precondition  (and 
+                             (exists (?c - city ?from - location)
+                                (and (at ?t ?from) (in-city ?from ?c) (in-city ?to ?c))
+                              ))
+         :effect        (and (not (at ?t ?from))
+                             (at ?t ?to)))
+)
+"""
+    parser = PDDLparser(debug=True)
+
+    with tempfile.NamedTemporaryFile() as f:
+        parser.build(logfile=f.name)
+
+        with pytest.raises(tarski.io.pddl.errors.UnsupportedFeature):
+            parser.parse(pddl_data)
+
+        assert parser.domain_name == 'logistics'
+        assert Features.TYPING in parser.required_features
+        assert Features.EXISTENTIAL_PRECONDITIONS in parser.required_features
+
+
