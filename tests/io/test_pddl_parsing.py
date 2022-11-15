@@ -4,6 +4,8 @@
 import tempfile
 
 import pytest
+
+import tarski.io.pddl.errors
 from tarski.io.pddl.lexer import PDDLlex
 from tarski.io.pddl import Features
 from tarski.io.pddl.parser import PDDLparser, UnsupportedFeature
@@ -252,7 +254,8 @@ def test_preconditions_with_existential_effects():
     with tempfile.NamedTemporaryFile() as f:
         parser.build(logfile=f.name)
 
-        parser.parse(pddl_data)
+        with pytest.raises(tarski.io.pddl.errors.UnsupportedFeature):
+            parser.parse(pddl_data)
 
         assert parser.domain_name == 'logistics'
         assert Features.TYPING in parser.required_features
