@@ -1,4 +1,6 @@
 import pytest
+
+
 from tarski.errors import UndefinedSort, UndefinedPredicate
 from tarski.fstrips import AddEffect, FunctionalEffect
 from tarski.fstrips.errors import InvalidEffectError
@@ -37,6 +39,13 @@ def _test_inputs(inputs, r=None):
         for avoiding duplicate name exceptions, etc, in a sequence of tests.
      """
     return [_test_input(string, rule, r or reader()) for string, rule in inputs]
+
+
+def create_reader(theories=None, strict_with_requirements=True, case_insensitive=False):
+    """ Return a reader configured to raise exceptions on syntax errors """
+    return FstripsReader(raise_on_error=True, theories=theories,
+                         strict_with_requirements=strict_with_requirements,
+                         case_insensitive=case_insensitive)
 
 
 def test_pddl_type_declaration():
@@ -322,7 +331,7 @@ def test_increase_effects():
     assert str(increase.rhs) == '+(total-cost(), 1.0)'
 
 
-EXISTENTIAL_PRECS_TEST = """\
+EXISTENTIAL_PRECS_TEST = """
 (define (domain logistics)
 (:requirements :strips :typing :existential-preconditions) 
 (:types  city location thing - object
@@ -345,5 +354,5 @@ EXISTENTIAL_PRECS_TEST = """\
 
 
 def test_preconditions_with_existential_formulas():
-    r = FstripsReader()
-    output = _test_inputs([(EXISTENTIAL_PRECS_TEST, 'domain')], r=r)
+    with pytest.raises(ParsingError):
+        output = _test_input(EXISTENTIAL_PRECS_TEST, 'domain', create_reader())
