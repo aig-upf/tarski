@@ -63,9 +63,10 @@ class FOLWalker:
         from .terms import Constant, Variable, CompoundTerm, IfThenElse    # pylint: disable=import-outside-toplevel
         node = node if inplace else copy.deepcopy(node)
 
-        if isinstance(node, (Variable, Constant, Contradiction, Tautology)):
+        if isinstance(node, (Constant, Contradiction, Tautology)):
             pass
-
+        elif isinstance(node, Variable):
+            return self.visit(node)
         elif isinstance(node, (CompoundTerm, Atom)):
             node.subterms = self.accept(self.visit_expression(sub, inplace=True) for sub in node.subterms)
 

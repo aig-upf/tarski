@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
      - Changed Reachability LP so that numeric atoms (other than f(x)=1 or f(x)=0) are projected
      away by assuming they are always satisfied. This generates a loose (e.g. unnecessarily big)
      but sound ground PPI when we have a mixture of propositional and numeric/finite-domain atoms.
+ - Formula walking (`tarski.syntax.walker`)
+   - Added support for `TermReference` nodes
 ### Removed
 ### Deprecated
 ### Fixed

@@ -11,10 +11,14 @@ import os
 import tempfile
 from argparse import ArgumentParser, Namespace
 
+from tarski.errors import UndefinedTerm
 from tarski.grounding import LPGroundingStrategy
 from tarski.io.pddl import Features
+from tarski.io.pddl.instance import InstanceModel, AssignmentEffectData, DurativeActionData, EventData
 from tarski.io.pddl.parser import PDDLparser, UnsupportedFeature
 from tarski.syntax.visitors import CollectEqualityAtoms
+from tarski.syntax.transform.substitutions import create_substitution, substitute_expression
+
 
 def process_command_line():
     parser = ArgumentParser(description="Example illustrating acquisition of instance data from PDDL")
@@ -23,6 +27,80 @@ def process_command_line():
     parser.add_argument("--verbose", dest='verbose', action='store_true')
     opt = parser.parse_args()
     return opt
+
+
+def calculate_groundings(instance: InstanceModel):
+    """
+    Grounds the given PDDL 2.1 instance
+    :param instance:
+    :return:
+    """
+    fs_counterpart = instance.compile_to_functional_strips()
+
+    grounding = LPGroundingStrategy(fs_counterpart)
+    action_groundings = grounding.ground_actions()
+
+    # We store in a dictionary the groundings
+    temporal_action_groundings = {}
+    for temp_action in instance.durative:
+
+        for schema, assignments in action_groundings.items():
+            if temp_action.name in schema:
+                try:
+                    if len(assignments) > len(temporal_action_groundings[temp_action.name]):
+                        temporal_action_groundings[temp_action.name] = assignments
+                except KeyError:
+                    temporal_action_groundings[temp_action.name] = assignments
+
+    return temporal_action_groundings
+
+
+def ground_durative_actions(instance: InstanceModel, groundings):
+    """
+    Returns list of (ground) durative actions
+    :param instance:
+    :param groundings:
+    :return:
+    """
+    actions = []
+
+    for temp_action in instance.durative:
+        assignments = groundings[temp_action.name]
+        for point in assignments:
+            # MRJ: note that the assignments are just constant names!
+            point = [instance.L.get(elem) for elem in point]
+            subst = create_substitution(temp_action.parameters, point)
+
+            at_start_pre = [substitute_expression(atom.expr, subst) for atom in temp_action.at_start.pre]
+            at_start_post = []
+            for eff in temp_action.at_start.post:
+                g_eff_lhs = substitute_expression(eff.lhs, subst)
+                if isinstance(eff.rhs, (int, float)):
+                    g_eff_rhs = eff.rhs
+                else:
+                    g_eff_rhs = substitute_expression(eff.rhs, subst)
+                at_start_post += [AssignmentEffectData(g_eff_lhs, g_eff_rhs)]
+
+            at_end_pre = [substitute_expression(atom.expr, subst) for atom in temp_action.at_end.pre]
+            at_end_post = []
+            for eff in temp_action.at_end.post:
+                g_eff_lhs = substitute_expression(eff.lhs, subst)
+                if isinstance(eff.rhs, (int, float)):
+                    g_eff_rhs = eff.rhs
+                else:
+                    g_eff_rhs = substitute_expression(eff.rhs, subst)
+                at_end_post += [AssignmentEffectData(g_eff_lhs, g_eff_rhs)]
+
+            overall = [substitute_expression(atom.expr, subst) for atom in temp_action.overall]
+            duration = substitute_expression(temp_action.duration, subst)
+
+            actions += [DurativeActionData(name=temp_action.name,
+                                           parameters=point,
+                                           at_start=EventData(pre=at_start_pre, post=at_end_post),
+                                           at_end=EventData(pre=at_end_pre, post=at_end_post),
+                                           overall=overall,
+                                           duration=duration)]
+    return actions
 
 
 def main(opt: Namespace):
@@ -128,25 +206,8 @@ def main(opt: Namespace):
         for l in goal_atoms:
             print('\t{}'.format(l))
 
-
         print("Grounding")
-        fs_counterpart = instance.compile_to_functional_strips()
-
-        grounding = LPGroundingStrategy(fs_counterpart)
-        action_groundings = grounding.ground_actions()
-
-        # We store in a dictionary the groundings
-        temporal_action_groundings = {}
-        for temp_action in instance.durative:
-
-            for schema, assignments in action_groundings.items():
-                if temp_action.name in schema:
-                    try:
-                        if len(assignments) > len(temporal_action_groundings[temp_action.name]):
-                            temporal_action_groundings[temp_action.name] = assignments
-                    except KeyError:
-                        temporal_action_groundings[temp_action.name] = assignments
-
+        temporal_action_groundings = calculate_groundings(instance)
         ground_action_count = 0
         for schema, assignments in temporal_action_groundings.items():
             print('\t', schema, len(assignments))
@@ -154,6 +215,44 @@ def main(opt: Namespace):
             #    print('\t\t', a)
             ground_action_count += len(assignments)
         print("Ground actions", ground_action_count)
+
+        grounded_actions = ground_durative_actions(instance, temporal_action_groundings)
+
+        print("Static evaluation of duration expressions")
+        valid_grounded_actions = []
+        invalid_grounded_actions = 0
+        for act in grounded_actions:
+            try:
+                valid_grounded_actions += [DurativeActionData(name=act.name,
+                                                              parameters=act.parameters,
+                                                              at_start=act.at_start,
+                                                              at_end=act.at_end,
+                                                              overall=act.overall,
+                                                              duration=instance.init[act.duration])]
+            except UndefinedTerm:
+                invalid_grounded_actions += 1
+
+        for act in valid_grounded_actions:
+            print("{}({})".format(act.name, ','.join([str(x) for x in act.parameters])))
+            print("\tAt Start")
+            print("\t\tPre")
+            print("\t\t\t{}".format(act.at_start.pre))
+            print("\t\tPost")
+            for eff in act.at_start.post:
+                print("\t\t\t{}' = {}".format(eff.lhs, eff.rhs))
+            print("\tAt End")
+            print("\t\tPre")
+            print("\t\t\t{}".format(act.at_end.pre))
+            print("\t\tPost")
+            for eff in act.at_end.post:
+                print("\t\t\t{}' = {}".format(eff.lhs, eff.rhs))
+            print("\tOverall")
+            print("\t\t{}".format(act.overall))
+            print("\tDuration")
+            print("\t\t{}".format(act.duration))
+
+        print("Valid grounded actions", len(valid_grounded_actions))
+        print("Invalid grounded actions", invalid_grounded_actions)
 
 if __name__ == '__main__':
     main(process_command_line())
