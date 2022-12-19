@@ -3,6 +3,7 @@
 import copy
 from enum import Enum
 
+from .symrefs import TermReference
 from ..errors import TarskiError
 
 
@@ -78,6 +79,8 @@ class FOLWalker:
         elif isinstance(node, QuantifiedFormula):
             node.formula = self.visit_expression(node.formula, inplace=True)
             node.variables = self.accept(self.visit_expression(eff, inplace=True) for eff in node.variables)
+        elif isinstance(node, TermReference):
+            return self.visit(node.expr)
         else:
             raise RuntimeError(f'Unexpected expression "{node}" of type "{type(node)}"')
 
