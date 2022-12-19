@@ -11,6 +11,7 @@ import os
 import tempfile
 from argparse import ArgumentParser, Namespace
 
+from tarski.grounding import LPGroundingStrategy
 from tarski.io.pddl import Features
 from tarski.io.pddl.parser import PDDLparser, UnsupportedFeature
 from tarski.syntax.visitors import CollectEqualityAtoms
@@ -38,8 +39,8 @@ def main(opt: Namespace):
 
         parser.parse(pddl_data)
 
-        assert parser.domain_name == 'elevators-time-numeric'
-        assert parser.problem_name == 'elevators-time-p8_4_1'
+        assert parser.instance.domain_name == 'elevators-time-numeric'
+        assert parser.instance.instance_name == 'elevators-time-p8_4_1'
         assert Features.DURATIVE_ACTIONS in parser.required_features
         assert Features.TYPING in parser.required_features
 
@@ -127,6 +128,32 @@ def main(opt: Namespace):
         for l in goal_atoms:
             print('\t{}'.format(l))
 
+
+        print("Grounding")
+        fs_counterpart = instance.compile_to_functional_strips()
+
+        grounding = LPGroundingStrategy(fs_counterpart)
+        action_groundings = grounding.ground_actions()
+
+        # We store in a dictionary the groundings
+        temporal_action_groundings = {}
+        for temp_action in instance.durative:
+
+            for schema, assignments in action_groundings.items():
+                if temp_action.name in schema:
+                    try:
+                        if len(assignments) > len(temporal_action_groundings[temp_action.name]):
+                            temporal_action_groundings[temp_action.name] = assignments
+                    except KeyError:
+                        temporal_action_groundings[temp_action.name] = assignments
+
+        ground_action_count = 0
+        for schema, assignments in temporal_action_groundings.items():
+            print('\t', schema, len(assignments))
+            #for a in assignments:
+            #    print('\t\t', a)
+            ground_action_count += len(assignments)
+        print("Ground actions", ground_action_count)
 
 if __name__ == '__main__':
     main(process_command_line())

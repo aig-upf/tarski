@@ -19,7 +19,8 @@ from tarski.syntax import Variable, Sort, CompoundTerm
 from tarski.syntax.sorts import Interval, int_encode_fn
 from tarski.syntax import symref
 from tarski.evaluators.simple import evaluate as default_evaluator
-
+from tarski import fstrips as fs
+from tarski.syntax import land
 
 AssignmentEffectData = namedtuple('AssignmentEffectData', ['lhs', 'rhs'])
 EventData = namedtuple('EventData', ['pre', 'post'])
@@ -61,6 +62,8 @@ class InstanceModel:
         self.int_t = None
         self.real_t = None
         self.default_numeric_type = None
+        self.domain_name = None
+        self.instance_name = None
 
         self._types = OrderedDict()
         self._constants = OrderedDict()
@@ -393,3 +396,39 @@ class InstanceModel:
             self.init.set(el[0], el[1])
         if self.debug:
             print("Processed {} definition elements in initial state".format(len(init_data)))
+
+    def compile_to_functional_strips(self):
+        """
+        Compiles temporal actions events into actions in a PPI given in Lifted Functional STRIPS
+        :return:
+        """
+        if self.L is None:
+            raise RuntimeError("Error compiling to FSTRIPS: language is not set")
+
+        problem = fs.create_fstrips_problem(self.L,
+                                            problem_name=self.instance_name,
+                                            domain_name=self.domain_name)
+        problem.goal = self.goal
+        problem.init = self.init
+
+        for act in self.durative:
+            at_start_prec = [p.expr for p in act.at_start.pre]
+            at_start_prec += [p.expr for p in act.overall]
+            fs_at_start_prec = land(*at_start_prec, flat=True)
+            fs_at_start_eff = [fs.AddEffect(eff.lhs == eff.rhs) for eff in act.at_start.post]
+            problem.action("{}_at_start".format(act.name), act.parameters,
+                           precondition=fs_at_start_prec,
+                           effects=fs_at_start_eff)
+
+            at_end_prec = [p.expr for p in act.at_end.pre]
+            fs_at_end_prec = land(*at_end_prec, flat=True)
+            fs_at_end_eff = [fs.AddEffect(eff.lhs == eff.rhs) for eff in act.at_end.post]
+            problem.action("{}_at_end".format(act.name), act.parameters,
+                           precondition=fs_at_end_prec,
+                           effects=fs_at_end_eff)
+
+        if self.debug:
+            print("Compiled FSTRIPS instance contains", len(problem.actions), "actions")
+
+        return problem
+

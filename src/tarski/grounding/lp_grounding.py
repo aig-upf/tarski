@@ -1,6 +1,7 @@
 """
  Classes and methods related to the Logic-Program based grounding  strategy of planning problems.
 """
+from ..syntax import BuiltinPredicateSymbol
 from ..utils.command import silentremove
 from ..grounding.ops import approximate_symbol_fluency
 from ..reachability import create_reachability_lp, run_clingo, parse_model
@@ -16,11 +17,15 @@ class LPGroundingStrategy:
     The type of LP created depends on the value of `ground_actions`. If true, it will include atoms for obtaining
     the parameter groundings of all reachable ground actions; if false, it will not, which should result in a smaller
     and cheaper logic program.
+
+    2022-12-19: Added option to project away numeric atoms from initial states, goals, preconditions and effects. By
+    numeric atoms we mean any condition other than equality between a functional term and an element of {0,1}.
     """
-    def __init__(self, problem, ground_actions=True, include_variable_inequalities=False):
+    def __init__(self, problem, ground_actions=True, include_variable_inequalities=False, relax_numeric_atoms=True):
         self.problem = problem
         self.do_ground_actions = ground_actions
         self.include_variable_inequalities = include_variable_inequalities
+        self.relax_numeric_atoms = relax_numeric_atoms
         self.model = None  # We'll cache the solution of the LP here
         self.fluent_symbols, self.static_symbols = approximate_symbol_fluency(problem)
 
@@ -64,7 +69,10 @@ class LPGroundingStrategy:
 
     def _solve_lp(self):
         if self.model is None:
-            lp, tr = create_reachability_lp(self.problem, self.do_ground_actions, self.include_variable_inequalities)
+            lp, tr = create_reachability_lp(self.problem,
+                                            self.do_ground_actions,
+                                            self.include_variable_inequalities,
+                                            self.relax_numeric_atoms)
             model_filename, theory_filename = run_clingo(lp)
             self.model = parse_model(filename=model_filename, symbol_mapping=tr)
 

@@ -5,10 +5,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
+ - PDDL 2.x support:
+   - `InstanceModel`
+     - Domain and instance identifiers are now stored
+   - Example `examples/pddl_temporal_actions`
+     - Added an illustration of how to use the LP-based grounding available for FSTRIPS PPIs
 ### Added
  - PDDL 2.x support:
    - `InstanceModel`:
      - Implement proper loading for data of initial states into an instance of `tarski.Model`
+   - LP-based grounding:
+     - Changed Reachability LP so that numeric atoms (other than f(x)=1 or f(x)=0) are projected
+     away by assuming they are always satisfied. This generates a loose (e.g. unnecessarily big)
+     but sound ground PPI when we have a mixture of propositional and numeric/finite-domain atoms.
 ### Removed
 ### Deprecated
 ### Fixed

@@ -16,11 +16,15 @@ from ..fstrips.representation import identify_cost_related_functions, expand_uni
 GOAL = "goal"
 
 
-def create_reachability_lp(problem: Problem, ground_actions=True, include_variable_inequalities=False):
+def create_reachability_lp(problem: Problem,
+                           ground_actions=True,
+                           include_variable_inequalities=False,
+                           relax_numeric_atoms=True):
     """ Return a reachability logic program, along with the symbol translation dictionary used to create it """
     lp = LogicProgram()
     compiler_class = ReachabilityLPCompiler if ground_actions else VariableOnlyReachabilityLPCompiler
-    compiler = compiler_class(problem, lp, include_variable_inequalities=include_variable_inequalities)
+    compiler = compiler_class(problem, lp, include_variable_inequalities=include_variable_inequalities,
+                              relax_numeric_atoms=relax_numeric_atoms)
     compiler.create()
     return lp, compiler.tr
 
@@ -34,12 +38,16 @@ class ReachabilityLPCompiler:
 
     albeit there are some differences which so far we haven't properly described and analyzed.
     """
-    def __init__(self, problem: Problem, lp, include_variable_inequalities=False, include_action_costs=False):
+    def __init__(self, problem: Problem, lp,
+                 include_variable_inequalities=False,
+                 include_action_costs=False,
+                 relax_numeric_atoms=True):
         self.problem = problem
         self.lp = lp
         self.aux_atom_count = 0
         self.include_variable_inequalities = include_variable_inequalities
         self.include_action_costs = include_action_costs
+        self.relax_numeric_atoms = relax_numeric_atoms
         self.tr = Translator()
 
     def gen_aux_atom(self, args=None):
@@ -78,8 +86,15 @@ class ReachabilityLPCompiler:
                     if self.include_action_costs:  # Include init atoms related to costs
                         lp.rule(self.tarski_functional_atom_to_lp_atom(t, v))
                     continue
-                raise RuntimeError(
-                    f'ReachabilityLPCompiler cannot handle functional atom "{t} := {v}" in the initial state')
+                if self.relax_numeric_atoms:
+                    if v.symbol == 1:
+                        lp.rule(self.tarski_functional_atom_to_lp_atom(t, v))
+                    else:
+                        lp.rule(lp_tautology())
+                    continue
+                else:
+                    raise RuntimeError(
+                        f'ReachabilityLPCompiler cannot handle functional atom "{t} := {v}" in the initial state')
             lp.rule(self.tarski_atom_to_lp_atom(atom))
 
         # Process all actions
@@ -243,6 +258,18 @@ class ReachabilityLPCompiler:
         raise RuntimeError(f'Unexpected effect "{eff}" with type "{type(eff)}"')
 
     def tarski_atom_to_lp_atom(self, atom: Atom):
+        #print(atom, atom.predicate, type(atom.predicate), atom.predicate.symbol, type(atom.predicate.symbol))
+        if self.relax_numeric_atoms:
+            if isinstance(atom.predicate.symbol, BuiltinPredicateSymbol):
+                if atom.predicate.symbol == BuiltinPredicateSymbol.EQ:
+                    lhs = atom.subterms[0]
+                    rhs = atom.subterms[1]
+                    if isinstance(rhs, Constant) and rhs.symbol in (0, 1):
+                        return self.tarski_functional_atom_to_lp_atom(lhs, rhs)
+                    else:
+                        return lp_tautology()
+                else:
+                    return lp_tautology()
         return self.lp_atom(atom.predicate.symbol, [self.process_term(sub) for sub in atom.subterms], prefix='atom')
 
     def tarski_functional_atom_to_lp_atom(self, term: CompoundTerm, value):
@@ -272,7 +299,10 @@ class ReachabilityLPCompiler:
 class VariableOnlyReachabilityLPCompiler(ReachabilityLPCompiler):
     """ A variation of the standard LP compiler that cares only about state variable, but not action, groundings. """
 
-    def __init__(self, problem: Problem, lp, include_variable_inequalities=False, include_action_costs=False):
+    def __init__(self, problem: Problem, lp,
+                 include_variable_inequalities=False,
+                 include_action_costs=False,
+                 relax_numeric_atoms=True):
         if include_action_costs:
             raise RuntimeError('Cannot generate a variable-only reachability LP that includes action costs')
         super().__init__(problem, lp, include_variable_inequalities, include_action_costs=False)

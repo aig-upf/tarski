@@ -35,8 +35,6 @@ class PDDLparser:
         self.verbose = verbose
         self.tokens = self.lexer.tokens
 
-        self.domain_name = None
-        self.problem_name = None
         self.required_features = set()
 
         self.precedence = (
@@ -96,7 +94,7 @@ class PDDLparser:
 
     def p_domain_name(self, p):
         '''domain_name : LPAREN rwDOMAIN  ID RPAREN'''
-        self.domain_name = p[3]
+        self.instance.domain_name = p[3]
 
     def p_problem(self, p):
         '''problem  : LPAREN rwDEFINE problem_name domain_ref problem_body_def RPAREN'''
@@ -116,13 +114,13 @@ class PDDLparser:
 
     def p_problem_name(self, p):
         '''problem_name    : LPAREN rwPROBLEM ID RPAREN'''
-        self.problem_name = p[3]
+        self.instance.instance_name = p[3]
 
     def p_domain_ref(self, p):
         '''domain_ref  : LPAREN rwDOMAIN_REF ID RPAREN'''
         expected_domain = p[3]
-        if expected_domain != self.domain_name:
-            msg = "Domain and problem mismatch: expected domain name is '{}', provided domain is '{}'".format(expected_domain, self.domain_name)
+        if expected_domain != self.instance.domain_name:
+            msg = "Domain and problem mismatch: expected domain name is '{}', provided domain is '{}'".format(expected_domain, self.instance.domain_name)
             raise SemanticError(self.lexer.lineno(), msg)
 
     def p_domain_require_def(self, p):
