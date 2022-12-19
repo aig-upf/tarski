@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 ### Added
+ - PDDL 2.x support:
+   - `InstanceModel`:
+     - Implement proper loading for data of initial states into an instance of `tarski.Model`
 ### Removed
 ### Deprecated
 ### Fixed

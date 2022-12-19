@@ -1298,7 +1298,7 @@ class PDDLparser:
 
     def p_init(self, p):
         '''init    : LPAREN rwINIT list_of_init_el RPAREN'''
-        self.instance.init = p[3]
+        self.instance.process_initial_state(p[3])
 
     def p_list_of_init_el(self, p):
         '''

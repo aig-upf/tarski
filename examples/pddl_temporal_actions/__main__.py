@@ -113,10 +113,10 @@ def main(opt: Namespace):
             for eff in act.at_end.post:
                 print("\t\t\t{} := {}".format(eff.lhs, eff.rhs))
 
-        print("Initial State literals", len(instance.init))
         # The initial state is given as a set of tuple of CompoundTerm and a value that can be Boolean or
         # `number`
-        for l in instance.init:
+        print("Some facts about the initial state:")
+        for l in instance.init.as_atoms():
             print('\t{}'.format(l))
 
         eq_atoms_visitor = CollectEqualityAtoms()

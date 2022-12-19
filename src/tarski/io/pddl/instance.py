@@ -8,15 +8,17 @@
 # ----------------------------------------------------------------------------------------------------------------------
 
 from collections import namedtuple, OrderedDict
-from typing import Tuple
+from typing import Tuple, List
 from enum import Enum
 
 import tarski as tsk
+import tarski.model as model
 from tarski.io.pddl.errors import UnsupportedFeature
 from tarski.theories import Theory
-from tarski.syntax import Variable, Sort
+from tarski.syntax import Variable, Sort, CompoundTerm
 from tarski.syntax.sorts import Interval, int_encode_fn
 from tarski.syntax import symref
+from tarski.evaluators.simple import evaluate as default_evaluator
 
 
 AssignmentEffectData = namedtuple('AssignmentEffectData', ['lhs', 'rhs'])
@@ -368,4 +370,26 @@ class InstanceModel:
                                         type=objective_data['definition']['type'],
                                         expr=objective_data['definition']['expr'])
         if self.debug:
-            print("Objective: mode: {} type: {} expr: {}".format(self.objective.mode, self.objective.type, self.objective.expr))
+            print("Objective: mode: {} type: {} expr: {}".format(self.objective.mode,
+                                                                 self.objective.type,
+                                                                 self.objective.expr))
+
+    def process_initial_state(self, init_data: List[Tuple[CompoundTerm, int]]):
+        """
+        Process list of compound terms collected by the PDDL input parser
+
+        :param init_data:
+        :return:
+        """
+        if self.L is None:
+            raise RuntimeError("Error processing initial state: domain theory languate is not set")
+
+        self.init = model.create(self.L, default_evaluator)
+
+        for idx, el in enumerate(init_data):
+            if not isinstance(el[0], CompoundTerm):
+                raise RuntimeError('Error processing initial state: element with index '
+                                   '{} is not of type `CompoundTerm` but of type {}'.format(idx, type(el[0])))
+            self.init.set(el[0], el[1])
+        if self.debug:
+            print("Processed {} definition elements in initial state".format(len(init_data)))
