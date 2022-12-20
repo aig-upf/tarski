@@ -21,7 +21,7 @@ class LPGroundingStrategy:
     2022-12-19: Added option to project away numeric atoms from initial states, goals, preconditions and effects. By
     numeric atoms we mean any condition other than equality between a functional term and an element of {0,1}.
     """
-    def __init__(self, problem, ground_actions=True, include_variable_inequalities=False, relax_numeric_atoms=True):
+    def __init__(self, problem, ground_actions=True, include_variable_inequalities=False, relax_numeric_atoms=False):
         self.problem = problem
         self.do_ground_actions = ground_actions
         self.include_variable_inequalities = include_variable_inequalities

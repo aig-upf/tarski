@@ -37,7 +37,7 @@ def calculate_groundings(instance: InstanceModel):
     """
     fs_counterpart = instance.compile_to_functional_strips()
 
-    grounding = LPGroundingStrategy(fs_counterpart)
+    grounding = LPGroundingStrategy(fs_counterpart, relax_numeric_atoms=True)
     action_groundings = grounding.ground_actions()
 
     # We store in a dictionary the groundings

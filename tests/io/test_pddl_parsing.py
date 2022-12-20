@@ -140,8 +140,8 @@ def test_basic_constructs():
 
         parser.parse(pddl_data)
 
-        assert parser.domain_name == 'foo'
-        assert parser.problem_name == 'instance_001'
+        assert parser.instance.domain_name == 'foo'
+        assert parser.instance.instance_name == 'instance_001'
         assert Features.DURATIVE_ACTIONS in parser.required_features
         assert Features.TYPING in parser.required_features
 
@@ -154,7 +154,7 @@ def test_basic_constructs():
         print("Constants", len(instance.domains))
         print("Actions: instantaneous: {} durative: {}".format(len(instance.actions), len(instance.durative)))
         print("Derived predicates:", len(instance.derived))
-        print("Initial State literals", len(instance.init))
+        print("Initial State literals", len(instance.init.as_atoms()))
 
         eq_atoms_visitor = CollectEqualityAtoms()
         eq_atoms_visitor.visit(instance.goal)
@@ -170,7 +170,7 @@ def test_basic_constructs():
         assert len(instance.actions) == 1
         assert len(instance.durative) == 1
         assert len(instance.derived) == 1
-        assert len(instance.init) == 2
+        assert len(instance.init.as_atoms()) == 2
         assert len(goal_atoms) == 2
 
 
@@ -206,7 +206,7 @@ def test_temporal_numeric():
         print("Constants", len(instance.domains))
         print("Actions: instantaneous: {} durative: {}".format(len(instance.actions), len(instance.durative)))
         print("Derived predicates:", len(instance.derived))
-        print("Initial State literals", len(instance.init))
+        print("Initial State literals", len(instance.init.as_atoms()))
 
         eq_atoms_visitor = CollectEqualityAtoms()
         eq_atoms_visitor.visit(instance.goal)
@@ -257,7 +257,7 @@ def test_preconditions_with_existential_effects():
         with pytest.raises(tarski.io.pddl.errors.UnsupportedFeature):
             parser.parse(pddl_data)
 
-        assert parser.domain_name == 'logistics'
+        assert parser.instance.domain_name == 'logistics'
         assert Features.TYPING in parser.required_features
         assert Features.EXISTENTIAL_PRECONDITIONS in parser.required_features
 

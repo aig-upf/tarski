@@ -19,7 +19,7 @@ GOAL = "goal"
 def create_reachability_lp(problem: Problem,
                            ground_actions=True,
                            include_variable_inequalities=False,
-                           relax_numeric_atoms=True):
+                           relax_numeric_atoms=False):
     """ Return a reachability logic program, along with the symbol translation dictionary used to create it """
     lp = LogicProgram()
     compiler_class = ReachabilityLPCompiler if ground_actions else VariableOnlyReachabilityLPCompiler
@@ -41,7 +41,7 @@ class ReachabilityLPCompiler:
     def __init__(self, problem: Problem, lp,
                  include_variable_inequalities=False,
                  include_action_costs=False,
-                 relax_numeric_atoms=True):
+                 relax_numeric_atoms=False):
         self.problem = problem
         self.lp = lp
         self.aux_atom_count = 0
@@ -302,7 +302,7 @@ class VariableOnlyReachabilityLPCompiler(ReachabilityLPCompiler):
     def __init__(self, problem: Problem, lp,
                  include_variable_inequalities=False,
                  include_action_costs=False,
-                 relax_numeric_atoms=True):
+                 relax_numeric_atoms=False):
         if include_action_costs:
             raise RuntimeError('Cannot generate a variable-only reachability LP that includes action costs')
         super().__init__(problem, lp, include_variable_inequalities, include_action_costs=False)
