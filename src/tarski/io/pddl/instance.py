@@ -414,6 +414,15 @@ class InstanceModel:
                 return True
             return True
 
+        def normalize_negation(phi: tarski.syntax.Formula):
+            if isinstance(phi, tarski.syntax.Atom):
+                if phi.symbol.symbol == tarski.syntax.BuiltinPredicateSymbol.EQ \
+                        and phi.subterms[0].sort == self.bool_t \
+                        and phi.subterms[-1] == 0:
+                    return ~(phi.subterms[0] == 1)
+                return phi
+            return phi
+
         if self.L is None:
             raise RuntimeError("Error compiling to FSTRIPS: language is not set")
 
@@ -424,15 +433,15 @@ class InstanceModel:
         problem.init = self.init
 
         for act in self.durative:
-            at_start_prec = [p.expr for p in act.at_start.pre if is_positive_assignment(p.expr)]
+            at_start_prec = [normalize_negation(p.expr) for p in act.at_start.pre]
             fs_at_start_prec = land(*at_start_prec, flat=True)
             fs_at_start_eff = [fs.AddEffect(eff.lhs == eff.rhs) for eff in act.at_start.post]
             problem.action("{}_at_start".format(act.name), act.parameters,
                            precondition=fs_at_start_prec,
                            effects=fs_at_start_eff)
 
-            at_end_prec = [p.expr for p in act.at_end.pre if is_positive_assignment(p.expr)]
-            at_end_prec += [p.expr for p in act.overall if is_positive_assignment(p.expr)]
+            at_end_prec = [normalize_negation(p.expr) for p in act.at_end.pre]
+            at_end_prec += [normalize_negation(p.expr) for p in act.overall]
             fs_at_end_prec = land(*at_end_prec, flat=True)
             fs_at_end_eff = [fs.AddEffect(eff.lhs == eff.rhs) for eff in act.at_end.post]
             problem.action("{}_at_end".format(act.name), act.parameters,
