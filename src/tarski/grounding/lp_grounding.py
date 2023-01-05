@@ -20,14 +20,21 @@ class LPGroundingStrategy:
 
     2022-12-19: Added option to project away numeric atoms from initial states, goals, preconditions and effects. By
     numeric atoms we mean any condition other than equality between a functional term and an element of {0,1}.
+
+    2022-01-04: Added option to allow debugging the logic programs generated and the resulting model returned by gringo.
     """
-    def __init__(self, problem, ground_actions=True, include_variable_inequalities=False, relax_numeric_atoms=False):
+    def __init__(self, problem,
+                 ground_actions=True,
+                 include_variable_inequalities=False,
+                 relax_numeric_atoms=False,
+                 debug=False):
         self.problem = problem
         self.do_ground_actions = ground_actions
         self.include_variable_inequalities = include_variable_inequalities
         self.relax_numeric_atoms = relax_numeric_atoms
         self.model = None  # We'll cache the solution of the LP here
         self.fluent_symbols, self.static_symbols = approximate_symbol_fluency(problem)
+        self.debug = debug
 
     def ground_state_variables(self):
         """ Create and index all state variables of the problem by exhaustively grounding all predicate and function
@@ -76,9 +83,12 @@ class LPGroundingStrategy:
             model_filename, theory_filename = run_clingo(lp)
             self.model = parse_model(filename=model_filename, symbol_mapping=tr)
 
-            # Remove the input and output files for Gringo
-            silentremove(model_filename)
-            silentremove(theory_filename)
+            if not self.debug:
+                # Remove the input and output files for Gringo
+                silentremove(model_filename)
+                silentremove(theory_filename)
+            else:
+                print("DEBUG: Model filename: {}, theory filename: {}".format(model_filename, theory_filename))
 
             if len(self.model[GOAL]) != 1:
                 raise ReachabilityLPUnsolvable()

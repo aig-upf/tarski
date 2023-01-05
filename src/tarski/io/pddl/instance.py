@@ -13,6 +13,7 @@ from enum import Enum
 
 import tarski as tsk
 import tarski.model as model
+import tarski.syntax
 from tarski.io.pddl.errors import UnsupportedFeature
 from tarski.theories import Theory
 from tarski.syntax import Variable, Sort, CompoundTerm
@@ -399,9 +400,20 @@ class InstanceModel:
 
     def compile_to_functional_strips(self):
         """
-        Compiles temporal actions events into actions in a PPI given in Lifted Functional STRIPS
+        Compiles temporal actions events into actions in a PPI given in Lifted Functional STRIPS. Note that
+        assignments of false (0) to Boolean terms projected away.
+
         :return:
         """
+        def is_positive_assignment(phi: tarski.syntax.Formula):
+            if isinstance(phi, tarski.syntax.Atom):
+                if phi.symbol.symbol == tarski.syntax.BuiltinPredicateSymbol.EQ \
+                        and phi.subterms[0].sort == self.bool_t \
+                        and phi.subterms[-1] == 0:
+                    return False
+                return True
+            return True
+
         if self.L is None:
             raise RuntimeError("Error compiling to FSTRIPS: language is not set")
 
@@ -412,15 +424,15 @@ class InstanceModel:
         problem.init = self.init
 
         for act in self.durative:
-            at_start_prec = [p.expr for p in act.at_start.pre]
-            at_start_prec += [p.expr for p in act.overall]
+            at_start_prec = [p.expr for p in act.at_start.pre if is_positive_assignment(p.expr)]
             fs_at_start_prec = land(*at_start_prec, flat=True)
             fs_at_start_eff = [fs.AddEffect(eff.lhs == eff.rhs) for eff in act.at_start.post]
             problem.action("{}_at_start".format(act.name), act.parameters,
                            precondition=fs_at_start_prec,
                            effects=fs_at_start_eff)
 
-            at_end_prec = [p.expr for p in act.at_end.pre]
+            at_end_prec = [p.expr for p in act.at_end.pre if is_positive_assignment(p.expr)]
+            at_end_prec += [p.expr for p in act.overall if is_positive_assignment(p.expr)]
             fs_at_end_prec = land(*at_end_prec, flat=True)
             fs_at_end_eff = [fs.AddEffect(eff.lhs == eff.rhs) for eff in act.at_end.post]
             problem.action("{}_at_end".format(act.name), act.parameters,

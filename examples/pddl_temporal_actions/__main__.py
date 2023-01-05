@@ -96,7 +96,7 @@ def ground_durative_actions(instance: InstanceModel, groundings):
 
             actions += [DurativeActionData(name=temp_action.name,
                                            parameters=point,
-                                           at_start=EventData(pre=at_start_pre, post=at_end_post),
+                                           at_start=EventData(pre=at_start_pre, post=at_start_post),
                                            at_end=EventData(pre=at_end_pre, post=at_end_post),
                                            overall=overall,
                                            duration=duration)]
