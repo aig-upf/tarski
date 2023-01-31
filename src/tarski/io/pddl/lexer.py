@@ -207,7 +207,8 @@ class PDDLlex:
 
     @lex.TOKEN(identifier)
     def t_ID(self, t):
-        t.type = self.reserved.get(t.value, 'ID')
+        t.type = self.reserved.get(t.value,
+                                   self.reserved.get(t.value.lower(), 'ID'))
         t.value = t.value.lower()
         return t
 
@@ -224,7 +225,8 @@ class PDDLlex:
 
     @lex.TOKEN(section)
     def t_SECTION(self, t):
-        t.type = self.reserved.get(t.value, 'UNKNOWN_SECTION')
+        t.type = self.reserved.get(t.value,
+                                   self.reserved.get(t.value.lower(), 'UNKNOWN_SECTION'))
 
     @lex.TOKEN(real)
     def t_REAL(self, t):
