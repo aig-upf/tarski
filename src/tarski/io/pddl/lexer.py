@@ -218,7 +218,8 @@ class PDDLlex:
 
     @lex.TOKEN(directive)
     def t_DIRECTIVE(self, t):
-        t.type = self.reserved.get(t.value, 'UNKNOWN_DIRECTIVE')
+        t.type = self.reserved.get(t.value,
+                                   self.reserved.get(t.value.lower(), 'UNKNOWN_DIRECTIVE'))
         return t
 
     @lex.TOKEN(section)
@@ -243,7 +244,7 @@ class PDDLlex:
         return self._lexer.lineno
 
     def build(self, **kwargs):
-        self._lexer = lex.lex(object=self, **kwargs)
+        self._lexer = lex.lex(object=self, reflags=re.IGNORECASE | re.VERBOSE, **kwargs)
 
     def token(self):
         return self._lexer.token()

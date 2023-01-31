@@ -8,6 +8,7 @@
 # ----------------------------------------------------------------------------------------------------------------------
 
 import logging
+import re
 
 from ply import yacc  # type: ignore
 
@@ -1287,7 +1288,14 @@ class PDDLparser:
                 self.instance.process_constant_definition(entry)
             else:
                 msg = "Error processing (:objects ) section: constant '{}' has no type attached".format(entry)
-                raise SemanticError(self.lexer.lineno(), msg)
+                print("WARNING:", msg)
+                print("Defaulting to type object")
+                entry = ('object', [entry])
+                self.instance.process_constant_definition(entry)
+                # MRJ: Not sure exactly what is the "correct" behaviour, but clearly all planners I know of
+                # default to the object type.
+                #
+                # raise SemanticError(self.lexer.lineno(), msg)
         if self.debug:
             total_constants = 0
             for typename, constant_list in self.instance.domains.items():
