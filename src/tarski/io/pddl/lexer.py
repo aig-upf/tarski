@@ -123,6 +123,11 @@ class LexSymbols:
         self.rwIS_VIOLATED = 'is-violated'
         self.rwALL = 'all'
 
+        # PDDL Extensions
+        self.rwINTERVAL = 'interval'
+        self.rwALL_DIFF = 'alldiff'
+
+
 
 class PDDLlex:
     """
@@ -207,6 +212,7 @@ class PDDLlex:
 
     @lex.TOKEN(identifier)
     def t_ID(self, t):
+
         t.type = self.reserved.get(t.value,
                                    self.reserved.get(t.value.lower(), 'ID'))
         t.value = t.value.lower()

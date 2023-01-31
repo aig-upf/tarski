@@ -23,7 +23,7 @@ class PDDLparser:
     """
     The PDDL parser class
     """
-    def __init__(self, lexer=None, verbose=False, debug=False):
+    def __init__(self, lexer=None, verbose=False, debug=False, numbers_are_reals=True):
         if lexer is None:
             self.lexer = PDDLlex()
             # Lexer debugging isn't particularly helpful, change
@@ -49,6 +49,7 @@ class PDDLparser:
         )
 
         self.debug = debug
+        self.numbers_are_reals = numbers_are_reals
         self.instance = None
         self.var_dict = None
         self._parser = None
@@ -76,7 +77,8 @@ class PDDLparser:
         pass
 
     def p_domain(self, p):
-        '''domain   : LPAREN rwDEFINE domain_name domain_require_def domain_body_def RPAREN'''
+        '''domain   : LPAREN rwDEFINE domain_name domain_require_def domain_body_def RPAREN
+                    | LPAREN rwDEFINE domain_name domain_body_def RPAREN'''
         print("Domain Parsed")
         pass
 
@@ -159,6 +161,7 @@ class PDDLparser:
                                 | rwPREFERENCES requirement_key_list
                                 | rwCONSTRAINTS requirement_key_list
                                 | rwACTION_COSTS requirement_key_list
+                                | rwOBJECT_FLUENTS requirement_key_list
                                 | empty'''
         # If token 1 is null, we have hit the end of the list
         if p[1] is None:
@@ -198,6 +201,9 @@ class PDDLparser:
             self.required_features.add(Features.UNIVERSAL_PRECONDITIONS)
             self.required_features.add(Features.EXISTENTIAL_PRECONDITIONS)
             self.required_features.add(Features.CONDITIONAL_EFFECTS)
+        elif p[1] == self.lexer.symbols.rwOBJECT_FLUENTS:
+            self.required_features.add(Features.OBJECT_FLUENTS)
+            self.required_features.add(Features.EQUALITY)
         elif p[1] == self.lexer.symbols.rwDURATIVE_ACTIONS:
             self.required_features.add(Features.DURATIVE_ACTIONS)
         elif p[1] == self.lexer.symbols.rwDERIVED_PREDICATES:
@@ -222,7 +228,7 @@ class PDDLparser:
             raise RuntimeError("Handling of requirements should be exhaustive!")
 
     def p_types_def(self, p):
-        '''types_def    : LPAREN rwTYPES typed_list_of_names RPAREN'''
+        '''types_def    : LPAREN rwTYPES types_def_list RPAREN'''
         if p[1] is None:
             return
         if self.debug:
@@ -233,6 +239,25 @@ class PDDLparser:
                 self.instance.process_supertype_definition(supertype, subtypes, self.lexer.lineno())
             else:
                 self.instance.process_type_definition(type_entry)
+
+    def p_types_def_list(self, p):
+        '''types_def_list   : types_def_elem types_def_list
+                            | empty'''
+        if p[1] is None:
+            p[0] = []
+            return
+        p[0] = [p[1]] + p[2]
+
+    def p_types_def_elem(self, p):
+        '''types_def_elem  : list_of_names MINUS type
+                            | list_of_names'''
+        if len(p) == 2:
+            p[0] = ('Object', p[1])
+            return
+
+        sub_types = p[1]
+        super_type = p[3]
+        p[0] = (super_type, sub_types)
 
     def p_typed_list_of_names(self, p):
         '''typed_list_of_names  : ID list_of_names typed_list_of_names
@@ -282,12 +307,22 @@ class PDDLparser:
     def p_primitive_type(self, p):
         '''primitive_type   : rwOBJECT
                             | rwNUMBER
+                            | LPAREN rwINTERVAL rwNUMBER rwNUMBER RPAREN
                             | ID'''
         if p[1] == self.lexer.symbols.rwOBJECT:
             p[0] = 'Object'
             return
         if p[1] == self.lexer.symbols.rwNUMBER:
-            p[0] = 'Real'
+            if self.numbers_are_reals:
+                p[0] = 'Real'
+            else:
+                p[0] = 'Integer'
+            return
+        if len(p) == 6 and p[2] == self.lexer.symbols.rwINTERVAL:
+            if self.numbers_are_reals:
+                p[0] = ('Real', float(p[3]), float(p[4]))
+            else:
+                p[0] = ('Integer', int(p[3]), int(p[4]))
             return
         p[0] = p[1]
 
@@ -769,6 +804,7 @@ class PDDLparser:
         f_exp   : NAT
                 | REAL
                 | VAR
+                | ID
                 | LPAREN binary_op f_exp f_exp RPAREN
                 | LPAREN multi_op f_exp f_exp list_of_expression RPAREN
                 | LPAREN MINUS f_exp RPAREN
@@ -835,6 +871,9 @@ class PDDLparser:
             try:
                 func_name = self.instance.get(p[1])
                 p[0] = func_name()
+            except TypeError as e:
+                msg = "Error parsing expression, '{}' is not `Function` but `{}`".format(p[1], type(func_name))
+                raise SemanticError(self.lexer.lineno(), msg)
             except tsk.LanguageError as e:
                 msg = "Error parsing expression, function '{}' is not declared".format(p[1])
                 raise SemanticError(self.lexer.lineno(), msg)
