@@ -432,6 +432,57 @@ class InstanceModel:
         problem.goal = self.goal
         problem.init = self.init
 
+        for act in self.actions:
+            prec = [normalize_negation(sub) for sub in act.pre.subformulas]
+            prec = land(*prec, flat=True)
+            eff = [fs.AddEffect(eff.lhs == eff.rhs) for eff in act.post]
+            problem.action(act.name, act.parameters, precondition=prec, effects=eff)
+
+        for pred in self.derived:
+            if isinstance(pred.body, tarski.syntax.CompoundFormula):
+                if pred.body.connective == tarski.syntax.Connective.And:
+                    prec = [normalize_negation(sub) for sub in pred.body.subformulas]
+                    prec = land(*prec, flat=True)
+                    eff = [fs.AddEffect(pred.head.lhs == pred.head.rhs)]
+                    problem.action('axiom_{}'.format(pred.head.symbol), pred.parameters, precondition=prec, effects=eff)
+                elif pred.body.connective == tarski.syntax.Connective.Not:
+                    prec = [normalize_negation(pred.body)]
+                    prec = land(*prec, flat=True)
+                    eff = [fs.AddEffect(pred.head.lhs == pred.head.rhs)]
+                    problem.action('axiom_{}'.format(pred.head.symbol), pred.parameters, precondition=prec, effects=eff)
+                elif pred.body.connective == tarski.syntax.Connective.Or:
+                    for idx, sub in enumerate(pred.body.subformulas):
+                        if isinstance(sub, tarski.syntax.CompoundFormula):
+                            if sub.connective == tarski.syntax.Connective.And:
+                                prec = [normalize_negation(sub2) for sub2 in sub.subformulas]
+                                prec = land(*prec, flat=True)
+                                eff = [fs.AddEffect(pred.head.lhs == pred.head.rhs)]
+                                problem.action('axiom_{}_{}'.format(idx, pred.head.symbol), pred.parameters, precondition=prec,
+                                               effects=eff)
+                            elif sub.connective == tarski.syntax.Connective.Not:
+                                prec = [normalize_negation(sub)]
+                                prec = land(*prec, flat=True)
+                                eff = [fs.AddEffect(pred.head.lhs == pred.head.rhs)]
+                                problem.action('axiom_{}_{}'.format(idx, pred.head.symbol), pred.parameters, precondition=prec,
+                                               effects=eff)
+                        elif isinstance(sub, tarski.syntax.Atom):
+                            prec = [sub]
+                            prec = land(*prec, flat=True)
+                            eff = [fs.AddEffect(pred.head(*pred.parameters) == 1)]
+                            problem.action('axiom_{}_{}'.format(idx, pred.head.symbol), pred.parameters, precondition=prec,
+                                           effects=eff)
+                        else:
+                            raise RuntimeError(
+                                "Error: Found axiom with quantified formula - which we do not know how ground yet")
+            elif isinstance(pred.body, tarski.syntax.Atom):
+                prec = [pred.body]
+                prec = land(*prec, flat=True)
+                eff = [fs.AddEffect(pred.head.lhs == pred.head.rhs)]
+                problem.action('axiom_{}'.format(pred.head.symbol), pred.parameters, precondition=prec,
+                               effects=eff)
+            else:
+                raise RuntimeError("Error: Found axiom with quantified formula - which we do not know how ground yet")
+
         for act in self.durative:
             at_start_prec = [normalize_negation(p.expr) for p in act.at_start.pre]
             fs_at_start_prec = land(*at_start_prec, flat=True)
