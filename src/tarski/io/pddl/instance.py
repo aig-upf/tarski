@@ -433,7 +433,11 @@ class InstanceModel:
         problem.init = self.init
 
         for act in self.actions:
-            prec = [normalize_negation(sub) for sub in act.pre.subformulas]
+            prec = []
+            if isinstance(act.pre, tarski.syntax.Atom):
+                prec = [normalize_negation(act.pre)]
+            else:
+                prec = [normalize_negation(sub) for sub in act.pre.subformulas]
             prec = land(*prec, flat=True)
             eff = [fs.AddEffect(eff.lhs == eff.rhs) for eff in act.post]
             problem.action(act.name, act.parameters, precondition=prec, effects=eff)
