@@ -21,7 +21,7 @@ from tarski.syntax.sorts import Interval, int_encode_fn
 from tarski.syntax import symref
 from tarski.evaluators.simple import evaluate as default_evaluator
 from tarski import fstrips as fs
-from tarski.syntax import land
+from tarski.syntax import land, lor
 
 AssignmentEffectData = namedtuple('AssignmentEffectData', ['lhs', 'rhs'])
 EventData = namedtuple('EventData', ['pre', 'post'])
@@ -183,7 +183,7 @@ class InstanceModel:
                 else:
                     msg = "Error processing types definition in domain: type '{}' defined via multiple inheritance, which is not supported".format(
                         subtypename)
-                    raise UnsupportedFeature(lineno(), msg)
+                    raise UnsupportedFeature(lineno, msg)
             else:
                 self.types[subtypename] = self.L.sort(subtypename, self.types[supertype])
 
@@ -418,9 +418,16 @@ class InstanceModel:
             if isinstance(phi, tarski.syntax.Atom):
                 if phi.symbol.symbol == tarski.syntax.BuiltinPredicateSymbol.EQ \
                         and phi.subterms[0].sort == self.bool_t \
-                        and phi.subterms[-1] == 0:
+                        and phi.subterms[-1].symbol == 0:
                     return ~(phi.subterms[0] == 1)
                 return phi
+            elif isinstance(phi, tarski.syntax.CompoundFormula):
+                if phi.connective == tarski.syntax.Connective.And:
+                    subformulas = [normalize_negation(sub) for sub in phi.subformulas]
+                    return land(*subformulas)
+                if phi.connective == tarski.syntax.Connective.Or:
+                    subformulas = [normalize_negation(sub) for sub in phi.subformulas]
+                    return lor(*subformulas)
             return phi
 
         if self.L is None:
