@@ -58,6 +58,8 @@ class InstanceModel:
     """
     def __init__(self, **kwargs):
         self.debug = kwargs.get('debug', False)
+        self.compile_away_disjunctive_preconditions = kwargs.get('compile_away_disjunctive_preconditions', True)
+
         self.L = None
         self.bool_t = None
         self.int_t = None
@@ -324,6 +326,27 @@ class InstanceModel:
         :param body:
         :return:
         """
+        if self.compile_away_disjunctive_preconditions:
+            if isinstance(body['precondition'], tarski.syntax.CompoundFormula)\
+                    and body['precondition'].connective == tarski.syntax.Connective.Or:
+                print("INFO: compiling away disjunctive precondition of action schema", name)
+                print(body['precondition'])
+                stack = []
+                phi = body['precondition'].subformulas
+                while phi is not None:
+                    stack += [phi[0]]
+                    if isinstance(phi[1], tarski.syntax.CompoundFormula)\
+                             and phi[1].connective == tarski.syntax.Connective.Or:
+                        phi = phi[1]
+                    else:
+                        stack += [phi[1]]
+                        phi = None
+                for index, sub in enumerate(stack):
+                    self._actions += [ActionData(name='{}-{}'.format(name, index),
+                                                 parameters=[e['term'] for e in parameters],
+                                                 pre=sub,
+                                                 post=body['effect'])]
+                return
 
         self._actions += [ActionData(name=name,
                                      parameters=[e['term'] for e in parameters],
