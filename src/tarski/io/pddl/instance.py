@@ -466,8 +466,15 @@ class InstanceModel:
             prec = []
             if isinstance(act.pre, tarski.syntax.Atom):
                 prec = [normalize_negation(act.pre)]
-            else:
+            elif isinstance(act.pre, tarski.syntax.Tautology):
+                prec = []
+            elif isinstance(act.pre, tarski.syntax.CompoundFormula):
                 prec = [normalize_negation(sub) for sub in act.pre.subformulas]
+            elif isinstance(act.pre, tarski.syntax.QuantifiedFormula):
+                raise NotImplementedError("Support for quantified formulas not implemented yet! formula,", act.pre)
+            else:
+                # @TODO: find a more specific exception type to raise
+                raise RuntimeError("Action precondition", act.pre, "of type", type(act.pre), "are not supported")
             prec = land(*prec, flat=True)
             eff = [fs.AddEffect(eff.lhs == eff.rhs) for eff in act.post]
             problem.action(act.name, act.parameters, precondition=prec, effects=eff)
