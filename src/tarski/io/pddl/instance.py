@@ -17,7 +17,8 @@ import tarski.syntax
 from tarski.io.pddl.errors import UnsupportedFeature
 from tarski.theories import Theory
 from tarski.syntax import Variable, Sort, CompoundTerm, CompoundFormula, Connective, \
-    QuantifiedFormula, Quantifier, Tautology, Atom, Constant
+    QuantifiedFormula, Quantifier, Tautology, Atom, Constant, is_and
+from tarski.syntax.formulas import is_eq_atom
 from tarski.syntax.sorts import Interval, int_encode_fn
 from tarski.syntax import symref
 from tarski.evaluators.simple import evaluate as default_evaluator
@@ -302,6 +303,37 @@ class InstanceModel:
         return [Atom(lhs.predicate, [lhs.subterms[0], Constant(1, lhs.subterms[1].sort)]),
                 Atom(rhs.predicate, [rhs.subterms[0], Constant(1, rhs.subterms[1].sort)])]
 
+    def simplify(self, phi: CompoundFormula):
+        """
+        Applies some simplification rules
+        :param phi:
+        :return:
+        """
+        if phi.connective == Connective.Not:
+            if is_eq_atom(phi.subformulas[0]):
+                gamma = phi.subformulas[0]
+                return gamma.subterms[0] != gamma.subterms[1]
+
+        return phi
+
+    def flatten_conjunction(self, phi: CompoundFormula):
+        """
+        Flattens compound formula extracting subformulas into a list
+        :param phi:
+        :return:
+        """
+        conjuncts = []
+        if phi.connective != Connective.And:
+            return [phi]
+        subformulas = list(phi.subformulas)
+        while len(subformulas) != 0:
+            if is_and(subformulas[0]):
+                subformulas = list(subformulas[0].subformulas)
+            conjuncts += [subformulas[0]]
+            subformulas.pop(0)
+
+        return conjuncts
+
     def analyze_domain_constraint(self, phi: QuantifiedFormula):
         """
         Analyses domain constraint and generates domain constraint data structure
@@ -325,14 +357,14 @@ class InstanceModel:
                                           "what one would expect from A->B \equiv ~A v B".format(varphi))
             # It is a complex constraint
             self._constraints += [ConflictConstraint(scope=phi.variables,
-                                                     condition=lhs.subformulas[0],
+                                                     condition=[self.simplify(phi)
+                                                                for phi in self.flatten_conjunction(lhs.subformulas[0])],
                                                      disjunction=self.extract_conflicting_atoms(rhs))]
         else:
 
             self._constraints += [ConflictConstraint(scope=phi.variables,
                                                      condition=Tautology(),
                                                      disjunction=self.extract_conflicting_atoms(varphi))]
-
 
     def process_domain_constraints(self, formula):
         """
