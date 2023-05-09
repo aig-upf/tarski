@@ -527,12 +527,12 @@ class PDDLparser:
 
     def p_domain_constraints_def(self, p):
         '''domain_constraints_def   : LPAREN rwCONSTRAINTS con_GD RPAREN'''
-        pass
+        self.instance.process_domain_constraints(p[3])
 
     def p_con_GD(self, p):
         '''
         con_GD  : LPAREN rwAND con_GD_list RPAREN
-                | LPAREN rwFORALL LPAREN list_of_typed_variables RPAREN con_GD RPAREN
+                | LPAREN rwFORALL quantifier_scope GD RPAREN
                 | LPAREN rwAT rwEND GD RPAREN
                 | LPAREN rwALWAYS GD RPAREN
                 | LPAREN rwSOMETIME GD RPAREN
@@ -543,13 +543,27 @@ class PDDLparser:
                 | LPAREN rwALWAYS_WITHIN NAT GD GD RPAREN
                 | LPAREN rwHOLD_DURING NAT NAT GD RPAREN
                 | LPAREN rwHOLD_AFTER NAT GD RPAREN'''
-        pass
+        if p[2] == self.lexer.symbols.rwAND:
+            p[0] = land(*p[3])
+            return
+        elif p[2] == self.lexer.symbols.rwFORALL:
+            vars = p[3]
+            phi = p[4]
+            p[0] = QuantifiedFormula(Quantifier.Forall, [entry['term'] for entry in vars], phi)
+            # clear vars from scope
+            for entry in vars:
+                del self.var_dict[entry['var']]
+            return
+        raise ParseError("Unsupported domain constraints detected")
 
     def p_con_GD_list(self, p):
         '''
         con_GD_list : con_GD con_GD_list
                     | empty'''
-        pass
+        if len(p) == 2:
+            p[0] = []
+            return
+        p[0] = [p[1]] + p[2]
 
     def p_structure_def_list(self, p):
         '''

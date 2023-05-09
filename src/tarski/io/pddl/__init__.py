@@ -42,5 +42,6 @@ supported_features = {
     Features.OBJECT_FLUENTS,
     Features.DERIVED_PREDICATES,
     Features.NUMERIC_FLUENTS,
-    Features.DISJUNCTIVE_PRECONDITIONS
+    Features.DISJUNCTIVE_PRECONDITIONS,
+    Features.CONSTRAINTS
 }

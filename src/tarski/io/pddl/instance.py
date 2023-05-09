@@ -267,6 +267,15 @@ class InstanceModel:
         signature = domain + [codomain]
         self.functions[name] = self.L.function(name, *signature)
 
+    def process_domain_constraints(self, formula):
+        """
+        Processes given domain constraint formula
+        :param formula:
+        :return:
+        """
+        print("Domain constraints:")
+        print(formula)
+
     def process_durative_action_skeleton(self, name, parameters, body):
         """
         Processes durative action skeleton
