@@ -16,7 +16,8 @@ import tarski.model as model
 import tarski.syntax
 from tarski.io.pddl.errors import UnsupportedFeature
 from tarski.theories import Theory
-from tarski.syntax import Variable, Sort, CompoundTerm
+from tarski.syntax import Variable, Sort, CompoundTerm, CompoundFormula, Connective, \
+    QuantifiedFormula, Quantifier, Tautology, Atom, Constant
 from tarski.syntax.sorts import Interval, int_encode_fn
 from tarski.syntax import symref
 from tarski.evaluators.simple import evaluate as default_evaluator
@@ -29,6 +30,7 @@ ActionData = namedtuple('ActionData', ['name', 'parameters', 'pre', 'post'])
 DurativeActionData = namedtuple('DurativeActionData', ['name', 'parameters', 'at_start', 'at_end', 'overall', 'duration'])
 DerivedPredicateData = namedtuple('DerivedPredicateData', ['head', 'parameters', 'body'])
 ObjectiveData = namedtuple('ObjectiveData', ['mode', 'type', 'expr'])
+ConflictConstraint = namedtuple('Conflict', ['scope', 'condition', 'disjunction'])
 
 
 class ObjectiveMode(Enum):
@@ -76,6 +78,7 @@ class InstanceModel:
         self._actions = []
         self._durative = []
         self._derived = []
+        self._constraints = []
 
         self.init = None
         self.goal = None
@@ -152,10 +155,18 @@ class InstanceModel:
     @property
     def derived(self):
         """
-        List of objects with `DerivedPredicateData` instances describing derived predicates (PDDL axioms)
+        List of objects with `DerivedPredicateData` instances describing derived predicates
         :return:
         """
         return self._derived
+
+    @property
+    def conflicts(self):
+        """
+        List of `ConflictConstraint` describing axioms that capture conflicts between fluents
+        :return:
+        """
+        return self._constraints
 
     @property
     def objective(self):
@@ -267,14 +278,85 @@ class InstanceModel:
         signature = domain + [codomain]
         self.functions[name] = self.L.function(name, *signature)
 
+    def extract_conflicting_atoms(self, phi: CompoundFormula):
+        """
+        Extracts atoms from ~A v ~B
+        :param phi:
+        :return:
+        """
+        lhs = phi.subformulas[0]
+        rhs = phi.subformulas[1]
+        # MRJ: note that negative literals ~P(x) are converted to f_{P}(x) = 0
+        # if not isinstance(lhs, CompoundFormula) or lhs.connective != Connective.Not:
+        #     raise NotImplementedError("Warning: constraint {} is disjunctive formula which does "
+        #                               "not match ~A v ~B".format(lhs))
+        # if not isinstance(rhs, CompoundFormula) or rhs.connective != Connective.Not:
+        #     raise NotImplementedError("Warning: constraint {} is disjunctive formula which does "
+        #                               "not match ~A v ~B".format(rhs))
+        if not isinstance(lhs, Atom) or lhs.subterms[1].symbol != 0:
+            raise NotImplementedError("Warning: constraint {} is disjunctive formula which does "
+                                      "not match A(x) = 0 v B(x) = 1".format(lhs))
+        if not isinstance(rhs, Atom) or rhs.subterms[1].symbol != 0:
+            raise NotImplementedError("Warning: constraint {} is disjunctive formula which does "
+                                      "not match A(x) = 0 v B(x) = 1".format(rhs))
+        return [Atom(lhs.predicate, [lhs.subterms[0], Constant(1, lhs.subterms[1].sort)]),
+                Atom(rhs.predicate, [rhs.subterms[0], Constant(1, rhs.subterms[1].sort)])]
+
+    def analyze_domain_constraint(self, phi: QuantifiedFormula):
+        """
+        Analyses domain constraint and generates domain constraint data structure
+        :param phi:
+        :return:
+        """
+        varphi = phi.formula
+        if not isinstance(varphi, CompoundFormula) or varphi.connective != Connective.Or:
+            raise NotImplementedError("Warning: constraint: {} is not a disjunctive formula, so "
+                                      "it is being ignored!".format(phi.formula))
+        if len(varphi.subformulas) != 2:
+            raise NotImplementedError("Warning: constraint {} is a disjunctive formula with more "
+                                      "than two disjuncts so for now it is being "
+                                      "ignored".format(phi.formula))
+        lhs = varphi.subformulas[0]
+        rhs = varphi.subformulas[1]
+        if isinstance(rhs, CompoundFormula) and rhs.connective == Connective.Or:
+            if not isinstance(lhs, CompoundFormula) or lhs.connective != Connective.Not:
+                raise NotImplementedError("Warning: constraint {} is a disjunctive formula where "
+                                          "the rhs is a disjunctive formula, but does not match "
+                                          "what one would expect from A->B \equiv ~A v B".format(varphi))
+            # It is a complex constraint
+            self._constraints += [ConflictConstraint(scope=phi.variables,
+                                                     condition=lhs.subformulas[0],
+                                                     disjunction=self.extract_conflicting_atoms(rhs))]
+        else:
+
+            self._constraints += [ConflictConstraint(scope=phi.variables,
+                                                     condition=Tautology(),
+                                                     disjunction=self.extract_conflicting_atoms(varphi))]
+
+
     def process_domain_constraints(self, formula):
         """
         Processes given domain constraint formula
         :param formula:
         :return:
         """
-        print("Domain constraints:")
-        print(formula)
+        #print("Domain constraints:")
+        #print(formula)
+        if not isinstance(formula, CompoundFormula) or formula.connective != Connective.And:
+            raise RuntimeError("InstanceModel: domain constraints are not a conjunctive formula")
+        phi = list(formula.subformulas)
+        while len(phi) != 0:
+            if isinstance(phi[0], CompoundFormula) and phi[0].connective == Connective.And:
+                phi = list(phi[0].subformulas)
+
+            if not isinstance(phi[0], QuantifiedFormula) or phi[0].quantifier != Quantifier.Forall:
+                raise RuntimeError("InstanceModel: each constraint must be given as a universally quantified"
+                                   " formula, found:", phi)
+            # classify formula and determine structure
+            #print("Analysing:", phi[0])
+            self.analyze_domain_constraint(phi[0])
+            phi.pop(0)
+
 
     def process_durative_action_skeleton(self, name, parameters, body):
         """
