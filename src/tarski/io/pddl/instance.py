@@ -651,12 +651,19 @@ class InstanceModel:
             at_start_prec = [normalize_negation(p.expr) for p in act.at_start.pre]
             fs_at_start_prec = land(*at_start_prec, flat=True)
             fs_at_start_eff = [fs.AddEffect(eff.lhs == eff.rhs) for eff in act.at_start.post]
+
+            # MRJ: Add overall conditions as effects of the action
+            normalized_overall = [normalize_negation(p.expr) for p in act.overall]
+            for phi in normalized_overall:
+                assert is_eq_atom(phi)
+                fs_at_start_eff += [fs.AddEffect(phi)]
+
             problem.action("{}_at_start".format(act.name), act.parameters,
                            precondition=fs_at_start_prec,
                            effects=fs_at_start_eff)
 
             at_end_prec = [normalize_negation(p.expr) for p in act.at_end.pre]
-            at_end_prec += [normalize_negation(p.expr) for p in act.overall]
+            at_end_prec += normalized_overall
             fs_at_end_prec = land(*at_end_prec, flat=True)
             fs_at_end_eff = [fs.AddEffect(eff.lhs == eff.rhs) for eff in act.at_end.post]
             problem.action("{}_at_end".format(act.name), act.parameters,
