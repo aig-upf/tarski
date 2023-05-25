@@ -375,7 +375,12 @@ class InstanceModel:
         #print("Domain constraints:")
         #print(formula)
         if not isinstance(formula, CompoundFormula) or formula.connective != Connective.And:
-            raise RuntimeError("InstanceModel: domain constraints are not a conjunctive formula")
+            # then it needs to be a universal quantification
+            if not isinstance(formula, QuantifiedFormula) or formula.quantifier != Quantifier.Forall:
+                raise RuntimeError("InstanceModel: domain constraints are not a conjunctive or universally quantified"
+                                   " formula: {}".format(formula))
+            self.analyze_domain_constraint(formula)
+            return
         phi = list(formula.subformulas)
         while len(phi) != 0:
             if isinstance(phi[0], CompoundFormula) and phi[0].connective == Connective.And:
@@ -655,7 +660,8 @@ class InstanceModel:
             # MRJ: Add overall conditions as effects of the action
             normalized_overall = [normalize_negation(p.expr) for p in act.overall]
             for phi in normalized_overall:
-                assert is_eq_atom(phi)
+                if not is_eq_atom(phi):
+                    raise RuntimeError("Error: over all condition contains atoms other than equality: {}".format(phi))
                 fs_at_start_eff += [fs.AddEffect(phi)]
 
             problem.action("{}_at_start".format(act.name), act.parameters,
