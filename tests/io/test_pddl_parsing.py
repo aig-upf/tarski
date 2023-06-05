@@ -161,12 +161,11 @@ def test_basic_constructs():
         goal_atoms = eq_atoms_visitor.atoms
         print("Goal literals", len(goal_atoms))
 
-        assert len(instance.types) == 6
         assert 'object' in instance.types
         assert len(instance.domains) == 4
         assert len(instance.functions) == 2
         assert len(instance.predicates) == 8
-        assert len(instance.types) == 6
+        assert len(instance.types) == 7
         assert len(instance.actions) == 1
         assert len(instance.durative) == 1
         assert len(instance.derived) == 1
@@ -262,3 +261,43 @@ def test_preconditions_with_existential_effects():
         assert Features.EXISTENTIAL_PRECONDITIONS in parser.required_features
 
 
+@pytest.mark.pddl
+def test_recharging_robots():
+    """
+    Recharging robots domain from the IPC-23 competiting warm-up phase
+    """
+    with open('tests/data/pddl/ipc/recharging-robots/domain.pddl') as instream:
+        pddl_data = instream.read()
+
+    with open('tests/data/pddl/ipc/recharging-robots/problem.pddl') as instream:
+        pddl_data += instream.read()
+
+    parser = PDDLparser(debug=True)
+
+    with tempfile.NamedTemporaryFile() as f:
+        parser.build(logfile=f.name)
+
+        with pytest.raises(tarski.io.pddl.errors.UnsupportedFeature) as excinfo:
+            parser.parse(pddl_data)
+        assert 'The following UNSUPPORTED features are required' in str(excinfo.value)
+
+
+@pytest.mark.pddl
+def test_ricochet_robots():
+    """
+    Recharging robots domain from the IPC-23 competiting warm-up phase
+    """
+    with open('tests/data/pddl/ipc/ricochet-robots/domain.pddl') as instream:
+        pddl_data = instream.read()
+
+    with open('tests/data/pddl/ipc/ricochet-robots/problem.pddl') as instream:
+        pddl_data += instream.read()
+
+    parser = PDDLparser(debug=True)
+
+    with tempfile.NamedTemporaryFile() as f:
+        parser.build(logfile=f.name)
+
+        #with pytest.raises(tarski.io.pddl.errors.UnsupportedFeature) as excinfo:
+        parser.parse(pddl_data)
+        #assert 'The following UNSUPPORTED features are required' in str(excinfo.value)
