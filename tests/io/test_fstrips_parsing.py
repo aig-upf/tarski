@@ -1,7 +1,7 @@
 import pytest
+import tarski
 
-
-from tarski.errors import UndefinedSort, UndefinedPredicate
+from tarski.errors import UndefinedSort, UndefinedPredicate, UndefinedElement
 from tarski.fstrips import AddEffect, FunctionalEffect
 from tarski.fstrips.errors import InvalidEffectError
 from tarski.io.fstrips import ParsingError, FstripsReader
@@ -356,3 +356,21 @@ EXISTENTIAL_PRECS_TEST = """
 def test_preconditions_with_existential_formulas():
     with pytest.raises(ParsingError):
         output = _test_input(EXISTENTIAL_PRECS_TEST, 'domain', create_reader())
+
+
+@pytest.mark.fstrips
+def test_tricky_ipc_01():
+    import os
+    reader = FstripsReader(raise_on_error=True)
+    reader.parse_domain(os.path.join('tests', 'data', 'pddl', 'ipc', 'ricochet-robots', 'domain.pddl'))
+    reader.parse_instance(os.path.join('tests', 'data', 'pddl', 'ipc', 'ricochet-robots', 'problem.pddl'))
+    assert reader.problem.plan_metric is not None
+
+
+@pytest.mark.fstrips
+def test_tricky_ipc_02():
+    import os
+    reader = FstripsReader(raise_on_error=True)
+    reader.parse_domain(os.path.join('tests', 'data', 'pddl', 'ipc', 'recharging-robots', 'domain.pddl'))
+    reader.parse_instance(os.path.join('tests', 'data', 'pddl', 'ipc', 'recharging-robots', 'problem.pddl'))
+    assert reader.problem.plan_metric is not None

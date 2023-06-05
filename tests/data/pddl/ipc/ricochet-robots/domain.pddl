@@ -1,5 +1,5 @@
 (define (domain ricochet-robots)
-(:requirements :typing :adl)
+(:requirements :action-costs :typing :adl)
 
 (:types
     robot - object
