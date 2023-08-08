@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 ### Deprecated
 ### Fixed
+ - `tarski.syntax.visitors`
+   - `CollectVariables` visitor was not wrapping `Variable` objects with `TermReference`
 
 ## [0.8.2] 2022-04-07
 ### Fixed

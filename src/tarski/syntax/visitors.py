@@ -45,7 +45,7 @@ class CollectVariables:
 
     def visit(self, phi):
         if isinstance(phi, Variable):
-            self.variables.add(phi)
+            self.variables.add(symref(phi))
 
         elif isinstance(phi, CompoundFormula):
             _ = [self.visit(f) for f in phi.subformulas]
