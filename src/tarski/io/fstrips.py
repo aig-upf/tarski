@@ -94,7 +94,7 @@ derived_tpl = """
 """
 
 
-def print_objects(constants):
+def print_objects(constants, no_types=False):
     """ Print a PDDL object declaration with the given objects.
     Objects are sorted by name and grouped by type, and types sorted by name as well """
     constants_by_sort = defaultdict(list)
@@ -105,6 +105,9 @@ def print_objects(constants):
     for sort in sorted(constants_by_sort.keys()):
         sobjects = " ".join(sorted(constants_by_sort[sort]))
         elements.append("{} - {}".format(sobjects, sort))
+
+    if no_types:
+        return sobjects
 
     return linebreaks(elements, indentation=2, indent_first=False)
 
@@ -231,7 +234,7 @@ class FstripsWriter:
             domain_name=self.problem.domain_name,
             problem_name=self.problem.name,
 
-            objects=print_objects(instance_objects),
+            objects=print_objects(instance_objects, no_types=self.no_types),
             init=print_init(self.problem),
             goal=print_goal(self.problem),
             constraints=print_problem_constraints(self.problem),
