@@ -10,6 +10,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 ### Fixed
 
+## [0.9.0] 2023-1x-yy
+
+### Changed
+### Added
+
+#### FSTRIPS/PDDL Writer
+
+- Added option to avoid generating `:typing` requirements (and a `:types` block) for domain theories which have no sorts other than the built-ins (`Object`, etc.) defined. Thanks to @Martin36 for this contribution.
+
+### Removed
+### Deprecated
+### Fixed
+
 ## [0.8.2] 2022-04-07
 ### Fixed
  - Fixed pypi publishing workflow.
