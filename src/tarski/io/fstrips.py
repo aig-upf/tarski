@@ -182,6 +182,9 @@ class FstripsWriter:
         self.problem = problem
         self.lang = problem.language
         self.no_types = no_types
+        
+        if self.no_types and self.lang.sorts:
+            raise RuntimeError("The sort information will be lost if no_types is set to True")
 
     def write(self, domain_filename, instance_filename, domain_constants: Optional[List[Constant]] = None):
         domain_constants = domain_constants or []
