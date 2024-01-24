@@ -10,6 +10,7 @@
 from collections import namedtuple, OrderedDict
 from typing import Tuple, List
 from enum import Enum
+from dataclasses import dataclass
 
 import tarski as tsk
 import tarski.model as model
@@ -17,7 +18,7 @@ import tarski.syntax
 from tarski.io.pddl.errors import UnsupportedFeature
 from tarski.theories import Theory
 from tarski.syntax import Variable, Sort, CompoundTerm, CompoundFormula, Connective, \
-    QuantifiedFormula, Quantifier, Tautology, Atom, Constant, is_and
+    QuantifiedFormula, Quantifier, Tautology, Formula, Atom, Constant, is_and
 from tarski.syntax.formulas import is_eq_atom
 from tarski.syntax.sorts import Interval, int_encode_fn
 from tarski.syntax import symref
@@ -32,6 +33,14 @@ DurativeActionData = namedtuple('DurativeActionData', ['name', 'parameters', 'at
 DerivedPredicateData = namedtuple('DerivedPredicateData', ['head', 'parameters', 'body'])
 ObjectiveData = namedtuple('ObjectiveData', ['mode', 'type', 'expr'])
 ConflictConstraint = namedtuple('Conflict', ['scope', 'condition', 'disjunction'])
+
+
+@dataclass
+class StateInvariant(object):
+    atoms: List[Atom]
+    negated: List[bool]
+    condition: List[CompoundFormula]
+    scope: List[Variable]
 
 
 class ObjectiveMode(Enum):
@@ -162,9 +171,9 @@ class InstanceModel:
         return self._derived
 
     @property
-    def conflicts(self):
+    def constraints(self):
         """
-        List of `ConflictConstraint` describing axioms that capture conflicts between fluents
+        List of `StateInvariant` describing axioms that capture logical relations between fluents
         :return:
         """
         return self._constraints
@@ -176,6 +185,22 @@ class InstanceModel:
         :return:
         """
         return self._objective
+
+    def normalize_negation(self, phi: Formula) -> Formula:
+        if isinstance(phi, tarski.syntax.Atom):
+            if phi.symbol.symbol == tarski.syntax.BuiltinPredicateSymbol.EQ \
+                    and phi.subterms[0].sort == self.bool_t \
+                    and phi.subterms[-1].symbol == 0:
+                return ~(phi.subterms[0] == 1)
+            return phi
+        elif isinstance(phi, tarski.syntax.CompoundFormula):
+            if phi.connective == tarski.syntax.Connective.And:
+                subformulas = [self.normalize_negation(sub) for sub in phi.subformulas]
+                return land(*subformulas)
+            if phi.connective == tarski.syntax.Connective.Or:
+                subformulas = [self.normalize_negation(sub) for sub in phi.subformulas]
+                return lor(*subformulas)
+        return phi
 
     def process_supertype_definition(self, supertype, subtypes, lineno):
         """
@@ -279,29 +304,33 @@ class InstanceModel:
         signature = domain + [codomain]
         self.functions[name] = self.L.function(name, *signature)
 
-    def extract_conflicting_atoms(self, phi: CompoundFormula):
+    def extract_conflicting_atoms(self, phi: CompoundFormula) -> Tuple[List[Atom], List[bool]]:
         """
         Extracts atoms from ~A v ~B
         :param phi:
         :return:
         """
-        lhs = phi.subformulas[0]
-        rhs = phi.subformulas[1]
-        # MRJ: note that negative literals ~P(x) are converted to f_{P}(x) = 0
-        # if not isinstance(lhs, CompoundFormula) or lhs.connective != Connective.Not:
-        #     raise NotImplementedError("Warning: constraint {} is disjunctive formula which does "
-        #                               "not match ~A v ~B".format(lhs))
-        # if not isinstance(rhs, CompoundFormula) or rhs.connective != Connective.Not:
-        #     raise NotImplementedError("Warning: constraint {} is disjunctive formula which does "
-        #                               "not match ~A v ~B".format(rhs))
-        if not isinstance(lhs, Atom) or lhs.subterms[1].symbol != 0:
-            raise NotImplementedError("Warning: constraint {} is disjunctive formula which does "
-                                      "not match A(x) = 0 v B(x) = 1".format(lhs))
-        if not isinstance(rhs, Atom) or rhs.subterms[1].symbol != 0:
-            raise NotImplementedError("Warning: constraint {} is disjunctive formula which does "
-                                      "not match A(x) = 0 v B(x) = 1".format(rhs))
-        return [Atom(lhs.predicate, [lhs.subterms[0], Constant(1, lhs.subterms[1].sort)]),
-                Atom(rhs.predicate, [rhs.subterms[0], Constant(1, rhs.subterms[1].sort)])]
+        if isinstance(phi, Atom):
+            psi: Formula = self.normalize_negation(phi)
+            atoms: List[Atom] = [psi.subformulas[0]]
+            negated: List[bool] = [psi.connective == Connective.Not]
+            return atoms, negated
+
+        lhs: CompoundFormula = self.normalize_negation(phi.subformulas[0])
+        rhs: CompoundFormula= self.normalize_negation(phi.subformulas[1])
+        assert phi.connective == Connective.Or
+
+        atoms: List[Atom] = []
+        negated: List[bool] = []
+        for psi in [lhs, rhs]:
+            if psi.connective == Connective.Not:
+                atoms += [psi.subformulas[0]]
+                negated += [True]
+            else:
+                atoms += [psi.subformulas[0]]
+                negated += [False]
+
+        return atoms, negated
 
     def simplify(self, phi: CompoundFormula):
         """
@@ -341,30 +370,35 @@ class InstanceModel:
         :return:
         """
         varphi = phi.formula
-        if not isinstance(varphi, CompoundFormula) or varphi.connective != Connective.Or:
-            raise NotImplementedError("Warning: constraint: {} is not a disjunctive formula, so "
-                                      "it is being ignored!".format(phi.formula))
-        if len(varphi.subformulas) != 2:
-            raise NotImplementedError("Warning: constraint {} is a disjunctive formula with more "
-                                      "than two disjuncts so for now it is being "
-                                      "ignored".format(phi.formula))
-        lhs = varphi.subformulas[0]
-        rhs = varphi.subformulas[1]
-        if isinstance(rhs, CompoundFormula) and rhs.connective == Connective.Or:
-            if not isinstance(lhs, CompoundFormula) or lhs.connective != Connective.Not:
-                raise NotImplementedError("Warning: constraint {} is a disjunctive formula where "
-                                          "the rhs is a disjunctive formula, but does not match "
-                                          "what one would expect from A->B \equiv ~A v B".format(varphi))
-            # It is a complex constraint
-            self._constraints += [ConflictConstraint(scope=phi.variables,
-                                                     condition=[self.simplify(phi)
-                                                                for phi in self.flatten_conjunction(lhs.subformulas[0])],
-                                                     disjunction=self.extract_conflicting_atoms(rhs))]
-        else:
 
-            self._constraints += [ConflictConstraint(scope=phi.variables,
-                                                     condition=Tautology(),
-                                                     disjunction=self.extract_conflicting_atoms(varphi))]
+        if isinstance(varphi, Atom):
+            psi: Formula = self.normalize_negation(varphi)
+            self._constraints += [StateInvariant(scope=phi.variables, condition=[Tautology()],
+                                                 atoms=[psi.subformulas[0]], negated=[psi.connective == Connective.Not])]
+            return
+
+        assert isinstance(varphi, CompoundFormula)
+        assert varphi.connective == Connective.Or
+
+        scope: List[Variable] = phi.variables
+        condition: List[CompoundFormula] = [Tautology()]
+        atoms: List[Atom] = []
+        negated: List[bool] = []
+        for psi in varphi.subformulas:
+            psi = self.normalize_negation(psi)
+            if psi.connective == Connective.Not:
+                atoms += [psi.subformulas[0]]
+                negated += [True]
+            else:
+                atoms += [psi.subformulas[0]]
+                negated += [False]
+
+
+        self._constraints += [StateInvariant(scope=scope,
+                                             condition=condition,
+                                             atoms=atoms,
+                                             negated=negated)]
+
 
     def process_domain_constraints(self, formula):
         """
@@ -565,21 +599,7 @@ class InstanceModel:
                 return True
             return True
 
-        def normalize_negation(phi: tarski.syntax.Formula):
-            if isinstance(phi, tarski.syntax.Atom):
-                if phi.symbol.symbol == tarski.syntax.BuiltinPredicateSymbol.EQ \
-                        and phi.subterms[0].sort == self.bool_t \
-                        and phi.subterms[-1].symbol == 0:
-                    return ~(phi.subterms[0] == 1)
-                return phi
-            elif isinstance(phi, tarski.syntax.CompoundFormula):
-                if phi.connective == tarski.syntax.Connective.And:
-                    subformulas = [normalize_negation(sub) for sub in phi.subformulas]
-                    return land(*subformulas)
-                if phi.connective == tarski.syntax.Connective.Or:
-                    subformulas = [normalize_negation(sub) for sub in phi.subformulas]
-                    return lor(*subformulas)
-            return phi
+
 
         if self.L is None:
             raise RuntimeError("Error compiling to FSTRIPS: language is not set")
@@ -593,11 +613,11 @@ class InstanceModel:
         for act in self.actions:
             prec = []
             if isinstance(act.pre, tarski.syntax.Atom):
-                prec = [normalize_negation(act.pre)]
+                prec = [self.normalize_negation(act.pre)]
             elif isinstance(act.pre, tarski.syntax.Tautology):
                 prec = []
             elif isinstance(act.pre, tarski.syntax.CompoundFormula):
-                prec = [normalize_negation(sub) for sub in act.pre.subformulas]
+                prec = [self.normalize_negation(sub) for sub in act.pre.subformulas]
             elif isinstance(act.pre, tarski.syntax.QuantifiedFormula):
                 raise NotImplementedError("Support for quantified formulas not implemented yet! formula,", act.pre)
             else:
@@ -610,12 +630,12 @@ class InstanceModel:
         for pred in self.derived:
             if isinstance(pred.body, tarski.syntax.CompoundFormula):
                 if pred.body.connective == tarski.syntax.Connective.And:
-                    prec = [normalize_negation(sub) for sub in pred.body.subformulas]
+                    prec = [self.normalize_negation(sub) for sub in pred.body.subformulas]
                     prec = land(*prec, flat=True)
                     eff = [fs.AddEffect(pred.head.lhs == pred.head.rhs)]
                     problem.action('axiom_{}'.format(pred.head.symbol), pred.parameters, precondition=prec, effects=eff)
                 elif pred.body.connective == tarski.syntax.Connective.Not:
-                    prec = [normalize_negation(pred.body)]
+                    prec = [self.normalize_negation(pred.body)]
                     prec = land(*prec, flat=True)
                     eff = [fs.AddEffect(pred.head.lhs == pred.head.rhs)]
                     problem.action('axiom_{}'.format(pred.head.symbol), pred.parameters, precondition=prec, effects=eff)
@@ -623,13 +643,13 @@ class InstanceModel:
                     for idx, sub in enumerate(pred.body.subformulas):
                         if isinstance(sub, tarski.syntax.CompoundFormula):
                             if sub.connective == tarski.syntax.Connective.And:
-                                prec = [normalize_negation(sub2) for sub2 in sub.subformulas]
+                                prec = [self.normalize_negation(sub2) for sub2 in sub.subformulas]
                                 prec = land(*prec, flat=True)
                                 eff = [fs.AddEffect(pred.head.lhs == pred.head.rhs)]
                                 problem.action('axiom_{}_{}'.format(idx, pred.head.symbol), pred.parameters, precondition=prec,
                                                effects=eff)
                             elif sub.connective == tarski.syntax.Connective.Not:
-                                prec = [normalize_negation(sub)]
+                                prec = [self.normalize_negation(sub)]
                                 prec = land(*prec, flat=True)
                                 eff = [fs.AddEffect(pred.head.lhs == pred.head.rhs)]
                                 problem.action('axiom_{}_{}'.format(idx, pred.head.symbol), pred.parameters, precondition=prec,
@@ -653,12 +673,12 @@ class InstanceModel:
                 raise RuntimeError("Error: Found axiom with quantified formula - which we do not know how ground yet")
 
         for act in self.durative:
-            at_start_prec = [normalize_negation(p.expr) for p in act.at_start.pre]
+            at_start_prec = [self.normalize_negation(p.expr) for p in act.at_start.pre]
             fs_at_start_prec = land(*at_start_prec, flat=True)
             fs_at_start_eff = [fs.AddEffect(eff.lhs == eff.rhs) for eff in act.at_start.post]
 
             # MRJ: Add overall conditions as effects of the action
-            normalized_overall = [normalize_negation(p.expr) for p in act.overall]
+            normalized_overall = [self.normalize_negation(p.expr) for p in act.overall]
             for phi in normalized_overall:
                 if not is_eq_atom(phi):
                     raise RuntimeError("Error: over all condition contains atoms other than equality: {}".format(phi))
@@ -668,7 +688,7 @@ class InstanceModel:
                            precondition=fs_at_start_prec,
                            effects=fs_at_start_eff)
 
-            at_end_prec = [normalize_negation(p.expr) for p in act.at_end.pre]
+            at_end_prec = [self.normalize_negation(p.expr) for p in act.at_end.pre]
             at_end_prec += normalized_overall
             fs_at_end_prec = land(*at_end_prec, flat=True)
             fs_at_end_eff = [fs.AddEffect(eff.lhs == eff.rhs) for eff in act.at_end.post]
