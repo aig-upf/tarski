@@ -78,13 +78,14 @@ class ReachabilityLPCompiler:
         # Process all atoms in the initial state, e.g. "on(b1, b2)."
         for atom in problem.init.as_atoms():
             if isinstance(atom, tuple):
+                if isinstance(atom[0], CompoundTerm) and atom[0].symbol.symbol == 'total-cost':
+                    continue  # Ignore total-cost atoms
                 # This is an assignment to a term
                 atom = atom[0] == atom[1]
                 c = self.handle_equality_atom(atom)
                 lp.rule(c)
                 continue
-            if isinstance(atom[0], CompoundTerm) and atom[0].symbol.symbol == 'total-cost':
-                continue  # Ignore total-cost atoms
+
             if not isinstance(atom, Atom):
                 assert isinstance(atom, tuple) and len(atom) == 2 and isinstance(atom[0], CompoundTerm)
                 t, v = atom
