@@ -257,19 +257,34 @@ class ReachabilityLPCompiler:
                 f'ReachabilityLPCompiler cannot handle functional effect "{eff}" in action "{action_name}"')
         raise RuntimeError(f'Unexpected effect "{eff}" with type "{type(eff)}"')
 
+    def handle_equality_atom(self, atom: Atom):
+        """
+        Compiles away equaliy atoms
+        :param atom:
+        :return:
+        """
+        lhs = atom.subterms[0]
+        rhs = atom.subterms[1]
+        if isinstance(rhs, Constant) and rhs.symbol in (0, 1):
+            return self.tarski_functional_atom_to_lp_atom(lhs, rhs)
+
     def tarski_atom_to_lp_atom(self, atom: Atom):
         #print(atom, atom.predicate, type(atom.predicate), atom.predicate.symbol, type(atom.predicate.symbol))
         if self.relax_numeric_atoms:
             if isinstance(atom.predicate.symbol, BuiltinPredicateSymbol):
                 if atom.predicate.symbol == BuiltinPredicateSymbol.EQ:
-                    lhs = atom.subterms[0]
-                    rhs = atom.subterms[1]
-                    if isinstance(rhs, Constant) and rhs.symbol in (0, 1):
-                        return self.tarski_functional_atom_to_lp_atom(lhs, rhs)
+                    c = self.handle_equality_atom(atom)
+                    if c is not None:
+                        return c
                     else:
                         return lp_tautology()
                 else:
                     return lp_tautology()
+        if isinstance(atom.predicate.symbol, BuiltinPredicateSymbol):
+            if atom.predicate.symbol == BuiltinPredicateSymbol.EQ:
+                c = self.handle_equality_atom(atom)
+                if c is not None:
+                    return c
         return self.lp_atom(atom.predicate.symbol, [self.process_term(sub) for sub in atom.subterms], prefix='atom')
 
     def tarski_functional_atom_to_lp_atom(self, term: CompoundTerm, value):
