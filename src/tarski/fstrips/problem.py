@@ -1,6 +1,8 @@
 
 from collections import OrderedDict
 
+from tarski.fol import FirstOrderLanguage
+
 from .. import model
 from .action import Action
 from .derived import Derived
@@ -14,7 +16,7 @@ class Problem:
     def __init__(self, problem_name=None, domain_name=None):
         self.name = problem_name
         self.domain_name = domain_name
-        self.language = None
+        self.language: FirstOrderLanguage = None
         self.init = None
         self.goal = None
         self.constraints = []
