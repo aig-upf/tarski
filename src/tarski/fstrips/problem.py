@@ -17,7 +17,7 @@ class Problem:
         self.name = problem_name
         self.domain_name = domain_name
         self.language: FirstOrderLanguage = None
-        self.init = None
+        self.init: model.Model = None
         self.goal = None
         self.constraints = []
         self.actions = OrderedDict()

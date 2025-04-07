@@ -1,5 +1,7 @@
 import warnings
-from typing import Union
+from typing import List, Union
+
+from tarski.syntax.formulas import Atom
 
 from . import errors as err
 from .syntax import Function, Constant, CompoundTerm, symref, Variable
@@ -156,7 +158,7 @@ class Model:
 
         return exts
 
-    def as_atoms(self):
+    def as_atoms(self) -> List[Atom]:
         """ Return a representation of the model as a list of atoms that are true. For functional symbols f, return
         tuples of the form (f(o1, ..., on), value)
          """
