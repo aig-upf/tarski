@@ -294,7 +294,7 @@ def unwrap_conjunction_or_atom(phi):
 class Atom(Formula):
     """ A first-order atom. """
 
-    def __init__(self, predicate, arguments):
+    def __init__(self, predicate: Predicate, arguments: list[Term]):
         super().__init__()
         self.predicate = predicate
         self.subterms = arguments
