@@ -1,7 +1,7 @@
 
 from collections import OrderedDict
 
-from tarski.syntax.formulas import CompoundFormula, Tautology
+from tarski.syntax.formulas import Atom, CompoundFormula, Tautology
 from tarski.fol import FirstOrderLanguage
 
 from .. import model
@@ -19,7 +19,7 @@ class Problem:
         self.domain_name = domain_name
         self.language: FirstOrderLanguage | None = None
         self.init: model.Model | None = None
-        self.goal: Tautology | CompoundFormula | None = None
+        self.goal: Tautology | CompoundFormula | Atom | None = None
         self.constraints = []
         self.actions = OrderedDict()
         self.derived_ = OrderedDict()
