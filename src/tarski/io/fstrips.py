@@ -94,7 +94,7 @@ derived_tpl = """
 """
 
 
-def print_objects(constants):
+def print_objects(constants, no_types=False):
     """ Print a PDDL object declaration with the given objects.
     Objects are sorted by name and grouped by type, and types sorted by name as well """
     constants_by_sort = defaultdict(list)
@@ -105,6 +105,9 @@ def print_objects(constants):
     for sort in sorted(constants_by_sort.keys()):
         sobjects = " ".join(sorted(constants_by_sort[sort]))
         elements.append("{} - {}".format(sobjects, sort))
+
+    if no_types:
+        return sobjects
 
     return linebreaks(elements, indentation=2, indent_first=False)
 
@@ -175,9 +178,13 @@ def print_problem_metric(problem):
 
 class FstripsWriter:
 
-    def __init__(self, problem):
+    def __init__(self, problem, no_types = False):
         self.problem = problem
         self.lang = problem.language
+        self.no_types = no_types
+        
+        if self.no_types and self.lang.sorts:
+            raise RuntimeError("The sort information will be lost if no_types is set to True")
 
     def write(self, domain_filename, instance_filename, domain_constants: Optional[List[Constant]] = None):
         domain_constants = domain_constants or []
@@ -191,7 +198,10 @@ class FstripsWriter:
         constants", and which as "PDDL instance objects", which is something that cannot be determined from the problem
         information alone. If `constant_objects` is None, all objects are considered instance objects.
         """
-        tpl = load_tpl("fstrips_domain.tpl")
+        if self.no_types:
+            tpl = load_tpl("fstrips_domain_no_types.tpl")
+        else:
+            tpl = load_tpl("fstrips_domain.tpl")
         content = tpl.format(
             header_info="",
             domain_name=self.problem.domain_name,
@@ -205,7 +215,7 @@ class FstripsWriter:
         )
         return content
 
-    def write_domain(self, filename, constant_objects):
+    def write_domain(self, filename, constant_objects: Optional[List[Constant]] = None):
         with open(filename, 'w', encoding='utf8') as file:
             file.write(self.print_domain(constant_objects))
 
@@ -227,7 +237,7 @@ class FstripsWriter:
             domain_name=self.problem.domain_name,
             problem_name=self.problem.name,
 
-            objects=print_objects(instance_objects),
+            objects=print_objects(instance_objects, no_types=self.no_types),
             init=print_init(self.problem),
             goal=print_goal(self.problem),
             constraints=print_problem_constraints(self.problem),
@@ -236,12 +246,14 @@ class FstripsWriter:
         )
         return content
 
-    def write_instance(self, filename, constant_objects):
+    def write_instance(self, filename, constant_objects: Optional[List[Constant]] = None):
         with open(filename, 'w', encoding='utf8') as file:
             file.write(self.print_instance(constant_objects))
 
     def get_types(self):
         res = []
+        if self.no_types:
+            return ("\n" + _TAB * 2).join(res)
         for t in self.lang.sorts:
             if t.builtin or t == self.lang.Object:
                 continue  # Don't declare builtin elements
@@ -269,38 +281,41 @@ class FstripsWriter:
         for fun in self.lang.predicates:
             if fun.builtin:
                 continue  # Don't declare builtin elements
-            domain_str = build_signature_string(fun.sort)
+            domain_str = build_signature_string(fun.sort, no_types=self.no_types)
             res.append("({} {})".format(fun.symbol, domain_str))
         return ("\n" + _TAB * 2).join(res)
 
     def get_actions(self):
-        return "\n".join(self.get_action(a) for a in self.problem.actions.values())
+        return "\n".join(self.get_action(a, no_types=self.no_types) for a in self.problem.actions.values())
 
     @staticmethod
-    def get_action(a):
+    def get_action(a, no_types=False):
         base_indentation = 1
         return action_tpl.format(
             name=a.name,
-            parameters=print_variable_list(a.parameters),
+            parameters=print_variable_list(a.parameters, no_types=no_types),
             precondition=print_formula(a.precondition, base_indentation),
             effect=print_effects(a.effects, a.cost, base_indentation)
         )
 
     def get_derived_predicates(self):
-        return "\n".join(self.get_derived(d) for d in self.problem.derived_predicates.values())
+        return "\n".join(self.get_derived(d, no_types=self.no_types) for d in self.problem.derived_predicates.values())
 
     @staticmethod
-    def get_derived(d):
+    def get_derived(d, no_types=False):
         return derived_tpl.format(
             name=d.predicate.symbol,
-            parameters=print_variable_list(d.parameters),
+            parameters=print_variable_list(d.parameters, no_types=no_types),
             formula=print_formula(d.formula))
 
 
-def build_signature_string(domain):
+def build_signature_string(domain, no_types=False):
     if not domain:
         return ""
 
+    if no_types:
+        return " ".join(f"{print_variable_name(f'x{i}')}" for i, t in enumerate(domain, 1))
+    
     return " ".join(f"{print_variable_name(f'x{i}')} - {tarski_to_pddl_type(t)}" for i, t in enumerate(domain, 1))
 
 
@@ -308,7 +323,9 @@ def print_variable_name(name: str):
     return name if name.startswith("?") else f'?{name}'
 
 
-def print_variable_list(parameters):
+def print_variable_list(parameters, no_types=False):
+    if no_types:
+        return " ".join(f"{print_variable_name(p.symbol)}" for p in parameters)    
     return " ".join(f"{print_variable_name(p.symbol)} - {p.sort.name}" for p in parameters)
 
 

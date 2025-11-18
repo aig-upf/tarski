@@ -82,11 +82,11 @@ class FirstOrderLanguage:
                 tuple(c.signature for c in self._constants.values()))
 
     @property
-    def sorts(self):
+    def sorts(self) -> list[Sort]:
         return list(self._sorts.values())
 
     @property
-    def predicates(self):
+    def predicates(self) -> list[Predicate]:
         return list(self._predicates.values())
 
     @property
