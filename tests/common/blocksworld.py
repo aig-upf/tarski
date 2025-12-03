@@ -1,6 +1,7 @@
 """
-    Generate blocksworld language elements
+Generate blocksworld language elements
 """
+
 import tarski as tsk
 import tarski.model
 from tarski import fstrips as fs
@@ -11,13 +12,13 @@ from tarski.theories import Theory
 def generate_bw_loc_and_clear(num_blocks):
     lang = tsk.fstrips.language("blocksworld", theories=[Theory.EQUALITY])
 
-    lang.predicate('clear', lang.Object)
-    lang.function('loc', lang.Object, lang.Object)
+    lang.predicate("clear", lang.Object)
+    lang.function("loc", lang.Object, lang.Object)
 
     # Table and blocks
-    lang.constant('table', lang.Object)
-    lang.constant('hand', lang.Object)
-    _ = [lang.constant('b{}'.format(k), lang.Object) for k in range(1, num_blocks + 1)]
+    lang.constant("table", lang.Object)
+    lang.constant("hand", lang.Object)
+    _ = [lang.constant(f"b{k}", lang.Object) for k in range(1, num_blocks + 1)]
     return lang
 
 
@@ -25,11 +26,11 @@ def create_4blocks_task():
     bw = generate_bw_loc_and_clear(4)
     M = tarski.model.create(bw)
 
-    loc = bw.get_function('loc')
-    clear = bw.get_predicate('clear')
-    b1, b2, b3, b4 = [bw.get_constant('b{}'.format(k)) for k in range(1, 5)]
-    table = bw.get_constant('table')
-    hand = bw.get_constant('hand')
+    loc = bw.get_function("loc")
+    clear = bw.get_predicate("clear")
+    b1, b2, b3, b4 = [bw.get_constant(f"b{k}") for k in range(1, 5)]
+    table = bw.get_constant("table")
+    hand = bw.get_constant("hand")
 
     M.set(loc(b1), b2)  # loc(b1) := b2
     M.set(loc(b2), b3)  # loc(b2) := b3
@@ -55,36 +56,55 @@ def create_4blocks_task():
     # @NOTE: These are the state variables associated with the constraint above
     P.state_variables = []  # [StateVariable(clear(dest), [tb]) for tb in [tb1, tb2, tb3, tb4, table]]
 
-    b = bw.variable('b', bw.Object)
-    P.action('pick_up', [b],
-             land(clear(b), clear(hand), loc(b) == table, b != hand, b != table),
-             [fs.FunctionalEffect(loc(b), hand),
-              fs.DelEffect(clear(b)),
-              fs.DelEffect(clear(hand))])
+    b = bw.variable("b", bw.Object)
+    P.action(
+        "pick_up",
+        [b],
+        land(clear(b), clear(hand), loc(b) == table, b != hand, b != table),
+        [fs.FunctionalEffect(loc(b), hand), fs.DelEffect(clear(b)), fs.DelEffect(clear(hand))],
+    )
 
-    P.action('put_down', [b],
-             land(loc(b) == hand, b != table, b != hand),
-             [fs.FunctionalEffect(loc(b), table),
-              fs.AddEffect(clear(b)),
-              fs.AddEffect(clear(hand))])
+    P.action(
+        "put_down",
+        [b],
+        land(loc(b) == hand, b != table, b != hand),
+        [fs.FunctionalEffect(loc(b), table), fs.AddEffect(clear(b)), fs.AddEffect(clear(hand))],
+    )
 
-    src = bw.variable('src', bw.Object)
-    dest = bw.variable('dest', bw.Object)
+    src = bw.variable("src", bw.Object)
+    dest = bw.variable("dest", bw.Object)
 
-    P.action('stack', [src, dest],
-             land(loc(src) == hand, clear(dest), src != dest, src != table,
-                  src != hand, dest != table, dest != hand),
-             [fs.FunctionalEffect(loc(src), dest),
-              fs.DelEffect(clear(dest)),
-              fs.AddEffect(clear(src)),
-              fs.AddEffect(clear(hand))])
+    P.action(
+        "stack",
+        [src, dest],
+        land(loc(src) == hand, clear(dest), src != dest, src != table, src != hand, dest != table, dest != hand),
+        [
+            fs.FunctionalEffect(loc(src), dest),
+            fs.DelEffect(clear(dest)),
+            fs.AddEffect(clear(src)),
+            fs.AddEffect(clear(hand)),
+        ],
+    )
 
-    P.action('unstack', [src, dest],
-             land(clear(hand), loc(src) == dest, clear(src), src != dest, src != table,
-                  src != hand, dest != table, dest != hand),
-             [fs.FunctionalEffect(loc(src), hand),
-              fs.DelEffect(clear(src)),
-              fs.AddEffect(clear(dest)),
-              fs.DelEffect(clear(hand))])
+    P.action(
+        "unstack",
+        [src, dest],
+        land(
+            clear(hand),
+            loc(src) == dest,
+            clear(src),
+            src != dest,
+            src != table,
+            src != hand,
+            dest != table,
+            dest != hand,
+        ),
+        [
+            fs.FunctionalEffect(loc(src), hand),
+            fs.DelEffect(clear(src)),
+            fs.AddEffect(clear(dest)),
+            fs.DelEffect(clear(hand)),
+        ],
+    )
 
     return P

@@ -1,14 +1,12 @@
 """
-    Visitors implementing diverse aspects of FSTRIPS problems translation,
-    analysis and compilation.
+Visitors implementing diverse aspects of FSTRIPS problems translation,
+analysis and compilation.
 """
-from typing import Set
 
-from ..syntax.symrefs import TermReference
-from ..syntax.temporal import ltl
-from ..syntax.formulas import CompoundFormula, Atom, QuantifiedFormula
-from ..syntax.terms import CompoundTerm
 from ..syntax import symref
+from ..syntax.formulas import Atom, CompoundFormula, QuantifiedFormula
+from ..syntax.temporal import ltl
+from ..syntax.terms import CompoundTerm
 
 
 class FluentHeuristic:
@@ -19,8 +17,8 @@ class FluentHeuristic:
 
 class FluentSymbolCollector:
     """
-        This visitor collects CompoundTerms which are candidates to become
-        state variables.
+    This visitor collects CompoundTerms which are candidates to become
+    state variables.
     """
 
     def __init__(self, lang, fluents, statics, mode: FluentHeuristic):
@@ -35,7 +33,6 @@ class FluentSymbolCollector:
         self.visited = set()
 
     def _visit_action_effect_formula(self, phi):
-
         if isinstance(phi, CompoundFormula):
             _ = [self.visit(f) for f in phi.subformulas]
 
@@ -103,23 +100,20 @@ class FluentSymbolCollector:
         elif isinstance(phi, QuantifiedFormula):
             self.visit(phi.formula)
 
-        elif isinstance(phi, Atom):
-            self.statics.add(symref(phi))
-
-        elif isinstance(phi, CompoundTerm):
+        elif isinstance(phi, Atom) or isinstance(phi, CompoundTerm):
             self.statics.add(symref(phi))
 
     def visit(self, phi):
         """
-            Visitor method to sort atoms and terms into the
-            "fluent" and "static" categories. Note that a given
-            symbol can be in both sets, this means that it gets
-            "votes" as static and fluent... the post_process() method
-            is meant to settle the issue (and potentially allow for
-            more ellaborate/clever heuristics).
+        Visitor method to sort atoms and terms into the
+        "fluent" and "static" categories. Note that a given
+        symbol can be in both sets, this means that it gets
+        "votes" as static and fluent... the post_process() method
+        is meant to settle the issue (and potentially allow for
+        more ellaborate/clever heuristics).
 
-            NB: at the moment we're trawling all (possibly lifted)
-            sub-expressions, this is intentional.
+        NB: at the moment we're trawling all (possibly lifted)
+        sub-expressions, this is intentional.
         """
         if self.mode == FluentHeuristic.action_effects:
             self._visit_action_effect_formula(phi)

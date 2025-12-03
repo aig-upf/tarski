@@ -1,11 +1,10 @@
-"""
+""" """
 
-"""
 from enum import Enum
 
-from .concepts import Concept, Role, NullaryAtom
 from ..utils.algorithms import compute_min_distance
 from ..utils.hashing import consistent_hash
+from .concepts import Concept, NullaryAtom, Role
 
 
 class FeatureValueChange(Enum):
@@ -43,7 +42,7 @@ class Feature:
     #     raise NotImplementedError()
 
     def complexity(self):
-        """ Return feature complexity value """
+        """Return feature complexity value"""
         raise NotImplementedError()
 
 
@@ -70,15 +69,17 @@ def compute_bool_feature_diff(x, y):
 
 
 def are_feature_changes_analogous(x, y):
-    return (x == y
-            or (x == FeatureValueChange.DEL and y == FeatureValueChange.DEC)
-            or (x == FeatureValueChange.DEC and y == FeatureValueChange.DEL)
-            or (x == FeatureValueChange.ADD and y == FeatureValueChange.INC)
-            or (x == FeatureValueChange.INC and y == FeatureValueChange.ADD))
+    return (
+        x == y
+        or (x == FeatureValueChange.DEL and y == FeatureValueChange.DEC)
+        or (x == FeatureValueChange.DEC and y == FeatureValueChange.DEL)
+        or (x == FeatureValueChange.ADD and y == FeatureValueChange.INC)
+        or (x == FeatureValueChange.INC and y == FeatureValueChange.ADD)
+    )
 
 
 class ConceptCardinalityFeature(Feature):
-    """ A numeric feature that reflects the cardinality of a set of objects defined by a concept """
+    """A numeric feature that reflects the cardinality of a set of objects defined by a concept"""
 
     def __init__(self, c):
         assert isinstance(c, Concept)
@@ -92,7 +93,7 @@ class ConceptCardinalityFeature(Feature):
         return compute_int_feature_diff(x, y)
 
     def __repr__(self):
-        return 'Num[{}]'.format(self.c)
+        return f"Num[{self.c}]"
 
     __str__ = __repr__
 
@@ -100,8 +101,12 @@ class ConceptCardinalityFeature(Feature):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
-                and self.c == other.c)
+        return (
+            hasattr(other, "hash")
+            and self.hash == other.hash
+            and self.__class__ is other.__class__
+            and self.c == other.c
+        )
 
     def concept(self):
         return self.c
@@ -126,7 +131,7 @@ class EmpiricalBinaryConcept(Feature):
         return compute_bool_feature_diff(x, y)
 
     def __repr__(self):
-        return 'Bool[{}]'.format(self.c)
+        return f"Bool[{self.c}]"
 
     __str__ = __repr__
 
@@ -134,8 +139,12 @@ class EmpiricalBinaryConcept(Feature):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
-                and self.c == other.c)
+        return (
+            hasattr(other, "hash")
+            and self.hash == other.hash
+            and self.__class__ is other.__class__
+            and self.c == other.c
+        )
 
     def concept(self):
         return self.c
@@ -191,12 +200,18 @@ class MinDistanceFeature(Feature):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
-                and self.c1 == other.c1 and self.r == other.r and self.c2 == other.c2)
+        return (
+            hasattr(other, "hash")
+            and self.hash == other.hash
+            and self.__class__ is other.__class__
+            and self.c1 == other.c1
+            and self.r == other.r
+            and self.c2 == other.c2
+        )
 
     def denotation(self, model):
-        """ The value of the feature is the min distance between any object in the extension of c1 and any object
-            on the extension of c2, moving only along r-edges.
+        """The value of the feature is the min distance between any object in the extension of c1 and any object
+        on the extension of c2, moving only along r-edges.
         """
         ext_c1 = model.uncompressed_denotation(self.c1)
         ext_c2 = model.uncompressed_denotation(self.c2)
@@ -214,7 +229,7 @@ class MinDistanceFeature(Feature):
         return compute_int_feature_diff(x, y)
 
     def __repr__(self):
-        return 'Dist[{};{};{}]'.format(self.c1, self.r, self.c2)
+        return f"Dist[{self.c1};{self.r};{self.c2}]"
 
     __str__ = __repr__
 
@@ -233,11 +248,16 @@ class DifferenceFeature(Feature):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
-                and self.f1 == other.f1 and self.f2 == other.f2)
+        return (
+            hasattr(other, "hash")
+            and self.hash == other.hash
+            and self.__class__ is other.__class__
+            and self.f1 == other.f1
+            and self.f2 == other.f2
+        )
 
     def denotation(self, model):
-        """ The value of the feature is f1 < f2 """
+        """The value of the feature is f1 < f2"""
         ext_f1 = self.f1.denotation(model)
         ext_f2 = self.f2.denotation(model)
         return ext_f1 < ext_f2
@@ -246,7 +266,7 @@ class DifferenceFeature(Feature):
         return compute_bool_feature_diff(x, y)
 
     def __repr__(self):
-        return f'LessThan{{{self.f1}}}{{{self.f2}}}'
+        return f"LessThan{{{self.f1}}}{{{self.f2}}}"
 
     __str__ = __repr__
 
@@ -261,7 +281,7 @@ class NullaryAtomFeature(Feature):
         self.hash = consistent_hash((self.__class__, self.atom))
 
     def denotation(self, model):
-        """ The feature evaluates to true iff the nullary atom is true in the given state """
+        """The feature evaluates to true iff the nullary atom is true in the given state"""
         # return self.atom.extension(cache, state)
         return model.primitive_denotation(self.atom)
 
@@ -269,7 +289,7 @@ class NullaryAtomFeature(Feature):
         return compute_bool_feature_diff(x, y)
 
     def __repr__(self):
-        return 'Atom[{}]'.format(self.atom)
+        return f"Atom[{self.atom}]"
 
     __str__ = __repr__
 
@@ -277,8 +297,12 @@ class NullaryAtomFeature(Feature):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
-                and self.atom == other.atom)
+        return (
+            hasattr(other, "hash")
+            and self.hash == other.hash
+            and self.__class__ is other.__class__
+            and self.atom == other.atom
+        )
 
     def complexity(self):
         return 1

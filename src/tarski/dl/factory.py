@@ -1,38 +1,60 @@
-
 import logging
 
 from .. import FirstOrderLanguage
 from ..syntax import builtins
-from . import Concept, Role, UniversalConcept, PrimitiveConcept, NotConcept, ExistsConcept, ForallConcept, \
-    EqualConcept, PrimitiveRole, RestrictRole, AndConcept, EmptyConcept, CompositionRole, NominalConcept, NullaryAtom, \
-    GoalNullaryAtom, GoalConcept, GoalRole, OrConcept
+from . import (
+    AndConcept,
+    CompositionRole,
+    Concept,
+    EmptyConcept,
+    EqualConcept,
+    ExistsConcept,
+    ForallConcept,
+    GoalConcept,
+    GoalNullaryAtom,
+    GoalRole,
+    NominalConcept,
+    NotConcept,
+    NullaryAtom,
+    OrConcept,
+    PrimitiveConcept,
+    PrimitiveRole,
+    RestrictRole,
+    Role,
+    UniversalConcept,
+)
 
 
 def filter_subnodes(elem, t):
-    """ Return a list with all subnodes of a certain concept or role which conform to the given Python type """
+    """Return a list with all subnodes of a certain concept or role which conform to the given Python type"""
     return list(filter(lambda x: type(x) == t, elem.flatten()))
 
 
 def compute_dl_vocabulary(lang):
-    """ Return the DL vocabulary for the given language.
+    """Return the DL vocabulary for the given language.
     This is the list of all predicates of arity 0, 1 and 2, all types, and all functions of arity 0 and 1
     """
-    v = [(p.symbol, p) for p in lang.predicates if not builtins.is_builtin_predicate(p) and p.arity in (0, 1, 2)] \
-        + [(f.symbol, f) for f in lang.functions if not builtins.is_builtin_function(f) and f.arity in (0, 1)
-           and f.symbol != "total-cost"] \
-        + [(s.name, s) for s in lang.sorts if not s.builtin and s.name != 'number']
+    v = (
+        [(p.symbol, p) for p in lang.predicates if not builtins.is_builtin_predicate(p) and p.arity in (0, 1, 2)]
+        + [
+            (f.symbol, f)
+            for f in lang.functions
+            if not builtins.is_builtin_function(f) and f.arity in (0, 1) and f.symbol != "total-cost"
+        ]
+        + [(s.name, s) for s in lang.sorts if not s.builtin and s.name != "number"]
+    )
     return dict(v)
 
 
 class SyntacticFactory:
     def __init__(self, language: FirstOrderLanguage):
         self.language = language
-        self.universe_sort = language.get_sort('object')
+        self.universe_sort = language.get_sort("object")
         self.top = UniversalConcept(self.universe_sort.name)
         self.bot = EmptyConcept(self.universe_sort.name)
 
     def generate_primitives_from_language(self, nominals, types, goal_predicates):
-        """ Generate primitive concepts from the language taking into account only the given nominals """
+        """Generate primitive concepts from the language taking into account only the given nominals"""
 
         concepts, roles, primitive_atoms = [], [], []
         for predfun in list(self.language.predicates) + list(self.language.functions):
@@ -57,7 +79,7 @@ class SyntacticFactory:
                     roles.append(GoalRole(predfun))
 
             else:
-                logging.warning('Predicate/Function "{}" with normalized arity > 2 ignored'.format(predfun))
+                logging.warning(f'Predicate/Function "{predfun}" with normalized arity > 2 ignored')
 
         for c in nominals:
             concepts.append(NominalConcept(c.symbol, c.sort))
@@ -65,9 +87,9 @@ class SyntacticFactory:
         for t in types:
             concepts.append(PrimitiveConcept(t))
 
-        logging.info('Primitive (nullary) atoms : {}'.format(", ".join(map(str, primitive_atoms))))
-        logging.info('Primitive (unary) concepts: {}'.format(", ".join(map(str, concepts))))
-        logging.info('Primitive (binary) roles  : {}'.format(", ".join(map(str, roles))))
+        logging.info("Primitive (nullary) atoms : {}".format(", ".join(map(str, primitive_atoms))))
+        logging.info("Primitive (unary) concepts: {}".format(", ".join(map(str, concepts))))
+        logging.info("Primitive (binary) roles  : {}".format(", ".join(map(str, roles))))
 
         return concepts, roles, primitive_atoms
 
@@ -78,12 +100,12 @@ class SyntacticFactory:
         _, s2 = role.sort
 
         if concept == self.bot:
-            logging.debug('Concept "{}" is statically empty'.format(result))
+            logging.debug(f'Concept "{result}" is statically empty')
             return None
 
         # TODO ADD: If C is a sort-concept of the same sort than s2, then the concept will be equiv to exist(R.True)
         if not self.language.are_vertically_related(s2, concept.sort):
-            logging.debug('Concept "{}" pruned for type-inconsistency reasons'.format(result))
+            logging.debug(f'Concept "{result}" pruned for type-inconsistency reasons')
             return None
 
         if isinstance(role, RestrictRole) and concept == self.top:
@@ -109,7 +131,7 @@ class SyntacticFactory:
             return None
 
         if not self.language.are_vertically_related(s2, concept.sort):
-            logging.debug('Concept "{}" pruned for type-inconsistency reasons'.format(result))
+            logging.debug(f'Concept "{result}" pruned for type-inconsistency reasons')
             return None
 
         return result
@@ -123,12 +145,12 @@ class SyntacticFactory:
             return None  # No sense in C and C
 
         if c1 in (self.top, self.bot) or c2 in (self.top, self.bot):
-            logging.debug('AND of {} and {} pruned, no sense in AND\'ing with top or bot'.format(c1, c2))
+            logging.debug(f"AND of {c1} and {c2} pruned, no sense in AND'ing with top or bot")
             return None
 
         if sort is None:
             # i.e. c1 and c2 are disjoint types
-            logging.debug('AND of {} and {} pruned for type-inconsistency reasons'.format(c1, c2))
+            logging.debug(f"AND of {c1} and {c2} pruned for type-inconsistency reasons")
             return None
 
         return AndConcept(c1, c2, sort)
@@ -140,7 +162,7 @@ class SyntacticFactory:
             return None  # No sense in C OR C
 
         if c1 in (self.top, self.bot) or c2 in (self.top, self.bot):
-            logging.debug('OR of {} and {} pruned, no sense in OR\'ing with top or bot'.format(c1, c2))
+            logging.debug(f"OR of {c1} and {c2} pruned, no sense in OR'ing with top or bot")
             return None
 
         return OrConcept(c1, c2, sort)
@@ -151,29 +173,27 @@ class SyntacticFactory:
         sort = self.language.most_restricted_type(r1.sort[0], r2.sort[0])
 
         if sort is None:
-            logging.debug('Concept "EqualConcept({},{})" pruned for type-inconsistency reasons'.format(r1, r2))
+            logging.debug(f'Concept "EqualConcept({r1},{r2})" pruned for type-inconsistency reasons')
             return None
         return EqualConcept(r1, r2, sort)
 
     def create_restrict_role(self, r: Role, c: Concept):
-
         result = RestrictRole(r, c)
         if not self.language.are_vertically_related(r.sort[1], c.sort):
-            logging.debug('Role "{}" pruned for type-inconsistency reasons'.format(result))
+            logging.debug(f'Role "{result}" pruned for type-inconsistency reasons')
             return None
 
         if isinstance(c, UniversalConcept) or c == self.bot:
-            logging.debug('Role "{}" pruned; no sense in restricting to top / bot concepts'.format(result))
+            logging.debug(f'Role "{result}" pruned; no sense in restricting to top / bot concepts')
             return None
 
         if isinstance(r, RestrictRole):
-            logging.debug('Role "{}" pruned; no direct nesting of restrictions'.format(result))
+            logging.debug(f'Role "{result}" pruned; no direct nesting of restrictions')
             return None
 
         return result
 
     def create_composition_role(self, r1: Role, r2: Role):
-
         # Compose only on primitives or their inversions
         # if (not isinstance(r1, (PrimitiveRole, InverseRole)) or
         #    not isinstance(r2, (PrimitiveRole, InverseRole))):
@@ -182,12 +202,12 @@ class SyntacticFactory:
         result = CompositionRole(r1, r2)
 
         if not self.language.are_vertically_related(r1.sort[1], r2.sort[0]):
-            logging.debug('Role "{}" pruned for type-inconsistency reasons'.format(result))
+            logging.debug(f'Role "{result}" pruned for type-inconsistency reasons')
             return None
 
         num_comp = len(filter_subnodes(result, CompositionRole))
         if num_comp > 2:
-            logging.debug('Role "{}" pruned: number of compositions ({}) exceeds threshold'.format(result, num_comp))
+            logging.debug(f'Role "{result}" pruned: number of compositions ({num_comp}) exceeds threshold')
             return None
 
         return result

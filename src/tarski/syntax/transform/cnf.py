@@ -1,14 +1,14 @@
 """
-    CNF Transformation
+CNF Transformation
 """
+
 from ..formulas import CompoundFormula, Connective, QuantifiedFormula
 from ..transform import to_negation_normal_form
-
 from .errors import TransformationError
 
 
 class CNFTransformation:
-    """ Rewrite an input quantifier-free formula into an equivalent CNF formula. """
+    """Rewrite an input quantifier-free formula into an equivalent CNF formula."""
 
     def __init__(self, lang, phi, do_copy=True):
         self.L = lang
@@ -18,7 +18,7 @@ class CNFTransformation:
         self.current_clause = []
 
     def distribute(self, n1, n2):
-        """ Distribute w.r.t. disjunction, see Huth & Ryan, pp. 60-62 """
+        """Distribute w.r.t. disjunction, see Huth & Ryan, pp. 60-62"""
         if isinstance(n1, CompoundFormula) and n1.connective == Connective.And:
             lhs = self.distribute(n1.subformulas[0], n2)
             rhs = self.distribute(n1.subformulas[1], n2)
@@ -31,7 +31,6 @@ class CNFTransformation:
             return CompoundFormula(Connective.Or, (n1, n2))
 
     def _convert(self, phi):
-
         if isinstance(phi, QuantifiedFormula):
             raise TransformationError("cnf transformation", phi, "Formula is not quantifier free!")
 

@@ -1,6 +1,7 @@
 """
-    Temporal (durative) actions for SAS+
+Temporal (durative) actions for SAS+
 """
+
 from tarski.sas import Action
 
 
@@ -8,19 +9,20 @@ class TemporalAction:
     """
     Temporal action where events are given as SAS+ actions
     """
+
     def __init__(self, **kwargs):
-        self.name = kwargs['name']
+        self.name = kwargs["name"]
         self.events = []
         self.deltas = []
 
-        for delta, evt in kwargs.get('events', []):
+        for delta, evt in kwargs.get("events", []):
             self.events += [evt]
             self.deltas += [delta]
 
     @property
     def start(self) -> Action:
         """
-            First event in temporal action
+        First event in temporal action
         """
         return self.events[0]
 

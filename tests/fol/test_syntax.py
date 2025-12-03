@@ -1,18 +1,29 @@
-
 import copy
 from collections import defaultdict
 
 import pytest
 
-from tarski import theories, Term, Constant
-from tarski.benchmarks.blocksworld import generate_strips_bw_language
-from tarski.fstrips import fstrips
-from tarski.syntax import symref, CompoundFormula, Atom, ite, AggregateCompoundTerm, CompoundTerm, lor, Tautology, \
-    Contradiction, land, top, bot
-from tarski.theories import Theory
+from tarski import Constant, Term, theories
 from tarski import errors as err
 from tarski import fstrips as fs
+from tarski.benchmarks.blocksworld import generate_strips_bw_language
+from tarski.fstrips import fstrips
+from tarski.syntax import (
+    AggregateCompoundTerm,
+    Atom,
+    CompoundFormula,
+    CompoundTerm,
+    Contradiction,
+    Tautology,
+    bot,
+    ite,
+    land,
+    lor,
+    symref,
+    top,
+)
 from tarski.syntax.algebra import Matrix
+from tarski.theories import Theory
 
 from ..common import numeric
 
@@ -20,15 +31,15 @@ from ..common import numeric
 def test_language_creation():
     lang = theories.language()
     sorts = sorted(x.name for x in lang.sorts)
-    assert sorts == ['object']
+    assert sorts == ["object"]
 
     lang = fstrips.language("test", theories=[])
     sorts = sorted(x.name for x in lang.sorts)
-    assert sorts == ['object']
+    assert sorts == ["object"]
 
     lang = fstrips.language("test")
     sorts = sorted(x.name for x in lang.sorts)
-    assert sorts == ['object']  # The default equality theory should not import the arithmetic sorts either
+    assert sorts == ["object"]  # The default equality theory should not import the arithmetic sorts either
 
 
 def test_builtin_constants():
@@ -40,9 +51,9 @@ def test_builtin_constants():
 
 def test_arithmetic_term_plus_float_lit_is_term():
     lang = numeric.generate_numeric_instance()
-    _ = lang.get_sort('particle')
-    p1 = lang.get_constant('p1')
-    x = lang.get_function('x')
+    _ = lang.get_sort("particle")
+    p1 = lang.get_constant("p1")
+    x = lang.get_function("x")
     t = x(p1) + 1.0
     assert isinstance(t, CompoundTerm)
     assert isinstance(t.subterms[0], Term)
@@ -69,11 +80,12 @@ def test_load_arithmetic_module_fails_when_language_frozen():
 
 def test_load_booleans():
     lang = fstrips.language(theories=["boolean"])
-    assert len(list(lang.get('Boolean').domain())) == 2
+    assert len(list(lang.get("Boolean").domain())) == 2
 
 
 def test_special_terms_does_not_fail_with_load_theory():
     from tarski.syntax.builtins import BuiltinFunctionSymbol
+
     lang = fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL])
     assert Theory.SPECIAL in lang.theories
     _ = lang.get_function(BuiltinFunctionSymbol.MAX)
@@ -81,6 +93,7 @@ def test_special_terms_does_not_fail_with_load_theory():
 
 def test_special_term_construction():
     from tarski.syntax.arithmetic.special import max
+
     lang = fstrips.language(theories=[Theory.ARITHMETIC, Theory.SPECIAL])
     ints = lang.Integer
     two, three = lang.constant(2, ints), lang.constant(3, ints)
@@ -89,37 +102,37 @@ def test_special_term_construction():
 
 
 def test_equality_atom_from_expression():
-    lang = fstrips.language('arith', [Theory.EQUALITY, Theory.ARITHMETIC])
-    y = lang.function('y', lang.Integer)
+    lang = fstrips.language("arith", [Theory.EQUALITY, Theory.ARITHMETIC])
+    y = lang.function("y", lang.Integer)
     assert isinstance(y() == 4, Atom)
 
 
 def test_complex_atom_from_expression_function_and_constants():
-    lang = fstrips.language('artih', [Theory.EQUALITY, Theory.ARITHMETIC])
-    y = lang.function('y', lang.Integer)
+    lang = fstrips.language("artih", [Theory.EQUALITY, Theory.ARITHMETIC])
+    y = lang.function("y", lang.Integer)
 
-    phi = (y() <= 4) & (-4 <= y())
+    phi = (y() <= 4) & (y() >= -4)
     assert isinstance(phi, CompoundFormula)
 
 
 def test_complex_atom_from_expression_only_functions():
-    lang = fstrips.language('arith', [Theory.EQUALITY, Theory.ARITHMETIC])
-    x = lang.function('x', lang.Integer)
-    y = lang.function('y', lang.Integer)
-    z = lang.function('z', lang.Integer)
+    lang = fstrips.language("arith", [Theory.EQUALITY, Theory.ARITHMETIC])
+    x = lang.function("x", lang.Integer)
+    y = lang.function("y", lang.Integer)
+    z = lang.function("z", lang.Integer)
 
     phi = (x() <= y()) & (y() <= z())
     assert isinstance(phi, CompoundFormula)
 
 
 def test_copying_and_equality():
-    lang = fstrips.language('arith', [Theory.EQUALITY, Theory.ARITHMETIC])
+    lang = fstrips.language("arith", [Theory.EQUALITY, Theory.ARITHMETIC])
 
     c = lang.constant(1, lang.Integer)
 
-    x = lang.function('x', lang.Integer)
-    y = lang.function('y', lang.Integer)
-    _ = lang.function('f', lang.Integer, lang.Integer, lang.Integer)
+    x = lang.function("x", lang.Integer)
+    y = lang.function("y", lang.Integer)
+    _ = lang.function("f", lang.Integer, lang.Integer, lang.Integer)
 
     _ = copy.deepcopy(c)
 
@@ -145,43 +158,43 @@ def test_copying_and_equality():
 def test_duplicate_detection_and_global_getter():
     lang = fstrips.language("test")
 
-    t1 = lang.sort('t1')
-    c1 = lang.constant('c1', lang.Object)
-    f1 = lang.function('f1', lang.Object)
-    p1 = lang.predicate('p1')
+    t1 = lang.sort("t1")
+    c1 = lang.constant("c1", lang.Object)
+    f1 = lang.function("f1", lang.Object)
+    p1 = lang.predicate("p1")
 
     # Redeclaring things raises exceptions of appropriate types
     with pytest.raises(err.DuplicateSortDefinition):
-        lang.sort('t1')
+        lang.sort("t1")
     with pytest.raises(err.DuplicateConstantDefinition):
-        lang.constant('c1', lang.Object)
+        lang.constant("c1", lang.Object)
     with pytest.raises(err.DuplicateFunctionDefinition):
-        lang.function('f1', lang.Object)
+        lang.function("f1", lang.Object)
     with pytest.raises(err.DuplicatePredicateDefinition):
-        lang.predicate('p1')
+        lang.predicate("p1")
 
     # Declaring any language element with same name as a language element of a different type also  raises exception
     with pytest.raises(err.DuplicateDefinition):
-        lang.sort('p1')
+        lang.sort("p1")
     with pytest.raises(err.DuplicateDefinition):
-        lang.constant('t1', lang.Object)
+        lang.constant("t1", lang.Object)
     with pytest.raises(err.DuplicateDefinition):
-        lang.function('c1', lang.Object)
+        lang.function("c1", lang.Object)
     with pytest.raises(err.DuplicateDefinition):
-        lang.predicate('f1')
+        lang.predicate("f1")
 
-    assert id(lang.get('t1')) == id(t1)
-    assert id(lang.get('c1')) == id(c1)
-    assert id(lang.get('f1')) == id(f1)
-    assert id(lang.get('p1')) == id(p1)
+    assert id(lang.get("t1")) == id(t1)
+    assert id(lang.get("c1")) == id(c1)
+    assert id(lang.get("f1")) == id(f1)
+    assert id(lang.get("p1")) == id(p1)
 
-    assert len(lang.get('t1', 'c1', 'f1', 'p1')) == 4
-    assert (all(id(x) == id(y) for x, y in zip([t1, c1, f1, p1], lang.get('t1', 'c1', 'f1', 'p1'))))
+    assert len(lang.get("t1", "c1", "f1", "p1")) == 4
+    assert all(id(x) == id(y) for x, y in zip([t1, c1, f1, p1], lang.get("t1", "c1", "f1", "p1")))
 
 
 def test_term_refs():
     lang = fstrips.language(theories=[Theory.ARITHMETIC])
-    _ = lang.function('f', lang.Object, lang.Integer)
+    _ = lang.function("f", lang.Object, lang.Integer)
     o1 = lang.constant("o1", lang.Object)
     o2 = lang.constant("o2", lang.Object)
 
@@ -195,7 +208,7 @@ def test_term_refs():
 
 def test_object_function_arity():
     fol = fstrips.language()
-    block = fol.sort('block')
+    block = fol.sort("block")
     # MRJ: Note that first argument is name of function, following arguments
     # denote the domain and codomain of the function. The previous definition
     # loc = fol.function('loc', 'block')
@@ -203,20 +216,20 @@ def test_object_function_arity():
     # block, or a mapping between the symbol loc() and a constant of sort block.
     # I think that  what was intended, was an actual function like
     # loc: block -> block, a mapping between elements of the sort block.
-    loc = fol.function('loc', 'block', 'block')
+    loc = fol.function("loc", "block", "block")
 
-    b1 = fol.constant('b1', block)
-    b2 = fol.constant('b2', block)
+    b1 = fol.constant("b1", block)
+    b2 = fol.constant("b2", block)
 
-    _ = (loc(b1) == b2)
+    _ = loc(b1) == b2
 
 
 def test_term_refs_compound():
     lang = fstrips.language(theories=[Theory.ARITHMETIC])
-    f = lang.function('f', lang.Object, lang.Integer)
+    f = lang.function("f", lang.Object, lang.Integer)
     o1 = lang.constant("o1", lang.Object)
     o2 = lang.constant("o2", lang.Object)
-    _ = lang.get('f')
+    _ = lang.get("f")
 
     t1 = f(o1)
     t2 = f(o1)
@@ -231,12 +244,12 @@ def test_term_refs_compound():
 
 
 def test_formula_refs():
-    lang = fstrips.language('arith', [Theory.EQUALITY, Theory.ARITHMETIC])
+    lang = fstrips.language("arith", [Theory.EQUALITY, Theory.ARITHMETIC])
 
     _ = lang.constant(1, lang.Integer)
 
-    x = lang.function('x', lang.Integer)
-    y = lang.function('y', lang.Integer)
+    x = lang.function("x", lang.Integer)
+    y = lang.function("y", lang.Integer)
 
     phi = (x() <= y()) & (y() <= x())
     psi = (x() >= y()) & (y() <= x())
@@ -251,12 +264,12 @@ def test_formula_refs():
 
 
 def test_ite():
-    lang = fstrips.language('arith', [Theory.EQUALITY, Theory.ARITHMETIC])
+    lang = fstrips.language("arith", [Theory.EQUALITY, Theory.ARITHMETIC])
 
     _ = lang.constant(1, lang.Integer)
 
-    x = lang.function('x', lang.Integer)
-    y = lang.function('y', lang.Integer)
+    x = lang.function("x", lang.Integer)
+    y = lang.function("y", lang.Integer)
 
     phi = (x() <= y()) & (y() <= x())
 
@@ -274,16 +287,16 @@ def test_ite():
 def test_sumterm():
     from tarski.syntax.arithmetic import sumterm
 
-    lang = fstrips.language('arith', [Theory.EQUALITY, Theory.ARITHMETIC])
+    lang = fstrips.language("arith", [Theory.EQUALITY, Theory.ARITHMETIC])
 
     _ = lang.constant(1, lang.Integer)
-    _ = lang.constant('o1', lang.Object)
-    _ = lang.constant('o2', lang.Object)
+    _ = lang.constant("o1", lang.Object)
+    _ = lang.constant("o2", lang.Object)
 
-    x = lang.function('x', lang.Object, lang.Integer)
-    y = lang.function('y', lang.Object, lang.Integer)
+    x = lang.function("x", lang.Object, lang.Integer)
+    y = lang.function("y", lang.Object, lang.Integer)
 
-    o = lang.variable('o', lang.Object)
+    o = lang.variable("o", lang.Object)
 
     summation = sumterm(o, x(o) + y(o))
     assert isinstance(summation, AggregateCompoundTerm)
@@ -291,23 +304,24 @@ def test_sumterm():
 
 def test_prodterm():
     from tarski.syntax.arithmetic import prodterm
-    lang = fstrips.language('arith', [Theory.EQUALITY, Theory.ARITHMETIC])
+
+    lang = fstrips.language("arith", [Theory.EQUALITY, Theory.ARITHMETIC])
 
     _ = lang.constant(1, lang.Integer)
-    _ = lang.constant('o1', lang.Object)
-    _ = lang.constant('o2', lang.Object)
+    _ = lang.constant("o1", lang.Object)
+    _ = lang.constant("o2", lang.Object)
 
-    x = lang.function('x', lang.Object, lang.Integer)
-    y = lang.function('y', lang.Object, lang.Integer)
+    x = lang.function("x", lang.Object, lang.Integer)
+    y = lang.function("y", lang.Object, lang.Integer)
 
-    o = lang.variable('o', lang.Object)
+    o = lang.variable("o", lang.Object)
 
     product = prodterm(o, x(o) + y(o))
     assert isinstance(product, AggregateCompoundTerm)
 
 
 def test_matrices_constants():
-    lang = fstrips.language('test', [Theory.EQUALITY, Theory.ARITHMETIC])
+    lang = fstrips.language("test", [Theory.EQUALITY, Theory.ARITHMETIC])
     A = lang.matrix([[0, 0, 1, 0], [0, 0, 0, 1], [0, 0, 0, 0], [0, 0, 0, 0]], lang.Real)
     assert isinstance(A, Matrix)
     N, M = A.shape
@@ -322,8 +336,8 @@ def test_term_hash_raises_exception():
     lang = fs.language("test")
     counter = defaultdict(int)
 
-    c = lang.constant('c', 'object')
-    f = lang.function('f', 'object', 'object')
+    c = lang.constant("c", "object")
+    f = lang.function("f", "object", "object")
 
     # Trying to use associative containers on terms raises a standard TypeError
     with pytest.raises(TypeError):
@@ -359,10 +373,10 @@ def test_numeric_sort_deduction():
     # assert plus0.sort == lang.Integer
 
     # The sorts
-    particle = lang.sort('bowl')
+    particle = lang.sort("bowl")
 
-    eggs = lang.function('eggs', lang.Object, lang.Integer)
-    bowl_1 = lang.constant('bowl_1', particle)
+    eggs = lang.function("eggs", lang.Object, lang.Integer)
+    bowl_1 = lang.constant("bowl_1", particle)
     plus1 = eggs(bowl_1) + 1
 
     # Disable the test temporarily until we address issue #93
@@ -388,9 +402,9 @@ def test_language_equality():
 def test_equality_and_terms_behaviour():
     lang = fstrips.language(theories=[Theory.EQUALITY, Theory.ARITHMETIC])
 
-    f = lang.function('foo', lang.Object, lang.Object)
-    x = lang.variable('?x', lang.Object)
-    o = lang.constant('o', lang.Object)
+    f = lang.function("foo", lang.Object, lang.Object)
+    x = lang.variable("?x", lang.Object)
+    o = lang.constant("o", lang.Object)
 
     phi = f(o) == x
 

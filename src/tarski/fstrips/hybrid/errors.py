@@ -1,5 +1,4 @@
-
-from ... errors import DuplicateDefinition, UndefinedElement, SyntacticError
+from ...errors import DuplicateDefinition, SyntacticError, UndefinedElement
 
 
 class DuplicateReactionDefinition(DuplicateDefinition):
@@ -19,6 +18,5 @@ class UndefinedDifferentialConstraint(UndefinedElement):
 
 
 class InvalidDifferentialConstraintDefinition(SyntacticError):
-
     def __init__(self, culprit, msg):
         super().__init__(msg=f"Invalid Differential Constraint\n'{culprit}' {msg}")

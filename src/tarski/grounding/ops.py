@@ -1,10 +1,9 @@
-
-from ..syntax.util import get_symbols
 from ..fstrips.ops import collect_affected_symbols
+from ..syntax.util import get_symbols
 
 
 def approximate_symbol_fluency(problem, include_builtin=False):
-    """ Sort out all predicate and function symbols of a given problem into static and fluent symbols.
+    """Sort out all predicate and function symbols of a given problem into static and fluent symbols.
 
     Fluent symbols are those whose denotation might (in principle) be affected by the effect of some action schema;
     the rest are static symbols. This methods works on a purely syntactic basis, and does not take into account any

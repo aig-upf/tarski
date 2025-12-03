@@ -1,7 +1,8 @@
 """
- A timing utility class inspired in Fast Downward's equivalent.
- See http://www.fast-downward.org/
+A timing utility class inspired in Fast Downward's equivalent.
+See http://www.fast-downward.org/
 """
+
 import contextlib
 import os
 import sys
@@ -9,8 +10,8 @@ import time
 
 
 def get_mem_usage():
-    """ Return the memory usage as reported by psutil, or None, if the platform
-    does not support psutil, or """
+    """Return the memory usage as reported by psutil, or None, if the platform
+    does not support psutil, or"""
     try:
         import psutil  # pylint: disable=import-outside-toplevel
     except ImportError:
@@ -41,7 +42,10 @@ class Timer:
 
         return "[%.2fs CPU, %.2fs wall-clock, diff: %.2fMB, curr:  %.2fMB]" % (
             self._clock() - self.start_clock,
-            time.time() - self.start_time, rss_in_mb, current_in_mb)
+            time.time() - self.start_time,
+            rss_in_mb,
+            current_in_mb,
+        )
 
 
 @contextlib.contextmanager
@@ -50,7 +54,7 @@ def timing(text, newline=False):
     if newline:
         print(f"{text}...")
     else:
-        print(f"{text}...", end=' ')
+        print(f"{text}...", end=" ")
     sys.stdout.flush()
     yield
     if newline:

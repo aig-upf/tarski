@@ -1,23 +1,24 @@
 """
- Classes and methods related to the naive grounding strategy of planning problems.
+Classes and methods related to the naive grounding strategy of planning problems.
 """
-import itertools
-from typing import List
 
-from ..grounding.ops import approximate_symbol_fluency
-from ..syntax import Constant, Variable, CompoundTerm, Atom, create_substitution, termlists_are_equal, termlist_hash
+import itertools
+
 from ..errors import DuplicateDefinition
-from .errors import UnableToGroundError
-from .common import StateVariableLite
+from ..fstrips.visitors import FluentHeuristic, FluentSymbolCollector
+from ..grounding.ops import approximate_symbol_fluency
+from ..syntax import Atom, CompoundTerm, Constant, Variable, create_substitution, termlist_hash, termlists_are_equal
 from ..syntax.transform.substitutions import substitute_expression
 from ..util import SymbolIndex
-from ..fstrips.visitors import FluentSymbolCollector, FluentHeuristic
+from .common import StateVariableLite
+from .errors import UnableToGroundError
 
 
 class ProblemGrounding:
-    """ A ProblemGrounding contains information about the grounding of a lifted Tarski problem, possibly including
+    """A ProblemGrounding contains information about the grounding of a lifted Tarski problem, possibly including
     information about ground state variables and ground actions.
     """
+
     def __init__(self, problem):
         self.problem = problem
         self.static_terms = None
@@ -26,9 +27,9 @@ class ProblemGrounding:
 
     def _check_static_not_fluents(self):
         """
-            Sorts fluent and static sets, so that the only
-            static expressions are those which haven't been flagged
-            as fluent by at least one of our heuristics.
+        Sorts fluent and static sets, so that the only
+        static expressions are those which haven't been flagged
+        as fluent by at least one of our heuristics.
         """
         self.static_terms = {x for x in self.static_terms if x not in self.fluent_terms}
         assert all(x not in self.static_terms for x in self.fluent_terms)
@@ -54,8 +55,8 @@ class ProblemGrounding:
 
 
 def create_all_possible_state_variables(fluent_terms):
-    """ Creates an index with all possible state variables by brute-force
-        enumeration.
+    """Creates an index with all possible state variables by brute-force
+    enumeration.
     """
     variables = SymbolIndex()
 
@@ -66,8 +67,7 @@ def create_all_possible_state_variables(fluent_terms):
                 instantiations.append([st])
             elif isinstance(st, Variable):
                 if st.sort.builtin:
-                    raise UnableToGroundError(st, "Term is of built-in sort '{}', domain is too large!".format(
-                        st.sort.name))
+                    raise UnableToGroundError(st, f"Term is of built-in sort '{st.sort.name}', domain is too large!")
                 instantiations.append(list(st.sort.domain()))
             else:
                 raise UnableToGroundError(st, "Grounding of complex nested subterms is not implemented yet!")
@@ -80,7 +80,7 @@ def create_all_possible_state_variables(fluent_terms):
 
 
 class StateVariable:
-    """ A state variable is nothing else than a CompoundTerm or Atom which is expected to change its
+    """A state variable is nothing else than a CompoundTerm or Atom which is expected to change its
     value, along with a particular instantiation of its subterms.
     """
 
@@ -97,7 +97,7 @@ class StateVariable:
         return self.head.symbol == other.head.symbol and termlists_are_equal(self.instantiation, other.instantiation)
 
     def __str__(self):
-        return '{}({})'.format(self.head.symbol, ','.join(str(a) for a in self.instantiation))
+        return "{}({})".format(self.head.symbol, ",".join(str(a) for a in self.instantiation))
 
     __repr__ = __str__
 
@@ -108,11 +108,12 @@ class StateVariable:
 
 
 class NaiveGroundingStrategy:
-    """ A naive problem grounding grounds actions and state variables of a lifted Tarski problem by (type-informed)
+    """A naive problem grounding grounds actions and state variables of a lifted Tarski problem by (type-informed)
     exhaustive enumeration of all possible subsitutions of the representation variables.
     TODO / Note: This is a lightweight version of the ProblemGrounding class above, hoping that it can eventually
                  replace it.
     """
+
     def __init__(self, problem, ignore_symbols=None):
         self.problem = problem
         self.fluent_symbols, self.static_symbols = approximate_symbol_fluency(problem)
@@ -121,7 +122,7 @@ class NaiveGroundingStrategy:
             self.static_symbols = {s for s in self.static_symbols if s.name not in ignore_symbols}
 
     def ground_state_variables(self):
-        """ Create and index all state variables of the problem by exhaustively grounding all predicate and function
+        """Create and index all state variables of the problem by exhaustively grounding all predicate and function
         symbols that are considered to be fluent with respect to the problem constants. Thus, if the problem has one
         fluent predicate "p" and one static predicate "q", and constants "a", "b", "c", the result of this operation
         will be the state variables "p(a)", "p(b)" and "p(c)".
@@ -129,8 +130,8 @@ class NaiveGroundingStrategy:
         return ground_symbols_exhaustively(self.fluent_symbols)
 
     def ground_actions(self):
-        """  Return a dictionary mapping each action schema of the problem to the set of parameter groundings that
-        make that schema a possible ground action. """
+        """Return a dictionary mapping each action schema of the problem to the set of parameter groundings that
+        make that schema a possible ground action."""
         groundings = {}
         for aname, action in self.problem.actions.items():
             domains = [p.sort.domain() for p in action.parameters]
@@ -138,14 +139,14 @@ class NaiveGroundingStrategy:
         return groundings
 
     def __str__(self):
-        return 'NaiveGroundingStrategy["{}"]'.format(self.problem.name)
+        return f'NaiveGroundingStrategy["{self.problem.name}"]'
 
     __repr__ = __str__
 
 
 def ground_symbols_exhaustively(symbols):
-    """ Creates an index with all possible groundings of the given predicate and function symbols
-    in the given language """
+    """Creates an index with all possible groundings of the given predicate and function symbols
+    in the given language"""
     variables = SymbolIndex()
 
     for symbol in symbols:
@@ -158,7 +159,7 @@ def ground_symbols_exhaustively(symbols):
     return variables
 
 
-def ground_partially_grounded_terms_exhaustively(terms: List[CompoundTerm]) -> SymbolIndex:
+def ground_partially_grounded_terms_exhaustively(terms: list[CompoundTerm]) -> SymbolIndex:
     """
     Creates an index with all possible groundings for the given terms, taking into account arguments which have
     been set to a constant

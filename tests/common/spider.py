@@ -1,10 +1,9 @@
-
 from tarski.fstrips import fstrips
 from tarski.theories import Theory
 
 
 def generate_spider_language():
-    """ The FOL of the IPC18 Spider benchmark  """
+    """The FOL of the IPC18 Spider benchmark"""
     lang = fstrips.language("Spider", theories=[Theory.EQUALITY, Theory.ARITHMETIC])
 
     lang.sort("cardposition", "object")

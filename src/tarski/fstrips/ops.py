@@ -1,21 +1,20 @@
 import operator
 from functools import reduce
-from typing import Set, Union
 
 # At the moment we're using the "multipledispatch" package to implement single-argument dispatching.
 # Whenever we move to support Python 3.8+, we could directly use
 #     https://docs.python.org/3/library/functools.html#functools.singledispatchmethod
 from multipledispatch import dispatch  # type: ignore
 
-from .walker import ProblemWalker
-from ..syntax import Predicate, Function, CompoundTerm, Atom
-from .problem import Problem
+from ..syntax import Atom, CompoundTerm, Function, Predicate
 from . import fstrips as fs
 from .derived import Derived
+from .problem import Problem
+from .walker import ProblemWalker
 
 
-def collect_all_symbols(problem: Problem, include_builtin=False) -> Set[Union[Predicate, Function]]:
-    """ Return a set with all predicate and function symbols that are actually used in the given problem's goal
+def collect_all_symbols(problem: Problem, include_builtin=False) -> set[Predicate | Function]:
+    """Return a set with all predicate and function symbols that are actually used in the given problem's goal
     and actions descriptions.
 
     Note that these might not coincide with those declared in the language if some manipulations or simplifications
@@ -29,9 +28,9 @@ def collect_all_symbols(problem: Problem, include_builtin=False) -> Set[Union[Pr
     return set(s for s in walker.symbols if not s.builtin)
 
 
-def collect_affected_symbols(problem: Problem) -> Set[Union[Predicate, Function]]:
-    """ Return a set with all predicate and function symbols that are affected by some action effect, and hence
-     can be considered fluent. """
+def collect_affected_symbols(problem: Problem) -> set[Predicate | Function]:
+    """Return a set with all predicate and function symbols that are affected by some action effect, and hence
+    can be considered fluent."""
     walker = AffectedSymbolWalker()
     # Let's just go straight into the effects instead of invoking walker.run(), which would go over
     # the whole problem structure for nothing
@@ -40,7 +39,8 @@ def collect_affected_symbols(problem: Problem) -> Set[Union[Predicate, Function]
 
 
 class AllSymbolWalker(ProblemWalker):
-    """  """
+    """ """
+
     def __init__(self):
         super().__init__()
         self.symbols = set()
@@ -61,7 +61,8 @@ class AllSymbolWalker(ProblemWalker):
 
 
 class AffectedSymbolWalker(ProblemWalker):
-    """  """
+    """ """
+
     def __init__(self):
         super().__init__()
         self.symbols = set()

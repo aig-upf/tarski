@@ -1,16 +1,17 @@
 """
-    Negation Builtin Rewriter
+Negation Builtin Rewriter
 """
+
 import copy
 
-from ..formulas import Connective, Atom, QuantifiedFormula, CompoundFormula
 from ..builtins import negate_builtin_atom
+from ..formulas import Atom, CompoundFormula, Connective, QuantifiedFormula
 
 
 class NegatedBuiltinAbsorption:
     """
-        This class rewrites the input formula phi into an equivalent formula
-        absorbing the negation if the negated formula is a built-in
+    This class rewrites the input formula phi into an equivalent formula
+    absorbing the negation if the negated formula is a built-in
     """
 
     def __init__(self, lang, phi, do_copy=True):
@@ -31,8 +32,7 @@ class NegatedBuiltinAbsorption:
 
             else:
                 assert phi.connective in (Connective.And, Connective.Or)
-                new_sub = [self._convert(phi.subformulas[0]),
-                           self._convert(phi.subformulas[1])]
+                new_sub = [self._convert(phi.subformulas[0]), self._convert(phi.subformulas[1])]
                 phi.subformulas = tuple(new_sub)
                 return phi
         elif isinstance(phi, QuantifiedFormula):

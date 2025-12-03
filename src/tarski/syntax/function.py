@@ -1,4 +1,3 @@
-
 from ..errors import LanguageError, LanguageMismatch
 from .sorts import Sort
 
@@ -13,7 +12,7 @@ class Function:
         self._check_well_formed()
 
     def _check_well_formed(self):
-        for k, a in enumerate(self.domain + (self.codomain, )):
+        for k, a in enumerate(self.domain + (self.codomain,)):
             if not isinstance(a, Sort):
                 raise LanguageError(f"Function arg #{k} ('{a}') is a '{type(a)}' instead of a Sort")
 
@@ -37,12 +36,10 @@ class Function:
 
     @property
     def sort(self):
-        return self.domain + (self.codomain, )
+        return self.domain + (self.codomain,)
 
     def dump(self):
-        return dict(symbol=self.name,
-                    domain=[a.name for a in self.domain],
-                    codomain=self.codomain.name)
+        return dict(symbol=self.name, domain=[a.name for a in self.domain], codomain=self.codomain.name)
 
     def __hash__(self):
         return hash(self.signature)
@@ -52,8 +49,10 @@ class Function:
 
     def __str__(self):
         return f"{self.name}/{self.arity}"
+
     __repr__ = __str__
 
     def __call__(self, *args):
         from .terms import CompoundTerm  # pylint: disable=import-outside-toplevel  # Avoiding circular references
+
         return CompoundTerm(self, args)

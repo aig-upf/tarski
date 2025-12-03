@@ -1,4 +1,3 @@
-
 import itertools
 
 from ...fstrips import hybrid
@@ -9,7 +8,6 @@ from . import instantiation
 
 
 class ReactionGrounder:
-
     def __init__(self, prob, index):
         self.problem = prob
         self.L = self.problem.language
@@ -19,15 +17,14 @@ class ReactionGrounder:
         self.reactions_generated = 0
 
     def __str__(self):
-        return 'Reactions generated: {}'.format(self.reactions_generated)
+        return f"Reactions generated: {self.reactions_generated}"
 
     def calculate_reactions(self):
-
         for react_schema in self.schemas:
             if len(react_schema.parameters) == 0:
-                self.problem.ground_reactions.add(hybrid.Reaction(self.L,
-                                                                  react_schema.name, [], react_schema.condition,
-                                                                  react_schema.effect))
+                self.problem.ground_reactions.add(
+                    hybrid.Reaction(self.L, react_schema.name, [], react_schema.condition, react_schema.effect)
+                )
                 self.reactions_generated += 1
                 continue
 

@@ -1,7 +1,7 @@
-from ... import modules
-from ...syntax import Term, Constant
-from ...syntax.sorts import Sort
 from ... import errors as err
+from ... import modules
+from ...syntax import Constant, Term
+from ...syntax.sorts import Sort
 
 
 class Matrix(Term):
@@ -17,9 +17,11 @@ class Matrix(Term):
                 m_ij = self.matrix[i, j]
                 if isinstance(m_ij, Term):
                     if m_ij.sort != sort:
-                        raise err.SyntacticError("Matrix: all \
-                        entries need to be of sort '{}', \
-                        entry ({},{}) is '{}'".format(sort.name, i, j, m_ij.sort.name))
+                        raise err.SyntacticError(
+                            f"Matrix: all \
+                        entries need to be of sort '{sort.name}', \
+                        entry ({i},{j}) is '{m_ij.sort.name}'"
+                        )
                 else:
                     self.matrix[i, j] = Constant(sort.cast(m_ij), sort)
 
@@ -43,7 +45,7 @@ class Matrix(Term):
         return self.matrix[i, j]
 
     def __str__(self):
-        return '{}'.format(self.matrix)
+        return f"{self.matrix}"
 
     __repr__ = __str__
 

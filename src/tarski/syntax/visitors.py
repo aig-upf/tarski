@@ -1,12 +1,11 @@
-
-from tarski.syntax import symref, QuantifiedFormula, CompoundTerm, Variable, CompoundFormula, Atom
+from tarski.syntax import Atom, CompoundFormula, CompoundTerm, QuantifiedFormula, Variable, symref
 from tarski.syntax.formulas import is_eq_atom
 
 
 class MatchExpression:
     """
-        This Visitor traverses a formula/expression stopping when
-        finding an exact syntactic match for the target
+    This Visitor traverses a formula/expression stopping when
+    finding an exact syntactic match for the target
     """
 
     def __init__(self, target):
@@ -38,7 +37,7 @@ class MatchExpression:
 
 
 class CollectVariables:
-    """ Collect all variables in a given formula or term """
+    """Collect all variables in a given formula or term"""
 
     def __init__(self):
         self.variables = set()
@@ -58,7 +57,8 @@ class CollectVariables:
 
 
 class CollectFreeVariables:
-    """ Collect all free variables in a given formula or term """
+    """Collect all free variables in a given formula or term"""
+
     def __init__(self):
         self.quantified_vars = set()
         self.free_variables = set()
@@ -83,6 +83,7 @@ class CollectFreeVariables:
 
 class CollectEqualityAtoms:
     """Collects all equality atoms in given formula"""
+
     def __init__(self):
         self.atoms = set()
 

@@ -1,16 +1,18 @@
-
 import itertools
 
 from ...syntax import QuantifiedFormula, Quantifier, create_substitution, substitute_expression
-from ...syntax.transform import NegatedBuiltinAbsorption, CNFTransformation,\
-    QuantifierEliminationMode, remove_quantifiers
 from ...syntax.ops import all_variables
+from ...syntax.transform import (
+    CNFTransformation,
+    NegatedBuiltinAbsorption,
+    QuantifierEliminationMode,
+    remove_quantifiers,
+)
 from ...util import SymbolIndex
 from . import instantiation
 
 
 class ConstraintGrounder:
-
     def __init__(self, prob, index):
         self.problem = prob
         self.L = self.problem.language
@@ -20,10 +22,9 @@ class ConstraintGrounder:
         self.constraints_generated = 0
 
     def __str__(self):
-        return 'Constraints Generated: {}'.format(self.constraints_generated)
+        return f"Constraints Generated: {self.constraints_generated}"
 
     def calculate_constraints(self):
-
         for const_schema in self.schemas:
             # 1. Collect set of free variables in the constraint
             const_schema = remove_quantifiers(self.L, const_schema, QuantifierEliminationMode.Forall)

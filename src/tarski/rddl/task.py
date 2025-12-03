@@ -1,12 +1,10 @@
-
+from ..evaluators.simple import evaluate
 from ..fol import FirstOrderLanguage
 from ..io import rddl
 from ..model import Model
-from ..evaluators.simple import evaluate
 
 
 class Task:
-
     def __init__(self, lang: FirstOrderLanguage, domain_name: str, instance_name: str):
         self.L = lang
         self.state_fluents = []

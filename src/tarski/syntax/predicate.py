@@ -1,4 +1,3 @@
-
 from ..errors import LanguageError, LanguageMismatch
 from .sorts import Sort
 
@@ -25,7 +24,7 @@ class Predicate:
 
     @property
     def signature(self):
-        return (self.name, ) + tuple(a.name for a in self.sort)
+        return (self.name,) + tuple(a.name for a in self.sort)
 
     @property
     def arity(self):
@@ -49,8 +48,10 @@ class Predicate:
 
     def __str__(self):
         return f"{self.name}/{self.arity}"
+
     __repr__ = __str__
 
     def __call__(self, *args):
         from .formulas import Atom  # pylint: disable=import-outside-toplevel  # Avoiding circular references
+
         return Atom(self, args)

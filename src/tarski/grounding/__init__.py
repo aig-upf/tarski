@@ -1,4 +1,2 @@
-
-from .naive_grounding import ProblemGrounding, create_all_possible_state_variables, \
-    NaiveGroundingStrategy
 from .lp_grounding import LPGroundingStrategy
+from .naive_grounding import NaiveGroundingStrategy, ProblemGrounding, create_all_possible_state_variables

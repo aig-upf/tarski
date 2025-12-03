@@ -7,14 +7,13 @@
 # Utility method to process SAS
 # ----------------------------------------------------------------------------------------------------------------------
 from itertools import product
+
 import tarski.model
 from tarski.evaluators.simple import evaluate
-from tarski.syntax import symref
-from tarski.theories import Theory
-from tarski.syntax.transform.substitutions import substitute_expression, create_substitution
-
 from tarski.sas import Action
 from tarski.sas.temporal import TemporalAction
+from tarski.syntax import symref
+from tarski.syntax.transform.substitutions import create_substitution, substitute_expression
 
 
 def check_constraints(C, s, subst):
@@ -59,11 +58,18 @@ def ground_action_schemas(lang, schemas, domains=None, sem_struct=None):
             if not check_constraints(sch.constraints, s, subst):
                 continue
 
-            action_a = Action(name=sch.name,
-                              arguments=a,
-                              transitions=[(substitute_expression(x, subst),
-                                            substitute_expression(pre, subst),
-                                            substitute_expression(post, subst)) for x, pre, post in sch.transitions])
+            action_a = Action(
+                name=sch.name,
+                arguments=a,
+                transitions=[
+                    (
+                        substitute_expression(x, subst),
+                        substitute_expression(pre, subst),
+                        substitute_expression(post, subst),
+                    )
+                    for x, pre, post in sch.transitions
+                ],
+            )
             actions += [action_a]
             # print(action_a.name, a)
 
@@ -99,19 +105,27 @@ def ground_temporal_action(lang, s, schema, domains=None):
             if not check_constraints(evt.constraints, s, subst):
                 break
             ground_events += [
-                Action(name=evt.name,
-                       arguments=a,
-                       transitions=[
-                           (substitute_expression(x, subst),
+                Action(
+                    name=evt.name,
+                    arguments=a,
+                    transitions=[
+                        (
+                            substitute_expression(x, subst),
                             substitute_expression(pre, subst),
-                            substitute_expression(post, subst)) for x, pre, post in evt.transitions
-                       ])
+                            substitute_expression(post, subst),
+                        )
+                        for x, pre, post in evt.transitions
+                    ],
+                )
             ]
         if len(ground_events) != len(schema.events):
             # one event grounding failed due to constraints
             continue
-        actions += [TemporalAction(
-            name='{}({})'.format(schema.name, ','.join([str(c) for c in a])),
-            events=[(schema.deltas[k], gnd_evt) for k, gnd_evt in enumerate(ground_events)])]
+        actions += [
+            TemporalAction(
+                name="{}({})".format(schema.name, ",".join([str(c) for c in a])),
+                events=[(schema.deltas[k], gnd_evt) for k, gnd_evt in enumerate(ground_events)],
+            )
+        ]
 
     return actions
