@@ -61,7 +61,7 @@ class QuantifierElimination:
 
     def _expand(self, phi: QuantifiedFormula, creator):
         # Avoiding circular references in the import:
-        from ...grounding.naive import instantiation  # pylint: disable=import-outside-toplevel
+        from ...grounding.naive import instantiation
 
         card, syms, substs = instantiation.enumerate_groundings(phi.variables)
         if card == 0:

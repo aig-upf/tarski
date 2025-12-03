@@ -454,7 +454,7 @@ class Writer:
         return ", ".join([str(r) for r in self.task.requirements])
 
     def get_types(self):
-        from ..syntax.sorts import parent  # pylint: disable=import-outside-toplevel  # Avoiding circular references
+        from ..syntax.sorts import parent  # Avoiding circular references
 
         type_decl_list = []
         for S in self.task.L.sorts:

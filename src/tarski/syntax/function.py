@@ -53,6 +53,6 @@ class Function:
     __repr__ = __str__
 
     def __call__(self, *args):
-        from .terms import CompoundTerm  # pylint: disable=import-outside-toplevel  # Avoiding circular references
+        from .terms import CompoundTerm  # Avoiding circular references
 
         return CompoundTerm(self, args)

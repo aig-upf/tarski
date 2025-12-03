@@ -70,8 +70,8 @@ class ProblemWalker:
 
     def run(self, expression, inplace=True):
         # Avoiding circular references:
-        from ..syntax import Formula, Term  # pylint: disable=import-outside-toplevel  # Avoiding circular references
-        from . import Action, BaseEffect, Problem  # pylint: disable=import-outside-toplevel
+        from ..syntax import Formula, Term  # Avoiding circular references
+        from . import Action, BaseEffect, Problem
 
         # Simply dispatch according to type
         expression = expression if inplace else copy.deepcopy(expression)
@@ -103,7 +103,7 @@ class ProblemWalker:
         return node
 
     def visit_effect(self, effect, inplace=True):
-        from . import AddEffect, DelEffect, FunctionalEffect, UniversalEffect  # pylint: disable=import-outside-toplevel
+        from . import AddEffect, DelEffect, FunctionalEffect, UniversalEffect
 
         effect = effect if inplace else copy.deepcopy(effect)
 
@@ -128,7 +128,7 @@ class ProblemWalker:
         from ..syntax import (
             Atom,
             CompoundFormula,
-            CompoundTerm,  # pylint: disable=import-outside-toplevel  # Avoiding circular references
+            CompoundTerm,  # Avoiding circular references
             Constant,
             Contradiction,
             IfThenElse,

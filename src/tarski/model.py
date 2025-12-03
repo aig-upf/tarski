@@ -101,7 +101,7 @@ class Model:
 
     def add(self, predicate, *args):
         """ """
-        from .syntax import Atom  # pylint: disable=import-outside-toplevel  # Avoiding circular references
+        from .syntax import Atom  # Avoiding circular references
 
         if isinstance(predicate, Atom):
             args = predicate.subterms
@@ -144,7 +144,7 @@ class Model:
         This list *unwraps* the TermReference's used internally in this class back into plain Tarski terms, so that
         you can rely on the returned extensions being made up of Constants, Variables, etc., not TermReferences
         """
-        from .syntax.util import get_symbols  # pylint: disable=import-outside-toplevel  # Avoiding circular references
+        from .syntax.util import get_symbols  # Avoiding circular references
 
         exts = {k: [unwrap_tuple(tup) for tup in ext] for k, ext in self.predicate_extensions.items()}
         exts.update(

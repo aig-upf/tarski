@@ -9,7 +9,7 @@ to keep Tarski modular and lightweight for simple uses, but optionally heavyweig
 
 def import_scipy_special():
     try:
-        import scipy.special as sci  # pylint: disable=import-outside-toplevel
+        import scipy.special as sci
     except ImportError:
         raise ImportError(
             'The scipy module does not seem available. Please try installing Tarski with the "arithmetic" extra.'
@@ -19,7 +19,7 @@ def import_scipy_special():
 
 def import_numpy():
     try:
-        import numpy as np  # pylint: disable=import-outside-toplevel
+        import numpy as np
     except ImportError:
         raise ImportError(
             'The numpy module does not seem available. Please try installing Tarski with the "arithmetic" extra.'
@@ -29,7 +29,7 @@ def import_numpy():
 
 def import_pyrddl_parser():
     try:
-        from pyrddl.parser import RDDLParser  # pylint: disable=import-outside-toplevel
+        from pyrddl.parser import RDDLParser
     except ImportError:
         raise ImportError(
             'The pyrddl module does not seem available. Please try installing Tarski with the "rddl" extra.'
