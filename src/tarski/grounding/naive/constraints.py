@@ -2,9 +2,9 @@ import itertools
 
 from ...syntax import QuantifiedFormula, Quantifier, create_substitution, substitute_expression
 from ...syntax.ops import all_variables
-from ...syntax.transform import (
-    CNFTransformation,
-    NegatedBuiltinAbsorption,
+from ...syntax.transform.cnf import CNFTransformation
+from ...syntax.transform.neg_builtin import NegatedBuiltinAbsorption
+from ...syntax.transform.quantifier_elimination import (
     QuantifierEliminationMode,
     remove_quantifiers,
 )

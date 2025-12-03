@@ -25,7 +25,7 @@ from ..syntax import (
     top,
 )
 from ..syntax.ops import collect_unique_nodes, flatten
-from ..syntax.transform import to_prenex_negation_normal_form
+from ..syntax.transform.prenex import to_prenex_negation_normal_form
 
 
 class CSPSchemaCompilationError(TarskiError):

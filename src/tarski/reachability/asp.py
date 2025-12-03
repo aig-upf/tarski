@@ -24,7 +24,7 @@ from ..syntax import (
 from ..syntax.builtins import symbol_complements
 from ..syntax.ops import free_variables
 from ..syntax.sorts import Interval, parent
-from ..syntax.transform import QuantifierEliminationMode, remove_quantifiers
+from ..syntax.transform.quantifier_elimination import QuantifierEliminationMode, remove_quantifiers
 
 GOAL = "goal"
 
