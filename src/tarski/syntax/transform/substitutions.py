@@ -15,7 +15,7 @@ class ExpressionSubstitutionWalker(FOLWalker):
         self.substitution = substitution
 
     @dispatch(object)
-    def visit(self, node):  # pylint: disable-msg=E0102
+    def visit(self, node):
         x = self.substitution.get(symref(node))
         return node if x is None else x
 

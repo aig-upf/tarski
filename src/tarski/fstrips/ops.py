@@ -46,16 +46,16 @@ class AllSymbolWalker(ProblemWalker):
         self.symbols = set()
 
     @dispatch(object)  # type: ignore
-    def visit(self, node):  # pylint: disable-msg=E0102
+    def visit(self, node):
         return self.default_handler(node)
 
     @dispatch(CompoundTerm)  # type: ignore
-    def visit(self, node):  # pylint: disable-msg=E0102  # noqa: F811
+    def visit(self, node):  # noqa: F811
         self.symbols.add(node.symbol)
         return node
 
     @dispatch(Atom)  # type: ignore
-    def visit(self, node):  # pylint: disable-msg=E0102  # noqa: F811
+    def visit(self, node):  # noqa: F811
         self.symbols.add(node.symbol)
         return node
 
@@ -68,36 +68,36 @@ class AffectedSymbolWalker(ProblemWalker):
         self.symbols = set()
 
     @dispatch(object)  # type: ignore
-    def visit(self, node):  # pylint: disable-msg=E0102  # noqa: F811
+    def visit(self, node):  # noqa: F811
         return self.default_handler(node)
 
     @dispatch(fs.AddEffect)  # type: ignore
-    def visit(self, node):  # pylint: disable-msg=E0102  # noqa: F811
+    def visit(self, node):  # noqa: F811
         self.symbols.add(node.atom.symbol)
         return node
 
     @dispatch(fs.DelEffect)  # type: ignore
-    def visit(self, node):  # pylint: disable-msg=E0102  # noqa: F811
+    def visit(self, node):  # noqa: F811
         self.symbols.add(node.atom.symbol)
         return node
 
     @dispatch(fs.FunctionalEffect)  # type: ignore
-    def visit(self, node):  # pylint: disable-msg=E0102  # noqa: F811
+    def visit(self, node):  # noqa: F811
         self.symbols.add(node.lhs.symbol)
         return node
 
     @dispatch(fs.ChoiceEffect)  # type: ignore
-    def visit(self, node):  # pylint: disable-msg=E0102  # noqa: F811
+    def visit(self, node):  # noqa: F811
         self.symbols.add(node.obj.symbol)
         return node
 
     @dispatch(fs.LinearEffect)  # type: ignore
-    def visit(self, node):  # pylint: disable-msg=E0102  # noqa: F811
+    def visit(self, node):  # noqa: F811
         self.symbols.update(lhs.symbol for lhs in node.y[:, 0])
         return node
 
     @dispatch(Derived)  # type: ignore
-    def visit(self, node):  # pylint: disable-msg=E0102  # noqa: F811
+    def visit(self, node):  # noqa: F811
         self.symbols.update(node.predicate)
         return node
 
