@@ -31,26 +31,23 @@ def main():
 
         keywords='planning logic STRIPS RDDL',
         classifiers=[
-            'Development Status :: 3 - Alpha',
-
+            'Development Status :: 4 - Beta',
             'Intended Audience :: Science/Research',
             'Intended Audience :: Developers',
-
             'Topic :: Scientific/Engineering :: Artificial Intelligence',
-
             "License :: OSI Approved :: Apache Software License",
-
             'Programming Language :: Python :: 3',
-            'Programming Language :: Python :: 3.7',
-            'Programming Language :: Python :: 3.8',
-            'Programming Language :: Python :: 3.9',
             'Programming Language :: Python :: 3.10',
+            'Programming Language :: Python :: 3.11',
+            'Programming Language :: Python :: 3.12',
+            'Programming Language :: Python :: 3.13',
+            'Programming Language :: Python :: 3.14',
         ],
 
         packages=find_packages('src'),  # include all packages under src
         package_dir={'': 'src'},  # tell distutils packages are under src
 
-        python_requires='>=3.6',  # supported Python ranges
+        python_requires='>=3.10',
         install_requires=[
             # psutil not supported on Windows, we haven't tested in other platforms, but since it's not essential
             # to the functioning of Tarski, better be conservative here and install only on Linux.
