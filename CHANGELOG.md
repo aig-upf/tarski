@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Update a few GH action dependencies.
  - Regenerate ANTLR grammars, since the ANTLR version used until now is no longer supported by Python 3.13+
  - Update the package versions of dependencies used to generate the docs (also not supported by Python 3.13+)
+ - Code quality: Replace pylint/black/flake8 with Ruff.
+ - Add (optional) basic pre-commit configuration
 
 ## [0.8.2] 2022-04-07
 ### Fixed
