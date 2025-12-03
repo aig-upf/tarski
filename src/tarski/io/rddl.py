@@ -98,7 +98,7 @@ def translate_expression(lang, rddl_expr):
                     elif isinstance(tsym, Predicate):
                         targs += [Variable(arg, tsym.sort[k])]
                     else:
-                        assert False
+                        raise AssertionError()
                 elif isinstance(arg, float):
                     targs += [Constant(arg, lang.Real)]
                 elif isinstance(arg, int):
@@ -128,7 +128,7 @@ def translate_expression(lang, rddl_expr):
                 elif isinstance(tsym, Predicate):
                     targs += [Variable(arg, tsym.sort[k])]
                 else:
-                    assert False
+                    raise AssertionError()
             elif isinstance(arg, float):
                 targs += [Constant(arg, lang.Real)]
             elif isinstance(arg, int):
@@ -181,12 +181,11 @@ def translate_expression(lang, rddl_expr):
             if isinstance(targs[2], Formula):
                 return ite(targs[2], targs[1], Constant(0, targs[1].sort))
         # print(expr_sym, targs)
-        if len(targs) == 2:  # unary operator
-            if expr_sym == "-":
-                # replace -x by -1 * x
-                actual_op = arithmetic_rddl_to_tarski["*"]
-                targs = [targs[0]] + [Constant(-1.0, lang.Real)] + [targs[1]]
-                return actual_op(*targs)
+        if len(targs) == 2 and expr_sym == "-":  # unary operator
+            # replace -x by -1 * x
+            actual_op = arithmetic_rddl_to_tarski["*"]
+            targs = [targs[0]] + [Constant(-1.0, lang.Real)] + [targs[1]]
+            return actual_op(*targs)
         return op(*targs)
     elif expr_type == "func" or expr_type == "randomvar":
         func = func_rddl_to_tarski[expr_sym]
@@ -311,10 +310,7 @@ def translate_variable(lang: FirstOrderLanguage, name, term):
     params = []
     if term.param_types is not None:
         params = term.param_types
-    if term.range in ("bool", "boolean"):
-        signature = tuple(params)
-    else:
-        signature = tuple(params + [term.range])
+    signature = tuple(params) if term.range in ("bool", "boolean") else tuple(params + [term.range])
     # translate signature to sorts
     t_signature = []
     for s in signature:
@@ -491,7 +487,7 @@ class Writer:
             head = sig[0]
             domain = sig[1:]
         else:
-            assert False
+            raise AssertionError()
         if len(domain) == 0:
             return f"{head}"
         return "{}({})".format(head, ",".join(domain))
@@ -564,20 +560,14 @@ class Writer:
                 continue
             for st_refs, value in defs.data.items():
                 subterms = [r.expr for r in st_refs]
-                if len(subterms) == 0:
-                    term_str = signature[0]
-                else:
-                    term_str = str(self.task.L.get(signature[0])(*subterms))
+                term_str = signature[0] if len(subterms) == 0 else str(self.task.L.get(signature[0])(*subterms))
                 non_fluent_init_list += [f"\t{term_str} = {value};"]
         for signature, defs in self.task.x0.predicate_extensions.items():
             if signature not in self.non_fluent_signatures:
                 continue
             for st_refs in defs:
                 subterms = [r.expr for r in st_refs]
-                if len(subterms) == 0:
-                    atom_str = signature[0]
-                else:
-                    atom_str = str(self.task.L.get(signature[0])(*subterms))
+                atom_str = signature[0] if len(subterms) == 0 else str(self.task.L.get(signature[0])(*subterms))
                 non_fluent_init_list += [f"\t{atom_str} = true;"]
 
         if len(non_fluent_init_list) == 0:
@@ -592,20 +582,14 @@ class Writer:
                 continue
             for st_refs, value in defs.data.items():
                 subterms = [r.expr for r in st_refs]
-                if len(subterms) == 0:
-                    term_str = signature[0]
-                else:
-                    term_str = str(self.task.L.get(signature[0])(*subterms))
+                term_str = signature[0] if len(subterms) == 0 else str(self.task.L.get(signature[0])(*subterms))
                 init_list += [f"\t{term_str} = {value};"]
         for signature, defs in self.task.x0.predicate_extensions.items():
             if signature in self.non_fluent_signatures or signature in self.interm_signatures:
                 continue
             for st_refs in defs:
                 subterms = [r.expr for r in st_refs]
-                if len(subterms) == 0:
-                    atom_str = signature[0]
-                else:
-                    atom_str = str(self.task.L.get(signature[0])(*subterms))
+                atom_str = signature[0] if len(subterms) == 0 else str(self.task.L.get(signature[0])(*subterms))
                 init_list += [f"\t{atom_str} = true;"]
 
         return "\n".join(init_list)
@@ -615,28 +599,25 @@ class Writer:
             return "0.0"
         if isinstance(expr, CompoundTerm):
             re_st = [self.rewrite(st) for st in expr.subterms]
-            if expr.symbol.builtin:
-                if expr.symbol.symbol in symbol_map:
-                    return f"({re_st[0]} {symbol_map[expr.symbol.symbol]} {re_st[1]})"
+            if expr.symbol.builtin and expr.symbol.symbol in symbol_map:
+                return f"({re_st[0]} {symbol_map[expr.symbol.symbol]} {re_st[1]})"
             st_str = ""
-            if expr.symbol.builtin:
-                if expr.symbol.symbol in function_map:
-                    if len(re_st) > 0:
-                        # MRJ: Random variables need parenthesis, other functions need
-                        # brackets...
-                        if expr.symbol.symbol in builtins.get_random_binary_functions():
-                            st_str = "({})".format(",".join(re_st))
-                        else:
-                            st_str = "[{}]".format(",".join(re_st))
-                    return f"{function_map[expr.symbol.symbol]}{st_str}"
+            if expr.symbol.builtin and expr.symbol.symbol in function_map:
+                if len(re_st) > 0:
+                    # MRJ: Random variables need parenthesis, other functions need
+                    # brackets...
+                    if expr.symbol.symbol in builtins.get_random_binary_functions():
+                        st_str = "({})".format(",".join(re_st))
+                    else:
+                        st_str = "[{}]".format(",".join(re_st))
+                return f"{function_map[expr.symbol.symbol]}{st_str}"
             if len(re_st) > 0:
                 st_str = "({})".format(",".join(re_st))
             return f"{expr.symbol.signature[0]}{st_str}"
         elif isinstance(expr, Atom):
             re_st = [self.rewrite(st) for st in expr.subterms]
-            if expr.predicate.builtin:
-                if expr.predicate.symbol in symbol_map:
-                    return f"({re_st[0]} {symbol_map[expr.predicate.symbol]} {re_st[1]})"
+            if expr.predicate.builtin and expr.predicate.symbol in symbol_map:
+                return f"({re_st[0]} {symbol_map[expr.predicate.symbol]} {re_st[1]})"
             st_str = ""
             if len(re_st) > 0:
                 st_str = "({})".format(",".join(re_st))

@@ -175,7 +175,7 @@ def test_strips_analysis():
     clear, on, ontable, handempty, holding = lang.get("clear", "on", "ontable", "handempty", "holding")
     x = lang.variable("x", "object")
 
-    phi = clear(x) & ~ontable(x)
+    clear(x) & ~ontable(x)
     assert not is_conjunction_of_positive_atoms(clear(x) & ~ontable(x))
 
     assert is_strips_effect_set([DelEffect(ontable(x)), DelEffect(clear(x))])
@@ -255,7 +255,7 @@ def test_neg_precondition_compilation_on_problem():
         a2 = compiled.get_action(aname)
         assert flatten(a1.precondition) == a2.precondition
 
-    act1 = problem.action(
+    problem.action(
         "act1",
         [x],
         precondition=clear(x) & ~ontable(x) & handempty(),

@@ -15,13 +15,13 @@ from tests.io.common import reader
 from ..common.gridworld import generate_small_gridworld
 
 
-def write_problem(problem, domain_constants: list[Constant] | None = None):
-    domain_filename = tempfile.NamedTemporaryFile(delete=True)
-    instance_filename = tempfile.NamedTemporaryFile(delete=True)
+def write_problem(problem, domain_constants: list[Constant] | None = None) -> tuple[str, str]:
+    domain_filename = tempfile.NamedTemporaryFile(delete=True).name  # noqa: SIM115
+    instance_filename = tempfile.NamedTemporaryFile(delete=True).name  # noqa: SIM115
     writer = FstripsWriter(problem)
     writer.write(
-        domain_filename=domain_filename.name,
-        instance_filename=instance_filename.name,
+        domain_filename=domain_filename,
+        instance_filename=instance_filename,
         domain_constants=domain_constants,
     )
     return domain_filename, instance_filename
@@ -111,7 +111,7 @@ def test_blocksworld_writing():
     domf, instf = write_problem(problem, domain_constants=[table])
 
     # Make sure that the printed-out problem can be parsed again
-    problem2 = reader().read_problem(domf.name, instf.name)
+    problem2 = reader().read_problem(domf, instf)
     assert len(problem.actions) == len(problem2.actions)  # Some silly checks
 
 

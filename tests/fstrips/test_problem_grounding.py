@@ -46,7 +46,7 @@ def test_action_grounding_on_parameterless_action():
 
     problem.actions = OrderedDict()
     problem.goal = ~handempty()
-    action = problem.action("fake", [], precondition=handempty(), effects=[DelEffect(handempty())])
+    problem.action("fake", [], precondition=handempty(), effects=[DelEffect(handempty())])
 
     actions = ground_problem_schemas_into_plain_operators(problem)
     assert len(actions) == 1

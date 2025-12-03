@@ -90,7 +90,6 @@ class CollectEqualityAtoms:
     def visit(self, phi):
         if isinstance(phi, CompoundFormula):
             _ = [self.visit(f) for f in phi.subformulas]
-        elif isinstance(phi, Atom):
-            if is_eq_atom(phi):
-                self.atoms.add(symref(phi))
+        elif isinstance(phi, Atom) and is_eq_atom(phi):
+            self.atoms.add(symref(phi))
         return

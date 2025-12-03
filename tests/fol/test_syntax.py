@@ -71,7 +71,8 @@ def test_arithmetic_terms_does_not_fail_with_load_theory():
 def test_load_arithmetic_module_fails_when_language_frozen():
     lang = fstrips.language(theories=[Theory.ARITHMETIC])
     ints = lang.Integer
-    two, three = lang.constant(2, ints), lang.constant(3, ints)
+    lang.constant(2, ints)
+    lang.constant(3, ints)
 
     with pytest.raises(err.DuplicateTheoryDefinition):
         # load_theory() should raise exception since arithmetic theory is already loaded
@@ -189,7 +190,7 @@ def test_duplicate_detection_and_global_getter():
     assert id(lang.get("p1")) == id(p1)
 
     assert len(lang.get("t1", "c1", "f1", "p1")) == 4
-    assert all(id(x) == id(y) for x, y in zip([t1, c1, f1, p1], lang.get("t1", "c1", "f1", "p1")))
+    assert all(id(x) == id(y) for x, y in zip([t1, c1, f1, p1], lang.get("t1", "c1", "f1", "p1"), strict=True))
 
 
 def test_term_refs():
@@ -368,7 +369,7 @@ def test_syntax_shorthands():
 def test_numeric_sort_deduction():
     lang = fstrips.language(theories=[Theory.EQUALITY, Theory.ARITHMETIC])
 
-    plus0 = Constant(1, lang.Integer) + 1
+    _ = Constant(1, lang.Integer) + 1
     # Disable the test temporarily until we address issue #93
     # assert plus0.sort == lang.Integer
 
@@ -377,15 +378,15 @@ def test_numeric_sort_deduction():
 
     eggs = lang.function("eggs", lang.Object, lang.Integer)
     bowl_1 = lang.constant("bowl_1", particle)
-    plus1 = eggs(bowl_1) + 1
+    eggs(bowl_1) + 1
 
     # Disable the test temporarily until we address issue #93
     # assert plus1.sort == lang.Integer
 
 
 def test_language_equality():
-    lang1 = generate_strips_bw_language(nblocks=2)
-    lang2 = generate_strips_bw_language(nblocks=2)
+    generate_strips_bw_language(nblocks=2)
+    generate_strips_bw_language(nblocks=2)
 
     # At the moment it's not clear what kind of FOL language object comparison we want.
     # Ideally we'd want to make sure that the language contains exactly the same vocabulary,

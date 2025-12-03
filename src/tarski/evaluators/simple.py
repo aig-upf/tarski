@@ -77,10 +77,7 @@ def evaluate_quantified(formula: Formula, m: Model, sigma):
 
 def evaluate_term(term, m: Model, sigma):
     if isinstance(term, IfThenElse):
-        if evaluate(term.condition, m, sigma):  # condition is true
-            term = term.subterms[0]
-        else:
-            term = term.subterms[1]
+        term = term.subterms[0] if evaluate(term.condition, m, sigma) else term.subterms[1]
 
     if isinstance(term, Matrix):
         N, M = term.shape
@@ -140,8 +137,11 @@ def symbolic_matrix_multiplication(lhs: Matrix, rhs: Matrix):
     if B != C:
         raise TypeError(f"matrices {A}x{B} and {C}x{D} cannot be multiplied together")
 
-    zip_b = list(zip(*rhs.matrix))
-    return [[sum(ele_a * ele_b for ele_a, ele_b in zip(row_a, col_b)) for col_b in zip_b] for row_a in lhs.matrix]
+    zip_b = list(zip(*rhs.matrix, strict=False))
+    return [
+        [sum(ele_a * ele_b for ele_a, ele_b in zip(row_a, col_b, strict=False)) for col_b in zip_b]
+        for row_a in lhs.matrix
+    ]
 
 
 def evaluate_builtin_function(term, model, sigma):

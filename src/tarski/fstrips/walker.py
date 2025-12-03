@@ -77,7 +77,7 @@ class ProblemWalker:
         expression = expression if inplace else copy.deepcopy(expression)
         if isinstance(expression, (Formula, Term)):
             return self.visit_expression(expression, inplace=True)
-        elif isinstance(expression, BaseEffect) or isinstance(expression, Action):
+        elif isinstance(expression, (BaseEffect, Action)):
             return self.visit_effect(expression, inplace=True)
         elif isinstance(expression, Problem):
             return self.visit_problem(expression, inplace=True)

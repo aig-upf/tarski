@@ -154,7 +154,7 @@ def transpose(m: Term):
         raise err.SyntacticError(
             "transpose() only applicable on scalars (constants, variables), matrices and basic arithmetic operations."
         )
-    elif isinstance(m, Constant) or isinstance(m, Variable):
+    elif isinstance(m, (Constant, Variable)):
         return Matrix([m], m.sort)
     raise err.SyntacticError(
         "transpose(): can only be applied on scalars (constants, variables), matrices and basic arithmetic operations."
@@ -173,7 +173,7 @@ def one(sort):
 
 def simplify(expr: Term) -> Term:
     np = modules.import_numpy()
-    if isinstance(expr, Constant) or isinstance(expr, Variable):
+    if isinstance(expr, (Constant, Variable)):
         return expr
     elif isinstance(expr, CompoundTerm):
         if not expr.symbol.builtin:

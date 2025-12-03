@@ -241,8 +241,7 @@ def compute_signature_bindings(signature):
     """Return an exhaustive list of all possible bindings compatible with the given signature, i.e.
     list of sorts."""
     domains = [s.domain() for s in signature]
-    for binding in itertools.product(*domains):
-        yield binding
+    yield from itertools.product(*domains)
 
 
 def compute_direct_sort_map(lang):

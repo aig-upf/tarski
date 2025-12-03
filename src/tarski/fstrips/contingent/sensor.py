@@ -16,10 +16,12 @@ class Sensor:
     def _check_well_formed(self):
         if isinstance(self.obs, Atom):
             return True
-        if isinstance(self.obs, CompoundFormula):
-            if self.obs.connective == Connective.Not:
-                if isinstance(self.obs.subformulas[0], Atom):
-                    return True
+        if (
+            isinstance(self.obs, CompoundFormula)
+            and self.obs.connective == Connective.Not
+            and isinstance(self.obs.subformulas[0], Atom)
+        ):
+            return True
         # We do not support anything other than literals
         raise err.ObservationExpressivenessMismatch(self)
 

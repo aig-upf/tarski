@@ -492,8 +492,6 @@ def test_predicate_without_equality_reals():
 def test_ite():
     lang = tarski.language("arith", [Theory.EQUALITY, Theory.ARITHMETIC])
 
-    c = lang.constant(1, lang.Integer)
-
     x = lang.function("x", lang.Integer)
     y = lang.function("y", lang.Integer)
 

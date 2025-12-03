@@ -66,7 +66,6 @@ def test_temporal_action():
         s.add(adj, qbits[k - 1], qbits[k])
         s.add(adj, qbits[k], qbits[k - 1])
 
-    epsilon = 0.001
     swap_schema = TemporalAction(name="swap", events=[(0.001, swap_0), (2.0, swap_inv), (0.001, swap_f)])
 
     swap_grounded = ground_temporal_action(L, s, swap_schema)
@@ -78,4 +77,4 @@ def test_temporal_action():
         constraints=[src != dst, target0 != target1],
         transitions=[(location(target0), src, dst), (location(target1), dst, src)],
     )
-    swap_schema2 = TemporalAction(name="swap", events=[(2.0, swap_simple)])
+    _ = TemporalAction(name="swap", events=[(2.0, swap_simple)])

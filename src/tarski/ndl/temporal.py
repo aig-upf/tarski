@@ -48,7 +48,8 @@ class ResourceLevel:
             raise NDLSyntaxError(f"NDL Syntactic Error: resource level must be a constant (given: {self.n}")
         if self.n.sort != self.r.sort:
             raise NDLSyntaxError(
-                f"NDL Type Mismatch: resource and level have different sorts (resource is: {self.r.sort}, level is: {self.n.sort}"
+                f"NDL Type Mismatch: resource and level have different sorts "
+                f"(resource is: {self.r.sort}, level is: {self.n.sort}"
             )
 
     def __str__(self):
@@ -171,12 +172,16 @@ class Action:
         self.precondition = prec
         # post-condition
         post = kwargs.get("postcondition")
-        if post is not None:
-            if not isinstance(post, CompoundFormula) and not isinstance(post, Atom) and not isinstance(post, Tautology):
-                raise NDLSyntaxError(
-                    "NDL Syntactic Error: post-condition of action must be a compound formula,"
-                    f" atom or tautology (given: {prec})"
-                )
+        if (
+            post is not None
+            and not isinstance(post, CompoundFormula)
+            and not isinstance(post, Atom)
+            and not isinstance(post, Tautology)
+        ):
+            raise NDLSyntaxError(
+                "NDL Syntactic Error: post-condition of action must be a compound formula,"
+                f" atom or tautology (given: {prec})"
+            )
         self.postcondition = post
         # resource requirements
         self.locks = []

@@ -22,7 +22,7 @@ def get_symbols(lang, type_="all", include_builtin=True, include_total_cost=Fals
 
 def termlists_are_equal(terms1, terms2):
     """Check whether two given lists of terms are (syntactic-wise) equal."""
-    return len(terms1) == len(terms2) and all(x.is_syntactically_equal(y) for x, y in zip(terms1, terms2))
+    return len(terms1) == len(terms2) and all(x.is_syntactically_equal(y) for x, y in zip(terms1, terms2, strict=True))
 
 
 def termlist_hash(terms):

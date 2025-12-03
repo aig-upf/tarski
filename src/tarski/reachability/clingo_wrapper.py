@@ -38,15 +38,17 @@ def run_clingo(lp):
         theory_filename = f.name
 
     errlog = ""
-    with tempfile.NamedTemporaryFile(mode="w+t", delete=False) as f:
-        with tempfile.NamedTemporaryFile(mode="w+t", delete=False) as stderr:
-            # Option "-t" enforces an easier-to-parse textual output. Warnings could also be supressed with
-            # option "-Wno-atom-undefined"
-            retcode = cmd.execute(gringo_command + ["--text", theory_filename], stdout=f, stderr=stderr)
-            model_filename = f.name
+    with (
+        tempfile.NamedTemporaryFile(mode="w+t", delete=False) as f,
+        tempfile.NamedTemporaryFile(mode="w+t", delete=False) as stderr,
+    ):
+        # Option "-t" enforces an easier-to-parse textual output. Warnings could also be supressed with
+        # option "-Wno-atom-undefined"
+        retcode = cmd.execute(gringo_command + ["--text", theory_filename], stdout=f, stderr=stderr)
+        model_filename = f.name
 
-            if retcode == 0:
-                return model_filename, theory_filename
+        if retcode == 0:
+            return model_filename, theory_filename
 
     if os.path.isfile(stderr.name):
         with open(stderr.name, encoding="utf8") as file:

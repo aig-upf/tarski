@@ -100,7 +100,7 @@ class FluentSymbolCollector:
         elif isinstance(phi, QuantifiedFormula):
             self.visit(phi.formula)
 
-        elif isinstance(phi, Atom) or isinstance(phi, CompoundTerm):
+        elif isinstance(phi, (Atom, CompoundTerm)):
             self.statics.add(symref(phi))
 
     def visit(self, phi):

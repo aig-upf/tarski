@@ -5,7 +5,8 @@ class ObservationExpressivenessMismatch(TarskiError):
     def __init__(self, sensor, msg=None):
         msg = msg or "mismatch between the expressiveness of the specified sensor and that supported by the language!"
         super().__init__(
-            f"Sensing action: {sensor.name}: {msg}\nObservation should be literal (Atom, or CompoundFormula) and it is: {type(sensor.obs)}"
+            f"Sensing action: {sensor.name}: {msg}\nObservation should be literal (Atom, or CompoundFormula)"
+            f" and it is: {type(sensor.obs)}"
         )
 
 

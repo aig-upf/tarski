@@ -268,7 +268,8 @@ class IfThenElse(Term):
                 self._sort = subterms[0].sort
             else:
                 raise err.SyntacticError(
-                    msg=f'IfThenElse: both subterms need to be of the same sort! lhs: "{subterms[0]}"({subterms[0].sort}), rhs: "{subterms[1]}"({subterms[1].sort})'
+                    msg=f'IfThenElse: both subterms need to be of the same sort!'
+                        f'lhs: "{subterms[0]}"({subterms[0].sort}), rhs: "{subterms[1]}"({subterms[1].sort})'
                 )
         else:
             self._sort = subterms[0].sort

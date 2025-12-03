@@ -25,9 +25,8 @@ def cast_to_closest_common_numeric_ancestor(lang, lhs, rhs):
             return lhs, rhs
         return lhs, Constant(lhs.sort.cast(rhs), lhs.sort)
 
-    if isinstance(lhs, np.ndarray):  # lhs is matrix
-        if isinstance(rhs, Term):
-            return lhs, rhs.language.matrix([[rhs]])
+    if isinstance(lhs, np.ndarray) and isinstance(rhs, Term):  # lhs is matrix
+        return lhs, rhs.language.matrix([[rhs]])
 
     if isinstance(rhs, Term):
         return Constant(rhs.sort.cast(lhs), rhs.sort), rhs

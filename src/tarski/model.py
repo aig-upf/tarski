@@ -17,7 +17,7 @@ def _check_assignment(fun, point, value=None):
         raise err.ArityMismatch(fun, elements)
 
     language = fun.language
-    for element, expected_type in zip(elements, typ):
+    for element, expected_type in zip(elements, typ, strict=False):
         if not isinstance(element, Constant):
             # Assume a literal value has been passed instead of its corresponding constant
             element = Constant(expected_type.cast(element), expected_type)

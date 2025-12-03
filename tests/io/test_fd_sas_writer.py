@@ -145,7 +145,8 @@ def test_gripper_instance():
     # would be possible (in principle) to allow transitions where var3 has an inconvenient value (like the ball being in
     # different room).
     # Otherwise, states then are to be interpreted as a CSP with equality constraints, and "mutex groups", constraints
-    # of the form x=v -> x'\neq v' (or x \neq v \lor x' \neq v'). I haven't heard of states as CSPs (with multiple models?)
+    # of the form x=v -> x'\neq v' (or x \neq v \lor x' \neq v').
+    # I haven't heard of states as CSPs (with multiple models?)
     # How would this work?
     Act = [
         Action(

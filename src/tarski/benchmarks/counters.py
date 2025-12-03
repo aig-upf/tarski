@@ -35,7 +35,7 @@ def generate_fstrips_counters_problem(ncounters=3, upper_bound=None):
     value = lang.get_function("value")
     max_int = lang.get_function("max_int")
 
-    inequalities = [value(c1) < value(c2) for c1, c2 in zip(counters, counters[1:])]
+    inequalities = [value(c1) < value(c2) for c1, c2 in zip(counters, counters[1:], strict=False)]
     problem.goal = land(*inequalities, flat=True)
 
     c = lang.variable("c", "counter")

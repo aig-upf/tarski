@@ -67,7 +67,8 @@ def test_pddl_type_declaration():
 def test_symbol_declarations():
     _test_inputs(
         [
-            # First rule defines the predicate, necessary for the rest of rules not to raise an "UndefinedPredicate" error
+            # First rule defines the predicate, necessary for the rest of rules
+            # not to raise an "UndefinedPredicate" error
             ("(at)", "predicate_definition"),
             ("(at1 ?x)", "predicate_definition"),
             ("(at5 ?x1 ?x2 ?x3 ?x4 ?x5)", "predicate_definition"),
@@ -88,7 +89,8 @@ def test_symbol_declarations():
 def test_init():
     _test_inputs(
         [
-            # First rule defines the predicate, necessary for the rest of rules not to raise an "UndefinedPredicate" error
+            # First rule defines the predicate, necessary for the rest of rules
+            # not to raise an "UndefinedPredicate" error
             ("(at)", "predicate_definition"),
             ("(at)", "init_atom"),
             ("(not (at))", "init_atom"),
@@ -102,7 +104,8 @@ def test_single_atom_goal():
     r = reader()
     _test_inputs(
         [
-            # First rule defines the predicate, necessary for the rest of rules not to raise an "UndefinedPredicate" error
+            # First rule defines the predicate, necessary for the rest of rules
+            # not to raise an "UndefinedPredicate" error
             ("(CLEAR ?A - object)", "predicate_definition"),
             ("(:objects A B C D E)", "object_declaration"),
             ("(:goal (AND (CLEAR A)))", "goal"),
@@ -148,7 +151,8 @@ def test_formulas():
 def test_predicate_effects():
     _test_inputs(
         [
-            # First rule defines the predicate, necessary for the rest of rules not to raise an "UndefinedPredicate" error
+            # First rule defines the predicate, necessary for the rest of rules
+            # not to raise an "UndefinedPredicate" error
             ("(at)", "predicate_definition"),
             ("(at)", "effect"),
             ("(not (at))", "effect"),

@@ -57,7 +57,7 @@ class LPGroundingStrategy:
         groundings = {}
         for k in self.problem.actions.keys():
             key = "action_" + k
-            groundings[k] = model[key] if key in model else set()
+            groundings[k] = model.get(key, set())
         return groundings
 
     def iterate_over_schema_groundings(self, schema_name: str):

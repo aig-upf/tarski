@@ -2,6 +2,7 @@
 Classes and methods related to the naive grounding strategy of planning problems.
 """
 
+import contextlib
 import itertools
 
 from ..errors import DuplicateDefinition
@@ -72,10 +73,8 @@ def create_all_possible_state_variables(fluent_terms):
             else:
                 raise UnableToGroundError(st, "Grounding of complex nested subterms is not implemented yet!")
         for instantiation in itertools.product(*instantiations):
-            try:
+            with contextlib.suppress(DuplicateDefinition):
                 variables.add(StateVariable(ref.expr, instantiation))
-            except DuplicateDefinition:
-                pass
     return variables
 
 

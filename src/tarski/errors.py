@@ -132,7 +132,8 @@ class IncorrectExtensionDefinition(SemanticError):
     def __init__(self, element, point, value, msg=None):
         msg = (
             msg
-            or f'Incorrect definition of extension of symbol "{element}". Cannot assign value "{value}" to point "{point}"'
+            or f'Incorrect definition of extension of symbol "{element}". '
+            f'Cannot assign value "{value}" to point "{point}"'
         )
         super().__init__(msg)
 

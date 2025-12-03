@@ -77,7 +77,8 @@ class FStripsParser(fstripsVisitor):
         domain_name_as_declared_in_instance = ctx.NAME().getText()
         if domain_name_as_declared_in_instance != self.problem.domain_name:
             logging.warning(
-                f'Domain names as declared in domain and instance files do not coincide: "{self.problem.domain_name}" vs " {domain_name_as_declared_in_instance}"'
+                f"Domain names as declared in domain and instance files do not coincide: "
+                f'"{self.problem.domain_name}" vs " {domain_name_as_declared_in_instance}"'
             )
 
     def visitRequireDef(self, ctx):
@@ -236,7 +237,9 @@ class FStripsParser(fstripsVisitor):
         fun = self.language.get_function(symbol)
         subterms = [self.visit(t) for t in ctx.term()]
         assert len(fun.domain) == len(subterms)
-        subterms = tuple(s.to_constant(x) if not isinstance(x, Term) else x for s, x in zip(fun.domain, subterms))
+        subterms = tuple(
+            s.to_constant(x) if not isinstance(x, Term) else x for s, x in zip(fun.domain, subterms, strict=False)
+        )
         return fun(*subterms)
 
     def visitBinaryArithmeticFunctionTerm(self, ctx):
@@ -369,7 +372,7 @@ class FStripsParser(fstripsVisitor):
         fun, subterms = self.visit(ctx.flat_term())
         assert len(fun.domain) == len(subterms)
         value = self.visit(ctx.constant_name())
-        subterms = tuple(s.to_constant(x) for s, x in zip(fun.domain, subterms))
+        subterms = tuple(s.to_constant(x) for s, x in zip(fun.domain, subterms, strict=False))
         self.init.set(fun(*subterms), value)
 
     def visitFlat_atom(self, ctx):

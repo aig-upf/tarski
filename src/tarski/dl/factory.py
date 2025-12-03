@@ -27,7 +27,7 @@ from . import (
 
 def filter_subnodes(elem, t):
     """Return a list with all subnodes of a certain concept or role which conform to the given Python type"""
-    return list(filter(lambda x: type(x) == t, elem.flatten()))
+    return list(filter(lambda x: type(x) is t, elem.flatten()))
 
 
 def compute_dl_vocabulary(lang):
