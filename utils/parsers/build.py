@@ -12,7 +12,7 @@ import glob
 import os
 import shutil
 import subprocess
-import tempfile  # for temporary directories
+import tempfile
 
 GRAMMARS = {
     "fstrips": "fstrips.g4",
@@ -83,8 +83,12 @@ def create_target_package(args):
 
 def run_antlr(args):
     tmpdir = tempfile.TemporaryDirectory()
-    command = ('java -Xmx500M org.antlr.v4.Tool -visitor -Dlanguage=Python3 -o {} {}'.
-               format(tmpdir.name, args.grammar_filename))
+    antlr_path = os.getenv('ANTLR_PATH')
+    if antlr_path is None:
+        raise RuntimeError("Please set 'ANTLR_PATH' to the location of the ANTLR jar file")
+
+    command = ('java -cp {} -Xmx500M org.antlr.v4.Tool -visitor -Dlanguage=Python3 -o {} {}'.
+               format(antlr_path, tmpdir.name, args.grammar_filename))
 
     try:
         print("Executing: {}".format(command))

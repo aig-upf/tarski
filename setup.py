@@ -31,26 +31,23 @@ def main():
 
         keywords='planning logic STRIPS RDDL',
         classifiers=[
-            'Development Status :: 3 - Alpha',
-
+            'Development Status :: 4 - Beta',
             'Intended Audience :: Science/Research',
             'Intended Audience :: Developers',
-
             'Topic :: Scientific/Engineering :: Artificial Intelligence',
-
             "License :: OSI Approved :: Apache Software License",
-
             'Programming Language :: Python :: 3',
-            'Programming Language :: Python :: 3.7',
-            'Programming Language :: Python :: 3.8',
-            'Programming Language :: Python :: 3.9',
             'Programming Language :: Python :: 3.10',
+            'Programming Language :: Python :: 3.11',
+            'Programming Language :: Python :: 3.12',
+            'Programming Language :: Python :: 3.13',
+            'Programming Language :: Python :: 3.14',
         ],
 
         packages=find_packages('src'),  # include all packages under src
         package_dir={'': 'src'},  # tell distutils packages are under src
 
-        python_requires='>=3.6',  # supported Python ranges
+        python_requires='>=3.10',
         install_requires=[
             # psutil not supported on Windows, we haven't tested in other platforms, but since it's not essential
             # to the functioning of Tarski, better be conservative here and install only on Linux.
@@ -58,11 +55,12 @@ def main():
 
             'multipledispatch',
 
-            # Antlr pinned to a specific version to avoid messages "ANTLR runtime and generated code versions disagree"
-            # messages. If we want to bump this up, we'll need to regenerate the grammar files with the new version.
-            'antlr4-python3-runtime==4.7.2',
-
-
+            # Pin down ANTLR to the same version with which the python runtime grammars were generated.
+            # This prevents "ANTLR runtime and generated code versions disagree" messages and the potential bugs
+            # caused by version mismatches.
+            # If you want to change this version, regenerate the grammars as described in
+            # src/tarski/io/_fstrips/readme.md
+            'antlr4-python3-runtime==4.13.2',
         ],
 
         extras_require={
@@ -73,14 +71,14 @@ def main():
                 'mypy'
             ],
             'docs': [
-                'jinja2==3.0.3',
-                'docutils<0.18',
-                'sphinx==4.4.0',
-                'nbsphinx==0.8.8',
+                'jinja2==3.1.6',
+                'docutils',  # Let sphinx figure the version out
+                'sphinx==8.2.3',
+                'nbsphinx==0.9.8',
                 'recommonmark==0.7.1',
-                'sphinx_rtd_theme==1.0.0',
-                'ipykernel==6.9.1',
-                'ipython==8.1.0'
+                'sphinx_rtd_theme==3.0.2',
+                'ipykernel==7.1.0',
+                'ipython==9.8.0'
             ],
             'arithmetic': [
                 'scipy',
