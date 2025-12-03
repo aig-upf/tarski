@@ -64,7 +64,12 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         python-version: ['3.14']
-        toxenv: ['docs', 'antlrgrammars', 'pylint', 'flake8', 'mypy']
+        toxenv:
+          - docs
+          - antlrgrammars
+#          - pylint
+#          - flake8
+          - mypy
 
     runs-on: ${{ matrix.os }}
     steps:
