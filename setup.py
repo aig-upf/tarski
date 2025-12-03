@@ -71,14 +71,14 @@ def main():
                 'mypy'
             ],
             'docs': [
-                'jinja2==3.0.3',
-                'docutils<0.18',
-                'sphinx==4.4.0',
-                'nbsphinx==0.8.8',
+                'jinja2==3.1.6',
+                'docutils==0.22.3',
+                'sphinx==9.0.1',
+                'nbsphinx==0.9.8',
                 'recommonmark==0.7.1',
-                'sphinx_rtd_theme==1.0.0',
-                'ipykernel==6.9.1',
-                'ipython==8.1.0'
+                'sphinx_rtd_theme==3.0.2',
+                'ipykernel==7.1.0',
+                'ipython==9.8.0'
             ],
             'arithmetic': [
                 'scipy',
