@@ -2,6 +2,8 @@ name: Code coverage
 
 on:
   pull_request:
+    branches:
+      - none  # Just a trick to disable the workflow temporarly
 
 env:
   DOWNWARD_BENCHMARKS: "/tmp/downward-benchmarks"
