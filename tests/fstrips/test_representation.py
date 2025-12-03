@@ -209,7 +209,7 @@ def test_neg_precondition_compilation_on_action():
     x = lang.variable('x', 'object')
 
     negpreds = {}
-    
+
     pickup = problem.get_action('pick-up')
     pickupc = compile_action_negated_preconditions_away(pickup, negpreds)
     assert flatten(pickup.precondition) == pickupc.precondition and len(negpreds) == 0

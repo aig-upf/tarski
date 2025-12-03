@@ -50,10 +50,10 @@ def test_pddl_lexer_cushing_domain():
 
 @pytest.mark.pddl
 def test_basic_constructs():
-    pddl_data = """(define 
+    pddl_data = """(define
         (domain FOO)
         (:requirements :durative-actions :derived-predicates :typing)
-        (:types 
+        (:types
                 paz naz - caz
                 bar baz
         )
@@ -63,7 +63,7 @@ def test_basic_constructs():
             b1 b2 b3 b4 b5 b6 - paz
             c1 c2 c3 c4 c5 c6 - naz
         )
-        (:predicates 
+        (:predicates
             (p ?x - bar ?y - baz)
             (q ?x - bar ?y - baz)
             (r ?x - bar)
@@ -82,7 +82,7 @@ def test_basic_constructs():
         (:action dummy1
             :parameters (?x - bar)
             :precondition   (and
-                                    (not (r ?x)) 
+                                    (not (r ?x))
                             )
             :effect     (and
                             (r ?x)
@@ -94,7 +94,7 @@ def test_basic_constructs():
             :duration   (= ?duration 10)
             :condition  (and
                             (at start (q ?x ?y))
-                            (over all (r ?x)) 
+                            (over all (r ?x))
                         )
             :effect     (and
                             (at start (q ?x ?y))

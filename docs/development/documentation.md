@@ -26,5 +26,5 @@ There are several workarounds to avoid versioning in Git the cell outputs and ot
 
 ## Some examples of good Sphinx/Markdown/Jupyter documentation and other thinks to have a look at
 
-* https://calculus-notes.readthedocs.io/en/latest/ 
+* https://calculus-notes.readthedocs.io/en/latest/
 * https://ovh.mybinder.org/

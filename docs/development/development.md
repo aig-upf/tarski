@@ -19,5 +19,5 @@ Tarski aims at being a full-fledged Python package that can be installed with a 
 Tests are written using `pytest` and can be run by issuing `pytest` on the project root directory,
 provided that the `pytest` module has been installed.
 
-You can also run the tests from a virtual environment where the whole setup process that a new user would follow is 
+You can also run the tests from a virtual environment where the whole setup process that a new user would follow is
 entirely replicated by using [`tox`](http://tox.readthedocs.io/).

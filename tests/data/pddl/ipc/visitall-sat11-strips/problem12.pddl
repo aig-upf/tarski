@@ -1,6 +1,6 @@
 (define (problem grid-12)
 (:domain grid-visit-all)
-(:objects 
+(:objects
 	loc-x0-y0
 	loc-x0-y1
 	loc-x0-y2
@@ -145,8 +145,8 @@
 	loc-x11-y9
 	loc-x11-y10
 	loc-x11-y11
-- place 
-        
+- place
+
 )
 (:init
 	(at-robot loc-x6-y6)
@@ -679,10 +679,10 @@
  	(connected loc-x11-y10 loc-x11-y11)
  	(connected loc-x11-y11 loc-x10-y11)
  	(connected loc-x11-y11 loc-x11-y10)
- 
+
 )
 (:goal
-(and 
+(and
 	(visited loc-x0-y0)
 	(visited loc-x0-y1)
 	(visited loc-x0-y2)
