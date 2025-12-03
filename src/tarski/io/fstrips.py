@@ -31,8 +31,10 @@ from ..theories import Theory, load_theory
 from ._fstrips.common import create_number_type, get_requirements_string, tarski_to_pddl_type, uniformize_costs
 
 # Leave the next import so that it can be imported from the outside without warnings of importing a private module
-# pylint: disable=unused-import
-from ._fstrips.reader import FStripsParser
+from ._fstrips.reader import (
+    FStripsParser,  # noqa
+    ParsingError,  # noqa
+)
 from .common import load_tpl
 
 
