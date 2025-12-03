@@ -28,10 +28,10 @@ def read_file(filename):
 def execute(command, **kwargs):
     stdout, stderr = kwargs.get("stdout"), kwargs.get("stderr")
     if isinstance(stdout, str):
-        stdout = open(stdout, "w", encoding="utf8")  # pylint: disable=consider-using-with
+        stdout = open(stdout, "w", encoding="utf8")
 
     if isinstance(stderr, str):
-        stderr = open(stderr, "w", encoding="utf8")  # pylint: disable=consider-using-with
+        stderr = open(stderr, "w", encoding="utf8")
 
     cwd = kwargs["cwd"] if "cwd" in kwargs else os.getcwd()
 

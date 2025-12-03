@@ -165,7 +165,7 @@ class ReachabilityLPCompiler:
         atom = self.lp_atom(action.name, [make_variable_name(v.symbol) for v in action.parameters], prefix="action")
         return atom, atom
 
-    # def add_directives(self, problem, lp):  # pylint: disable-msg=W0613,
+    # def add_directives(self, problem, lp):
     #     return
 
     def process_formula(self, f: Formula):
@@ -202,7 +202,7 @@ class ReachabilityLPCompiler:
                 subf = f.subformulas[0]
                 if not isinstance(subf, Atom):
                     raise RuntimeError("Negation of arbitrary formulas not yet implemented")
-                # pylint: disable=unbalanced-tuple-unpacking  # Watch out the comma that unpacks the length-1 list!
+                # Watch out the comma that unpacks the length-1 list!
                 (processed,) = self.process_formula(subf)
                 return [negate_lp_atom(processed)]
 

@@ -216,7 +216,7 @@ def implies(phi, psi):
 
 def equiv(phi, psi):
     """Create the bi-implication phi <-> psi"""
-    return land(implies(phi, psi), implies(psi, phi))  # pylint: disable=arguments-out-of-order
+    return land(implies(phi, psi), implies(psi, phi))
 
 
 def forall(*args):

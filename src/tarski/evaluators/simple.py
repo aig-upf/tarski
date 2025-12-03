@@ -71,7 +71,6 @@ def evaluate_atom(atom: Atom, m: Model, sigma):
 
 
 def evaluate_quantified(formula: Formula, m: Model, sigma):
-    # pylint: disable=unused-argument
     raise NotImplementedError()
 
 

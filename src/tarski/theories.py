@@ -22,7 +22,6 @@ class Theory(Enum):
     RANDOM = "random"
 
     def __str__(self):
-        # pylint: disable-msg=E0307  # pylint gives false positive here, since self.value is already a string
         return self.value
 
 

@@ -1,5 +1,3 @@
-# pylint: disable=redefined-builtin
-
 import copy
 import itertools
 

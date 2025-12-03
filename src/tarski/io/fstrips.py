@@ -184,7 +184,6 @@ def print_domain_bounds(problem):
 
 
 def print_problem_constraints(problem):
-    # pylint: disable=unused-argument
     return ""  # TODO
 
 
@@ -333,7 +332,6 @@ def print_variable_list(parameters):
 
 
 def print_formula(formula, indentation=0):
-    # pylint: disable=unused-argument
     assert isinstance(formula, Formula)
     if isinstance(formula, Tautology):
         return "(and )"
