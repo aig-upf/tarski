@@ -30,7 +30,7 @@ jobs:
         python-version: [ '3.10','3.11','3.12','3.13','3.14' ]
 
     runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ matrix.experimental }}
+    continue-on-error: false
 
     steps:
       - name: Clone repo
