@@ -55,7 +55,7 @@ jobs:
         run: |
           tox -v -e pytest
 
-  style-docs-antlr:
+  tox:
     strategy:
       # Keep running all parameter combinations even if one fails
       fail-fast: false

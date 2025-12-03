@@ -73,7 +73,7 @@ def main():
             'docs': [
                 'jinja2==3.1.6',
                 'docutils==0.22.3',
-                'sphinx==9.0.1',
+                'sphinx==8.2.3',
                 'nbsphinx==0.9.8',
                 'recommonmark==0.7.1',
                 'sphinx_rtd_theme==3.0.2',
