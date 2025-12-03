@@ -68,7 +68,9 @@ def main():
                 'pytest>=7.0.1',
                 'tox',
                 'pytest-cov',
-                'mypy'
+                'mypy',
+                "pre-commit~=4.5.0",
+                "ruff~=0.14.7",
             ],
             'docs': [
                 'jinja2==3.1.6',
