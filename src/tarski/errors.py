@@ -1,46 +1,47 @@
-
 class TarskiError(Exception):
-    """ Common ancestor class to all of Tarski's exceptions """
+    """Common ancestor class to all of Tarski's exceptions"""
 
 
 class LanguageError(TarskiError):
     def __init__(self, msg=None):
-        msg = msg or 'Unexplained Tarski language error'
+        msg = msg or "Unexplained Tarski language error"
         super().__init__(msg)
 
 
 class SyntacticError(LanguageError):
     def __init__(self, msg=None):
-        msg = msg or 'Unexplained Tarski syntactic error'
+        msg = msg or "Unexplained Tarski syntactic error"
         super().__init__(msg)
 
 
 class SemanticError(LanguageError):
     def __init__(self, msg=None):
-        msg = msg or 'Unexplained Tarski semantic error'
+        msg = msg or "Unexplained Tarski semantic error"
         super().__init__(msg)
 
 
 class LanguageMismatch(SyntacticError):
     def __init__(self, obj, l1, l2, msg=None):
-        msg = msg or ('Language mismatch when operating on object {obj} of type {classname}.\n'
-                      'Expected language: {l2}\n'
-                      'Actual language: : {l1}\n') \
-            .format(obj=obj, classname=type(obj).__name__, l1=l1, l2=l2)
+        msg = msg or (
+            f"Language mismatch when operating on object {obj} of type {type(obj).__name__}.\n"
+            f"Expected language: {l2}\n"
+            f"Actual language: : {l1}\n"
+        )
         super().__init__(msg)
 
 
 class ArityMismatch(SyntacticError):
     def __init__(self, head, arguments, msg=None):
-        msg = msg or 'Arity mismatch applying element {} with arity {} to arguments {}'. \
-            format(head, head.arity, arguments)
+        msg = msg or f"Arity mismatch applying element {head} with arity {head.arity} to arguments {arguments}"
         super().__init__(msg)
 
 
 class SortMismatch(SyntacticError):
     def __init__(self, element, type_, expected_type, msg=None):
-        msg = msg or 'Sort mismatch on element {}. Expected sort was "{}", element has sort "{}"'.format(
-            element, expected_type, type_)
+        msg = (
+            msg
+            or f'Sort mismatch on element {element}. Expected sort was "{expected_type}", element has sort "{type_}"'
+        )
         super().__init__(msg)
 
 
@@ -89,7 +90,7 @@ class DuplicateActionDefinition(DuplicateDefinition):
 
 class DuplicateVariableDefinition(DuplicateDefinition):
     def __init__(self, variable, other, msg=None):
-        msg = msg or "Variable with name '{}' already defined in binding: {}".format(variable.symbol, other)
+        msg = msg or f"Variable with name '{variable.symbol}' already defined in binding: {other}"
         super().__init__(variable, other, msg)
 
 
@@ -123,25 +124,28 @@ class UndefinedVariable(UndefinedElement):
 
 class UnboundVariable(SemanticError):
     def __init__(self, var, msg=None):
-        msg = msg or 'Attempted to evaluate open formula with free variable {}'.format(var)
+        msg = msg or f"Attempted to evaluate open formula with free variable {var}"
         super().__init__(msg)
 
 
 class IncorrectExtensionDefinition(SemanticError):
     def __init__(self, element, point, value, msg=None):
-        msg = msg or 'Incorrect definition of extension of symbol "{}". Cannot assign value "{}" to point "{}"'.format(
-            element, value, point)
+        msg = (
+            msg
+            or f'Incorrect definition of extension of symbol "{element}". '
+            f'Cannot assign value "{value}" to point "{point}"'
+        )
         super().__init__(msg)
 
 
 class UnknownTheory(LanguageError):
     def __init__(self, theory):
-        super().__init__('Unknown first-order theory "{}"'.format(theory))
+        super().__init__(f'Unknown first-order theory "{theory}"')
 
 
 class CommandNotFoundError(TarskiError):
     def __init__(self, name, msg=None):
-        msg = msg or 'Necessary command "{}" could not be found'.format(name)
+        msg = msg or f'Necessary command "{name}" could not be found'
         super().__init__(msg)
 
 

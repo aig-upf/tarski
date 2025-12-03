@@ -1,5 +1,5 @@
 import sys
-from collections import deque, defaultdict
+from collections import defaultdict, deque
 
 
 def transitive_closure(elements):
@@ -16,7 +16,7 @@ def transitive_closure(elements):
 
 
 def compute_min_distance(c1s, relation, c2s):
-    """  """
+    """ """
     # Cover first a couple of base cases to enhance performance
     if c1s & c2s:
         return 0

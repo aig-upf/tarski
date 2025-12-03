@@ -1,16 +1,16 @@
 """
-    Rewrite formulas into prenex negation normal form
+Rewrite formulas into prenex negation normal form
 """
-from .substitutions import substitute_expression
-from ..symrefs import symref
-from ..formulas import CompoundFormula, QuantifiedFormula, Connective, Quantifier, lor
-from ..transform.nnf import NNFTransformation
 
+from ..formulas import CompoundFormula, Connective, QuantifiedFormula, Quantifier, lor
+from ..symrefs import symref
+from ..transform.nnf import NNFTransformation
 from .errors import TransformationError
+from .substitutions import substitute_expression
 
 
 class PrenexTransformation:
-    """ Rewrite the input formula into an equivalent formula in Prenex Negation Normal Form. """
+    """Rewrite the input formula into an equivalent formula in Prenex Negation Normal Form."""
 
     def __init__(self, lang, phi, do_copy=True):
         self.L = lang
@@ -28,7 +28,7 @@ class PrenexTransformation:
                 new_variables[key_y] = y
             else:
                 if renaming:
-                    y2 = self.L.variable("{}'".format(y.symbol), y.sort)
+                    y2 = self.L.variable(f"{y.symbol}'", y.sort)
                     subst[y] = y2
                     new_variables[(y2.symbol, y2.sort.name)] = y2
         if len(subst) > 0:
@@ -38,8 +38,8 @@ class PrenexTransformation:
 
     def _nest_quantifiers(self, out_q, out_vars, out_phi, inner_q, inner_vars, conn, lhs, rhs):
         """
-            Note that out_phi is either lhs or rhs, we have the parameter duplicated so we
-            can preserve the ordering of subformulas
+        Note that out_phi is either lhs or rhs, we have the parameter duplicated so we
+        can preserve the ordering of subformulas
         """
         in_vars_dict = {(x.symbol, x.sort.name): x for x in inner_vars}
         new_out_vars = []
@@ -49,7 +49,7 @@ class PrenexTransformation:
             if key_y not in in_vars_dict:
                 new_out_vars.append(y)
             else:
-                y2 = self.L.variable("{}'".format(y.symbol), y.sort)
+                y2 = self.L.variable(f"{y.symbol}'", y.sort)
                 subst[symref(y)] = y2
                 new_out_vars.append(y2)
         if len(subst) > 0:
@@ -72,10 +72,10 @@ class PrenexTransformation:
         assert isinstance(phi, CompoundFormula)
         if phi.connective == Connective.Not:
             if isinstance(phi.subformulas[0], QuantifiedFormula):
-                raise TransformationError('prenex', phi, 'Subformula is not in NNF!')
+                raise TransformationError("prenex", phi, "Subformula is not in NNF!")
 
             if isinstance(phi.subformulas[0], CompoundFormula):
-                raise TransformationError('prenex', phi, 'Subformula is not in NNF!')
+                raise TransformationError("prenex", phi, "Subformula is not in NNF!")
 
             return phi
         else:
@@ -106,12 +106,26 @@ class PrenexTransformation:
             # equivalence
 
             if rhs.quantifier == Quantifier.Exists and lhs.quantifier == Quantifier.Forall:
-                return self._nest_quantifiers(Quantifier.Exists, rhs.variables, rhs.formula,
-                                              Quantifier.Forall, lhs.variables,
-                                              phi.connective, lhs.formula, rhs.formula)
-            return self._nest_quantifiers(Quantifier.Exists, lhs.variables, lhs.formula,
-                                          Quantifier.Forall, rhs.variables,
-                                          phi.connective, lhs.formula, rhs.formula)
+                return self._nest_quantifiers(
+                    Quantifier.Exists,
+                    rhs.variables,
+                    rhs.formula,
+                    Quantifier.Forall,
+                    lhs.variables,
+                    phi.connective,
+                    lhs.formula,
+                    rhs.formula,
+                )
+            return self._nest_quantifiers(
+                Quantifier.Exists,
+                lhs.variables,
+                lhs.formula,
+                Quantifier.Forall,
+                rhs.variables,
+                phi.connective,
+                lhs.formula,
+                rhs.formula,
+            )
         # \forall ( P \lor Q(x)) \equiv P \lor \forall x Q(x)
         # \exists (P \land Q(x)) \equiv P \land \exists x Q(x)
         elif is_quant_rhs:
@@ -134,7 +148,8 @@ class PrenexTransformation:
                 phi.quantifier, phi.formula.quantifier = phi.formula.quantifier, phi.quantifier
                 phi.variables, phi.formula.variables = phi.formula.variables, phi.variables
                 phi.formula = self._convert(
-                    phi.formula)  # reordering the quantifiers may trigger further quantifier reordering
+                    phi.formula
+                )  # reordering the quantifiers may trigger further quantifier reordering
             return phi
         else:
             return phi

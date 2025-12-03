@@ -2,25 +2,41 @@ import os
 from enum import Enum
 from pathlib import Path
 
-from ..fstrips.manipulation import Simplify
 from ..errors import TarskiError
-from ..fstrips.representation import is_conjunction_of_literals, has_state_variable_shape, \
-    collect_effect_free_parameters
+from ..fstrips.manipulation import Simplify
+from ..fstrips.representation import (
+    collect_effect_free_parameters,
+    has_state_variable_shape,
+    is_conjunction_of_literals,
+)
 from ..grounding.common import StateVariableLite
-from ..syntax import QuantifiedFormula, Quantifier, Contradiction, CompoundFormula, Atom, CompoundTerm, \
-    is_neg, symref, Constant, Variable, Tautology, top
+from ..syntax import (
+    Atom,
+    CompoundFormula,
+    CompoundTerm,
+    Constant,
+    Contradiction,
+    QuantifiedFormula,
+    Quantifier,
+    Tautology,
+    Variable,
+    is_neg,
+    symref,
+    top,
+)
 from ..syntax.ops import collect_unique_nodes, flatten
-from ..syntax.transform import to_prenex_negation_normal_form
+from ..syntax.transform.prenex import to_prenex_negation_normal_form
 
 
 class CSPSchemaCompilationError(TarskiError):
     def __init__(self, msg=None):
-        msg = msg or 'Unspecified error when attempting to compile action schema into CSP'
+        msg = msg or "Unspecified error when attempting to compile action schema into CSP"
         super().__init__(msg)
 
 
 class CSPVarType(Enum):
-    """"  """
+    """ " """
+
     Bool = "bool"
     Int = "int"
 
@@ -57,8 +73,11 @@ class TableConstraint:
         return is_neg(self.expr)
 
     def __str__(self):
-        return f'Table(<{",".join(self.variables)}> in ext({self.symbol}), ' \
-               f'negative={self.negative}, reif={self.reification})'
+        return (
+            f"Table(<{','.join(self.variables)}> in ext({self.symbol}), "
+            f"negative={self.negative}, reif={self.reification})"
+        )
+
     __repr__ = __str__
 
 
@@ -69,7 +88,7 @@ class StateVariableConstraint:
         self.reification = None
 
     def __str__(self):
-        return f'StateVar({self.expr}={self.value}, reif={self.reification})'
+        return f"StateVar({self.expr}={self.value}, reif={self.reification})"
 
     __repr__ = __str__
 
@@ -82,7 +101,7 @@ class RelationalConstraint:
         self.reification = None
 
     def __str__(self):
-        return f'RelationalConstraint({self.lhs} {self.rel} {self.rhs}, reif={self.reification})'
+        return f"RelationalConstraint({self.lhs} {self.rel} {self.rhs}, reif={self.reification})"
 
     __repr__ = __str__
 
@@ -114,14 +133,16 @@ class CSPCompiler:
 
         # Do some transformation and validation of the action precondition
         precondition = to_prenex_negation_normal_form(self.lang, flatten(action.precondition))
-        foralls = collect_unique_nodes(precondition,
-                                       lambda f: isinstance(f, QuantifiedFormula) and f.quantifier == Quantifier.Forall)
+        foralls = collect_unique_nodes(
+            precondition, lambda f: isinstance(f, QuantifiedFormula) and f.quantifier == Quantifier.Forall
+        )
         if foralls:
             raise CSPSchemaCompilationError(f"Cannot process universal quantification in action {action}")
 
         if not is_conjunction_of_literals(precondition):
             raise CSPSchemaCompilationError(
-                f"Compilation not yet finished for actions with non-conjunctive preconditions such as {action}")
+                f"Compilation not yet finished for actions with non-conjunctive preconditions such as {action}"
+            )
 
         precondition = simplifier.simplify_expression(precondition)
         if precondition is False:
@@ -138,7 +159,6 @@ class CSPCompiler:
         return csp
 
     def compile_expression(self, node, csp, reify=False, negate=False):
-
         if isinstance(node, Variable):
             return self.variable(node, csp, "var")
 
@@ -212,8 +232,8 @@ class CSPCompiler:
         return name
 
     def serialize_schema_csp(self, action, csp, path):
-        """ Serialize under the given directory path the relevant data for the CSP corresponding to the given
-         action schema."""
+        """Serialize under the given directory path the relevant data for the CSP corresponding to the given
+        action schema."""
         if not Path(path).is_dir():
             raise Exception(f"Directory '{path}' does not exist")
 
@@ -221,14 +241,14 @@ class CSPCompiler:
         # sanitized = action.name.lower()
         sanitized = action.name
 
-        with open(os.path.join(path, f'{sanitized}.csp'), 'w', encoding='utf8') as f:
-            print('variables', file=f)
+        with open(os.path.join(path, f"{sanitized}.csp"), "w", encoding="utf8") as f:
+            print("variables", file=f)
             print(len(csp.vardata), file=f)
             for name, type_, cspvartype, range_ in csp.vardata:
-                print(f'{name} {type_} {cspvartype} {range_[0]} {range_[1]}', file=f)
-            print('end-variables', file=f)
+                print(f"{name} {type_} {cspvartype} {range_[0]} {range_[1]}", file=f)
+            print("end-variables", file=f)
 
-            print('effect-relevant-variables', file=f)
+            print("effect-relevant-variables", file=f)
             if len(csp.effect_relevant_variables) == len(csp.parameter_index):
                 # We don't want any special treatment for the effect-relevant parameters, as all parameters are relevant
                 print(0, file=f)
@@ -236,27 +256,27 @@ class CSPCompiler:
                 print(len(csp.effect_relevant_variables), file=f)
                 for name in csp.effect_relevant_variables:
                     print(name, file=f)
-            print('end-effect-relevant-variables', file=f)
+            print("end-effect-relevant-variables", file=f)
 
-            print('parameter-index', file=f)
+            print("parameter-index", file=f)
             print(len(csp.parameter_index), file=f)
             for name in csp.parameter_index:
-                print(f'{name}', file=f)
-            print('end-parameter-index', file=f)
+                print(f"{name}", file=f)
+            print("end-parameter-index", file=f)
 
-            print('constraints', file=f)
+            print("constraints", file=f)
             print(len(csp.constraints), file=f)
             for c in csp.constraints:
                 if isinstance(c, TableConstraint):
-                    print('table-constraint', file=f)
-                    print(f'{c.symbol} negative={c.negative} ' + " ".join(c.variables), file=f)
+                    print("table-constraint", file=f)
+                    print(f"{c.symbol} negative={c.negative} " + " ".join(c.variables), file=f)
                 elif isinstance(c, StateVariableConstraint):
                     sv_id = self.state_variables.get_index(StateVariableLite.from_atom(c.expr))
-                    print('statevar=const', file=f)
-                    print(f'{sv_id} {c.value}', file=f)
+                    print("statevar=const", file=f)
+                    print(f"{sv_id} {c.value}", file=f)
                 elif isinstance(c, RelationalConstraint):
-                    print('relational', file=f)
-                    print(f'{c.lhs} {c.rel} {c.rhs}', file=f)
+                    print("relational", file=f)
+                    print(f"{c.lhs} {c.rel} {c.rhs}", file=f)
                 else:
                     raise RuntimeError(f'Constraint printer for constraints like "{c}" not yet implemented')
-            print('end-constraints', file=f)
+            print("end-constraints", file=f)

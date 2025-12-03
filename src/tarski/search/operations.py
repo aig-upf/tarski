@@ -1,13 +1,13 @@
 import copy
 
-from ..fstrips import AddEffect, DelEffect, FunctionalEffect, UniversalEffect
 from ..evaluators.simple import evaluate
+from ..fstrips import AddEffect, DelEffect, FunctionalEffect, UniversalEffect
 from ..fstrips.representation import substitute_expression
 from ..syntax.transform.substitutions import enumerate_substitutions
 
 
 def is_applicable(model, operator):
-    """ Check whether a given (ground) operator is applicable in the given model (state). """
+    """Check whether a given (ground) operator is applicable in the given model (state)."""
     return evaluate(operator.precondition, model)
 
 
@@ -16,7 +16,7 @@ def is_effect_applicable(model, effect):
 
 
 def apply_effect(model, effect):
-    """ Apply the given effect to the given model. """
+    """Apply the given effect to the given model."""
     if not is_effect_applicable(model, effect):
         return
 
@@ -39,7 +39,7 @@ def apply_effect(model, effect):
 
 
 def progress(state, operator):
-    """ Returns the progression of the given state along the effects of the given operator.
+    """Returns the progression of the given state along the effects of the given operator.
     Note that this method does not check that the operator is applicable.
     """
     # TODO This is unnecessarily expensive, but a simple copy wouldn't work either.

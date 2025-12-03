@@ -23,4 +23,3 @@
     {domain_bounds}
     {metric}
 )
-

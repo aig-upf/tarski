@@ -1,13 +1,13 @@
-
-from ...errors import TarskiError, DuplicateDefinition, UndefinedElement
+from ...errors import DuplicateDefinition, TarskiError, UndefinedElement
 
 
 class ObservationExpressivenessMismatch(TarskiError):
     def __init__(self, sensor, msg=None):
-        msg = msg or 'mismatch between the expressiveness of the specified sensor and that supported by the language!'
+        msg = msg or "mismatch between the expressiveness of the specified sensor and that supported by the language!"
         super().__init__(
-            'Sensing action: {}: {}\nObservation should be literal (Atom, or CompoundFormula) and it is: {}'.format(
-                sensor.name, msg, type(sensor.obs)))
+            f"Sensing action: {sensor.name}: {msg}\nObservation should be literal (Atom, or CompoundFormula)"
+            f" and it is: {type(sensor.obs)}"
+        )
 
 
 class DuplicateSensorDefinition(DuplicateDefinition):

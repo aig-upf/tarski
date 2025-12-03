@@ -59,10 +59,7 @@ def dump(lang, actions, initial, goal, objects, domains, name, fp):
 
     # Depending on the planner, it may be convenient to have definitions of "types" subsets of D, the naturals,
     # integers or the reals even
-    types_data = [
-        {"name": "object",
-         "domain": [str(o) for o in objects]}
-    ]
+    types_data = [{"name": "object", "domain": [str(o) for o in objects]}]
 
     # Here we setup an index that defines the variables of the SAS instance. For each variable we give its
     # symbolic representation (a string of characters like "on(A)"), and a reference to its domain (set of
@@ -73,24 +70,15 @@ def dump(lang, actions, initial, goal, objects, domains, name, fp):
 
     for x in X.objects:
         if x.expr.symbol.codomain == lang.Object:
-            vars_data += [
-                {"name": str(x.expr), "type": "object"}
-            ]
+            vars_data += [{"name": str(x.expr), "type": "object"}]
         elif x.expr.symbol.codomain == lang.Integer:
             # we need the bounds
-            vars_data += [
-                {"name": str(x.expr), "type": "int", "domain": [domains[x][0], domains[x][-1]]}
-            ]
+            vars_data += [{"name": str(x.expr), "type": "int", "domain": [domains[x][0], domains[x][-1]]}]
 
-    vars_data = [
-        {"name": str(x.expr),
-         "type": "object"} for x in X.objects
-    ]
+    vars_data = [{"name": str(x.expr), "type": "object"} for x in X.objects]
 
     # Now we provide the list of symbolic representations for each of the actions in the instance
-    action_names = [
-        "{}({})".format(a.name, ",".join([str(arg) for arg in a.arguments])) for a in actions
-    ]
+    action_names = ["{}({})".format(a.name, ",".join([str(arg) for arg in a.arguments])) for a in actions]
 
     # The transition function is factored as table constraints $Tr(a,x)$, and for each constraint
     # - indexed by action and variable - we give the pairs of values v and w s.t. for any tuple
@@ -101,18 +89,10 @@ def dump(lang, actions, initial, goal, objects, domains, name, fp):
         for x, v, w in a.transitions:
             if x.symbol.codomain == lang.Object:
                 trans_data += [
-                    {"a": k,
-                     "x": X.get_index(symref(x)),
-                     "v": D.get_index(symref(v)),
-                     "w": D.get_index(symref(w))}
+                    {"a": k, "x": X.get_index(symref(x)), "v": D.get_index(symref(v)), "w": D.get_index(symref(w))}
                 ]
             elif x.symbol.codomain == lang.Integer:
-                trans_data += [
-                    {"a": k,
-                     "x": X.get_index(symref(x)),
-                     "v": v.symbol,
-                     "w": w.symbol}
-                ]
+                trans_data += [{"a": k, "x": X.get_index(symref(x)), "v": v.symbol, "w": w.symbol}]
     # We provide the definitions of initial and goal states as lists of pairs of indices into the
     # set of variables and values in the domain D.
     init_data = []
@@ -132,16 +112,13 @@ def dump(lang, actions, initial, goal, objects, domains, name, fp):
 
     # Now we put all the instance data together and build the JSON document
     doc = {
-        "metadata": {
-            "domain": lang.name,
-            "instance": name
-        },
+        "metadata": {"domain": lang.name, "instance": name},
         "types": types_data,
         "vars": vars_data,
         "actions": action_names,
         "trans": trans_data,
         "init": init_data,
-        "goal": goal_data
+        "goal": goal_data,
     }
 
     json.dump(doc, fp, indent=4)

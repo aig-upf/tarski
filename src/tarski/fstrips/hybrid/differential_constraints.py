@@ -1,10 +1,9 @@
-
 from ...syntax import BuiltinFunctionSymbol, CompoundTerm
 from . import errors as err
 
 
 class DifferentialConstraint:
-    """ A (possibly lifted) reaction """
+    """A (possibly lifted) reaction"""
 
     def __init__(self, language, name, parameters, condition, variate, ode):
         self.name = name
@@ -23,19 +22,18 @@ class DifferentialConstraint:
         # ....
 
     def ident(self):
-        params = ', '.join([str(o) for o in self.parameters])
-        return '{}({})'.format(self.name, params)
+        params = ", ".join([str(o) for o in self.parameters])
+        return f"{self.name}({params})"
 
     def dump(self):
-        return dict(name=self.name,
-                    params=[par.dump() for par in self.parameters],
-                    condition=self.condition.dump(),
-                    variate=self.variate.dump(),
-                    ode=self.ode.dump())
+        return dict(
+            name=self.name,
+            params=[par.dump() for par in self.parameters],
+            condition=self.condition.dump(),
+            variate=self.variate.dump(),
+            ode=self.ode.dump(),
+        )
 
     def __str__(self):
-        tokens = ['reaction {}:'.format(self.name),
-                  'cond: ({})'.format(self.condition),
-                  'variate: {}'.format(self.variate),
-                  'ode: {}'.format(self.ode)]
-        return '\n'.join(tokens)
+        tokens = [f"reaction {self.name}:", f"cond: ({self.condition})", f"variate: {self.variate}", f"ode: {self.ode}"]
+        return "\n".join(tokens)

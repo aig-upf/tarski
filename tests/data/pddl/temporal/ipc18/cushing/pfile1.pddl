@@ -1,6 +1,6 @@
 (define (problem pfile1)
 	(:domain testdomain)
-	(:objects 
+	(:objects
 		var1 var2 - variable
 	)
 	(:init

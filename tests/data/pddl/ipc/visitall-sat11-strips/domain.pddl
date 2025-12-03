@@ -5,7 +5,7 @@
 	     (at-robot ?x - place)
 	     (visited ?x - place)
 )
-	
+
 (:action move
 :parameters (?curpos ?nextpos - place)
 :precondition (and (at-robot ?curpos) (connected ?curpos ?nextpos))

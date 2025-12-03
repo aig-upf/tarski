@@ -2,7 +2,7 @@
 # Creating Tarski releases
 
 The release process and upload of packages to `pypi` is semi-automated, and involves creating a pull
-request from `devel` to `master`, then merging it and creating a GH release (that will automatically 
+request from `devel` to `master`, then merging it and creating a GH release (that will automatically
 trigger the `pypi` upload).
 The list of detailed steps is as follows:
 
@@ -11,7 +11,7 @@ The list of detailed steps is as follows:
 3. Update the `CHANGELOG.md` file manually to reflect the changes since the last release.
 4. Don't forget to commit & push the changes.
 5. Create a PR against the `master` branch.
-6. Once all workflows have executed successfully, merge the PR. 
+6. Once all workflows have executed successfully, merge the PR.
 7. Create a [new release](https://github.com/aig-upf/tarski/releases/new) in the GH repo,
    with an appropriate tag such as `v0.6.0`. The new release will trigger a GH workflow that will
    automatically upload the package to `pypi`.

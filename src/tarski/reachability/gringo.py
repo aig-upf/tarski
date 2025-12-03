@@ -12,6 +12,7 @@ class WrapperClingo(Application):
     """
     A wrapper to emulate the default clingo app behavior
     """
+
     def __init__(self, name):
         self.program_name = name
 

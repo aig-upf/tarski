@@ -1,14 +1,15 @@
-
+from collections.abc import Callable
 from enum import Enum
-from typing import Union, List, Optional, Callable, Any
+from typing import Any
 
-from ..syntax import CompoundTerm, Term, symref, top
 from .. import theories as ths
+from ..syntax import CompoundTerm, Term, symref, top
 from .errors import InvalidEffectError
 
 
 class BaseEffect:
-    """ A base class for all FSTRIPS effects, which might have an (optional) condition. """
+    """A base class for all FSTRIPS effects, which might have an (optional) condition."""
+
     def __init__(self, condition):
         self.condition = condition
 
@@ -18,7 +19,7 @@ class BaseEffect:
 
 class SingleEffect(BaseEffect):
     def __str__(self):
-        return "({} -> {})".format(self.condition, self.tostring())
+        return f"({self.condition} -> {self.tostring()})"
 
     __repr__ = __str__
 
@@ -27,23 +28,25 @@ class SingleEffect(BaseEffect):
 
 
 class AddEffect(SingleEffect):
-    """ A standard add-effect, possibly with a condition. """
+    """A standard add-effect, possibly with a condition."""
+
     def __init__(self, atom, condition=top):
         super().__init__(condition)
         self.atom = atom
 
     def tostring(self):
-        return "ADD({})".format(self.atom)
+        return f"ADD({self.atom})"
 
 
 class DelEffect(SingleEffect):
-    """ A standard delete-effect, possibly with a condition. """
+    """A standard delete-effect, possibly with a condition."""
+
     def __init__(self, atom, condition=top):
         super().__init__(condition)
         self.atom = atom
 
     def tostring(self):
-        return "DEL({})".format(self.atom)
+        return f"DEL({self.atom})"
 
 
 class LiteralEffect(SingleEffect):
@@ -52,27 +55,32 @@ class LiteralEffect(SingleEffect):
         self.lit = lit
 
     def tostring(self):
-        return "LIT({})".format(self.lit)
+        return f"LIT({self.lit})"
 
 
 class FunctionalEffect(SingleEffect):
-    """ A functional effect of the form f(t) := g(u), possibly with a condition. """
+    """A functional effect of the form f(t) := g(u), possibly with a condition."""
+
     def __init__(self, lhs, rhs, condition=top):
         super().__init__(condition)
         self.lhs, self.rhs = self.check_well_formed(lhs, rhs)
 
     def check_well_formed(self, lhs, rhs):
         if not isinstance(lhs, CompoundTerm):
-            raise InvalidEffectError(self, f"Incorrect FunctionalEffect {lhs} := {rhs}."
-                                           f" Left-hand side needs to be a compound term")
+            raise InvalidEffectError(
+                self, f"Incorrect FunctionalEffect {lhs} := {rhs}. Left-hand side needs to be a compound term"
+            )
 
         if not isinstance(rhs, Term):
             try:
                 rhs = lhs.sort.to_constant(rhs)
             except ValueError:
-                raise InvalidEffectError(self, f"Incorrect FunctionalEffect {lhs} := {rhs}. Right-hand side needs"
-                                               f" to be a term of sort compatible to left-hand side sort "
-                                               f"({lhs.sort})") from None
+                raise InvalidEffectError(
+                    self,
+                    f"Incorrect FunctionalEffect {lhs} := {rhs}. Right-hand side needs"
+                    f" to be a term of sort compatible to left-hand side sort "
+                    f"({lhs.sort})",
+                ) from None
         return lhs, rhs
 
     def tostring(self):
@@ -80,8 +88,8 @@ class FunctionalEffect(SingleEffect):
 
 
 class UniversalEffect(BaseEffect):
-    """ A forall-effect that represents a number of effects that results from all possible
-    substitutions to the forall-effect variables. """
+    """A forall-effect that represents a number of effects that results from all possible
+    substitutions to the forall-effect variables."""
 
     def __init__(self, variables, effects, condition=top):
         super().__init__(condition)
@@ -89,7 +97,7 @@ class UniversalEffect(BaseEffect):
         self.effects = effects
 
     def __str__(self):
-        effects_str = ', '.join(map(str, self.effects))
+        effects_str = ", ".join(map(str, self.effects))
         return f"({self.condition} -> forall ({self.variables}) : ({effects_str}))"
 
     __repr__ = __str__
@@ -113,20 +121,17 @@ class OptimizationType(Enum):
 
 
 class ProceduralEffect(SingleEffect):
-
-    def __init__(self, input_: List[CompoundTerm], output: List[CompoundTerm]):
+    def __init__(self, input_: list[CompoundTerm], output: list[CompoundTerm]):
         super().__init__(top)
         self.input = input_
         self.output = output
 
     def tostring(self):
-        return "in: {}, out: {}".format(','.join([str(x) for x in self.input]),
-                                        ','.join([str(x) for x in self.output]))
+        return "in: {}, out: {}".format(",".join([str(x) for x in self.input]), ",".join([str(x) for x in self.output]))
 
 
 class ChoiceEffect(SingleEffect):
-
-    def __init__(self, obj_type: OptimizationType, obj, variables: List[CompoundTerm], constraints=top):
+    def __init__(self, obj_type: OptimizationType, obj, variables: list[CompoundTerm], constraints=top):
         super().__init__(constraints)
         # MRJ: verify the effect is well formed
         self.obj = obj
@@ -136,18 +141,18 @@ class ChoiceEffect(SingleEffect):
 
     def check_well_formed(self):
         if not isinstance(self.obj, CompoundTerm):
-            msg = "Error declaring Choice Effect: {}\n Invalid objective expression: \
-            expression to optimize needs to be a functional term!".format(self.tostring())
+            msg = f"Error declaring Choice Effect: {self.tostring()}\n Invalid objective expression: \
+            expression to optimize needs to be a functional term!"
             raise InvalidEffectError(self, msg)
 
     def tostring(self):
-        return "{} {}, vars: {} subject to: {}".format(self.obj_type,
-                                                       self.obj, ','.join([str(x) for x in self.variables]),
-                                                       self.condition)
+        return "{} {}, vars: {} subject to: {}".format(
+            self.obj_type, self.obj, ",".join([str(x) for x in self.variables]), self.condition
+        )
 
 
 class VectorisedEffect(SingleEffect):
-    """ Action effects that modify the denotation of a vector (tuple) of terms """
+    """Action effects that modify the denotation of a vector (tuple) of terms"""
 
     def __init__(self, lhs, rhs, condition=top):
         super().__init__(condition)
@@ -156,10 +161,10 @@ class VectorisedEffect(SingleEffect):
         self.check_well_formed()
 
     def tostring(self):
-        return "VectorisedEffect({} := {})".format(self.lhs, self.rhs)
+        return f"VectorisedEffect({self.lhs} := {self.rhs})"
 
     def check_well_formed(self):
-        if not hasattr(self.lhs, 'shape'):
+        if not hasattr(self.lhs, "shape"):
             msg = "Error declaring VectorisedEffect, lhs needs needs to be\
                 vector or matrix like"
             raise InvalidEffectError(self, msg)
@@ -167,7 +172,7 @@ class VectorisedEffect(SingleEffect):
             msg = "Error declaring VectorisedEffect, lhs needs needs to be\
                 a vector in column order"
             raise InvalidEffectError(self, msg)
-        if not hasattr(self.rhs, 'shape'):
+        if not hasattr(self.rhs, "shape"):
             msg = "Error declaring VectorisedEffect, rhs needs needs to be\
                 vector or matrix like"
             raise InvalidEffectError(self, msg)
@@ -179,11 +184,11 @@ class VectorisedEffect(SingleEffect):
 
 class LinearEffect(SingleEffect):
     """
-        Action effects that modify the denotation of a vector of (terms)  with
-        the restriction of interactions between the expressions on the right hand
-        side to be of the form:
+    Action effects that modify the denotation of a vector of (terms)  with
+    the restriction of interactions between the expressions on the right hand
+    side to be of the form:
 
-            Ax + b
+        Ax + b
     """
 
     def __init__(self, y, a, x, b, condition=top):
@@ -195,10 +200,10 @@ class LinearEffect(SingleEffect):
         self.check_well_formed()
 
     def tostring(self):
-        return "LinearEffect({} := {} * {} + {})".format(self.y, self.A, self.x, self.b)
+        return f"LinearEffect({self.y} := {self.A} * {self.x} + {self.b})"
 
     def check_well_formed(self):
-        if not hasattr(self.y, 'shape'):
+        if not hasattr(self.y, "shape"):
             msg = "Error declaring VectorisedEffect, y needs needs to be\
                 vector or matrix like"
             raise InvalidEffectError(self, msg)
@@ -206,16 +211,16 @@ class LinearEffect(SingleEffect):
             msg = "Error declaring VectorisedEffect, y needs needs to be\
                 a vector in column order"
             raise InvalidEffectError(self, msg)
-        if not hasattr(self.x, 'shape'):
+        if not hasattr(self.x, "shape"):
             msg = "Error declaring VectorisedEffect, x needs needs to be\
                 vector or matrix like"
             raise InvalidEffectError(self, msg)
         if self.y.shape != self.x.shape:
-            msg = "Error declaring VectorisedEffect, y and x need to have\
-                same dimensions: shape(y)={}, shape(x)={}".format(self.y.shape, self.x.shape)
+            msg = f"Error declaring VectorisedEffect, y and x need to have\
+                same dimensions: shape(y)={self.y.shape}, shape(x)={self.x.shape}"
             raise InvalidEffectError(self, msg)
 
-        if not hasattr(self.A, 'shape'):
+        if not hasattr(self.A, "shape"):
             msg = "Error declaring VectorisedEffect, coefficients matrix A needs to be\
                 vector or matrix like"
             raise InvalidEffectError(self, msg)
@@ -224,7 +229,7 @@ class LinearEffect(SingleEffect):
                 same dimensions"
             raise InvalidEffectError(self, msg)
 
-        if not hasattr(self.b, 'shape'):
+        if not hasattr(self.b, "shape"):
             msg = "Error declaring VectorisedEffect, coefficient vector b needs needs to be\
                 vector or matrix like"
             raise InvalidEffectError(self, msg)
@@ -236,7 +241,7 @@ class LinearEffect(SingleEffect):
 
 class BlackBoxEffect(SingleEffect):
     """
-        Black box functional effect
+    Black box functional effect
     """
 
     def __init__(self, lhs, f, condition=top):
@@ -246,13 +251,13 @@ class BlackBoxEffect(SingleEffect):
         self.check_well_formed()
 
     def tostring(self):
-        return "{} := {}".format(self.lhs, 'some function')
+        return "{} := {}".format(self.lhs, "some function")
 
     def check_well_formed(self):
         """
-            This method verifies
+        This method verifies
         """
-        if not hasattr(self.lhs, 'shape'):
+        if not hasattr(self.lhs, "shape"):
             msg = "Error declaring BlackBoxEffect, lhs needs needs to be\
                 vector or matrix like"
             raise InvalidEffectError(self, msg)
@@ -266,8 +271,8 @@ class BlackBoxEffect(SingleEffect):
             ys = symref(y)
             ok = symref(self.function.out_x[k].symbol)
             if ys != ok:
-                msg = "Error declaring BlackBoxEffect, lhs {}-th symbol {} is not\
-                matched by corresponding function output, {}".format(k, str(y), str(ok))
+                msg = f"Error declaring BlackBoxEffect, lhs {k}-th symbol {str(y)} is not\
+                matched by corresponding function output, {str(ok)}"
                 raise InvalidEffectError(self, msg)
 
 
@@ -277,12 +282,12 @@ class OptimizationMetric:
         self.opt_type = opt_type
 
 
-def language(name="Unnamed FOL Language", theories: Optional[List[Union[str, ths.Theory]]] = None):
-    """ Create an FSTRIPS-oriented First-Order Language.
-        This is a standard FOL with a few convenient add-ons.
+def language(name="Unnamed FOL Language", theories: list[str | ths.Theory] | None = None):
+    """Create an FSTRIPS-oriented First-Order Language.
+    This is a standard FOL with a few convenient add-ons.
     """
     # By default, when defining a FSTRIPS problem we use FOL with equality
-    theories = ['equality'] if theories is None else theories
+    theories = ["equality"] if theories is None else theories
     lang = ths.language(name, theories)
     lang.register_operator_handler("<<", Term, Term, FunctionalEffect)
     lang.register_operator_handler(">>", Term, Term, lambda lhs, rhs: FunctionalEffect(rhs, lhs))  # Inverted
@@ -290,7 +295,7 @@ def language(name="Unnamed FOL Language", theories: Optional[List[Union[str, ths
 
 
 def visit_effect(effect, callback: Callable[[Any], None]):
-    """ Visit all nodes in the AST of the given effect, down to formulas and terms. """
+    """Visit all nodes in the AST of the given effect, down to formulas and terms."""
     callback(effect)
     callback(effect.condition)  # All our effects have a condition
 

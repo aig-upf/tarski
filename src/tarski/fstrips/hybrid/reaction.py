@@ -1,6 +1,5 @@
-
 class Reaction:
-    """ A (possibly lifted) reaction """
+    """A (possibly lifted) reaction"""
 
     def __init__(self, language, name, parameters, condition, effect):
         self.name = name
@@ -14,17 +13,17 @@ class Reaction:
         pass
 
     def ident(self):
-        params = ', '.join([str(o) for o in self.parameters])
-        return '{}({})'.format(self.name, params)
+        params = ", ".join([str(o) for o in self.parameters])
+        return f"{self.name}({params})"
 
     def dump(self):
-        return dict(name=self.name,
-                    params=[par.dump() for par in self.parameters],
-                    condition=self.condition.dump(),
-                    effect=[eff.dump() for eff in self.effect.dump()])
+        return dict(
+            name=self.name,
+            params=[par.dump() for par in self.parameters],
+            condition=self.condition.dump(),
+            effect=[eff.dump() for eff in self.effect.dump()],
+        )
 
     def __str__(self):
-        tokens = ['reaction {}:'.format(self.name),
-                  'cond: ({})'.format(self.condition),
-                  'eff: ({})'.format(self.effect)]
-        return '\n'.join(tokens)
+        tokens = [f"reaction {self.name}:", f"cond: ({self.condition})", f"eff: ({self.effect})"]
+        return "\n".join(tokens)

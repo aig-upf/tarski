@@ -1,7 +1,7 @@
-from ... import modules
-from ...syntax import Term, Constant
-from ...syntax.sorts import Sort
 from ... import errors as err
+from ... import modules
+from ...syntax import Constant, Term
+from ...syntax.sorts import Sort
 
 
 class Matrix(Term):
@@ -10,16 +10,17 @@ class Matrix(Term):
         self.matrix = np.array(arraylike, dtype=np.dtype(object))
         self._sort = sort
         # verify and cast
-        # pylint: disable=unpacking-non-sequence
         N, M = self.matrix.shape
         for i in range(N):
             for j in range(M):
                 m_ij = self.matrix[i, j]
                 if isinstance(m_ij, Term):
                     if m_ij.sort != sort:
-                        raise err.SyntacticError("Matrix: all \
-                        entries need to be of sort '{}', \
-                        entry ({},{}) is '{}'".format(sort.name, i, j, m_ij.sort.name))
+                        raise err.SyntacticError(
+                            f"Matrix: all \
+                        entries need to be of sort '{sort.name}', \
+                        entry ({i},{j}) is '{m_ij.sort.name}'"
+                        )
                 else:
                     self.matrix[i, j] = Constant(sort.cast(m_ij), sort)
 
@@ -43,12 +44,11 @@ class Matrix(Term):
         return self.matrix[i, j]
 
     def __str__(self):
-        return '{}'.format(self.matrix)
+        return f"{self.matrix}"
 
     __repr__ = __str__
 
     def hash(self):
-        # pylint: disable=unpacking-non-sequence
         N, M = self.matrix.shape
         syms = []
         for i in range(N):
@@ -59,7 +59,6 @@ class Matrix(Term):
     def is_syntactically_equal(self, other):
         if self.__class__ is not other.__class__ or self.matrix.shape != other.matrix.shape:
             return False
-        # pylint: disable=unpacking-non-sequence
         N, M = self.matrix.shape
         for i in range(N):
             for j in range(M):

@@ -7,6 +7,9 @@ def test_issue():
     writer = FstripsWriter(problem)
     domain = writer.print_domain()
     # Simply check that an untyped problem is printed with the default object type
-    assert """(:types
+    assert (
+        """(:types
         object
-    )""" in domain
+    )"""
+        in domain
+    )

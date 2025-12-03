@@ -1,4 +1,3 @@
-
 from .. import modules
 
 
@@ -29,4 +28,4 @@ def impl(symbol):
         "sqrt": np.sqrt,
         "normal": np.random.normal,
         "gamma": np.random.gamma,
-    } .get(symbol)
+    }.get(symbol)

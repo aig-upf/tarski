@@ -2,18 +2,30 @@ import copy
 
 from multipledispatch import dispatch  # type: ignore
 
-from ..fstrips import AddEffect, DelEffect, UniversalEffect, FunctionalEffect
-from ..ops import collect_all_symbols, compute_number_potential_groundings
 from ...evaluators.simple import evaluate
 from ...grounding.ops import approximate_symbol_fluency
-from ...syntax.terms import Constant, Variable, CompoundTerm
-from ...syntax.formulas import CompoundFormula, QuantifiedFormula, Atom, Tautology, Contradiction, Connective, is_neg, \
-    Quantifier, unwrap_conjunction_or_atom, is_eq_atom, land, exists
+from ...syntax import symref
+from ...syntax.formulas import (
+    Atom,
+    CompoundFormula,
+    Connective,
+    Contradiction,
+    QuantifiedFormula,
+    Quantifier,
+    Tautology,
+    exists,
+    is_eq_atom,
+    is_neg,
+    land,
+    unwrap_conjunction_or_atom,
+)
+from ...syntax.ops import flatten
+from ...syntax.terms import CompoundTerm, Constant, Variable
 from ...syntax.transform.substitutions import substitute_expression
 from ...syntax.util import get_symbols
 from ...syntax.walker import FOLWalker
-from ...syntax.ops import flatten
-from ...syntax import symref
+from ..fstrips import AddEffect, DelEffect, FunctionalEffect, UniversalEffect
+from ..ops import collect_all_symbols, compute_number_potential_groundings
 
 
 def bool_to_expr(val):
@@ -23,7 +35,7 @@ def bool_to_expr(val):
 
 
 class Simplify:
-    """ A class to simplify FSTRIPS/STRIPS problems, actions and logical expressions.
+    """A class to simplify FSTRIPS/STRIPS problems, actions and logical expressions.
 
     The simplifications being made try to symbolically evaluate static atoms and terms and propagate the result
     up the expression AST. Thus, an expression $x < c$ will be simplified to $x < 6$ if $c$ happens to be a static
@@ -37,6 +49,7 @@ class Simplify:
     * Simplify conjunctions and disjunctions where one conjunct / disjunct evaluates to True or False.
     * Evaluate static terms and atoms into their constant or truth value.
     """
+
     def __init__(self, problem=None, model=None):
         self.problem = problem
         self.model = model
@@ -45,12 +58,14 @@ class Simplify:
             _, self.static_symbols = approximate_symbol_fluency(problem)
 
     def simplify(self, inplace=False, remove_unused_symbols=False):
-        """ Simplify the whole problem """
+        """Simplify the whole problem"""
         if remove_unused_symbols and not inplace:
             # ATM there are problems generating a full clone of the language+problem,
             # since language.deepcopy is disabled
-            raise RuntimeError('Full problem simplification with remove_unused_symbols=True '
-                               'can at the moment only be performed in place (set inplace=True)')
+            raise RuntimeError(
+                "Full problem simplification with remove_unused_symbols=True "
+                "can at the moment only be performed in place (set inplace=True)"
+            )
 
         problem = self.problem if inplace else copy.deepcopy(self.problem)
 
@@ -71,7 +86,7 @@ class Simplify:
         used = collect_all_symbols(problem)
 
         # Remove unused symbols from language and initial state
-        unused = [s for s in get_symbols(problem.language, type_='all', include_builtin=False) if s not in used]
+        unused = [s for s in get_symbols(problem.language, type_="all", include_builtin=False) if s not in used]
         for s in unused:
             problem.language.remove_symbol(s)
 
@@ -87,8 +102,9 @@ class Simplify:
             return None
 
         # Filter out those effects that are None, e.g. because they are not applicable:
-        simple.effects = [x for x in (self.simplify_effect(eff, inplace=True) for eff in simple.effects)
-                          if x is not None]
+        simple.effects = [
+            x for x in (self.simplify_effect(eff, inplace=True) for eff in simple.effects) if x is not None
+        ]
 
         if not simple.effects:  # If not effects remain, the action is useless
             return None
@@ -125,7 +141,7 @@ class Simplify:
 
         if isinstance(node, CompoundFormula):
             assert node.connective in (Connective.And, Connective.Or)
-            isand = (node.connective == Connective.And)
+            isand = node.connective == Connective.And
             newsubformulas = []
             # Let's do a partial evaluation of the connective
             for st in node.subformulas:
@@ -174,8 +190,9 @@ class Simplify:
 
         if isinstance(effect, UniversalEffect):
             # Go recursively to the universally quantified effects, filter those that are inapplicable
-            effect.effects = [x for x in (self.simplify_effect(eff, inplace=True) for eff in effect.effects)
-                              if x is not None]
+            effect.effects = [
+                x for x in (self.simplify_effect(eff, inplace=True) for eff in effect.effects) if x is not None
+            ]
             return effect
 
         raise RuntimeError(f'Effect "{effect}" of type "{type(effect)}" cannot be analysed')
@@ -184,25 +201,29 @@ class Simplify:
         return symbol.builtin or (self.static_symbols is not None and symbol in self.static_symbols)
 
     def node_can_be_statically_evaluated(self, node):
-        """ Return true if the given atom or compound term can be statically evaluated. """
-        return self.model is not None and self.symbol_can_be_statically_evaluated(node.symbol) and \
-            all(isinstance(st, Constant) for st in node.subterms)
+        """Return true if the given atom or compound term can be statically evaluated."""
+        return (
+            self.model is not None
+            and self.symbol_can_be_statically_evaluated(node.symbol)
+            and all(isinstance(st, Constant) for st in node.subterms)
+        )
 
 
 def simplify_existential_quantification(node, inplace=True):
-    """ Replaces a formula of the form ∃x.φ[x] ∧ x = t by the formula φ[x/t]. """
+    """Replaces a formula of the form ∃x.φ[x] ∧ x = t by the formula φ[x/t]."""
     walker = ExistentialQuantificationSimplifier()
     return walker.run(node, inplace=inplace)
 
 
 class ExistentialQuantificationSimplifier(FOLWalker):
-    """ Replaces a formula of the form ∃x.φ[x] ∧ x = t by the formula φ[x/t]. """
+    """Replaces a formula of the form ∃x.φ[x] ∧ x = t by the formula φ[x/t]."""
+
     @dispatch(object)
-    def visit(self, node):  # pylint: disable-msg=E0102  # noqa: F811
+    def visit(self, node):  # noqa: F811
         return self.default_handler(node)
 
     @dispatch(QuantifiedFormula)  # type: ignore
-    def visit(self, node: QuantifiedFormula):  # pylint: disable-msg=E0102  # noqa: F811
+    def visit(self, node: QuantifiedFormula):  # noqa: F811
         if node.quantifier == Quantifier.Forall:
             return node
 

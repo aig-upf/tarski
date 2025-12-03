@@ -1,12 +1,12 @@
-
 from collections import OrderedDict
+
 from ..problem import Problem
-from .sensor import Sensor
 from . import errors as err
+from .sensor import Sensor
 
 
 class ContingentProblem(Problem):
-    """ A Functional STRIPS Contingent problem """
+    """A Functional STRIPS Contingent problem"""
 
     def __init__(self):
         super().__init__()
@@ -33,6 +33,6 @@ class ContingentProblem(Problem):
             pv.visit(sensor.obs)
 
     def __str__(self):
-        return 'FSTRIPS Contingent Problem "{}", domain "{}"'.format(self.name, self.domain_name)
+        return f'FSTRIPS Contingent Problem "{self.name}", domain "{self.domain_name}"'
 
     __repr__ = __str__

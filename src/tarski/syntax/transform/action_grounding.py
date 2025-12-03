@@ -1,10 +1,10 @@
-from ...fstrips.representation import substitute_expression
-from ...syntax import symref, Constant, create_substitution, VariableBinding
 from ...fstrips.action import Action, PlainOperator
+from ...fstrips.representation import substitute_expression
+from ...syntax import Constant, VariableBinding, create_substitution, symref
 
 
 def ground_schema_into_plain_operator(action: Action, substitution):
-    """ Apply the given substitution to the given action schema and attempt to create a PlainOperator
+    """Apply the given substitution to the given action schema and attempt to create a PlainOperator
     :param action: A formula, term, FSTRIPS action, or FSTRIPS action effect.
     :param substitution: A dictionary from TermReferences (expected to be Variables) to Constants.
     :return: The result of applying the substituion to the element.
@@ -12,12 +12,12 @@ def ground_schema_into_plain_operator(action: Action, substitution):
     for param in action.parameters:
         c = substitution.get(symref(param))
         if c is None:
-            raise RuntimeError('Can only ground action schemas when the substitution contains all action parameters')
+            raise RuntimeError("Can only ground action schemas when the substitution contains all action parameters")
         if not isinstance(c, Constant):
-            raise RuntimeError('Can only ground action schemas with constant terms')
+            raise RuntimeError("Can only ground action schemas with constant terms")
 
-    paramlist = ', '.join(substitution[symref(p)].name for p in action.parameters)
-    name = f'{action.name}({paramlist})'
+    paramlist = ", ".join(substitution[symref(p)].name for p in action.parameters)
+    name = f"{action.name}({paramlist})"
 
     precondition = substitute_expression(action.precondition, substitution, inplace=False)
     effects = [substitute_expression(eff, substitution, inplace=False) for eff in action.effects]
@@ -36,12 +36,12 @@ def ground_schema(action: Action, grounding):
     for param in action.parameters:
         c = subst.get(symref(param))
         if c is None:
-            raise RuntimeError('Can only ground action schemas when the substitution contains all action parameters')
+            raise RuntimeError("Can only ground action schemas when the substitution contains all action parameters")
         if not isinstance(c, Constant):
-            raise RuntimeError('Can only ground action schemas with constant terms')
+            raise RuntimeError("Can only ground action schemas with constant terms")
 
-    paramlist = ', '.join(subst[symref(p)].name for p in action.parameters)
-    name = f'{action.name}({paramlist})'
+    paramlist = ", ".join(subst[symref(p)].name for p in action.parameters)
+    name = f"{action.name}({paramlist})"
 
     precondition = substitute_expression(action.precondition, subst, inplace=False)
     effects = [substitute_expression(eff, subst, inplace=False) for eff in action.effects]
@@ -50,7 +50,7 @@ def ground_schema(action: Action, grounding):
 
 
 def ground_schema_into_plain_operator_from_grounding(action: Action, grounding):
-    """ A wrapper to ground an schema from a "plain" grounding, i.e. a list of objects
+    """A wrapper to ground an schema from a "plain" grounding, i.e. a list of objects
     that correspond to the action parameters"""
     lang = action.language
     binding = [lang.get_constant(name) if isinstance(name, str) else name for name in grounding]

@@ -1,5 +1,5 @@
 
-# Tarski - An AI Planning Modeling Framework 
+# Tarski - An AI Planning Modeling Framework
 [![Unit Tests](https://github.com/aig-upf/tarski/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/aig-upf/tarski/actions/workflows/unit-tests.yml)
 [![Documentation Status](https://readthedocs.org/projects/tarski/badge/?version=latest)](https://tarski.readthedocs.io/en/latest/?badge=latest)
 [![codecov](https://codecov.io/gh/aig-upf/tarski/branch/master/graph/badge.svg)](https://codecov.io/gh/aig-upf/tarski)
@@ -8,12 +8,12 @@
 
 
 ## What is Tarski
-Tarski is a framework for the specification, modeling and manipulation of 
+Tarski is a framework for the specification, modeling and manipulation of
 [AI planning](https://en.wikipedia.org/wiki/Automated_planning_and_scheduling) problems.
 Tarski is written in Python and includes parsers for major modeling languages
 (e.g., [PDDL](https://en.wikipedia.org/wiki/Planning_Domain_Definition_Language),
 [FSTRIPS](https://dl.acm.org/citation.cfm?id=566359),
-[RDDL](https://en.wikipedia.org/wiki/Planning_Domain_Definition_Language#RDDL)), 
+[RDDL](https://en.wikipedia.org/wiki/Planning_Domain_Definition_Language#RDDL)),
 along with modules to perform other common tasks such as logical transformations,
 reachability analysis, grounding of first-order representations and problem reformulations.
 

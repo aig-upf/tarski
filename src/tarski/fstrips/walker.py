@@ -1,4 +1,4 @@
-""" A Walker (Visitor) for FSTRIPS entities.
+"""A Walker (Visitor) for FSTRIPS entities.
 
 Note that there is some code duplication with the FOLWalker at syntax/walker.py,
 but that one is only in charge of FOL elements and should remain agnostic wrt planning, FSTRIPS, actions, effects, etc.
@@ -12,7 +12,7 @@ from ..errors import TarskiError
 
 class WalkerError(TarskiError):
     def __init__(self, msg=None):
-        msg = msg or 'Unspecified error while executing ProblemWalker'
+        msg = msg or "Unspecified error while executing ProblemWalker"
         super().__init__(msg)
 
 
@@ -23,35 +23,36 @@ class NoHandlerError(WalkerError):
 
 class WalkerAction(Enum):
     """ """
+
     Supress = "supress"
 
     def __str__(self):
-        # pylint: disable-msg=E0307  # pylint gives false positive here, since self.value is already a string
         return self.value
 
 
 class WalkerContext(Enum):
     """ """
+
     Effect = "effect"
     Formula = "formula"
 
     def __str__(self):
-        # pylint: disable-msg=E0307  # pylint gives false positive here, since self.value is already a string
         return self.value
 
 
 class ProblemWalker:
-    """ This is an experimental implementation of a visitor pattern based on single-dispatch.
+    """This is an experimental implementation of a visitor pattern based on single-dispatch.
     At the moment we're using the "multipledispatch" package to implement single-argument dispatching.
     It's far from perfect; it requires that the subclass declares the following "default" method:
 
     >>> @dispatch(object)
-    >>> def visit(self, node):  # pylint: disable-msg=E0102
+    >>> def visit(self, node):
     >>>    return self.default_handler(node)
 
     Whenever we move to support Python 3.8+, we could directly use:
         https://docs.python.org/3/library/functools.html#functools.singledispatchmethod
     """
+
     def __init__(self, raise_on_undefined=False):
         self.default_handler = self._raise if raise_on_undefined else self._donothing
         self.context = None
@@ -67,15 +68,14 @@ class ProblemWalker:
 
     def run(self, expression, inplace=True):
         # Avoiding circular references:
-        from . import Action, BaseEffect, Problem  # pylint: disable=import-outside-toplevel
-        from ..syntax import Formula, Term  # pylint: disable=import-outside-toplevel  # Avoiding circular references
+        from ..syntax import Formula, Term  # Avoiding circular references
+        from . import Action, BaseEffect, Problem
+
         # Simply dispatch according to type
         expression = expression if inplace else copy.deepcopy(expression)
         if isinstance(expression, (Formula, Term)):
             return self.visit_expression(expression, inplace=True)
-        elif isinstance(expression, BaseEffect):
-            return self.visit_effect(expression, inplace=True)
-        elif isinstance(expression, Action):
+        elif isinstance(expression, (BaseEffect, Action)):
             return self.visit_effect(expression, inplace=True)
         elif isinstance(expression, Problem):
             return self.visit_problem(expression, inplace=True)
@@ -101,7 +101,8 @@ class ProblemWalker:
         return node
 
     def visit_effect(self, effect, inplace=True):
-        from . import AddEffect, DelEffect, UniversalEffect, FunctionalEffect  # pylint: disable=import-outside-toplevel
+        from . import AddEffect, DelEffect, FunctionalEffect, UniversalEffect
+
         effect = effect if inplace else copy.deepcopy(effect)
 
         if isinstance(effect, (AddEffect, DelEffect)):
@@ -122,8 +123,18 @@ class ProblemWalker:
         return self.visit(effect)
 
     def visit_expression(self, node, inplace=True):
-        from ..syntax import CompoundFormula, QuantifiedFormula, Atom, Tautology, Contradiction, Constant, Variable,\
-            CompoundTerm, IfThenElse  # pylint: disable=import-outside-toplevel  # Avoiding circular references
+        from ..syntax import (
+            Atom,
+            CompoundFormula,
+            CompoundTerm,  # Avoiding circular references
+            Constant,
+            Contradiction,
+            IfThenElse,
+            QuantifiedFormula,
+            Tautology,
+            Variable,
+        )
+
         node = node if inplace else copy.deepcopy(node)
 
         if isinstance(node, (Variable, Constant, Contradiction, Tautology)):

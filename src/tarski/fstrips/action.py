@@ -2,7 +2,7 @@ from ..syntax.ops import flatten
 
 
 class Action:
-    """ A (possibly lifted) planning action """
+    """A (possibly lifted) planning action"""
 
     def __init__(self, language, name, parameters, precondition, effects, cost=None):
         self.name = name
@@ -19,22 +19,26 @@ class Action:
         return self.name < other.name
 
     def ident(self):
-        paramlist = "{}".format(','.join("{}: {}".format(p.symbol, p.sort.name) for p in self.parameters))
-        return f'{self.name}({paramlist})'
+        paramlist = "{}".format(",".join(f"{p.symbol}: {p.sort.name}" for p in self.parameters))
+        return f"{self.name}({paramlist})"
 
     def __str__(self):
         return self.ident()
+
     __repr__ = __str__
 
     def print(self):
-        tokens = ['{}:'.format(self.ident()),
-                  'pre=({})'.format(self.precondition),
-                  'eff=({})'.format(' & '.join(str(eff) for eff in self.effects))]
-        return '\n'.join(tokens)
+        tokens = [
+            f"{self.ident()}:",
+            f"pre=({self.precondition})",
+            "eff=({})".format(" & ".join(str(eff) for eff in self.effects)),
+        ]
+        return "\n".join(tokens)
 
 
 class GroundOperator:
-    """ A planning operator, i.e. a parameter-free action """
+    """A planning operator, i.e. a parameter-free action"""
+
     def __init__(self, language, name):
         self.name = name  # The action name is assumed to contain parameter bindings, if any!
         self.language = language
@@ -44,12 +48,14 @@ class GroundOperator:
 
     def __str__(self):
         return self.ident()
+
     __repr__ = __str__
 
 
 class PlainOperator(GroundOperator):
-    """ A ground STRIPS operator possibly extended with negated preconditions
-    and conditional effects. """
+    """A ground STRIPS operator possibly extended with negated preconditions
+    and conditional effects."""
+
     def __init__(self, language, name, precondition, effects):
         super().__init__(language, name)
         self.precondition = flatten(precondition)
@@ -63,8 +69,9 @@ class AdditiveActionCost:
 
     def __str__(self):
         return str(self.addend)
+
     __repr__ = __str__
 
 
 def generate_zero_action_cost(lang):
-    return AdditiveActionCost(lang.constant(0, lang.get_sort('Integer')))
+    return AdditiveActionCost(lang.constant(0, lang.get_sort("Integer")))

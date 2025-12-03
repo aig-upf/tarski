@@ -1,12 +1,19 @@
 """
- Tests for the Description Logic module
+Tests for the Description Logic module
 """
+
 import pytest
 
 import tarski.benchmarks.blocksworld
-from tarski.dl import SyntacticFactory, PrimitiveRole, PrimitiveConcept, NominalConcept, StarRole, InverseRole, \
-    ArityDLMismatch
-from ..common import blocksworld
+from tarski.dl import (
+    ArityDLMismatch,
+    InverseRole,
+    NominalConcept,
+    PrimitiveConcept,
+    PrimitiveRole,
+    StarRole,
+    SyntacticFactory,
+)
 
 
 def test_basic_concept_creation():

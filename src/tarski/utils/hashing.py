@@ -1,10 +1,9 @@
-
 import hashlib
 import sys
 
 
 def int_to_bytes(value):
-    return value.to_bytes((value.bit_length() + 7) // 8, 'big', signed=True) or b'\0'
+    return value.to_bytes((value.bit_length() + 7) // 8, "big", signed=True) or b"\0"
 
 
 def consistent_hash(iterable):

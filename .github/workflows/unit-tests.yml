@@ -67,8 +67,6 @@ jobs:
         toxenv:
           - docs
           - antlrgrammars
-#          - pylint
-#          - flake8
           - mypy
 
     runs-on: ${{ matrix.os }}

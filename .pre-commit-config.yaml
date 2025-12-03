@@ -1,0 +1,35 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: fix-byte-order-marker
+      - id: check-ast
+      - id: debug-statements
+      - id: check-yaml
+        args: [ "--allow-multiple-documents" ]
+      - id: check-toml
+      - id: check-json
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.7
+    hooks:
+      # Order matters - ruff check might introduce changes that need reformatting
+      # Run the linter:
+      - id: ruff
+        name: Ruff lint
+        args: [ --fix ]  # Auto fix the problems
+      # Run the formatter:
+      - id: ruff-format
+        name: Ruff format
+
+#  - repo: https://github.com/RobertCraigie/pyright-python
+#    rev: v1.1.407
+#    hooks:
+#      - id: pyright
+#        additional_dependencies: []
+#        args: []

@@ -2,7 +2,6 @@ import os
 
 from .common import reader
 
-
 _this_dir = os.path.dirname(os.path.realpath(__file__))
 _data_dir = os.path.join(_this_dir, "..", "data", "pddl")
 
@@ -17,10 +16,7 @@ def add_instances_from_dir(directory, instance_names):
 
     for dom, ins in (x.split(":") for x in instance_names):
         base_dir = os.path.join(directory, dom)
-        instances.append([
-            os.path.join(base_dir, ins),
-            os.path.join(base_dir, "domain.pddl")
-        ])
+        instances.append([os.path.join(base_dir, ins), os.path.join(base_dir, "domain.pddl")])
 
     return instances
 
@@ -32,7 +28,7 @@ def pytest_generate_tests(metafunc):
     if metafunc.function != test_pddl_instances:
         return
 
-    argnames = ['instance_file', 'domain_file']
+    argnames = ["instance_file", "domain_file"]
     argvalues = collect_benchmarks()
     metafunc.parametrize(argnames, argvalues)
 

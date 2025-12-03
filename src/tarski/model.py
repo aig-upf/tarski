@@ -1,8 +1,7 @@
 import warnings
-from typing import Union
 
 from . import errors as err
-from .syntax import Function, Constant, CompoundTerm, symref, Variable
+from .syntax import CompoundTerm, Constant, Function, symref
 from .syntax.predicate import Predicate
 
 
@@ -18,8 +17,7 @@ def _check_assignment(fun, point, value=None):
         raise err.ArityMismatch(fun, elements)
 
     language = fun.language
-    for element, expected_type in zip(elements, typ):
-
+    for element, expected_type in zip(elements, typ, strict=False):
         if not isinstance(element, Constant):
             # Assume a literal value has been passed instead of its corresponding constant
             element = Constant(expected_type.cast(element), expected_type)
@@ -41,7 +39,7 @@ def _check_assignment(fun, point, value=None):
 
 
 class Model:
-    """ A First Order Language Model """
+    """A First Order Language Model"""
 
     def __init__(self, language, evaluator=None):
         self.evaluator = evaluator
@@ -77,11 +75,13 @@ class Model:
     #                                       for point, value in extension.data.items()))
     #     return components
 
-    def set(self, term: CompoundTerm, value: Union[Constant, int, float], *args):
-        """ Set the value of the interpretation on the given term to be equal to `value`. """
+    def set(self, term: CompoundTerm, value: Constant | int | float, *args):
+        """Set the value of the interpretation on the given term to be equal to `value`."""
         if not isinstance(term, CompoundTerm):
-            warnings.warn('Usage of Model.set(function, *arguments) is deprecated. Use'
-                          'Model.set(term, value) instead', DeprecationWarning)
+            warnings.warn(
+                "Usage of Model.set(function, *arguments) is deprecated. UseModel.set(term, value) instead",
+                DeprecationWarning,
+            )
             allargs = [value] + args
             self.set(term(*allargs[:-1]), allargs[-1])
 
@@ -101,7 +101,8 @@ class Model:
 
     def add(self, predicate, *args):
         """ """
-        from .syntax import Atom  # pylint: disable=import-outside-toplevel  # Avoiding circular references
+        from .syntax import Atom  # Avoiding circular references
+
         if isinstance(predicate, Atom):
             args = predicate.subterms
             predicate = predicate.predicate
@@ -115,36 +116,41 @@ class Model:
         definition.add(wrap_tuple(point))
 
     def remove(self, predicate: Predicate, *args):
-        """ Remove a given point from the extension of a predicate.
-        Raises exception if the extension does not contain the point. """
+        """Remove a given point from the extension of a predicate.
+        Raises exception if the extension does not contain the point."""
         self.predicate_extensions[predicate.signature].remove(wrap_tuple(args))
 
     def discard(self, predicate: Predicate, *args):
-        """ Remove a given point from the extension of a predicate.
-        Does not raise any exception if the extension does not contain the point. """
+        """Remove a given point from the extension of a predicate.
+        Does not raise any exception if the extension does not contain the point."""
         ext = self.predicate_extensions.get(predicate.signature)
         if ext is not None:
             ext.discard(wrap_tuple(args))
 
     def value(self, fun: Function, point):
-        """ Return the value of the given function on the given point in the current model """
+        """Return the value of the given function on the given point in the current model"""
         definition = self.function_extensions[fun.signature]
         return definition.get(point)
 
     def holds(self, predicate: Predicate, point):
-        """ Return true iff the given predicate is true on the given point in the current model """
-        return predicate.signature in self.predicate_extensions and \
-            wrap_tuple(point) in self.predicate_extensions[predicate.signature]
+        """Return true iff the given predicate is true on the given point in the current model"""
+        return (
+            predicate.signature in self.predicate_extensions
+            and wrap_tuple(point) in self.predicate_extensions[predicate.signature]
+        )
 
     def list_all_extensions(self):
-        """ Return a mapping between predicate and function signatures and a list of all their respective extensions.
+        """Return a mapping between predicate and function signatures and a list of all their respective extensions.
         This list *unwraps* the TermReference's used internally in this class back into plain Tarski terms, so that
         you can rely on the returned extensions being made up of Constants, Variables, etc., not TermReferences
         """
-        from .syntax.util import get_symbols  # pylint: disable=import-outside-toplevel  # Avoiding circular references
+        from .syntax.util import get_symbols  # Avoiding circular references
+
         exts = {k: [unwrap_tuple(tup) for tup in ext] for k, ext in self.predicate_extensions.items()}
-        exts.update((k, [unwrap_tuple(point) + (value, ) for point, value in ext.data.items()])
-                    for k, ext in self.function_extensions.items())
+        exts.update(
+            (k, [unwrap_tuple(point) + (value,) for point, value in ext.data.items()])
+            for k, ext in self.function_extensions.items()
+        )
 
         # Add the empty extensions for those symbols in the language that have no true atom
         for symbol in get_symbols(self.language, type_="predicate", include_builtin=False):
@@ -157,9 +163,9 @@ class Model:
         return exts
 
     def as_atoms(self):
-        """ Return a representation of the model as a list of atoms that are true. For functional symbols f, return
+        """Return a representation of the model as a list of atoms that are true. For functional symbols f, return
         tuples of the form (f(o1, ..., on), value)
-         """
+        """
         atoms = []
         for k, ext in self.predicate_extensions.items():
             pred = self.language.get_predicate(k[0])
@@ -174,8 +180,8 @@ class Model:
         return atoms
 
     def get_extension(self, symbol):
-        """ Return the extension of the given (predicate or function) symbol in the
-         current model. """
+        """Return the extension of the given (predicate or function) symbol in the
+        current model."""
         if isinstance(symbol, Predicate):
             return self.predicate_extensions.get(symbol.signature, set())
 
@@ -194,11 +200,12 @@ class Model:
             return self.evaluator(arg, self)
 
     def __str__(self):
-        return f'Model[{", ".join(sorted(map(str, self.as_atoms())))}]'
+        return f"Model[{', '.join(sorted(map(str, self.as_atoms())))}]"
+
     __repr__ = __str__
 
-    def remove_symbol(self, symbol: Union[Function, Predicate]):
-        """ Remove the extension of the given symbol, if it existed within this model"""
+    def remove_symbol(self, symbol: Function | Predicate):
+        """Remove the extension of the given symbol, if it existed within this model"""
         # Note that it might well be that the language contains a symbol p, but it is not registered
         # in the model, because e.g. there is no p-atom that is true in the model
         signature = symbol.signature
@@ -209,7 +216,7 @@ class Model:
 
 
 def create(lang, evaluator=None):
-    """ Create a Tarski model with given evaluator. """
+    """Create a Tarski model with given evaluator."""
     return Model(lang, evaluator)
 
 
@@ -233,12 +240,12 @@ class ExtensionalFunctionDefinition:
 
 
 def wrap_tuple(tup):
-    """ Create a tuple of Term references from a tuple of terms """
+    """Create a tuple of Term references from a tuple of terms"""
     return tuple(symref(a) for a in tup)
 
 
 def unwrap_tuple(tup):
-    """ Create a tuple of Tarski terms from a tuple of Term references"""
+    """Create a tuple of Tarski terms from a tuple of Term references"""
     return tuple(ref.expr for ref in tup)
 
 
@@ -248,5 +255,7 @@ def unwrap_to_name(tup):
 
 class ModelWithoutEvaluatorError(err.SemanticError):
     def __init__(self, exp):
-        super().__init__(f'Attempted to evaluate expression "{exp}" on a model with no attached evaluator. '
-                         f'Please set some evaluator into the model before attempting such evaluations')
+        super().__init__(
+            f'Attempted to evaluate expression "{exp}" on a model with no attached evaluator. '
+            f"Please set some evaluator into the model before attempting such evaluations"
+        )
