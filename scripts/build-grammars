@@ -1,6 +1,6 @@
 #!/bin/sh -ex
 
-ANTLR_RUNTIME=antlr-4.7.1-complete.jar
+ANTLR_RUNTIME=antlr-4.13.2-complete.jar
 DIR=`dirname $(readlink -f $0)`
 echo ${DIR}
 TMPDIR="/tmp/tarski"
@@ -9,6 +9,6 @@ cd $TMPDIR
 wget https://www.antlr.org/download/${ANTLR_RUNTIME} -O ${ANTLR_RUNTIME}  # Overwrite existing files
 ls $TMPDIR
 file $TMPDIR/${ANTLR_RUNTIME}
-CLASSPATH=".:$TMPDIR/$ANTLR_RUNTIME" ${DIR}/../utils/parsers/build.py
+ANTLR_PATH="$TMPDIR/$ANTLR_RUNTIME" ${DIR}/../utils/parsers/build.py
 
 
