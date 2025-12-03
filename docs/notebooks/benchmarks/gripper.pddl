@@ -31,4 +31,3 @@
        :effect (and (at ?obj ?room)
 		    (free ?gripper)
 		    (not (carry ?obj ?gripper)))))
-

@@ -7128,8 +7128,3 @@ class fstripsParser ( Parser ):
         finally:
             self.exitRule()
         return localctx
-
-
-
-
-

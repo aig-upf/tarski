@@ -107,5 +107,3 @@ def test_simplification_of_ex_quantification():
     phi = exists(x, z, land(x == z, z == x, value(z) < six, flat=True))
     assert simplify_existential_quantification(phi, inplace=False) == exists(x, value(x) < six), \
         "The circular substitution dependency has been treated appropriately and only one substitution performed"
-
-

@@ -97,4 +97,3 @@ def test_action_cost_parsing():
     assert not is_constant_cost_action(drive)
     assert is_unit_cost_action(pickup)
     assert is_unit_cost_action(drop)
-

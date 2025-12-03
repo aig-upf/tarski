@@ -26,5 +26,3 @@ def test_namespace_accessor():
 
     with pytest.raises(errors.UndefinedElement):
         _ = lang.get('foo')
-
-

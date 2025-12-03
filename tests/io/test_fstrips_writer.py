@@ -145,4 +145,3 @@ def test_requirements_string():
 
     problem = generate_fstrips_counters_problem()
     assert sorted(get_requirements_string(problem)) == [':equality', ':numeric-fluents', ':typing']
-

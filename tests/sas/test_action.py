@@ -81,10 +81,3 @@ def test_temporal_action():
                             (location(target1), dst, src)
                         ])
     swap_schema2 = TemporalAction(name='swap', events=[(2.0, swap_simple)])
-
-
-
-
-
-
-

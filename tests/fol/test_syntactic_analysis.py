@@ -67,4 +67,3 @@ def test_node_collection():
     e = forall(v, e | (loc(v) == v))
     assert len(collect_unique_nodes(e)) == 12
     assert len(collect_unique_nodes(e, lambda x: isinstance(x, Variable))) == 1
-

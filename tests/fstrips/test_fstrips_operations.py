@@ -52,4 +52,3 @@ def test_symbol_collection():
 
     problem.goal = clear(table)
     assert {loc, clear}.issubset(collect_all_symbols(problem)), "clear should now be collected: it appears in the goal"
-

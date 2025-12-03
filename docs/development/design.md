@@ -26,4 +26,3 @@ is convenient for us to assume, à la [Herbrand](https://en.wikipedia.org/wiki/H
 that we have as many constants as elements in the universe, and the other way around. Given the use
 of the package within a planning context, this is also convenient for us because the (typed) universes of discourse
 remain fixed throughout the planning process.
-

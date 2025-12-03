@@ -24,5 +24,3 @@ a useful debugging script. To illustrate, running
     ./antlr4-tester.sh fstrips.g4 $DOWNWARD_BENCHMARKS/tidybot-sat11-strips/domain.pddl domain
 
 will print on screen the stream of tokens and then attempt at parsing it.
-
-

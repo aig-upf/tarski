@@ -54,7 +54,3 @@ def test_basic_search():
     search = BreadthFirstSearch(model, max_expansions=3)
     space, stats = search.run()
     assert stats.nexpansions == 3
-
-
-
-
