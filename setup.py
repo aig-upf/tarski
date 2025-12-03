@@ -55,11 +55,12 @@ def main():
 
             'multipledispatch',
 
-            # Antlr pinned to a specific version to avoid messages "ANTLR runtime and generated code versions disagree"
-            # messages. If we want to bump this up, we'll need to regenerate the grammar files with the new version.
-            'antlr4-python3-runtime==4.7.2',
-
-
+            # Pin down ANTLR to the same version with which the python runtime grammars were generated.
+            # This prevents "ANTLR runtime and generated code versions disagree" messages and the potential bugs
+            # caused by version mismatches.
+            # If you want to change this version, regenerate the grammars as described in
+            # src/tarski/io/_fstrips/readme.md
+            'antlr4-python3-runtime==4.13.2',
         ],
 
         extras_require={
