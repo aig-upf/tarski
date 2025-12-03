@@ -72,7 +72,7 @@ def main():
             ],
             'docs': [
                 'jinja2==3.1.6',
-                'docutils==0.22.3',
+                'docutils',  # Let sphinx figure the version out
                 'sphinx==8.2.3',
                 'nbsphinx==0.9.8',
                 'recommonmark==0.7.1',
