@@ -12,8 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.0] 2025-12-XX
 ### Changed
- - Update supported Python versions to range 3.10-3.14
+ - Update the set of supported Python versions (3.10-3.14)
  - Update a few GH action dependencies.
+ - Regenerate ANTLR grammars, since the ANTLR version used until now is no longer supported by Python 3.13+
+ - Update the package versions of dependencies used to generate the docs (also not supported by Python 3.13+)
 
 ## [0.8.2] 2022-04-07
 ### Fixed
