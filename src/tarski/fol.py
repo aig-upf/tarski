@@ -1,21 +1,20 @@
-
 import copy
 import itertools
-from collections import defaultdict, OrderedDict
-from typing import Union, cast
+from collections import OrderedDict, defaultdict
+from typing import cast
 
 from . import errors as err
-from .errors import UndefinedElement
-from .syntax import Function, Constant, Variable, Sort, inclusion_closure, Predicate, Interval
-from .syntax.algebra import Matrix
 from . import modules
+from .errors import UndefinedElement
+from .syntax import Constant, Function, Interval, Predicate, Sort, Variable, inclusion_closure
+from .syntax.algebra import Matrix
 
 
 class FirstOrderLanguage:
-    """ A many-sorted first-order language. """
+    """A many-sorted first-order language."""
 
     def __init__(self, name=None):
-        self.name = name or 'anonymous'
+        self.name = name or "anonymous"
         self._sorts = {}
 
         # A mapping between each sort and its single immediate parent
@@ -31,16 +30,14 @@ class FirstOrderLanguage:
 
         self._operators = {}
         self._global_index = {}
-        self._element_containers = {Sort: self._sorts,
-                                    Function: self._functions,
-                                    Predicate: self._predicates}
+        self._element_containers = {Sort: self._sorts, Function: self._functions, Predicate: self._predicates}
 
         self.theories = set()
 
         self._attach_object_sort()
 
     def __deepcopy__(self, memo):
-        """ At the moment we forbid deep copies of this class, as they might be too expensive"""
+        """At the moment we forbid deep copies of this class, as they might be too expensive"""
         memo[id(self)] = self
         return self
 
@@ -66,7 +63,7 @@ class FirstOrderLanguage:
     #             self.theories == other.theories)
 
     def deepcopy(self):
-        """ Use this method instead of copy.deepcopy() if you need a true deep-copy of the language """
+        """Use this method instead of copy.deepcopy() if you need a true deep-copy of the language"""
         memo = {}
         newone = type(self)()
         memo[id(self)] = newone
@@ -75,11 +72,13 @@ class FirstOrderLanguage:
         return newone
 
     def vocabulary(self):
-        """ Return the vocabulary corresponding to this language. This is a triple with the signatures of, resp.,
-        predicates, functions and constants of the language. """
-        return (tuple(p.signature for p in self._predicates.values() if not p.builtin),
-                tuple(f.signature for f in self._functions.values() if not f.builtin),
-                tuple(c.signature for c in self._constants.values()))
+        """Return the vocabulary corresponding to this language. This is a triple with the signatures of, resp.,
+        predicates, functions and constants of the language."""
+        return (
+            tuple(p.signature for p in self._predicates.values() if not p.builtin),
+            tuple(f.signature for f in self._functions.values() if not f.builtin),
+            tuple(c.signature for c in self._constants.values()),
+        )
 
     @property
     def sorts(self):
@@ -94,41 +93,41 @@ class FirstOrderLanguage:
         return list(self._functions.values())
 
     def _attach_object_sort(self):
-        """ The `object` sort, being the root of the sort hierarchy, needs a special treatment"""
-        sort = Sort('object', self)
-        self._sorts['object'] = sort
-        self._global_index['object'] = sort
+        """The `object` sort, being the root of the sort hierarchy, needs a special treatment"""
+        sort = Sort("object", self)
+        self._sorts["object"] = sort
+        self._global_index["object"] = sort
         self.immediate_parent[sort] = None
         self.ancestor_sorts[sort] = set()
         self.indirect_ancestor_sorts[sort] = set()
 
     @property
     def Object(self):
-        """ A shorthand accessor for the object sort. """
-        return self._sorts['object']
+        """A shorthand accessor for the object sort."""
+        return self._sorts["object"]
 
     @property
     def Real(self):
-        """ A shorthand accessor for the Real sort. """
-        return self.get_sort('Real')
+        """A shorthand accessor for the Real sort."""
+        return self.get_sort("Real")
 
     @property
     def Integer(self):
-        """ A shorthand accessor for the Integer sort. """
-        return self.get_sort('Integer')
+        """A shorthand accessor for the Integer sort."""
+        return self.get_sort("Integer")
 
     @property
     def Natural(self):
-        """ A shorthand accessor for the Natural sort. """
-        return self.get_sort('Natural')
+        """A shorthand accessor for the Natural sort."""
+        return self.get_sort("Natural")
 
     @property
     def Boolean(self):
-        """ A shorthand accessor for the Boolean sort. """
-        return self.get_sort('Boolean')
+        """A shorthand accessor for the Boolean sort."""
+        return self.get_sort("Boolean")
 
-    def sort(self, name: str, parent: Union[Sort, str, None] = None):
-        """ Create new sort with given name and parent sort. The parent sort can be given as a Sort object or as its
+    def sort(self, name: str, parent: Sort | str | None = None):
+        """Create new sort with given name and parent sort. The parent sort can be given as a Sort object or as its
         name, if a Sort with that name has already been registered.
         If no parent is specified, the "object" sort is assumed as parent.
 
@@ -139,7 +138,7 @@ class FirstOrderLanguage:
         return self.attach_sort(Sort(name, self), parent)
 
     def attach_sort(self, sort: Sort, parent: Sort):
-        """ Attach a given sort to the language. For standard creation of sorts, better use `lang.sort()`. """
+        """Attach a given sort to the language. For standard creation of sorts, better use `lang.sort()`."""
         self._check_name_not_defined(sort.name, self._sorts, err.DuplicateSortDefinition)
 
         # Register the sort itself
@@ -159,8 +158,8 @@ class FirstOrderLanguage:
             raise err.UndefinedSort(name)
         return self._sorts[name]
 
-    def interval(self, name: str, parent: Union[Interval, str], lower_bound, upper_bound) -> Interval:
-        """ Create a (bound) interval sort.
+    def interval(self, name: str, parent: Interval | str, lower_bound, upper_bound) -> Interval:
+        """Create a (bound) interval sort.
 
         We allow only the new sort to derive from the built-in natural, integer or real sorts.
         """
@@ -186,9 +185,9 @@ class FirstOrderLanguage:
 
         return sort
 
-    def variable(self, name: str, sort: Union[Sort, str]):
-        """ Create a variable symbol with the specified sort, which can be given as a Sort object or as its name,
-        if a Sort with that name has already been registered. """
+    def variable(self, name: str, sort: Sort | str):
+        """Create a variable symbol with the specified sort, which can be given as a Sort object or as its name,
+        if a Sort with that name has already been registered."""
         sort = self._retrieve_sort(sort)
         return Variable(name, sort)
 
@@ -206,7 +205,7 @@ class FirstOrderLanguage:
             self.indirect_ancestor_sorts[s] = set()
         self.indirect_ancestor_sorts[sort] = set()
 
-    def _retrieve_sort(self, obj: Union[Sort, str]) -> Sort:
+    def _retrieve_sort(self, obj: Sort | str) -> Sort:
         return self._retrieve_object(obj, Sort)
 
     def _retrieve_object(self, obj, type_):
@@ -224,22 +223,23 @@ class FirstOrderLanguage:
 
         # obj must be a string, which we take as the name of a language element
         if type_ not in self._element_containers:
-            raise RuntimeError("Trying to index incorrect type {}".format(type_))
+            raise RuntimeError(f"Trying to index incorrect type {type_}")
 
         if obj not in self._element_containers[type_]:
             raise err.UndefinedElement(obj)
 
         return self._element_containers[type_][obj]
 
-    def constant(self, name: str, sort: Union[Sort, str]):
-        """ Create a constant symbol with the specified sort, which can be given as a Sort object or as its name,
-        if a Sort with that name has already been registered. """
+    def constant(self, name: str, sort: Sort | str):
+        """Create a constant symbol with the specified sort, which can be given as a Sort object or as its name,
+        if a Sort with that name has already been registered."""
         sort = self._retrieve_sort(sort)
 
         if sort.builtin:
             if sort.cast(name) is None:
                 raise err.SemanticError(
-                    f"Cannot create constant with sort '{sort.name}' from '{name}' of Python type '{type(name)}'")
+                    f"Cannot create constant with sort '{sort.name}' from '{name}' of Python type '{type(name)}'"
+                )
 
             # MRJ: if name is a Python primitive type literal that can be interpreted as the underlying
             # type of the built in sort, we return a Constant object.
@@ -276,9 +276,9 @@ class FirstOrderLanguage:
         return Matrix(arraylike, sort)
 
     def _check_name_not_defined(self, name, where, exception):
-        """ Check whether the given name is already defined in the given container, raising an exception of
+        """Check whether the given name is already defined in the given container, raising an exception of
         the indicated type in case it is. If not, check it is not defined in any other container, raising a
-        more generic DuplicateDefinition exception if it is. """
+        more generic DuplicateDefinition exception if it is."""
         if name in where:
             raise exception(name, where[name])
 
@@ -302,7 +302,7 @@ class FirstOrderLanguage:
             raise err.UndefinedPredicate(name)
         return self._predicates[name]
 
-    def remove_symbol(self, symbol: Union[Function, Predicate]):
+    def remove_symbol(self, symbol: Function | Predicate):
         if symbol.name in self._predicates:
             del self._predicates[symbol.name]
         elif symbol.name in self._functions:
@@ -333,13 +333,13 @@ class FirstOrderLanguage:
         return dict(
             sorts=[s.dump() for _, s in self._sorts.items()],
             predicates=[p.dump() for _, p in self._predicates.items()],
-            functions=[f.dump() for _, f in self._functions.items()]
+            functions=[f.dump() for _, f in self._functions.items()],
         )
 
     def check_well_formed(self):
         for _, s in self._sorts.items():
             if s.cardinality() == 0:
-                raise err.LanguageError("Sort '{}' is empty!".format(s))
+                raise err.LanguageError(f"Sort '{s}' is empty!")
 
     def most_restricted_type(self, t1, t2):
         if self.is_subtype(t1, t2):
@@ -384,8 +384,11 @@ class FirstOrderLanguage:
         return self.is_subtype(t1, t2) or self.is_subtype(t2, t1)
 
     def __str__(self):
-        return f"{self.name}: Tarski language with {len(self._sorts)} sorts, {len(self._predicates)} predicates, " \
-               f"{len(self._functions)} functions and {len(self.constants())} constants"
+        return (
+            f"{self.name}: Tarski language with {len(self._sorts)} sorts, {len(self._predicates)} predicates, "
+            f"{len(self._functions)} functions and {len(self.constants())} constants"
+        )
+
     __repr__ = __str__
 
     def register_operator_handler(self, operator, t1, t2, handler):
@@ -410,7 +413,7 @@ class FirstOrderLanguage:
         return op(lhs, rhs)
 
     def get(self, first, *args):
-        """ Return the language element with given name(s).
+        """Return the language element with given name(s).
         This can be a predicate or function symbol, including constants, or a sort name.
         Multiple names can be used to get different elements in one single call:
 
@@ -419,6 +422,7 @@ class FirstOrderLanguage:
             >>> lang.function('loc', lang.get_sort('object'), lang.get_sort('object'))
             >>> on, loc = lang.get("on", "loc")
         """
+
         def access_next(elem):
             try:
                 return self._global_index[elem]
@@ -434,7 +438,7 @@ class FirstOrderLanguage:
 
     @property
     def ns(self):
-        """ A helper to access the FOL symbols in an elegant and easy manner, to be used e.g. as in:
+        """A helper to access the FOL symbols in an elegant and easy manner, to be used e.g. as in:
 
             >>> lang = FirstOrderLanguage()
             >>> lang.predicate('on', lang.get_sort('object'))
@@ -448,7 +452,8 @@ class FirstOrderLanguage:
 
 
 class _NamespaceAccessor:
-    """ A nifty helper to ease access to a language attributes """
+    """A nifty helper to ease access to a language attributes"""
+
     def __init__(self, lang: FirstOrderLanguage):
         self.lang = lang
 

@@ -1,16 +1,16 @@
 import itertools
 
-from .walker import FOLWalker
 from .. import modules
-from .sorts import children, compute_direct_sort_map, Interval
-from .visitors import CollectFreeVariables
-from .terms import Term, Constant, Variable, CompoundTerm
 from .formulas import CompoundFormula, Connective
+from .sorts import Interval, children, compute_direct_sort_map
 from .symrefs import symref
+from .terms import CompoundTerm, Constant, Term, Variable
+from .visitors import CollectFreeVariables
+from .walker import FOLWalker
 
 
 def cast_to_closest_common_numeric_ancestor(lang, lhs, rhs):
-    """ Cast both given operands to the sort that is their closest common ancestor, e.g. when
+    """Cast both given operands to the sort that is their closest common ancestor, e.g. when
     applied to a 3 and Constant(2, Int), it should return Constant(3, Int), Constant(2, Int).
     Non-arithmetic objects should be left unchanged.
     """
@@ -25,9 +25,8 @@ def cast_to_closest_common_numeric_ancestor(lang, lhs, rhs):
             return lhs, rhs
         return lhs, Constant(lhs.sort.cast(rhs), lhs.sort)
 
-    if isinstance(lhs, np.ndarray):  # lhs is matrix
-        if isinstance(rhs, Term):
-            return lhs, rhs.language.matrix([[rhs]])
+    if isinstance(lhs, np.ndarray) and isinstance(rhs, Term):  # lhs is matrix
+        return lhs, rhs.language.matrix([[rhs]])
 
     if isinstance(rhs, Term):
         return Constant(rhs.sort.cast(lhs), rhs.sort), rhs
@@ -52,19 +51,19 @@ def cast_to_number(rhs):
 
 
 def free_variables(formula):
-    """ Return a list with all variables in the given formula that appear free."""
+    """Return a list with all variables in the given formula that appear free."""
     visitor = CollectFreeVariables()
     visitor.visit(formula)
     return [x.expr for x in visitor.free_variables]  # Unpack the symrefs
 
 
 def all_variables(formula):
-    """ Return a list with all variables that appear in the given formula."""
+    """Return a list with all variables that appear in the given formula."""
     return collect_unique_nodes(formula, lambda x: isinstance(x, Variable))
 
 
 def flatten(formula):
-    """ Flatten the given formula recursively, if possible, by applying associativity of and/or connectives
+    """Flatten the given formula recursively, if possible, by applying associativity of and/or connectives
     Thus, a formula like (a or (b or (c or d))) becomes (a or b or c or d)
     """
     if not isinstance(formula, CompoundFormula) or formula.connective not in (Connective.And, Connective.Or):
@@ -73,7 +72,7 @@ def flatten(formula):
 
 
 def _flatten(formula, parent_connective):
-    """ Return a list with all AST nodes of the given formula recursively flattened, i.e. where compound formulas
+    """Return a list with all AST nodes of the given formula recursively flattened, i.e. where compound formulas
     with the given connective have been flattened themselves.
     """
     if not isinstance(formula, CompoundFormula) or formula.connective != parent_connective:
@@ -82,16 +81,17 @@ def _flatten(formula, parent_connective):
 
 
 def collect_unique_nodes(expression, filter_=None):
-    """ Return all nodes in the AST of the given expression, formula or term.
+    """Return all nodes in the AST of the given expression, formula or term.
     If a Boolean function `filter_` is provided, only those nodes that satisfy the function are returned.
-    The method returns only one copy of each node, under syntactic equivalence. """
+    The method returns only one copy of each node, under syntactic equivalence."""
     walker = NodeCollectionWalker(filter_)
     walker.run(expression)
     return list(x.expr for x in walker.nodes)  # Unpack the symrefs
 
 
 class NodeCollectionWalker(FOLWalker):
-    """ A walker that simply collects all visited nodes into a set (i.e. w/o repetitions). """
+    """A walker that simply collects all visited nodes into a set (i.e. w/o repetitions)."""
+
     def __init__(self, filter_=None):
         super().__init__()
         self.nodes = set()
@@ -104,7 +104,7 @@ class NodeCollectionWalker(FOLWalker):
 
 
 def compute_sort_id_assignment(lang, start=0):
-    """ An experimental method to compute ID layouts for all the constants of a language, so that all
+    """An experimental method to compute ID layouts for all the constants of a language, so that all
     sorts get assigned a closed interval.
 
     The method performs a DFS traversal of the sort hierarchy and assigns consecutive IDs to each object,

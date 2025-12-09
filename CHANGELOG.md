@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Update a few GH action dependencies.
  - Regenerate ANTLR grammars, since the ANTLR version used until now is no longer supported by Python 3.13+
  - Update the package versions of dependencies used to generate the docs (also not supported by Python 3.13+)
+ - Code quality: Replace pylint/black/flake8 with Ruff.
+ - Add (optional) basic pre-commit configuration
 
 ## [0.8.2] 2022-04-07
 ### Fixed
@@ -43,7 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    a domain, such as an action.
  - _Experimental_ support for a SAS writer (work in progress).
  - _Experimental_ ply-based PDDL parser (work in progress):
-   - Current implementation using `ply` package, version 3.11. Eventually will be refactored for `sly`. Plan is 
+   - Current implementation using `ply` package, version 3.11. Eventually will be refactored for `sly`. Plan is
    eventually to parse correctly and generate instance structural elements for PDDL 3.1.
    - Supported features:
      - Instantaneous actions
@@ -60,8 +62,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    - What it says on the tin: collects equality atoms that appear as subformulas of a given formula
  - New optional `pip` dependency: `ply`
  - `FirstOrderLanguage.is_subtype`: it is now checked if there is a path connecting two types in the type hierarchy. If
-     that is the case, this fact is recorded in the dictionary `indirect_ancestor_sorts`. Whenever a change is made 
-     in the type hierarchy (e.g. adding a new sort or changing the parent of a sort), the cache is invalidated. 
+     that is the case, this fact is recorded in the dictionary `indirect_ancestor_sorts`. Whenever a change is made
+     in the type hierarchy (e.g. adding a new sort or changing the parent of a sort), the cache is invalidated.
 ### Removed
 ### Fixed
  - Fixed issue with `parse_atom` method and whitespace in the description of atoms (#121)
@@ -69,13 +71,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Use real instead of integer numbers by default when parsing with strict_with_requirements=False (#114)
  - Fixed issue with equality predicates trying to coerce the right hand side to a constant when the left hand side is
     a term
- 
-    
+
+
 ## [0.7.0] - 2021-05-12
 ### Added
   - Added some basic forward search capabilities (#101).
-  - Import psutil module conditionally, to offer better support for non-Linux 
-    platforms where it is not available (see discussion in #99). 
+  - Import psutil module conditionally, to offer better support for non-Linux
+    platforms where it is not available (see discussion in #99).
 
 ### Removed
   - Removed support for `PySDD` and `sdd` extra, which was largely unused, and
@@ -94,7 +96,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
   - Minor bugfixes and improvements.
-  - Better compliance with pylint warnings and errors.  
+  - Better compliance with pylint warnings and errors.
 
 
 ## [0.5.1] - 2020-04-17
@@ -111,13 +113,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and goal, using the standard mechanism of creating additional predicates.
   - Almost all benchmarks from the IPC competitions 2008, 2011, 2014, 2018 are now correctly parsed by Tarski.
   The unit tests also make sure this keeps being true. The only domain that Tarski cannot parse
-  correctly is Tidybot, where "cart" is used both as type name and object name. This does not bode well with 
+  correctly is Tidybot, where "cart" is used both as type name and object name. This does not bode well with
   the assumptions made in Tarski first-order languages. Problems from domains Floortile and GED need to be parsed
   with caution as well, by using, respectively, the parser options `strict_with_requirements=False` and
   `case_insensitive=True`, since the first one uses action costs without declaring them in the "requirements" section,
   whereas the second one uses lowercase in the domain file, and uppercase in the instance file.
-  - Improved support for representation and parsing of action costs. 
-  - Added methods to check applicability of an action in a state (model) and to progress a state through an action. 
+  - Improved support for representation and parsing of action costs.
+  - Added methods to check applicability of an action in a state (model) and to progress a state through an action.
   - Added some methods to the `fstrips.representation` module to check and compute delete-free relaxations of problems.
   - Modularize Tarski dependencies so that the use and  installation of numpy, scipy, etc. is optional.
   - Generation of action schema CSPs.
@@ -136,7 +138,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Implementation of a `project_away_effect_free_variables_from_problem` transformation that for each action schema
    compiles into existential variables all action parameters that are not used in the action effects
     ([#63](https://github.com/aig-upf/tarski/issues/63)).
- - Implementation of a `compile_universal_effects_away` transformation that expands universal effects in actions. 
+ - Implementation of a `compile_universal_effects_away` transformation that expands universal effects in actions.
  - Reachability module now processes problems with cost-related functions (010d79df)
  - Preliminary implementation of a library of benchmark generators
     ([#43](https://github.com/aig-upf/tarski/issues/43)).
@@ -152,14 +154,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.0] - 2019-08-03
 
 ### Added
- - Preliminary implementation of a `tarski.fstrips.representation` module with some representational queries 
-   and transformations. 
+ - Preliminary implementation of a `tarski.fstrips.representation` module with some representational queries
+   and transformations.
  - Preliminary integration with [mypy static typing analysis](https://github.com/python/mypy) which is
    checked now in the CI tests.
  - Add helper function `find_domain_filename` to infer domain filenames from instance filenames.
  - Add `collect_unique_nodes` method to collect all AST nodes of any FSTRIPS expression.
  - Add namespace accessor `lang.ns` to FOL objects to allow direct access to any language element.
- 
+
 ### Fixed
  - Fixed bug with fluent / static symbol classification [#66](https://github.com/aig-upf/tarski/issues/66).
  - Fixed bug with multiple conditional effects in [FSTRIPS / PDDL parser](https://github.com/aig-upf/tarski/commit/c89ac31623171b78689d5d0ae3eca07c2be2ad71).

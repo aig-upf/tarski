@@ -10,5 +10,3 @@ wget https://www.antlr.org/download/${ANTLR_RUNTIME} -O ${ANTLR_RUNTIME}  # Over
 ls $TMPDIR
 file $TMPDIR/${ANTLR_RUNTIME}
 ANTLR_PATH="$TMPDIR/$ANTLR_RUNTIME" ${DIR}/../utils/parsers/build.py
-
-

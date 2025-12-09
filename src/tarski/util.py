@@ -1,13 +1,15 @@
 """
-    Some basic utility methods.
+Some basic utility methods.
 """
+
 from collections import OrderedDict
 
 from .errors import DuplicateDefinition
 
 
 class SymbolIndex:
-    """ A basic indexing object that assigns consecutive indexes to the indexed objects. """
+    """A basic indexing object that assigns consecutive indexes to the indexed objects."""
+
     def __init__(self, elements=None):
         self.data = OrderedDict()
         self.objects = []
@@ -29,7 +31,7 @@ class SymbolIndex:
         return [str(o) for o in self.data.keys()]
 
     def __str__(self):
-        return ','.join('{}: {}'.format(idx, o) for o, idx in self.data.items())
+        return ",".join(f"{idx}: {o}" for o, idx in self.data.items())
 
     __repr__ = __str__
 
@@ -37,7 +39,7 @@ class SymbolIndex:
         return self.data.__iter__()
 
     def enumerate(self):
-        """ Iterate over all (ordered) pairs of the form idx, o, where idx is the index of object 'o' """
+        """Iterate over all (ordered) pairs of the form idx, o, where idx is the index of object 'o'"""
         return ((idx, o) for o, idx in self.data.items())
 
     def __contains__(self, k):

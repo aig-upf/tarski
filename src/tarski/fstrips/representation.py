@@ -1,29 +1,42 @@
 import copy
-from typing import Set, Union, Tuple, Optional, List
 
 from ..errors import TarskiError
-from .problem import Problem
-from . import fstrips as fs
-from ..syntax import Formula, CompoundTerm, Atom, CompoundFormula, QuantifiedFormula, is_and, is_neg, exists, symref,\
-    VariableBinding, Constant, Tautology, land, Term
-from ..syntax.ops import collect_unique_nodes, flatten, free_variables, all_variables
+from ..fstrips import AddEffect, BaseEffect, DelEffect, FunctionalEffect, LiteralEffect, SingleEffect, UniversalEffect
+from ..syntax import (
+    Atom,
+    CompoundFormula,
+    CompoundTerm,
+    Constant,
+    Formula,
+    QuantifiedFormula,
+    Tautology,
+    Term,
+    VariableBinding,
+    exists,
+    is_and,
+    is_neg,
+    land,
+    symref,
+)
+from ..syntax.ops import all_variables, collect_unique_nodes, flatten, free_variables
 from ..syntax.sorts import compute_signature_bindings
 from ..syntax.symrefs import TermReference
 from ..syntax.transform.substitutions import enumerate_substitutions
 from ..syntax.transform.substitutions import substitute_expression as fol_substitute_expression
 from ..syntax.util import get_symbols
-from ..fstrips import AddEffect, DelEffect, LiteralEffect, FunctionalEffect, UniversalEffect, BaseEffect, SingleEffect
+from . import fstrips as fs
 from .action import Action
+from .problem import Problem
 
 
 class RepresentationError(TarskiError):
     def __init__(self, msg=None):
-        msg = msg or 'Unexpected representation error'
+        msg = msg or "Unexpected representation error"
         super().__init__(msg)
 
 
 def is_typed_problem(problem: Problem):
-    """ A planning problem is typed if it has some sort other than 'object'. """
+    """A planning problem is typed if it has some sort other than 'object'."""
     return sum(1 for s in problem.language.sorts if not s.builtin) > 1
 
 
@@ -48,13 +61,13 @@ def is_positive_formula(phi: Formula):
     raise NotImplementedError()
 
 
-def transform_to_positive_normal_form(what: Union[Problem, Action]):
+def transform_to_positive_normal_form(what: Problem | Action):
     """ """
     if isinstance(what, Problem):
         return transform_problem_to_positive_normal_form(what)
     elif isinstance(what, Action):
         return transform_operator_to_positive_normal_form(what)
-    raise RuntimeError(f'Unable to transform to positive normal form object {what}')
+    raise RuntimeError(f"Unable to transform to positive normal form object {what}")
 
 
 def transform_problem_to_positive_normal_form(problem: Problem):
@@ -81,33 +94,34 @@ def is_strips_problem(problem: Problem):
     A propositional planning task is a STRIPS planning task if all of its operators are STRIPS operators
     its goal is a conjunction of state variables.
     """
-    return is_conjunction_of_positive_atoms(problem.goal) \
-        and all(is_strips_operator(a) for a in problem.actions.values())
+    return is_conjunction_of_positive_atoms(problem.goal) and all(
+        is_strips_operator(a) for a in problem.actions.values()
+    )
 
 
-def transform_to_strips(what: Union[Problem, Action]):
+def transform_to_strips(what: Problem | Action):
     """ """
     if isinstance(what, Problem):
         return transform_problem_to_strips(what)
     elif isinstance(what, Action):
         return transform_operator_to_strips(what)
-    raise RuntimeError(f'Unable to transform to positive normal form object {what}')
+    raise RuntimeError(f"Unable to transform to positive normal form object {what}")
 
 
 def is_atomic_effect(eff: BaseEffect):
-    """ An effect is atomic if it is a single, unconditional effect. """
+    """An effect is atomic if it is a single, unconditional effect."""
     return isinstance(eff, SingleEffect) and isinstance(eff.condition, Tautology)
 
 
 def is_propositional_effect(eff: BaseEffect):
-    """ An effect is propositional if it is either an add or a delete effect. """
+    """An effect is propositional if it is either an add or a delete effect."""
     return isinstance(eff, (AddEffect, DelEffect))
 
 
 def is_strips_effect_set(effects):
-    """ Return whether the all effects in the given list of effects are propositional, atomic,
+    """Return whether the all effects in the given list of effects are propositional, atomic,
     and there is no two contradictory effect, e.g. in the form of an add-effect and a delete-effect
-    over the same variable. """
+    over the same variable."""
     try:
         conflicts = compute_effect_set_conflicts(effects)
     except RepresentationError:
@@ -142,7 +156,7 @@ def transform_operator_to_strips(action: Action):
 
 
 def is_literal(phi: Formula):
-    """ Return true iff the given formula is a literal """
+    """Return true iff the given formula is a literal"""
     if isinstance(phi, Atom):
         return True
 
@@ -173,7 +187,7 @@ def contains_delete_subeffects(effect: BaseEffect):
         return False
     elif isinstance(effect, UniversalEffect):
         return any(contains_delete_subeffects(e) for e in effect.effects)
-    raise RuntimeError(f'Unexpected type for effect {effect}')
+    raise RuntimeError(f"Unexpected type for effect {effect}")
 
 
 def compute_delete_free_relaxation(problem: Problem):
@@ -194,7 +208,7 @@ def remove_delete_effects(effects):
             effect.effects = remove_delete_effects(effect.effects)  # i.e. remove delete-free effects recursively
             deletefree.append(effect)
         else:
-            raise RuntimeError(f'Unexpected type for effect {effect}')
+            raise RuntimeError(f"Unexpected type for effect {effect}")
     return deletefree
 
 
@@ -203,8 +217,7 @@ def is_conjunction_of_literals(phi: Formula):
     Return whether the given formula is a conjunction of literals, i.e. of atoms or negations of atoms.
     """
     f = flatten(phi)
-    return isinstance(f, Atom) or \
-        (isinstance(f, CompoundFormula) and all(is_literal(sub) for sub in f.subformulas))
+    return isinstance(f, Atom) or (isinstance(f, CompoundFormula) and all(is_literal(sub) for sub in f.subformulas))
 
 
 def is_conjunction_of_positive_atoms(phi: Formula):
@@ -212,22 +225,23 @@ def is_conjunction_of_positive_atoms(phi: Formula):
     Return whether the given formula is a conjunction of literals, i.e. of atoms or negations of atoms.
     """
     f = flatten(phi)
-    return isinstance(f, Atom) or \
-        (isinstance(f, CompoundFormula) and all(isinstance(sub, Atom) for sub in f.subformulas))
+    return isinstance(f, Atom) or (
+        isinstance(f, CompoundFormula) and all(isinstance(sub, Atom) for sub in f.subformulas)
+    )
 
 
-def collect_literals_from_conjunction(phi: Formula) -> Optional[Set[Tuple[Atom, bool]]]:
-    """ Return a list of all literals in phi, if is_conjunction_of_literals(phi), or None otherwise.
+def collect_literals_from_conjunction(phi: Formula) -> set[tuple[Atom, bool]] | None:
+    """Return a list of all literals in phi, if is_conjunction_of_literals(phi), or None otherwise.
     The returned list consists of one tuple (a, p) for each literal in the conjunction phi, where a is the literal atom
     and p its polarity (i.e. True if positive, False if negative)
     """
-    literals: Set[Tuple[Atom, bool]] = set()
+    literals: set[tuple[Atom, bool]] = set()
     if _collect_literals_from_conjunction(phi, literals):
         return literals
     return None
 
 
-def _collect_literals_from_conjunction(f, literals: Set[Tuple[Atom, bool]]) -> bool:
+def _collect_literals_from_conjunction(f, literals: set[tuple[Atom, bool]]) -> bool:
     if isinstance(f, Atom):
         literals.add((f, True))
     elif is_neg(f) and isinstance(f.subformulas[0], Atom):
@@ -242,10 +256,10 @@ def _collect_literals_from_conjunction(f, literals: Set[Tuple[Atom, bool]]) -> b
 
 
 def classify_atom_occurrences_in_formula(phi: Formula):
-    """ Classify atoms in the given formula according to whether they occur as positive or negative literals. """
-    pos: Set[TermReference] = set()
-    neg: Set[TermReference] = set()
-    fun: Set[TermReference] = set()
+    """Classify atoms in the given formula according to whether they occur as positive or negative literals."""
+    pos: set[TermReference] = set()
+    neg: set[TermReference] = set()
+    fun: set[TermReference] = set()
 
     for atom, truthval in collect_literals_from_conjunction(phi):
         if atom.predicate.builtin:
@@ -266,15 +280,15 @@ def is_function_free(phi: Formula):
 
 
 def is_quantifier_free(phi: Formula):
-    """ Return whether the given formula is quantifier-free. """
+    """Return whether the given formula is quantifier-free."""
     return len(collect_unique_nodes(phi, lambda x: isinstance(x, QuantifiedFormula))) == 0
 
 
-def collect_effect_free_parameters(action: Action) -> Set[TermReference]:
-    """ Return the set of action parameters (logical variables) in the given action schema that
-     do not appear on any effect of the action.
+def collect_effect_free_parameters(action: Action) -> set[TermReference]:
+    """Return the set of action parameters (logical variables) in the given action schema that
+    do not appear on any effect of the action.
     """
-    free: Set[TermReference] = set()
+    free: set[TermReference] = set()
     for eff in action.effects:
         _collect_effect_free_variables(eff, free)
     parameters = {symref(x) for x in action.parameters}
@@ -282,7 +296,7 @@ def collect_effect_free_parameters(action: Action) -> Set[TermReference]:
 
 
 def project_away_effect_free_variables(action: Action, inplace=False):
-    """ Return an action schema which is equivalent to the given `action` except that all "effect-free" parameters have
+    """Return an action schema which is equivalent to the given `action` except that all "effect-free" parameters have
     been compiled away into existential variables in the precondition. The value of `inplace` determines whether
     the modification will be done in-place to the given action, or a new action will be created.
 
@@ -308,7 +322,7 @@ def project_away_effect_free_variables(action: Action, inplace=False):
 
 
 def project_away_effect_free_variables_from_problem(problem: Problem, inplace=False):
-    """ Return a new problem equivalent to the given one but where all action schemas have had their "effect-free"
+    """Return a new problem equivalent to the given one but where all action schemas have had their "effect-free"
      parameters compiled away into existential variables in the precondition. The value of `inplace` determines whether
     the modification will be done in-place to the given problem, or a new problem will be created.
     """
@@ -318,16 +332,15 @@ def project_away_effect_free_variables_from_problem(problem: Problem, inplace=Fa
     return projected
 
 
-def collect_effect_free_variables(eff: fs.BaseEffect) -> Set[TermReference]:
-    """ Return the set of all variables that appear free in the given effect. """
+def collect_effect_free_variables(eff: fs.BaseEffect) -> set[TermReference]:
+    """Return the set of all variables that appear free in the given effect."""
     free = set()
     _collect_effect_free_variables(eff, free)
     return free
 
 
-def _collect_effect_free_variables(eff: fs.BaseEffect, free: Set[TermReference]):
-    """
-    """
+def _collect_effect_free_variables(eff: fs.BaseEffect, free: set[TermReference]):
+    """ """
     if isinstance(eff, (fs.AddEffect, fs.DelEffect)):
         free.update(symref(x) for x in free_variables(eff.atom))
 
@@ -340,7 +353,7 @@ def _collect_effect_free_variables(eff: fs.BaseEffect, free: Set[TermReference])
 
     elif isinstance(eff, fs.UniversalEffect):
         bound = {symref(x) for x in eff.variables}
-        free_in_sub: Set[TermReference] = set()
+        free_in_sub: set[TermReference] = set()
         for sub in eff.effects:
             _collect_effect_free_variables(sub, free_in_sub)
         free.update(free_in_sub - bound)
@@ -350,15 +363,15 @@ def _collect_effect_free_variables(eff: fs.BaseEffect, free: Set[TermReference])
 
 
 def collect_all_function_names(expression, output):
-    """ Add to `output` the names of all function symbols in the given expression. """
+    """Add to `output` the names of all function symbols in the given expression."""
     terms = collect_unique_nodes(expression, lambda x: isinstance(x, CompoundTerm))
     output.update(f.symbol.name for f in terms)
 
 
-def identify_cost_related_functions(problem: Problem) -> Set[str]:
-    """ Return a list of those function symbols that are *only* used in effects that relate to the special
-    "total-cost" function. """
-    functions = list(get_symbols(problem.language, type_='function', include_builtin=False))
+def identify_cost_related_functions(problem: Problem) -> set[str]:
+    """Return a list of those function symbols that are *only* used in effects that relate to the special
+    "total-cost" function."""
+    functions = list(get_symbols(problem.language, type_="function", include_builtin=False))
     related_to_non_cost_effects = set()
 
     collect_all_function_names(problem.goal, related_to_non_cost_effects)
@@ -418,8 +431,8 @@ def is_constant_cost_action(action):
 
 
 def compile_negated_preconditions_away(problem: Problem, inplace=False):
-    """ Compile away negated literals in the problem actions and goal.
-    See docs from `compile_away_formula_negated_literals` for details. """
+    """Compile away negated literals in the problem actions and goal.
+    See docs from `compile_away_formula_negated_literals` for details."""
     problem = copy.deepcopy(problem) if not inplace else problem
 
     # First compile the action preconditions away
@@ -448,7 +461,7 @@ def compile_negated_preconditions_away(problem: Problem, inplace=False):
 
 def update_action_effects_with_negated_counterparts(action: Action, negpreds):
     """ """
-    neweffects: List[SingleEffect] = []
+    neweffects: list[SingleEffect] = []
     for eff in action.effects:
         if not is_propositional_effect(eff):
             raise RepresentationError(f"Don't know how to update negated counterpart atoms for effect {eff}")
@@ -468,8 +481,8 @@ def update_action_effects_with_negated_counterparts(action: Action, negpreds):
 
 
 def compile_action_negated_preconditions_away(action: Action, negpreds, inplace=False):
-    """ Compile away negated literals in the action precondition and effect conditions.
-    See docs from `compile_away_formula_negated_literals` for details. """
+    """Compile away negated literals in the action precondition and effect conditions.
+    See docs from `compile_away_formula_negated_literals` for details."""
     action = copy.deepcopy(action) if not inplace else action
     action.precondition = compile_away_formula_negated_literals(action.precondition, negpreds, inplace=True)
     for eff in action.effects:
@@ -483,9 +496,9 @@ def compile_action_negated_preconditions_away(action: Action, negpreds, inplace=
 
 
 def compile_away_formula_negated_literals(phi, negpreds, inplace=False):
-    """ Compile away all negated literals in the given formula, which is assumed to be
+    """Compile away all negated literals in the given formula, which is assumed to be
     a conjunction of literals, by replacing them by new atoms that use a fresh predicate
-    "not_p" for every literal not p(x). """
+    "not_p" for every literal not p(x)."""
     phi = copy.deepcopy(phi) if not inplace else phi
     f = flatten(phi)
     if isinstance(f, Atom):
@@ -508,9 +521,9 @@ def compile_away_formula_negated_literals(phi, negpreds, inplace=False):
 
 
 def _compile_possibly_negated_literal(sub, negpreds):
-    """ A helper that processes a given literal; if the literal is of the form not p(x),
+    """A helper that processes a given literal; if the literal is of the form not p(x),
     it generates a replacement positive atom _not_p(x), and registers the new predicate
-    _not_p within the problem language. """
+    _not_p within the problem language."""
     if not is_neg(sub):
         return sub
 
@@ -527,7 +540,7 @@ def _compile_possibly_negated_literal(sub, negpreds):
 
 
 def compute_complementary_atoms(model, predicate):
-    """ Generate all bindings for the given predicate which are not true in the given model. """
+    """Generate all bindings for the given predicate which are not true in the given model."""
     extension = model.get_extension(predicate)
     for binding in compute_signature_bindings(predicate.sort):
         refd = tuple(symref(x) for x in binding)
@@ -536,7 +549,7 @@ def compute_complementary_atoms(model, predicate):
 
 
 def has_state_variable_shape(expression):
-    """ Return whether the given atom or compound term can be considered a state variable for planning purposes, i.e.
+    """Return whether the given atom or compound term can be considered a state variable for planning purposes, i.e.
     all their subterms are constants. Whether the expression is actually used as a state variable or not will also
     depend on whether the head is static or fluent, or on other types analyses, but we don't deal with that here."""
     if not isinstance(expression, (CompoundTerm, Atom)):
@@ -545,7 +558,7 @@ def has_state_variable_shape(expression):
 
 
 def substitute_expression(expression, substitution, inplace=False):
-    """ Apply the given syntactic substitution to the given FSTRIPS action effect, formula or term.
+    """Apply the given syntactic substitution to the given FSTRIPS action effect, formula or term.
     :param expression: An FSTRIPS effect, formula or term.
     :param substitution: A dictionary from TermReferences to other expressions.
     :param inplace: If true, the given element is modified in place; otherwise a different object is returned.
@@ -581,7 +594,7 @@ def substitute_expression(expression, substitution, inplace=False):
 
 
 def expand_universal_effect(effect):
-    """ Expands the given effect, if universal, in place. """
+    """Expands the given effect, if universal, in place."""
     if not isinstance(effect, UniversalEffect):
         return [effect]
 
@@ -594,7 +607,7 @@ def expand_universal_effect(effect):
 
 
 def compile_universal_effects_away(problem, inplace=False):
-    """ Elimination of first-order universal effects. """
+    """Elimination of first-order universal effects."""
     processed = copy.deepcopy(problem) if not inplace else problem
 
     for _, action in processed.actions.items():

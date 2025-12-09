@@ -8,7 +8,7 @@ Development notes for the ANTLR Python target can be found
 [here](https://github.com/antlr/antlr4/blob/master/doc/python-target.md).
 
 ## Generating the parsers
-If you modify the grammar or for some other reason want to regenerate the parsers, 
+If you modify the grammar or for some other reason want to regenerate the parsers,
 you need to download the core ANTLR Java packages (a JAR file) into your local machine,
 as explained in [ANTLR4 website](http://www.antlr.org/).
 Once that is done, you should be able to run the `build.py` script in `utils/parsers`,
@@ -22,7 +22,5 @@ If the grammar doesn't do exactly what you expect, in `${TARSKI_ROOT}/utils/pars
 a useful debugging script. To illustrate, running
 
     ./antlr4-tester.sh fstrips.g4 $DOWNWARD_BENCHMARKS/tidybot-sat11-strips/domain.pddl domain
-    
-will print on screen the stream of tokens and then attempt at parsing it.         
 
-
+will print on screen the stream of tokens and then attempt at parsing it.

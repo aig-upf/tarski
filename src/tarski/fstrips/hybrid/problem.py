@@ -1,15 +1,14 @@
-
 from collections import OrderedDict
 
-from ..problem import Problem
-from .reaction import Reaction
-from .differential_constraints import DifferentialConstraint
-from . import errors as err
 from .. import fstrips as fs
+from ..problem import Problem
+from . import errors as err
+from .differential_constraints import DifferentialConstraint
+from .reaction import Reaction
 
 
 class HybridProblem(Problem):
-    """ A Functional STRIPS Hybrid problem """
+    """A Functional STRIPS Hybrid problem"""
 
     def __init__(self):
         super().__init__()
@@ -33,8 +32,9 @@ class HybridProblem(Problem):
     def differential_constraint(self, name, parameters, condition, variate, ode):
         if name in self.reactions:
             raise err.DuplicateDifferentialConstraintDefinition(name, self.reactions[name])
-        self.differential_constraints[name] = DifferentialConstraint(self.language, name, parameters, condition,
-                                                                     variate, ode)
+        self.differential_constraints[name] = DifferentialConstraint(
+            self.language, name, parameters, condition, variate, ode
+        )
         return self.differential_constraints[name]
 
     def has_differential_constraint(self, name):
@@ -58,12 +58,12 @@ class HybridProblem(Problem):
                 for yk in eff.lhs[:, 0]:
                     ev.visit(yk)
             else:
-                raise RuntimeError("Effect type '{}' cannot be analysed".format(type(eff)))
+                raise RuntimeError(f"Effect type '{type(eff)}' cannot be analysed")
         for _, dc in self.differential_constraints.items():
             pv.visit(dc.condition)
             pv.visit(dc.variate)
 
     def __str__(self):
-        return 'FSTRIPS Hybrid Problem "{}", domain "{}"'.format(self.name, self.domain_name)
+        return f'FSTRIPS Hybrid Problem "{self.name}", domain "{self.domain_name}"'
 
     __repr__ = __str__

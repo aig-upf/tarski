@@ -10,23 +10,25 @@
 # need to be made by Tarski's users.
 # ----------------------------------------------------------------------------------------------------------------------
 
-import os
 from argparse import ArgumentParser, Namespace
 
-from tarski.io.pddl.parser import PDDLparser, UnsupportedFeature
-from tarski.syntax.visitors import CollectEqualityAtoms
+from tarski.io.pddl.parser import PDDLparser
+
 
 def process_command_line():
     parser = ArgumentParser(description="Example illustrating acquisition of instance data from PDDL")
-    parser.add_argument("--domain", dest='domain_file', type=str, default='data/pddl/derived_predicates/min_cut/domain.pddl')
-    parser.add_argument("--problem", dest='problem_file', type=str, default='data/pddl/derived_predicates/min_cut/p00.pddl')
-    parser.add_argument("--verbose", dest='verbose', action='store_true')
+    parser.add_argument(
+        "--domain", dest="domain_file", type=str, default="data/pddl/derived_predicates/min_cut/domain.pddl"
+    )
+    parser.add_argument(
+        "--problem", dest="problem_file", type=str, default="data/pddl/derived_predicates/min_cut/p00.pddl"
+    )
+    parser.add_argument("--verbose", dest="verbose", action="store_true")
     opt = parser.parse_args()
     return opt
 
 
 def main(opt: Namespace):
-
     # By default the example processes the instance due to Ivankovid and Haslum in the directory
     # `examples/data/pddl/derived_predicates/min_cut`. Feel free to experiment with other PDDL specifications
     # specifying the domain and problem files via the command line.
@@ -81,8 +83,6 @@ def main(opt: Namespace):
     # TBC
 
 
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     opt = process_command_line()
     main(opt)

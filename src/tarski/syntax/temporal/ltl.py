@@ -1,7 +1,7 @@
-
 from enum import Enum
+
 from ... import errors as err
-from ..formulas import Formula, Connective, CompoundFormula, lor
+from ..formulas import CompoundFormula, Connective, Formula, lor
 
 
 class TemporalConnective(Enum):
@@ -12,29 +12,34 @@ class TemporalConnective(Enum):
 
 
 class TemporalCompoundFormula(CompoundFormula):
-
     def __init(self, conn, sub):
         super().__init__(conn, sub)
 
     def _check_well_formed(self):
         if any(not isinstance(f, Formula) for f in self.subformulas):
-            raise err.LanguageError("Wrong argument types for compound formula: '{}' ".format(self.subformulas))
+            raise err.LanguageError(f"Wrong argument types for compound formula: '{self.subformulas}' ")
 
-        if self.connective == Connective.Not or \
-                self.connective in (TemporalConnective.X, TemporalConnective.F, TemporalConnective.G):
+        if self.connective == Connective.Not or self.connective in (
+            TemporalConnective.X,
+            TemporalConnective.F,
+            TemporalConnective.G,
+        ):
             if len(self.subformulas) != 1:
-                raise err.LanguageError("{} admits only one subformula".format(str(self.connective)))
+                raise err.LanguageError(f"{str(self.connective)} admits only one subformula")
         elif len(self.subformulas) < 2:
-            raise err.LanguageError("{} requires at least two subformulas".format(str(self.connective)))
+            raise err.LanguageError(f"{str(self.connective)} requires at least two subformulas")
 
     def __str__(self):
-        if self.connective == Connective.Not or \
-                self.connective in (TemporalConnective.X, TemporalConnective.F, TemporalConnective.G):
+        if self.connective == Connective.Not or self.connective in (
+            TemporalConnective.X,
+            TemporalConnective.F,
+            TemporalConnective.G,
+        ):
             assert len(self.subformulas) == 1
-            return "{} ({})".format(self.connective, str(self.subformulas[0]))
+            return f"{self.connective} ({str(self.subformulas[0])})"
 
-        inner = " {} ".format(self.connective).join(str(f) for f in self.subformulas)
-        return "({})".format(inner)
+        inner = f" {self.connective} ".join(str(f) for f in self.subformulas)
+        return f"({inner})"
 
 
 def X(arg):

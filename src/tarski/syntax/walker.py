@@ -1,4 +1,4 @@
-""" A Walker (Visitor) for syntax expressions. """
+"""A Walker (Visitor) for syntax expressions."""
 
 import copy
 from enum import Enum
@@ -8,7 +8,7 @@ from ..errors import TarskiError
 
 class WalkerError(TarskiError):
     def __init__(self, msg=None):
-        msg = msg or 'Unspecified error while executing SyntaxWalker'
+        msg = msg or "Unspecified error while executing SyntaxWalker"
         super().__init__(msg)
 
 
@@ -19,25 +19,26 @@ class NoHandlerError(WalkerError):
 
 class WalkerAction(Enum):
     """ """
+
     Supress = "supress"
 
     def __str__(self):
-        # pylint: disable-msg=E0307  # pylint gives false positive here, since self.value is already a string
         return self.value
 
 
 class FOLWalker:
-    """ This is an experimental implementation of a visitor pattern based on single-dispatch.
+    """This is an experimental implementation of a visitor pattern based on single-dispatch.
     At the moment we're using the "multipledispatch" package to implement single-argument dispatching.
     It's far from perfect; it requires that the subclass declares the following "default" method:
 
     >>> @dispatch(object)
-    >>> def visit(self, node):  # pylint: disable-msg=E0102
+    >>> def visit(self, node):
     >>>    return self.default_handler(node)
 
     Whenever we move to support Python 3.8+, we could directly use:
         https://docs.python.org/3/library/functools.html#functools.singledispatchmethod
     """
+
     def __init__(self, raise_on_undefined=False):
         self.default_handler = self._raise if raise_on_undefined else self._donothing
         self.context = None
@@ -57,9 +58,10 @@ class FOLWalker:
         return self.visit_expression(expression, inplace=True)
 
     def visit_expression(self, node, inplace=True):
-        # pylint: disable=import-outside-toplevel  # Avoiding circular references
-        from .formulas import CompoundFormula, QuantifiedFormula, Atom, Tautology, Contradiction
-        from .terms import Constant, Variable, CompoundTerm, IfThenElse    # pylint: disable=import-outside-toplevel
+        # Avoiding circular references
+        from .formulas import Atom, CompoundFormula, Contradiction, QuantifiedFormula, Tautology
+        from .terms import CompoundTerm, Constant, IfThenElse, Variable
+
         node = node if inplace else copy.deepcopy(node)
 
         if isinstance(node, (Variable, Constant, Contradiction, Tautology)):

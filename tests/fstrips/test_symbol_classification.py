@@ -1,9 +1,7 @@
-import pytest
 from tarski.grounding.ops import approximate_symbol_fluency
 from tarski.syntax.util import get_symbols
 
-from ..io.common import reader, collect_strips_benchmarks, collect_fstrips_benchmarks
-
+from ..io.common import collect_fstrips_benchmarks, collect_strips_benchmarks, reader
 
 SAMPLE_STRIPS_INSTANCES = [
     "settlers-sat18-adl:p01.pddl",
@@ -16,11 +14,11 @@ SAMPLE_STRIPS_INSTANCES = [
     "parking-sat11-strips:pfile08-031.pddl",  # action costs
     "transport-opt08-strips:p01.pddl",  # action costs
     "spider-sat18-strips:p01.pddl",
-    "nurikabe-sat18-adl:p01.pddl"
+    "nurikabe-sat18-adl:p01.pddl",
 ]
 
 SAMPLE_FSTRIPS_INSTANCES = [
-   "counters-fn:instance_4.pddl",  # functions, ints
+    "counters-fn:instance_4.pddl",  # functions, ints
 ]
 
 
@@ -31,9 +29,10 @@ def pytest_generate_tests(metafunc):
     if metafunc.function != test_symbol_classification:
         return
 
-    argnames = ['instance_file', 'domain_file']
-    argvalues = collect_strips_benchmarks(SAMPLE_STRIPS_INSTANCES) + \
-        collect_fstrips_benchmarks(SAMPLE_FSTRIPS_INSTANCES)
+    argnames = ["instance_file", "domain_file"]
+    argvalues = collect_strips_benchmarks(SAMPLE_STRIPS_INSTANCES) + collect_fstrips_benchmarks(
+        SAMPLE_FSTRIPS_INSTANCES
+    )
     metafunc.parametrize(argnames, argvalues)
 
 

@@ -1,9 +1,9 @@
 from ..errors import TarskiError
-from ..syntax import Predicate, Function, Constant, termlists_are_equal, termlist_hash
+from ..syntax import Constant, Function, Predicate, termlist_hash, termlists_are_equal
 
 
 class StateVariableLite:
-    """ A state variable is a ground CompoundTerm or Atom which can possibly change its value along the execution of a
+    """A state variable is a ground CompoundTerm or Atom which can possibly change its value along the execution of a
     plan. The set of all state variables of a problem makes up all information necessary to represent a state.
     State variables are different to static atoms, whose truth value can be proven to remain the same.
     This proof can be based on simple techniques such as looking at the effects of actions, or on more sophisticated
@@ -27,7 +27,7 @@ class StateVariableLite:
         return self.symbol == other.symbol and termlists_are_equal(self.binding, other.binding)
 
     def __str__(self):
-        return '{}({})'.format(self.symbol.symbol, ','.join(map(str, self.binding)))
+        return "{}({})".format(self.symbol.symbol, ",".join(map(str, self.binding)))
 
     __repr__ = __str__
 

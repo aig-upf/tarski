@@ -1,18 +1,31 @@
 import operator
-from typing import List
 
-from .. import funcsym
 from .. import errors as err
-from ..syntax import ops, Connective, Atom, Formula, CompoundFormula, QuantifiedFormula, builtins, Variable, \
-    Constant, CompoundTerm, Tautology, Contradiction, IfThenElse, AggregateCompoundTerm, Term
-from ..syntax.algebra import Matrix
+from .. import funcsym
 from ..model import Model
+from ..syntax import (
+    AggregateCompoundTerm,
+    Atom,
+    CompoundFormula,
+    CompoundTerm,
+    Connective,
+    Constant,
+    Contradiction,
+    Formula,
+    IfThenElse,
+    QuantifiedFormula,
+    Tautology,
+    Variable,
+    builtins,
+    ops,
+)
+from ..syntax.algebra import Matrix
 
 
 # TODO We will need to extend this so that the interpretation depends on a certain, given sigma of values to
 # TODO the free variables in the given term / sentence, as is standard in textbook-FOL
 def evaluate(element, m: Model, sigma=None):
-    """ Evaluate the denotation of a given formula or term over a given model """
+    """Evaluate the denotation of a given formula or term over a given model"""
     sigma = sigma if sigma is not None else {}
 
     # Formulas
@@ -44,7 +57,7 @@ def evaluate(element, m: Model, sigma=None):
 _compound_evaluators = {
     Connective.Not: lambda f, m, s: not evaluate(f.subformulas[0], m, s),
     Connective.And: lambda f, m, s: all(evaluate(sub, m, s) for sub in f.subformulas),
-    Connective.Or: lambda f, m, s: any(evaluate(sub, m, s) for sub in f.subformulas)
+    Connective.Or: lambda f, m, s: any(evaluate(sub, m, s) for sub in f.subformulas),
 }
 
 
@@ -58,16 +71,12 @@ def evaluate_atom(atom: Atom, m: Model, sigma):
 
 
 def evaluate_quantified(formula: Formula, m: Model, sigma):
-    # pylint: disable=unused-argument
     raise NotImplementedError()
 
 
 def evaluate_term(term, m: Model, sigma):
     if isinstance(term, IfThenElse):
-        if evaluate(term.condition, m, sigma):  # condition is true
-            term = term.subterms[0]
-        else:
-            term = term.subterms[1]
+        term = term.subterms[0] if evaluate(term.condition, m, sigma) else term.subterms[1]
 
     if isinstance(term, Matrix):
         N, M = term.shape
@@ -125,11 +134,13 @@ def symbolic_matrix_multiplication(lhs: Matrix, rhs: Matrix):
     C, D = rhs.shape
 
     if B != C:
-        raise TypeError('matrices {}x{} and {}x{} cannot be multiplied together'.format(A, B, C, D))
+        raise TypeError(f"matrices {A}x{B} and {C}x{D} cannot be multiplied together")
 
-    zip_b = list(zip(*rhs.matrix))
-    return [[sum(ele_a * ele_b for ele_a, ele_b in zip(row_a, col_b))
-             for col_b in zip_b] for row_a in lhs.matrix]
+    zip_b = list(zip(*rhs.matrix, strict=False))
+    return [
+        [sum(ele_a * ele_b for ele_a, ele_b in zip(row_a, col_b, strict=False)) for col_b in zip_b]
+        for row_a in lhs.matrix
+    ]
 
 
 def evaluate_builtin_function(term, model, sigma):

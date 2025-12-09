@@ -1,37 +1,38 @@
 """
-    Generate parcprinter language elements
+Generate parcprinter language elements
 """
+
 import tarski as tsk
 import tarski.model
-from tarski.theories import Theory
 from tarski import fstrips as fs
-from tarski.syntax import top, land
 from tarski.evaluators.simple import evaluate
+from tarski.syntax import land, top
+from tarski.theories import Theory
 
 
 def create_small_language():
     upp = tsk.fstrips.language("upp", theories=[Theory.EQUALITY, Theory.ARITHMETIC])
 
-    upp.sheet_t = upp.sort('sheet_t')
-    upp.resource_t = upp.sort('resource_t')
-    upp.location_t = upp.sort('location_t')
-    upp.size_t = upp.sort('size_t')
+    upp.sheet_t = upp.sort("sheet_t")
+    upp.resource_t = upp.sort("resource_t")
+    upp.location_t = upp.sort("location_t")
+    upp.size_t = upp.sort("size_t")
 
-    upp.letter = upp.constant('Letter', upp.size_t)
-    upp.finisher2_rsrc = upp.constant('Finisher2-RSRC', upp.resource_t)
-    upp.some_finisher_tray = upp.constant('Some_Finisher_Tray', upp.location_t)
-    upp.some_feeder_tray = upp.constant('Some_Feeder_Tray', upp.location_t)
-    upp.finisher2_entry_finisher1_exit = upp.constant('Finisher2_Entry-Finisher1_Exit', upp.location_t)
-    upp.finisher2_tray = upp.constant('Finisher2_Tray', upp.location_t)
+    upp.letter = upp.constant("Letter", upp.size_t)
+    upp.finisher2_rsrc = upp.constant("Finisher2-RSRC", upp.resource_t)
+    upp.some_finisher_tray = upp.constant("Some_Finisher_Tray", upp.location_t)
+    upp.some_feeder_tray = upp.constant("Some_Feeder_Tray", upp.location_t)
+    upp.finisher2_entry_finisher1_exit = upp.constant("Finisher2_Entry-Finisher1_Exit", upp.location_t)
+    upp.finisher2_tray = upp.constant("Finisher2_Tray", upp.location_t)
 
-    upp.Available = upp.predicate('Available', upp.resource_t)
-    upp.Prevsheet = upp.predicate('Prevsheet', upp.sheet_t, upp.sheet_t)
-    upp.Location = upp.predicate('Location', upp.sheet_t, upp.location_t)
-    upp.Sheetsize = upp.predicate('Sheetsize', upp.sheet_t, upp.size_t)
-    upp.Stackedin = upp.predicate('Stackedin', upp.sheet_t, upp.location_t)
-    upp.Uninitialized = upp.predicate('Uninitialized')
+    upp.Available = upp.predicate("Available", upp.resource_t)
+    upp.Prevsheet = upp.predicate("Prevsheet", upp.sheet_t, upp.sheet_t)
+    upp.Location = upp.predicate("Location", upp.sheet_t, upp.location_t)
+    upp.Sheetsize = upp.predicate("Sheetsize", upp.sheet_t, upp.size_t)
+    upp.Stackedin = upp.predicate("Stackedin", upp.sheet_t, upp.location_t)
+    upp.Uninitialized = upp.predicate("Uninitialized")
 
-    upp.total_cost = upp.function('total-cost', upp.Real)
+    upp.total_cost = upp.function("total-cost", upp.Real)
 
     return upp
 
@@ -75,8 +76,8 @@ def create_small_language():
 
 def create_small_task():
     upp = create_small_language()
-    dummy_sheet = upp.constant('dummy-sheet', upp.sheet_t)
-    sheet1 = upp.constant('sheet1', upp.sheet_t)
+    dummy_sheet = upp.constant("dummy-sheet", upp.sheet_t)
+    sheet1 = upp.constant("sheet1", upp.sheet_t)
 
     M = tsk.model.create(upp)
     M.evaluator = evaluate
@@ -87,28 +88,31 @@ def create_small_task():
     M.add(upp.Location, sheet1, upp.some_feeder_tray)
     M.set(upp.total_cost(), 0)
 
-    sheet = upp.variable('sheet', upp.sheet_t)
-    prevsheet = upp.variable('prevsheet', upp.sheet_t)
+    sheet = upp.variable("sheet", upp.sheet_t)
+    prevsheet = upp.variable("prevsheet", upp.sheet_t)
 
-    precondition = land(upp.Available(upp.finisher2_rsrc),
-                        upp.Prevsheet(sheet, prevsheet),
-                        upp.Location(prevsheet, upp.some_finisher_tray),
-                        upp.Sheetsize(sheet, upp.letter),
-                        upp.Location(sheet, upp.finisher2_entry_finisher1_exit))
+    precondition = land(
+        upp.Available(upp.finisher2_rsrc),
+        upp.Prevsheet(sheet, prevsheet),
+        upp.Location(prevsheet, upp.some_finisher_tray),
+        upp.Sheetsize(sheet, upp.letter),
+        upp.Location(sheet, upp.finisher2_entry_finisher1_exit),
+    )
 
-    effects = [fs.DelEffect(upp.Available(upp.finisher2_rsrc)),
-               fs.DelEffect(upp.Location(sheet, upp.finisher2_entry_finisher1_exit)),
-               fs.AddEffect(upp.Location(sheet, upp.some_finisher_tray)),
-               fs.AddEffect(upp.Stackedin(sheet, upp.finisher2_tray)),
-               fs.AddEffect(upp.Available(upp.finisher2_rsrc)),
-               fs.IncreaseEffect(upp.total_cost(), 8000)
-               ]
+    effects = [
+        fs.DelEffect(upp.Available(upp.finisher2_rsrc)),
+        fs.DelEffect(upp.Location(sheet, upp.finisher2_entry_finisher1_exit)),
+        fs.AddEffect(upp.Location(sheet, upp.some_finisher_tray)),
+        fs.AddEffect(upp.Stackedin(sheet, upp.finisher2_tray)),
+        fs.AddEffect(upp.Available(upp.finisher2_rsrc)),
+        fs.IncreaseEffect(upp.total_cost(), 8000),
+    ]
 
     problem = fs.Problem()
     problem.name = "fun"
     problem.language = upp
     problem.init = M
     problem.goal = top
-    problem.action('Finisher2-Stack-Letter', [sheet, prevsheet], precondition, effects)
+    problem.action("Finisher2-Stack-Letter", [sheet, prevsheet], precondition, effects)
     problem.metric = fs.OptimizationMetric(upp.total_cost(), fs.OptimizationType.MINIMIZE)
     return problem
