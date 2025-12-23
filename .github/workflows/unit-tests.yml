@@ -6,8 +6,6 @@ on:
   pull_request:
     # See https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request
     types: [opened, reopened, synchronize]
-  push:
-    branches: [master]
 
 env:
   DOWNWARD_BENCHMARKS: "/tmp/downward-benchmarks"

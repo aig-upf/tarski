@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 ### Fixed
 
-## [0.9.0] 2025-12-XX
+## [0.9.0] 2025-12-23
 ### Changed
  - Update the set of supported Python versions (3.10-3.14)
  - Update a few GH action dependencies.
@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Update the package versions of dependencies used to generate the docs (also not supported by Python 3.13+)
  - Code quality: Replace pylint/black/flake8 with Ruff.
  - Add (optional) basic pre-commit configuration
+ - Refresh pypi-publishing GH action to use the new recommended Trusted publishing worfklow
 
 ## [0.8.2] 2022-04-07
 ### Fixed
