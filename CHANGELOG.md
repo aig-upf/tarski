@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 ### Fixed
 
+## [0.9.1] 2025-12-23
+### Fixed
+ - Minor fix to GH workflow publishing to pypi
+
 ## [0.9.0] 2025-12-23
 ### Changed
  - Update the set of supported Python versions (3.10-3.14)
