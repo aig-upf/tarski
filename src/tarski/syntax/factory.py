@@ -1,7 +1,7 @@
 from .. import errors as err
+from .builtins import BuiltinFunctionSymbol, BuiltinPredicateSymbol
 from .formulas import Atom
 from .terms import Term
-from .builtins import BuiltinPredicateSymbol, BuiltinFunctionSymbol
 
 
 def check_same_language(lhs, rhs):
@@ -39,4 +39,4 @@ def create_arithmetic_term(symbol: BuiltinFunctionSymbol, lhs, rhs):
 
 
 def get_overloaded_function_name(symbol, sort):
-    return f'{symbol}_{sort.name.lower()}'
+    return f"{symbol}_{sort.name.lower()}"

@@ -23,7 +23,7 @@
 
 	(:action up
 		:parameters ()
-		:precondition (and) 
+		:precondition (and)
 		:effect (and
 			(forall (?pos1 ?pos2 - position)
 				(when
@@ -43,7 +43,7 @@
 
 	(:action down
 		:parameters ()
-		:precondition (and) 
+		:precondition (and)
 		:effect (and
 			(forall (?pos1 ?pos2 - position)
 				(when
@@ -63,7 +63,7 @@
 
 	(:action left
 		:parameters ()
-		:precondition (and) 
+		:precondition (and)
 		:effect (and
 			(forall (?pos1 ?pos2 - position)
 				(when
@@ -83,7 +83,7 @@
 
 	(:action right
 		:parameters ()
-		:precondition (and) 
+		:precondition (and)
 		:effect (and
 			(forall (?pos1 ?pos2 - position)
 				(when

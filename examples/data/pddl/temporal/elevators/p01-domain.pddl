@@ -1,12 +1,12 @@
 (define (domain elevators-time-numeric)
   (:requirements :typing :durative-actions :numeric-fluents)
-  (:types 	elevator - object 
+  (:types 	elevator - object
 			slow-elevator fast-elevator - elevator
    			passenger - object
           	floor - object
          )
 
-(:predicates 
+(:predicates
 	(passenger-at ?person - passenger ?floor - floor)
 	(boarded ?person - passenger ?lift - elevator)
 	(lift-at ?lift - elevator ?floor - floor)
@@ -14,9 +14,9 @@
 	(above ?floor1 - floor ?floor2 - floor)
 )
 
-(:functions 
+(:functions
             (travel-slow ?f1 - floor ?f2 - floor) - number
-            (travel-fast ?f1 - floor ?f2 - floor) - number 
+            (travel-fast ?f1 - floor ?f2 - floor) - number
 			(passengers ?lift - elevator) - number
 			(capacity ?lift - elevator) - number
 )
@@ -51,10 +51,10 @@
   :condition (and  (over all (lift-at ?lift ?f)) (at start (passenger-at ?p ?f))  (at start (< (passengers ?lift) (capacity ?lift))) )
   :effect (and (at start (not (passenger-at ?p ?f))) (at end (boarded ?p ?lift)) (at start (increase (passengers ?lift) 1)) ))
 
-(:durative-action leave 
+(:durative-action leave
   :parameters (?p - passenger ?lift - elevator ?f - floor)
   :duration (= ?duration 1)
   :condition (and  (over all (lift-at ?lift ?f)) (at start (boarded ?p ?lift)) )
   :effect (and (at end (passenger-at ?p ?f)) (at start (not (boarded ?p ?lift))) (at end (decrease (passengers ?lift) 1)) ))
-  
+
 )

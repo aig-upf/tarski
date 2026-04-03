@@ -2,7 +2,7 @@ import os
 
 
 def find_domain_filename(task_filename):
-    """ Find domain filename for the given task using the standard automatic naming rules used in the IPCs.
+    """Find domain filename for the given task using the standard automatic naming rules used in the IPCs.
     Return None if no domain filename could be found according to those rules.
     The code here is taken quasi-verbatim from Fast Downward's preprocessor
     <http://hg.fast-downward.org/file/ea4f6e86af18/driver/util.py#l27>

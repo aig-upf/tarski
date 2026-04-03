@@ -8,15 +8,15 @@ import pytest
 import tarski.io.pddl.errors
 from tarski.io.pddl.lexer import PDDLlex
 from tarski.io.pddl import Features
-from tarski.io.pddl.parser import PDDLparser, UnsupportedFeature
+from tarski.io.pddl.lexer import PDDLlex
+from tarski.io.pddl.parser import PDDLparser
 from tarski.syntax.visitors import CollectEqualityAtoms
 
 
 @pytest.mark.pddl
 def test_pddl_lexer_airport_002_domain():
-
     pddl_data = None
-    with open('tests/data/pddl/temporal/ipc18/airport-temporal-strips/2/domain.pddl') as instream:
+    with open("tests/data/pddl/temporal/ipc18/airport-temporal-strips/2/domain.pddl") as instream:
         pddl_data = instream.read()
 
     lexer = PDDLlex()
@@ -33,9 +33,8 @@ def test_pddl_lexer_airport_002_domain():
 
 @pytest.mark.pddl
 def test_pddl_lexer_cushing_domain():
-
     pddl_data = None
-    with open('tests/data/pddl/temporal/ipc18/cushing/domain.pddl') as instream:
+    with open("tests/data/pddl/temporal/ipc18/cushing/domain.pddl") as instream:
         pddl_data = instream.read()
 
     lexer = PDDLlex()
@@ -52,10 +51,10 @@ def test_pddl_lexer_cushing_domain():
 
 @pytest.mark.pddl
 def test_basic_constructs():
-    pddl_data = """(define 
+    pddl_data = """(define
         (domain FOO)
         (:requirements :durative-actions :derived-predicates :typing)
-        (:types 
+        (:types
                 paz naz - caz
                 bar baz
         )
@@ -65,7 +64,7 @@ def test_basic_constructs():
             b1 b2 b3 b4 b5 b6 - paz
             c1 c2 c3 c4 c5 c6 - naz
         )
-        (:predicates 
+        (:predicates
             (p ?x - bar ?y - baz)
             (q ?x - bar ?y - baz)
             (r ?x - bar)
@@ -84,7 +83,7 @@ def test_basic_constructs():
         (:action dummy1
             :parameters (?x - bar)
             :precondition   (and
-                                    (not (r ?x)) 
+                                    (not (r ?x))
                             )
             :effect     (and
                             (r ?x)
@@ -96,7 +95,7 @@ def test_basic_constructs():
             :duration   (= ?duration 10)
             :condition  (and
                             (at start (q ?x ?y))
-                            (over all (r ?x)) 
+                            (over all (r ?x))
                         )
             :effect     (and
                             (at start (q ?x ?y))
@@ -140,8 +139,8 @@ def test_basic_constructs():
 
         parser.parse(pddl_data)
 
-        assert parser.domain_name == 'foo'
-        assert parser.problem_name == 'instance_001'
+        assert parser.domain_name == "foo"
+        assert parser.problem_name == "instance_001"
         assert Features.DURATIVE_ACTIONS in parser.required_features
         assert Features.TYPING in parser.required_features
 
@@ -152,7 +151,7 @@ def test_basic_constructs():
         print("Predicates", len(instance.predicates))
         print("Types", len(instance.types))
         print("Constants", len(instance.domains))
-        print("Actions: instantaneous: {} durative: {}".format(len(instance.actions), len(instance.durative)))
+        print(f"Actions: instantaneous: {len(instance.actions)} durative: {len(instance.durative)}")
         print("Derived predicates:", len(instance.derived))
         print("Initial State literals", len(instance.init))
 
@@ -162,7 +161,7 @@ def test_basic_constructs():
         print("Goal literals", len(goal_atoms))
 
         assert len(instance.types) == 6
-        assert 'object' in instance.types
+        assert "object" in instance.types
         assert len(instance.domains) == 4
         assert len(instance.functions) == 2
         assert len(instance.predicates) == 8
@@ -176,13 +175,12 @@ def test_basic_constructs():
 
 @pytest.mark.pddl
 def test_temporal_numeric():
-
     pddl_data = ""
 
-    with open('tests/data/pddl/temporal/ipc08/elevators/p01-domain.pddl') as instream:
+    with open("tests/data/pddl/temporal/ipc08/elevators/p01-domain.pddl") as instream:
         pddl_data = instream.read()
 
-    with open('tests/data/pddl/temporal/ipc08/elevators/p01.pddl') as instream:
+    with open("tests/data/pddl/temporal/ipc08/elevators/p01.pddl") as instream:
         pddl_data += instream.read()
 
     parser = PDDLparser(debug=True)
@@ -192,10 +190,10 @@ def test_temporal_numeric():
 
         parser.parse(pddl_data)
 
-        #assert parser.domain_name == 'foo'
-        #assert parser.problem_name == 'instance_001'
-        #assert Features.DURATIVE_ACTIONS in parser.required_features
-        #assert Features.TYPING in parser.required_features
+        # assert parser.domain_name == 'foo'
+        # assert parser.problem_name == 'instance_001'
+        # assert Features.DURATIVE_ACTIONS in parser.required_features
+        # assert Features.TYPING in parser.required_features
 
         instance = parser.instance
         assert instance is not None
@@ -204,7 +202,7 @@ def test_temporal_numeric():
         print("Predicates", len(instance.predicates))
         print("Types", len(instance.types))
         print("Constants", len(instance.domains))
-        print("Actions: instantaneous: {} durative: {}".format(len(instance.actions), len(instance.durative)))
+        print(f"Actions: instantaneous: {len(instance.actions)} durative: {len(instance.durative)}")
         print("Derived predicates:", len(instance.derived))
         print("Initial State literals", len(instance.init))
 

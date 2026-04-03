@@ -1,15 +1,14 @@
-
 from collections import OrderedDict
 
 from .. import model
+from . import errors as err
+from . import fstrips as fs
 from .action import Action
 from .derived import Derived
-from . import fstrips as fs
-from . import errors as err
 
 
 class Problem:
-    """ A Functional STRIPS problem """
+    """A Functional STRIPS problem"""
 
     def __init__(self, problem_name=None, domain_name=None):
         self.name = problem_name
@@ -58,13 +57,13 @@ class Problem:
 
     def get_symbols(self, pv, ev, cv):
         """
-            Applies visitors to syntactic elements matching the definitions for
-            preconditions, effects and constraints.
+        Applies visitors to syntactic elements matching the definitions for
+        preconditions, effects and constraints.
 
-            parameters:
-                - pv: FluentSymbolCollector tuned for preconditions
-                - ev: FluentSymbolCollector tuned for effects
-                - cv: FluentSymbolCollector tuned for constraints
+        parameters:
+            - pv: FluentSymbolCollector tuned for preconditions
+            - ev: FluentSymbolCollector tuned for effects
+            - cv: FluentSymbolCollector tuned for constraints
         """
         for _, act in self.actions.items():
             pv.visit(act.precondition)
@@ -94,18 +93,19 @@ class Problem:
 
     def __str__(self):
         return f'Problem(name="{self.name}", domain="{self.domain_name}")'
+
     __repr__ = __str__
 
 
 def create_fstrips_problem(language, problem_name=None, domain_name=None, evaluator=None):
-    """ Creates an FSTRIPS problem with empty initial state and with no assigned goal """
+    """Creates an FSTRIPS problem with empty initial state and with no assigned goal"""
     problem_name = problem_name or "Unnamed FSTRIPS problem"
     domain_name = domain_name or "Unnamed FSTRIPS domain"
     problem = Problem(problem_name=problem_name, domain_name=domain_name)
     problem.language = language
 
     if evaluator is None:
-        from tarski.evaluators.simple import evaluate as evaluator  # pylint: disable=import-outside-toplevel
+        from tarski.evaluators.simple import evaluate as evaluator
 
     problem.init = model.create(language, evaluator)
     return problem

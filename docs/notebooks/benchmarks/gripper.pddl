@@ -20,7 +20,7 @@
        :precondition  (and  (ball ?obj) (room ?room) (gripper ?gripper)
 			    (at ?obj ?room) (at-robby ?room) (free ?gripper))
        :effect (and (carry ?obj ?gripper)
-		    (not (at ?obj ?room)) 
+		    (not (at ?obj ?room))
 		    (not (free ?gripper))))
 
 
@@ -31,4 +31,3 @@
        :effect (and (at ?obj ?room)
 		    (free ?gripper)
 		    (not (carry ?obj ?gripper)))))
-

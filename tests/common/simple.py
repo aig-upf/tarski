@@ -1,7 +1,6 @@
-
 import tarski.model
 from tarski import fstrips as fs
-from tarski.syntax import land, neg
+from tarski.syntax import neg
 
 
 def create_simple_untyped_language():
@@ -25,7 +24,5 @@ def create_simple_problem():
     problem.goal = neg(p(a))
 
     x = lang.variable("x", lang.Object)
-    problem.action("negate", [x],
-                   precondition=p(a),
-                   effects=[fs.DelEffect(p(a))])
+    problem.action("negate", [x], precondition=p(a), effects=[fs.DelEffect(p(a))])
     return problem

@@ -1,4 +1,3 @@
-
 import itertools
 
 from ...fstrips import hybrid
@@ -8,7 +7,6 @@ from . import instantiation
 
 
 class DifferentialConstraintGrounder:
-
     def __init__(self, prob, index):
         self.problem = prob
         self.L = self.problem.language
@@ -18,10 +16,9 @@ class DifferentialConstraintGrounder:
         self.differential_constraints_generated = 0
 
     def __str__(self):
-        return 'Reactions generated: {}'.format(self.differential_constraints_generated)
+        return f"Reactions generated: {self.differential_constraints_generated}"
 
     def calculate_constraints(self):
-
         for ode_schema in self.schemas:
             k, syms, substs = instantiation.enumerate_groundings(ode_schema.parameters)
             for values in itertools.product(*substs):
@@ -31,5 +28,6 @@ class DifferentialConstraintGrounder:
                 g_ode = substitute_expression(ode_schema.ode, subst)
 
                 self.problem.ground_differential_constraints.add(
-                    hybrid.DifferentialConstraint(self.L, ode_schema.name, [], g_cond, g_variate, g_ode))
+                    hybrid.DifferentialConstraint(self.L, ode_schema.name, [], g_cond, g_variate, g_ode)
+                )
             self.differential_constraints_generated += k

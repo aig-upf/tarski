@@ -1,24 +1,23 @@
+from ... import theories
 from ...errors import TarskiError
 from ...fstrips import FunctionalEffect
 from ...fstrips.action import AdditiveActionCost, generate_zero_action_cost
 from ...fstrips.representation import is_typed_problem
-from ...syntax import Interval, CompoundTerm, Tautology, BuiltinFunctionSymbol
-from ... import theories
+from ...syntax import BuiltinFunctionSymbol, CompoundTerm, Interval, Tautology
 from ...syntax.util import get_symbols
 from ...theories import Theory
 
 
 def pddl_to_tarski_type(typename):
-    """ Translate a few PDDL types into their corresponding Tarski names
-        (e.g. the FSTRIPS type "int" corresponds to the Tarski type "Integer").
+    """Translate a few PDDL types into their corresponding Tarski names
+    (e.g. the FSTRIPS type "int" corresponds to the Tarski type "Integer").
     """
     translations = {"int": "Integer", "real": "Real", "number": "Real"}
     return translations.get(typename, typename)
 
 
 def tarski_to_pddl_type(typename):
-    """ Translate a few Tarski types into their corresponding FSTRIPS names
-    """
+    """Translate a few Tarski types into their corresponding FSTRIPS names"""
     translations = {"Integer": "int", "Natural": "int", "Real": "number"}
     return translations.get(typename.name, typename.name)
 
@@ -32,15 +31,15 @@ def parse_number(number, lang):
 
 
 def process_requirements(requirements, lang):
-    if ':action-costs' in requirements and not lang.has_sort('Integer'):
+    if ":action-costs" in requirements and not lang.has_sort("Integer"):
         theories.load_theory(lang, Theory.ARITHMETIC)
         create_number_type(lang)
-    elif ':numeric-fluents' in requirements and not lang.has_sort('Integer'):
+    elif ":numeric-fluents" in requirements and not lang.has_sort("Integer"):
         theories.load_theory(lang, Theory.ARITHMETIC)
 
 
 def get_requirements_string(problem):
-    """ Get a list with all PDDL requirement strings based on the given problem """
+    """Get a list with all PDDL requirement strings based on the given problem"""
     # TODO To be completed
     requirements = set()
     if is_typed_problem(problem):
@@ -52,20 +51,20 @@ def get_requirements_string(problem):
         requirements.add(":equality")
 
     # If problem has standard "total-cost" function, assume we have action costs and add appropriate requirement
-    if problem.language.has_function('total-cost'):
+    if problem.language.has_function("total-cost"):
         requirements.add(":action-costs")
 
     # Let's check now whether the problem has any predicate or function symbol *other than "total-cost"* which
     # has some arithmetic parameter or result. If so, we add the ":numeric-fluents" requirement.
-    for symbol in get_symbols(problem.language, type_='all', include_builtin=False):
-        if any(isinstance(s, Interval) for s in symbol.sort) and symbol.name != 'total-cost':
+    for symbol in get_symbols(problem.language, type_="all", include_builtin=False):
+        if any(isinstance(s, Interval) for s in symbol.sort) and symbol.name != "total-cost":
             requirements.add(":numeric-fluents")
 
     return requirements
 
 
 def create_number_type(lang):
-    """ Creates a sort corresponding to the PDDL "number" """
+    """Creates a sort corresponding to the PDDL "number" """
     parent = lang.get_sort("Real")
     lower = parent.lower_bound
     upper = parent.upper_bound
@@ -73,8 +72,8 @@ def create_number_type(lang):
 
 
 def create_sort(lang, typename, basename):
-    """ Create a Tarski sort from a PDDL type, performing a few checks and translations to ensure consistency """
-    if typename == 'object':
+    """Create a Tarski sort from a PDDL type, performing a few checks and translations to ensure consistency"""
+    if typename == "object":
         return
 
     typename = pddl_to_tarski_type(typename)
@@ -97,8 +96,8 @@ def create_sort(lang, typename, basename):
 
 
 def process_cost_effects(effects):
-    """ Filter a list of given effects into those that are cost-related and
-    those that are not. """
+    """Filter a list of given effects into those that are cost-related and
+    those that are not."""
     simple, cost_related = [], []
     for eff in effects:
         e = process_cost_effect(eff)
@@ -110,12 +109,12 @@ def process_cost_effects(effects):
 
 
 def process_cost_effect(eff):
-    """ Check if the given effect is a cost effect. If it is, return the additive cost; if it is not, return None. """
+    """Check if the given effect is a cost effect. If it is, return the additive cost; if it is not, return None."""
     if isinstance(eff, FunctionalEffect) and isinstance(eff.lhs, CompoundTerm) and eff.lhs.symbol.name == "total-cost":
         if not isinstance(eff.condition, Tautology):
-            raise TarskiError(f'Don\'t know how to process conditional cost effects such as {eff}')
+            raise TarskiError(f"Don't know how to process conditional cost effects such as {eff}")
         if not isinstance(eff.rhs, CompoundTerm) or eff.rhs.symbol.name != BuiltinFunctionSymbol.ADD:
-            raise TarskiError(f'Don\'t know how to process non-additive cost effects such as {eff}')
+            raise TarskiError(f"Don't know how to process non-additive cost effects such as {eff}")
         addend = eff.rhs.subterms[1]
         return AdditiveActionCost(addend)
 
@@ -135,9 +134,10 @@ def uniformize_costs(problem):
 
 
 class LowerCasingStreamWrapper:
-    """ A simple wrapper around a stream to lowercase all characters.
-     @see https://github.com/antlr/antlr4/blob/master/doc/case-insensitive-lexing.md
+    """A simple wrapper around a stream to lowercase all characters.
+    @see https://github.com/antlr/antlr4/blob/master/doc/case-insensitive-lexing.md
     """
+
     def __init__(self, stream):
         self._stream = stream
 

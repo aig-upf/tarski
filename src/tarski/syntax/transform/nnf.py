@@ -1,15 +1,25 @@
 """
-    Tranformation of formulas into Negation Normal Form (NNF)
+Tranformation of formulas into Negation Normal Form (NNF)
 """
+
 import copy
 
 from ... import errors as err
-from ..formulas import neg, Formula, QuantifiedFormula, CompoundFormula, Connective, negate_quantifier, Tautology, \
-    Contradiction, Atom
+from ..formulas import (
+    Atom,
+    CompoundFormula,
+    Connective,
+    Contradiction,
+    Formula,
+    QuantifiedFormula,
+    Tautology,
+    neg,
+    negate_quantifier,
+)
 
 
 class NNFTransformation:
-    """ Rewrite the input formula into an equivalent formula in NNF """
+    """Rewrite the input formula into an equivalent formula in NNF"""
 
     def __init__(self, phi, do_copy=True):
         self.blueprint = copy.deepcopy(phi) if do_copy else phi

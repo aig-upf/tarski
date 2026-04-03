@@ -6,10 +6,13 @@ from tarski.io.utils import find_domain_filename
 
 
 def reader(theories=None, strict_with_requirements=True, case_insensitive=False):
-    """ Return a reader configured to raise exceptions on syntax errors """
-    return FstripsReader(raise_on_error=True, theories=theories,
-                         strict_with_requirements=strict_with_requirements,
-                         case_insensitive=case_insensitive)
+    """Return a reader configured to raise exceptions on syntax errors"""
+    return FstripsReader(
+        raise_on_error=True,
+        theories=theories,
+        strict_with_requirements=strict_with_requirements,
+        case_insensitive=case_insensitive,
+    )
 
 
 def get_benchmark_dir_if_exists(envvar):
@@ -44,8 +47,12 @@ def add_domains_from(envvar, domains, benchmark_prefix=None):
 
 def skip_tests_because_of_benchmarks():
     import pytest
-    pytest.skip("Please install STRIPS/FSTRIPS benchmarks and set up environment variables ($DOWNWARD_BENCHMARKS, "
-                "$FSBENCHMARKS) appropriately to run the full suite of tests", allow_module_level=True)
+
+    pytest.skip(
+        "Please install STRIPS/FSTRIPS benchmarks and set up environment variables ($DOWNWARD_BENCHMARKS, "
+        "$FSBENCHMARKS) appropriately to run the full suite of tests",
+        allow_module_level=True,
+    )
 
 
 def collect_strips_benchmarks(instances):
@@ -61,15 +68,15 @@ def collect_fstrips_benchmarks(instances):
         skip_tests_because_of_benchmarks()
         return []
 
-    return add_domains_from("FSBENCHMARKS", instances, benchmark_prefix='benchmarks')
+    return add_domains_from("FSBENCHMARKS", instances, benchmark_prefix="benchmarks")
 
 
 def parse_benchmark_instance(instance_key, source="strips", reader_options=None):
-    """ Parse and generate a Tarski problem object from the standard DOWNWARD BENCHMARKS repository of IPC
+    """Parse and generate a Tarski problem object from the standard DOWNWARD BENCHMARKS repository of IPC
     PDDL instances (source="strips"), or from the standard FSBENCHMARKS Functional STRIPS instances (source="fstrips").
     The instance key represents domain name and instance name, colon separated, e.g. "gripper:prob01.pddl".
     """
     reader_options = {} if reader_options is None else reader_options
-    collector = collect_fstrips_benchmarks if source == 'fstrips' else collect_strips_benchmarks
+    collector = collect_fstrips_benchmarks if source == "fstrips" else collect_strips_benchmarks
     instance_file, domain_file = collector([instance_key])[0]
     return reader(**reader_options).read_problem(domain_file, instance_file)

@@ -1,4 +1,3 @@
-
 from ...syntax.terms import Constant, Variable
 from ..errors import UnableToGroundError
 

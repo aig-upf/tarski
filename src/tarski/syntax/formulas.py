@@ -1,16 +1,16 @@
 from collections import OrderedDict
 from enum import Enum
-from typing import List
 
 from .. import errors as err
 from .builtins import BuiltinPredicateSymbol
-from .terms import Variable, Term
-from .util import termlists_are_equal, termlist_hash
 from .predicate import Predicate
+from .terms import Term, Variable
+from .util import termlist_hash, termlists_are_equal
 
 
 class Connective(Enum):
-    """" A logical connective """
+    """ " A logical connective"""
+
     And, Or, Not = range(3)
 
     def __str__(self):
@@ -18,7 +18,8 @@ class Connective(Enum):
 
 
 class Quantifier(Enum):
-    """" A logical quantifier """
+    """ " A logical quantifier"""
+
     Exists, Forall = range(2)
     to_string = ["exists", "forall"]
 
@@ -31,7 +32,7 @@ def negate_quantifier(q: Quantifier):
 
 
 class Formula:
-    """ A first-order logical formula. """
+    """A first-order logical formula."""
 
     def __str__(self):
         raise NotImplementedError()  # To be subclassed
@@ -59,7 +60,7 @@ class Formula:
         return self.__hash__()
 
     def is_syntactically_equal(self, other):
-        """ Return true if this formula and other are strictly syntactically equivalent.
+        """Return true if this formula and other are strictly syntactically equivalent.
         This is equivalent to self == other, but is provided for reasons of uniformity with the Term class.
         """
         return self.__eq__(other)
@@ -92,7 +93,7 @@ class Contradiction(Formula):
 
 
 class CompoundFormula(Formula):
-    """ A set of formulas combined through some logical connective """
+    """A set of formulas combined through some logical connective"""
 
     def __init__(self, connective, subformulas):
         super().__init__()
@@ -102,7 +103,7 @@ class CompoundFormula(Formula):
 
     def _check_well_formed(self):
         if any(not isinstance(f, Formula) for f in self.subformulas):
-            raise err.LanguageError("Wrong argument types for compound formula: '{}' ".format(self.subformulas))
+            raise err.LanguageError(f"Wrong argument types for compound formula: '{self.subformulas}' ")
 
         if self.connective == Connective.Not:
             if len(self.subformulas) != 1:
@@ -113,17 +114,19 @@ class CompoundFormula(Formula):
     def __str__(self):
         if self.connective == Connective.Not:
             assert len(self.subformulas) == 1
-            return "({} {})".format(self.connective, str(self.subformulas[0]))
+            return f"({self.connective} {str(self.subformulas[0])})"
 
-        inner = " {} ".format(self.connective).join(str(f) for f in self.subformulas)
-        return "({})".format(inner)
+        inner = f" {self.connective} ".join(str(f) for f in self.subformulas)
+        return f"({inner})"
 
     __repr__ = __str__
 
     def __eq__(self, other):
-        return (self.__class__ is other.__class__
-                and self.connective == other.connective
-                and self.subformulas == other.subformulas)
+        return (
+            self.__class__ is other.__class__
+            and self.connective == other.connective
+            and self.subformulas == other.subformulas
+        )
 
     def __hash__(self):
         element_hashes = [self.__class__, self.connective]
@@ -136,7 +139,7 @@ class CompoundFormula(Formula):
 
 
 class QuantifiedFormula(Formula):
-    def __init__(self, quantifier: Quantifier, variables: List[Variable], formula: Formula):
+    def __init__(self, quantifier: Quantifier, variables: list[Variable], formula: Formula):
         self.quantifier = quantifier
         self.variables = variables
         self.formula = formula
@@ -147,16 +150,18 @@ class QuantifiedFormula(Formula):
             raise err.LanguageError("Quantified formula with no variable")
 
     def __str__(self):
-        vars_ = ', '.join(str(x) for x in self.variables)
-        return '{} {} : ({})'.format(self.quantifier, vars_, self.formula)
+        vars_ = ", ".join(str(x) for x in self.variables)
+        return f"{self.quantifier} {vars_} : ({self.formula})"
 
     __repr__ = __str__
 
     def __eq__(self, other):
-        return (self.__class__ is other.__class__
-                and self.quantifier == other.quantifier
-                and termlists_are_equal(self.variables, other.variables)
-                and self.formula == other.formula)
+        return (
+            self.__class__ is other.__class__
+            and self.quantifier == other.quantifier
+            and termlists_are_equal(self.variables, other.variables)
+            and self.formula == other.formula
+        )
 
     def __hash__(self):
         return hash((self.__class__, self.quantifier, termlist_hash(self.variables), self.formula))
@@ -183,18 +188,18 @@ def _create_compound(args, connective, flat):
 
 
 def land(*args, flat=False):
-    """ Create an and-formula with the given subformulas. If binary is true, the and-formula will be shaped as a binary
-     tree (e.g. (...((p1 and p2) and p3) and ...))), otherwise it will have a flat structure. This is an implementation
-     detail, but might be relevant performance-wise when dealing with large structures """
+    """Create an and-formula with the given subformulas. If binary is true, the and-formula will be shaped as a binary
+    tree (e.g. (...((p1 and p2) and p3) and ...))), otherwise it will have a flat structure. This is an implementation
+    detail, but might be relevant performance-wise when dealing with large structures"""
     if not args:
         return top
     return _create_compound(args, Connective.And, flat)
 
 
 def lor(*args, flat=False):
-    """ Create an or-formula with the given subformulas. If binary is true, the or-formula will be shaped as a binary
+    """Create an or-formula with the given subformulas. If binary is true, the or-formula will be shaped as a binary
     tree (e.g. (...((p1 or p2) or p3) or ...))), otherwise it will have a flat structure. This is an implementation
-    detail, but might be relevant performance-wise when dealing with large structures """
+    detail, but might be relevant performance-wise when dealing with large structures"""
     if not args:
         return bot
     return _create_compound(args, Connective.Or, flat)
@@ -205,17 +210,17 @@ def neg(phi):
 
 
 def implies(phi, psi):
-    """ Create the implication phi -> psi """
+    """Create the implication phi -> psi"""
     return lor(neg(phi), psi)
 
 
 def equiv(phi, psi):
-    """ Create the bi-implication phi <-> psi """
-    return land(implies(phi, psi), implies(psi, phi))  # pylint: disable=arguments-out-of-order
+    """Create the bi-implication phi <-> psi"""
+    return land(implies(phi, psi), implies(psi, phi))
 
 
 def forall(*args):
-    """ Create a universally-quantified formula. The argument list needs to be of the form (v1, v2, ..., vn, f),
+    """Create a universally-quantified formula. The argument list needs to be of the form (v1, v2, ..., vn, f),
     where v_i are the variables and f is the quantified formula. To represent the formula "forall x, y x < y",
     we would use:
     >>> forall(x, y, x<y)
@@ -224,7 +229,7 @@ def forall(*args):
 
 
 def exists(*args):
-    """ Create an existentially-quantified formula. The argument list needs to be of the form (v1, v2, ..., vn, f),
+    """Create an existentially-quantified formula. The argument list needs to be of the form (v1, v2, ..., vn, f),
     where v_i are the variables and f is the quantified formula. To represent the formula "exists x, y such that x < y",
     we would use:
     >>> exists(x, y, x<y)
@@ -233,52 +238,52 @@ def exists(*args):
 
 
 def quantified(quantifier, *args):
-    """ Create a quantified formula.
+    """Create a quantified formula.
 
-        'args' is expected to be of the form [v1, ..., vn, f], where v_i are the variables
-        and f is the quantified formula.
+    'args' is expected to be of the form [v1, ..., vn, f], where v_i are the variables
+    and f is the quantified formula.
     """
     if len(args) < 2:
-        raise err.LanguageError('Quantified formula needs at least two arguments')
+        raise err.LanguageError("Quantified formula needs at least two arguments")
 
     variables, formula = args[:-1], args[-1]
 
     if not isinstance(formula, Formula):
-        raise err.LanguageError('Illformed arguments for quantified formula: {}'.format(args))
+        raise err.LanguageError(f"Illformed arguments for quantified formula: {args}")
 
     if not all(isinstance(x, Variable) for x in variables):
-        raise err.LanguageError('Illformed arguments for quantified formula: {}'.format(args))
+        raise err.LanguageError(f"Illformed arguments for quantified formula: {args}")
 
     return QuantifiedFormula(quantifier, variables, args[-1])
 
 
 def is_and(phi: Formula):
-    """ Return whether the given formula is a conjunction """
+    """Return whether the given formula is a conjunction"""
     return isinstance(phi, CompoundFormula) and phi.connective == Connective.And
 
 
 def is_or(phi: Formula):
-    """ Return whether the given formula is a disjunction """
+    """Return whether the given formula is a disjunction"""
     return isinstance(phi, CompoundFormula) and phi.connective == Connective.Or
 
 
 def is_neg(phi: Formula):
-    """ Return whether the given formula is a negation """
+    """Return whether the given formula is a negation"""
     return isinstance(phi, CompoundFormula) and phi.connective == Connective.Not
 
 
 def is_atom(phi: Formula):
-    """ Return whether the given formula is an atom """
+    """Return whether the given formula is an atom"""
     return isinstance(phi, Atom)
 
 
 def is_eq_atom(phi: Formula):
-    """ Return whether the given formula is an equality """
+    """Return whether the given formula is an equality"""
     return isinstance(phi, Atom) and phi.predicate.symbol == BuiltinPredicateSymbol.EQ
 
 
 def is_ne_atom(phi: Formula):
-    """ Return whether the given formula is an inequality """
+    """Return whether the given formula is an inequality"""
     return isinstance(phi, Atom) and phi.predicate.symbol == BuiltinPredicateSymbol.NE
 
 
@@ -292,7 +297,7 @@ def unwrap_conjunction_or_atom(phi):
 
 
 class Atom(Formula):
-    """ A first-order atom. """
+    """A first-order atom."""
 
     def __init__(self, predicate, arguments):
         super().__init__()
@@ -308,7 +313,7 @@ class Atom(Formula):
         head = self.predicate
 
         if not isinstance(head, Predicate):
-            raise err.LanguageError("Incorrect atom head: '{}' ".format(head))
+            raise err.LanguageError(f"Incorrect atom head: '{head}' ")
 
         # Check arities match
         if len(self.subterms) != self.predicate.arity:
@@ -317,9 +322,9 @@ class Atom(Formula):
         language = head.language
 
         # Check arguments are all terms of the appropriate type and matching language
-        for arg, expected_sort in zip(self.subterms, head.sort):
+        for arg, expected_sort in zip(self.subterms, head.sort, strict=False):
             if not isinstance(arg, Term):
-                raise err.LanguageError("Wrong argument for atomic formula: '{}' ".format(arg))
+                raise err.LanguageError(f"Wrong argument for atomic formula: '{arg}' ")
 
             if arg.language != language:
                 raise err.LanguageMismatch(arg, arg.language, language)
@@ -328,21 +333,23 @@ class Atom(Formula):
                 raise err.SortMismatch(arg, arg.sort, expected_sort)
 
     def __str__(self):
-        return '{}({})'.format(self.predicate.symbol, ','.join(str(t) for t in self.subterms))
+        return "{}({})".format(self.predicate.symbol, ",".join(str(t) for t in self.subterms))
 
     __repr__ = __str__
 
     def __eq__(self, other):
-        return (self.__class__ is other.__class__
-                and self.predicate == other.predicate
-                and termlists_are_equal(self.subterms, other.subterms))
+        return (
+            self.__class__ is other.__class__
+            and self.predicate == other.predicate
+            and termlists_are_equal(self.subterms, other.subterms)
+        )
 
     def __hash__(self):
         return hash((self.__class__, self.predicate, termlist_hash(self.subterms)))
 
 
 class VariableBinding:
-    """ A VariableBinding contains a set of logical variables which are _bound_ in some formula or term """
+    """A VariableBinding contains a set of logical variables which are _bound_ in some formula or term"""
 
     def __init__(self, variables=None):
         variables = variables or []
@@ -378,7 +385,7 @@ class VariableBinding:
         return idx
 
     def merge(self, binding):
-        """ Merge the given binding into the current binding, inplace """
+        """Merge the given binding into the current binding, inplace"""
         raise NotImplementedError()
 
     @staticmethod

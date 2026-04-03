@@ -1,23 +1,23 @@
-
 from tarski.fstrips import create_fstrips_problem, language
-from tarski.theories import Theory
 from tarski.syntax import Tautology, land
+from tarski.theories import Theory
 
 
 def generate_small_gridworld():
     lang = language(theories=[Theory.EQUALITY, Theory.ARITHMETIC])
-    problem = create_fstrips_problem(domain_name='grid-circles',
-                                     problem_name='10x10',
-                                     language=lang)
+    problem = create_fstrips_problem(domain_name="grid-circles", problem_name="10x10", language=lang)
 
-    coord_t = lang.interval('coordinate', lang.Integer, 1, 10)
-    xpos = lang.function('X', coord_t)
-    ypos = lang.function('Y', coord_t)
+    coord_t = lang.interval("coordinate", lang.Integer, 1, 10)
+    xpos = lang.function("X", coord_t)
+    ypos = lang.function("Y", coord_t)
 
-    problem.action(name='move-up', parameters=[],
-                   precondition=Tautology(),
-                   # effects=[fs.FunctionalEffect(ypos(), ypos() + 1)])
-                   effects=[ypos() << ypos() + 1])
+    problem.action(
+        name="move-up",
+        parameters=[],
+        precondition=Tautology(),
+        # effects=[fs.FunctionalEffect(ypos(), ypos() + 1)])
+        effects=[ypos() << ypos() + 1],
+    )
 
     problem.init.set(xpos(), 1)
     problem.init.set(ypos(), 10)

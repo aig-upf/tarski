@@ -1,7 +1,6 @@
-"""
+""" """
 
-"""
-from ..syntax import Predicate, Function, Sort
+from ..syntax import Function, Predicate, Sort
 from ..utils.algorithms import transitive_closure
 from ..utils.hashing import consistent_hash
 from .errors import ArityDLMismatch
@@ -21,11 +20,15 @@ class NullaryAtom:
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
-                and self.name == other.name)
+        return (
+            hasattr(other, "hash")
+            and self.hash == other.hash
+            and self.__class__ is other.__class__
+            and self.name == other.name
+        )
 
     def __repr__(self):
-        return "{}".format(self.name)
+        return f"{self.name}"
 
     __str__ = __repr__
 
@@ -35,7 +38,7 @@ class NullaryAtom:
 
 class GoalNullaryAtom(NullaryAtom):
     def __repr__(self):
-        return "{}_g".format(self.name)
+        return f"{self.name}_g"
 
     __str__ = __repr__
 
@@ -73,7 +76,7 @@ class Role:
 class UniversalConcept(Concept):
     def __init__(self, universal_sort):
         Concept.__init__(self, universal_sort, 0)
-        self.hash = consistent_hash((self.__class__, ))
+        self.hash = consistent_hash((self.__class__,))
 
     def __hash__(self):
         return self.hash
@@ -85,7 +88,7 @@ class UniversalConcept(Concept):
         return model.compressed(model.primitive_denotation(self), self.ARITY)
 
     def __repr__(self):
-        return '<universe>'
+        return "<universe>"
 
     __str__ = __repr__
 
@@ -96,7 +99,7 @@ class UniversalConcept(Concept):
 class EmptyConcept(Concept):
     def __init__(self, universal_sort):
         Concept.__init__(self, universal_sort, 0)
-        self.hash = consistent_hash((self.__class__, ))
+        self.hash = consistent_hash((self.__class__,))
 
     def __hash__(self):
         return self.hash
@@ -108,7 +111,7 @@ class EmptyConcept(Concept):
         return model.compressed(model.primitive_denotation(self), self.ARITY)
 
     def __repr__(self):
-        return '<empty>'
+        return "<empty>"
 
     __str__ = __repr__
 
@@ -126,14 +129,18 @@ class NominalConcept(Concept):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
-                and self.name == other.name)
+        return (
+            hasattr(other, "hash")
+            and self.hash == other.hash
+            and self.__class__ is other.__class__
+            and self.name == other.name
+        )
 
     def denotation(self, model):
         return model.compressed(model.primitive_denotation(self), self.ARITY)
 
     def __repr__(self):
-        return "Nominal({})".format(self.name)
+        return f"Nominal({self.name})"
 
     __str__ = __repr__
 
@@ -159,14 +166,18 @@ class PrimitiveConcept(Concept):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
-                and self.name == other.name)
+        return (
+            hasattr(other, "hash")
+            and self.hash == other.hash
+            and self.__class__ is other.__class__
+            and self.name == other.name
+        )
 
     def denotation(self, model):
         return model.compressed(model.primitive_denotation(self), self.ARITY)
 
     def __repr__(self):
-        return "{}".format(self.name)
+        return f"{self.name}"
 
     __str__ = __repr__
 
@@ -176,7 +187,7 @@ class PrimitiveConcept(Concept):
 
 class GoalConcept(PrimitiveConcept):
     def __repr__(self):
-        return "{}_g".format(self.name)
+        return f"{self.name}_g"
 
     __str__ = __repr__
 
@@ -192,14 +203,18 @@ class NotConcept(Concept):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
-                and self.c == other.c)
+        return (
+            hasattr(other, "hash")
+            and self.hash == other.hash
+            and self.__class__ is other.__class__
+            and self.c == other.c
+        )
 
     def denotation(self, model):
         return ~model.compressed_denotation(self.c)
 
     def __repr__(self):
-        return 'Not({})'.format(self.c)
+        return f"Not({self.c})"
 
     __str__ = __repr__
 
@@ -220,9 +235,13 @@ class AndConcept(Concept):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
-                and self.c1 == other.c1
-                and self.c2 == other.c2)
+        return (
+            hasattr(other, "hash")
+            and self.hash == other.hash
+            and self.__class__ is other.__class__
+            and self.c1 == other.c1
+            and self.c2 == other.c2
+        )
 
     def denotation(self, model):
         ext_c1 = model.compressed_denotation(self.c1)
@@ -230,7 +249,7 @@ class AndConcept(Concept):
         return ext_c1 & ext_c2
 
     def __repr__(self):
-        return 'And({},{})'.format(self.c1, self.c2)
+        return f"And({self.c1},{self.c2})"
 
     __str__ = __repr__
 
@@ -251,9 +270,13 @@ class OrConcept(Concept):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
-                and self.c1 == other.c1
-                and self.c2 == other.c2)
+        return (
+            hasattr(other, "hash")
+            and self.hash == other.hash
+            and self.__class__ is other.__class__
+            and self.c1 == other.c1
+            and self.c2 == other.c2
+        )
 
     def denotation(self, model):
         ext_c1 = model.compressed_denotation(self.c1)
@@ -261,7 +284,7 @@ class OrConcept(Concept):
         return ext_c1 | ext_c2
 
     def __repr__(self):
-        return 'Or({},{})'.format(self.c1, self.c2)
+        return f"Or({self.c1},{self.c2})"
 
     __str__ = __repr__
 
@@ -283,9 +306,13 @@ class ExistsConcept(Concept):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
-                and self.c == other.c
-                and self.r == other.r)
+        return (
+            hasattr(other, "hash")
+            and self.hash == other.hash
+            and self.__class__ is other.__class__
+            and self.c == other.c
+            and self.r == other.r
+        )
 
     def denotation(self, model):
         ext_c = model.uncompressed_denotation(self.c)
@@ -295,7 +322,7 @@ class ExistsConcept(Concept):
         return model.compressed(result, self.ARITY)
 
     def __repr__(self):
-        return 'Exists({},{})'.format(self.r, self.c)
+        return f"Exists({self.r},{self.c})"
 
     __str__ = __repr__
 
@@ -317,8 +344,13 @@ class ForallConcept(Concept):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
-                and self.c == other.c and self.r == other.r)
+        return (
+            hasattr(other, "hash")
+            and self.hash == other.hash
+            and self.__class__ is other.__class__
+            and self.c == other.c
+            and self.r == other.r
+        )
 
     def denotation(self, model):
         universe = model.universe()
@@ -332,7 +364,7 @@ class ForallConcept(Concept):
         return model.compressed(result, self.ARITY)
 
     def __repr__(self):
-        return 'Forall({},{})'.format(self.r, self.c)
+        return f"Forall({self.r},{self.c})"
 
     __str__ = __repr__
 
@@ -353,9 +385,13 @@ class EqualConcept(Concept):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
-                and self.r1 == other.r1
-                and self.r2 == other.r2)
+        return (
+            hasattr(other, "hash")
+            and self.hash == other.hash
+            and self.__class__ is other.__class__
+            and self.r1 == other.r1
+            and self.r2 == other.r2
+        )
 
     def denotation(self, model):
         universe = model.universe()
@@ -370,7 +406,7 @@ class EqualConcept(Concept):
         return model.compressed(result, self.ARITY)
 
     def __repr__(self):
-        return 'Equal({},{})'.format(self.r1, self.r2)
+        return f"Equal({self.r1},{self.r2})"
 
     __str__ = __repr__
 
@@ -393,16 +429,18 @@ class PrimitiveRole(Role):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash')
-                and self.hash == other.hash
-                and self.__class__ is other.__class__
-                and self.name == other.name)
+        return (
+            hasattr(other, "hash")
+            and self.hash == other.hash
+            and self.__class__ is other.__class__
+            and self.name == other.name
+        )
 
     def denotation(self, model):
         return model.compressed(model.primitive_denotation(self), self.ARITY)
 
     def __repr__(self):
-        return '{}'.format(self.name)
+        return f"{self.name}"
 
     __str__ = __repr__
 
@@ -412,7 +450,7 @@ class PrimitiveRole(Role):
 
 class GoalRole(PrimitiveRole):
     def __repr__(self):
-        return "{}_g".format(self.name)
+        return f"{self.name}_g"
 
     __str__ = __repr__
 
@@ -429,8 +467,12 @@ class InverseRole(Role):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
-                and self.r == other.r)
+        return (
+            hasattr(other, "hash")
+            and self.hash == other.hash
+            and self.__class__ is other.__class__
+            and self.r == other.r
+        )
 
     def denotation(self, model):
         ext_r = model.uncompressed_denotation(self.r)
@@ -438,7 +480,7 @@ class InverseRole(Role):
         return model.compressed(result, self.ARITY)
 
     def __repr__(self):
-        return 'Inverse({})'.format(self.r)
+        return f"Inverse({self.r})"
 
     __str__ = __repr__
 
@@ -457,8 +499,12 @@ class StarRole(Role):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
-                and self.r == other.r)
+        return (
+            hasattr(other, "hash")
+            and self.hash == other.hash
+            and self.__class__ is other.__class__
+            and self.r == other.r
+        )
 
     def denotation(self, model):
         ext_r = model.uncompressed_denotation(self.r)
@@ -466,7 +512,7 @@ class StarRole(Role):
         return model.compressed(result, self.ARITY)
 
     def __repr__(self):
-        return 'Star({})'.format(self.r)
+        return f"Star({self.r})"
 
     __str__ = __repr__
 
@@ -487,9 +533,13 @@ class CompositionRole(Role):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
-                and self.r1 == other.r1
-                and self.r2 == other.r2)
+        return (
+            hasattr(other, "hash")
+            and self.hash == other.hash
+            and self.__class__ is other.__class__
+            and self.r1 == other.r1
+            and self.r2 == other.r2
+        )
 
     def denotation(self, model):
         ext_r1 = model.uncompressed_denotation(self.r1)
@@ -505,7 +555,7 @@ class CompositionRole(Role):
         return model.compressed(result, self.ARITY)
 
     def __repr__(self):
-        return 'Composition({},{})'.format(self.r1, self.r2)
+        return f"Composition({self.r1},{self.r2})"
 
     __str__ = __repr__
 
@@ -526,9 +576,13 @@ class RestrictRole(Role):
         return self.hash
 
     def __eq__(self, other):
-        return (hasattr(other, 'hash') and self.hash == other.hash and self.__class__ is other.__class__
-                and self.c == other.c
-                and self.r == other.r)
+        return (
+            hasattr(other, "hash")
+            and self.hash == other.hash
+            and self.__class__ is other.__class__
+            and self.c == other.c
+            and self.r == other.r
+        )
 
     def denotation(self, model):
         ext_c = model.uncompressed_denotation(self.c)
@@ -537,7 +591,7 @@ class RestrictRole(Role):
         return model.compressed(result, self.ARITY)
 
     def __repr__(self):
-        return 'Restrict({},{})'.format(self.r, self.c)
+        return f"Restrict({self.r},{self.c})"
 
     __str__ = __repr__
 
@@ -547,4 +601,4 @@ class RestrictRole(Role):
 
 def _check_arity(term, expected_arity, predfun):
     if expected_arity != predfun.uniform_arity():
-        raise ArityDLMismatch('Cannot create {} from predicate "{}"'.format(term, predfun))
+        raise ArityDLMismatch(f'Cannot create {term} from predicate "{predfun}"')

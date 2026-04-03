@@ -1,11 +1,12 @@
 """
- Structural CSP decomposition methods
+Structural CSP decomposition methods
 """
+
 import itertools
 from collections import defaultdict
 
 from ..errors import TarskiError
-from ..syntax import CompoundFormula, Atom, Connective, Variable, Constant
+from ..syntax import Atom, CompoundFormula, Connective, Constant, Variable
 
 
 class WrongFormalismError(TarskiError):
@@ -13,23 +14,23 @@ class WrongFormalismError(TarskiError):
 
 
 def compute_schema_constraint_hypergraph(action):
-    """ Compute the constraint hypergraph corresponding to the precondition of the given action schema.
+    """Compute the constraint hypergraph corresponding to the precondition of the given action schema.
     This is the hypergraph with one node v for each action parameter, and one hyperedge {v1, ..., vn} for each atom
-    p(v1, ..., vn) in the conjunctive precondition of the action schema """
+    p(v1, ..., vn) in the conjunctive precondition of the action schema"""
     hyperedges = set()
     _collect_hyperedges(action.precondition, hyperedges)
     return hyperedges
 
 
 def compute_schema_primal_graph(action):
-    """ Compute the primal graph corresponding to the precondition of the given action schema.
+    """Compute the primal graph corresponding to the precondition of the given action schema.
     This is the graph with one node v for each action parameter, and one edge {v1, v2} for every pair of variables
-    v1, v2 that appear together in some atom p(..., v1, ..., v2, ...) in the conjunctive precondition of the schema. """
+    v1, v2 that appear together in some atom p(..., v1, ..., v2, ...) in the conjunctive precondition of the schema."""
     return compute_primal_graph_from_hypergraph(compute_schema_constraint_hypergraph(action))
 
 
 def compute_primal_graph_from_hypergraph(hypergraph):
-    """ Compute the primal graph corresponding to the given hypergraph. """
+    """Compute the primal graph corresponding to the given hypergraph."""
     edges = set()
     for hyperedge in hypergraph:
         edges.update(itertools.combinations(hyperedge, 2))
@@ -37,7 +38,7 @@ def compute_primal_graph_from_hypergraph(hypergraph):
 
 
 def _remove_ear_if_exists(edges, node_counts):
-    """ Find and remove from the given set of edges a so-called "ear" and return True.
+    """Find and remove from the given set of edges a so-called "ear" and return True.
     If no such ear exists, return False.
 
     From Abiteboul, S., Hull, R. and Vianu, V (1995). Foundations of Databases:
@@ -48,6 +49,7 @@ def _remove_ear_if_exists(edges, node_counts):
     Note that this implementation is possibly not the most efficient, but it should work fine for the kind of small
     hypergraphs we're interested in.
     """
+
     def remove_edge(edge):
         for node in edge:
             node_counts[node] -= 1
@@ -73,8 +75,8 @@ def _remove_ear_if_exists(edges, node_counts):
 
 
 def check_hypergraph_acyclicity(hypergraph):
-    """ Check whether the given hypergraph is acyclic by applying the GYO reduction as described in
-        Abiteboul, S., Hull, R. and Vianu, V (1995). Foundations of Databases, pp.131-132.
+    """Check whether the given hypergraph is acyclic by applying the GYO reduction as described in
+    Abiteboul, S., Hull, R. and Vianu, V (1995). Foundations of Databases, pp.131-132.
     """
     nodes = set(itertools.chain.from_iterable(hypergraph))
     edges = set(frozenset(x) for x in hypergraph)  # simply convert the tuple into frozensets

@@ -5,9 +5,10 @@ from .model import GroundForwardSearchModel
 
 
 class BreadthFirstSearch:
-    """ Full expansion of a problem through Breadth-First search.
+    """Full expansion of a problem through Breadth-First search.
     Note that ATM we return no plan.
     """
+
     def __init__(self, model: GroundForwardSearchModel, max_expansions=-1):
         self.model = model
         self.max_expansions = max_expansions
@@ -56,11 +57,13 @@ class SearchNode:
 
 
 class SearchSpace:
-    """ A representation of a search space / transition system corresponding to some planning problem """
+    """A representation of a search space / transition system corresponding to some planning problem"""
+
     def __init__(self):
         self.nodes = set()
         self.last_node_id = 0
         self.complete = False  # Whether the state space contains all states reachable from the initial state
+
     #
     # def expand(self, node: SearchNode):
     #     self.nodes.add(node)
@@ -74,10 +77,10 @@ class SearchStats:
 
 
 def make_root_node(state):
-    """ Construct the initial root node without parent nor action """
+    """Construct the initial root node without parent nor action"""
     return SearchNode(state, None, None)
 
 
 def make_child_node(parent_node, action, state):
-    """ Construct an child search node """
+    """Construct an child search node"""
     return SearchNode(state, parent_node, action)

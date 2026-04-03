@@ -15,16 +15,16 @@ You can install the latest Tarski release with:
 
     pip install tarski
 
-If instead you want to use the latest code available on the Github repository, 
+If instead you want to use the latest code available on the Github repository,
 you can install with:
-    
+
     pip install -U git+https://github.com/aig-upf/tarski.git
 
 
 ## Installing Tarski in Development Mode
 If developing Tarski, we recommend cloning from the Github repository and doing
 a development installation (the`-e` flag for `pip`):
-    
+
     git clone https://github.com/aig-upf/tarski
     cd tarski
     pip install -e .
@@ -37,8 +37,8 @@ Tarski allows the _optional_ installation of certain extras that will allow you
 to run certain non-essential functionalities of the library. For instance,
 the `tarski.rddl` experimental package allows you to interact with the
 [PyRDDL package](https://github.com/thiagopbueno/pyrddl) for parsing of RDDL
-probabilistic planning problems. To use this optional package, you'd need to 
-`pip install` with the `pyrddl` "extra", as in: 
+probabilistic planning problems. To use this optional package, you'd need to
+`pip install` with the `pyrddl` "extra", as in:
 
     pip install tarski[rddl]
 
